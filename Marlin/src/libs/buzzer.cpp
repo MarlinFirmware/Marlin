@@ -63,7 +63,7 @@ void Buzzer::tick() {
   if (buffer.isEmpty()) return;
 
   state.tone = buffer.dequeue();
-  state.endtime = millis() + state.tone.duration;
+  state.endtime = next_millis(millis() + state.tone.duration);
 
   if (state.tone.frequency > 0) {
     #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)

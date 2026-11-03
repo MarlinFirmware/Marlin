@@ -34,6 +34,7 @@
 
 glyph_t *TFT_String::glyphs[256];
 unifont_t *TFT_String::font_header;
+int8_t TFT_String::ascent, TFT_String::descent;
 #if EXTRA_GLYPHS
   uint8_t *TFT_String::glyphs_extra[EXTRA_GLYPHS];
   unifont_t *TFT_String::font_header_extra;
@@ -46,6 +47,8 @@ uint8_t TFT_String::length;
 
 void TFT_String::set_font(const uint8_t *font) {
   font_header = (unifont_t *)font;
+  ascent = font_header->fontAscent;
+  descent = font_header->fontDescent;
   uint16_t glyph;
 
   for (glyph = 0; glyph < 256; glyph++) glyphs[glyph] = nullptr;
@@ -75,11 +78,17 @@ void TFT_String::add_glyphs(const uint8_t *font) {
   fontEndEncoding = ((unifont_t *)font)->fontEndEncoding;
   pointer = (uint8_t *)font + sizeof(unifont_t);
 
+  // Grow the line extents to fit tall glyphs, e.g., Vietnamese stacked diacritics
+  NOLESS(ascent, ((unifont_t *)font)->fontAscent);
+  NOMORE(descent, ((unifont_t *)font)->fontDescent);
+
+  const uint8_t bpp = ((unifont_t *)font)->format & 0x0F; // Bits per pixel
+
   if (fontEndEncoding < 0x0100) { // base and symbol fonts
     for (unicode = fontStartEncoding; unicode <= fontEndEncoding; unicode++) {
       if (*pointer != NO_GLYPH) {
         glyphs[unicode] = (glyph_t *)pointer;
-        pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
+        pointer += sizeof(glyph_t) + glyph_data_size((glyph_t *)pointer, bpp);
       }
       else
         pointer++;
@@ -97,7 +106,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
             }
             if (*pointer != NO_GLYPH) {
               glyphs_extra[unicode - fontStartEncoding] = pointer;
-              pointer += sizeof(glyph_t) + ((glyph_t *)pointer)->dataSize;
+              pointer += sizeof(glyph_t) + glyph_data_size((glyph_t *)pointer, bpp);
             }
             else
               pointer++;
@@ -111,7 +120,7 @@ void TFT_String::add_glyphs(const uint8_t *font) {
           }
           glyphs_extra[i] = pointer;
           unicode = *(uint16_t *) pointer;
-          pointer += sizeof(uniglyph_t) + ((uniglyph_t *)pointer)->glyph.dataSize;
+          pointer += sizeof(uniglyph_t) + glyph_data_size(&((uniglyph_t *)pointer)->glyph, bpp);
           extra_count = i + 1;
           if (unicode == fontEndEncoding)
             break;

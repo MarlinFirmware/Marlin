@@ -50,7 +50,7 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "../../module/motion.h"
-  #include "../../feature/pause.h"
+  #include "../../feature/pause.h" // for types
 #endif
 
 namespace ExtUI {

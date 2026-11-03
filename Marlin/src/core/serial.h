@@ -50,11 +50,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find out what the first serial leaf is
-#if HAS_MULTI_SERIAL && defined(SERIAL_CATCHALL)
-  #define _SERIAL_LEAF_1 MYSERIAL
-#else
-  #define _SERIAL_LEAF_1 MYSERIAL1
-#endif
+#define _SERIAL_LEAF_1 MYSERIAL1
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
@@ -71,10 +67,7 @@ extern uint8_t marlin_debug_flags;
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n)    RESTORE(n)
   #define SERIAL_ASSERT(P)    if (multiSerial.portMask!=(P)) { debugger(); }
-  // If we have a catchall, use that directly
-  #ifdef SERIAL_CATCHALL
-    #define _SERIAL_LEAF_2 SERIAL_CATCHALL
-  #elif HAS_ETHERNET
+  #if HAS_ETHERNET
     typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;  // We need to create an instance here
     extern SerialLeafT2 msSerial2;
     #define _SERIAL_LEAF_2 msSerial2
@@ -143,6 +136,7 @@ template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
 void SERIAL_ECHO(serial_char_t x);
+void SERIAL_ECHOLN(serial_char_t x);
 #define AS_DIGIT(n) C('0' + (n))
 
 // Print an integer with a numeric base such as PrintBase::Hex

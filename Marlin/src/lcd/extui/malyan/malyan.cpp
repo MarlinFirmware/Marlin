@@ -65,7 +65,7 @@
 // This is based on longest sys command + a filename, plus some buffer
 // in case we encounter some data we don't recognize
 // There is no evidence a line will ever be this long, but better safe than sorry
-#define MAX_CURLY_COMMAND (32 + LONG_FILENAME_LENGTH) * 2
+#define MAX_CURLY_COMMAND (32 + LONG_FILENAME_BYTES) * 2
 
 // Track incoming command bytes from the LCD
 uint16_t inbound_count;

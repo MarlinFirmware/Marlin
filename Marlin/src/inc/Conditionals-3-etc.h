@@ -70,9 +70,6 @@
 #if DISABLED(SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_TEMP
 #endif
-#if !ALL(HAS_FAN, SINGLENOZZLE)
-  #undef SINGLENOZZLE_STANDBY_FAN
-#endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
 #if HAS_SWITCHING_NOZZLE || HAS_PRUSA_MMU1 || E_STEPPERS < 2
@@ -437,11 +434,6 @@
   #undef NOZZLE_TO_PROBE_OFFSET
 #endif
 
-#if NONE(BABYSTEPPING, HAS_BED_PROBE, HAS_WORKSPACE_OFFSET)
-  #undef PROBE_OFFSET_ZMIN
-  #undef PROBE_OFFSET_ZMAX
-#endif
-
 #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
   #ifndef PROBING_NOZZLE_TEMP
     #define PROBING_NOZZLE_TEMP 0
@@ -647,14 +639,14 @@
 #endif
 
 #if ANY(SCARA, AXEL_TPARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ANY(DELTA, POLARGRAPH, POLAR)
-  #define IS_KINEMATIC 1
+  #define IS_SCARA 1              // Linear Motion derives from SCARA kinematics
+#endif
+#if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR)
+  #define IS_KINEMATIC 1          // Linear Motion derives from kinematic conversion and segmentation
 #else
-  #define IS_CARTESIAN 1
+  #define IS_CARTESIAN 1          // Linear Motion requires no segmentation
   #if !IS_CORE
-    #define IS_FULL_CARTESIAN 1
+    #define IS_FULL_CARTESIAN 1   // Linear Motion is simple steps-per-mm from top to bottom
   #endif
 #endif
 

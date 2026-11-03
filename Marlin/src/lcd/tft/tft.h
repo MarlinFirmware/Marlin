@@ -85,6 +85,8 @@ class TFT {
     static void set_background(uint16_t color) { queue.set_background(color); }
     static void add_text(uint16_t x, uint16_t y, uint16_t color, TFT_String tft_string, uint16_t maxWidth=0) { queue.add_text(x, y, color, tft_string.string(), maxWidth); }
     static void add_text(uint16_t x, uint16_t y, uint16_t color, const char *string, uint16_t maxWidth=0) { queue.add_text(x, y, color, string, maxWidth); }
+    // Text in the tiny digits font. Only drawn when HAS_TFT_TINY_FONT.
+    static void add_tiny_text(uint16_t x, uint16_t y, uint16_t color, const char *string) { queue.add_text(x, y, color, (const uint8_t *)string, 0, CANVAS_ADD_TINY_TEXT); }
     static void add_image(int16_t x, int16_t y, MarlinImage image, uint16_t *colors) { queue.add_image(x, y, image, colors); }
     static void add_image(int16_t x, int16_t y, MarlinImage image, uint16_t color_main = COLOR_WHITE, uint16_t color_background = COLOR_BACKGROUND, uint16_t color_shadow = COLOR_BLACK) { queue.add_image(x, y, image, color_main, color_background, color_shadow); }
     static void add_bar(uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t color) { queue.add_bar(x, y, width, height, color); }

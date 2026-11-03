@@ -67,11 +67,16 @@ typedef struct __attribute__((__packed__)) {
 typedef struct __attribute__((__packed__)) {
   uint8_t bbxWidth;
   uint8_t bbxHeight;
-  uint8_t dataSize;
+  uint8_t dataSize;     // Low byte of the bitmap size. Not used; may overflow on large glyphs. See glyph_data_size().
    int8_t dWidth;
    int8_t bbxOffsetX;
    int8_t bbxOffsetY;
 } glyph_t;
+
+// Glyph bitmap size in bytes. Rows are padded to whole bytes, as drawn by Canvas::addImage.
+inline uint16_t glyph_data_size(const glyph_t * const g, const uint8_t bpp) {
+  return uint16_t((g->bbxWidth * bpp + 7) >> 3) * g->bbxHeight;
+}
 
 // unicode-prepended TFT glyphs
 typedef struct __attribute__((__packed__)) {
@@ -91,6 +96,8 @@ class TFT_String {
       static uint16_t extra_count;
     #endif
 
+    static int8_t ascent, descent;  // Line extents covering all loaded fonts
+
     static uint16_t data[MAX_STRING_LENGTH + 1];
     static uint16_t span;   // in pixels
 
@@ -104,8 +111,8 @@ class TFT_String {
     static void add_glyphs(const uint8_t *font);
 
     static uint8_t  font_type() { return font_header->format; };
-    static uint16_t font_ascent() { return font_header->fontAscent; }
-    static uint16_t font_height() { return font_header->fontAscent - font_header->fontDescent; }
+    static uint16_t font_ascent() { return ascent; }
+    static uint16_t font_height() { return ascent - descent; }
 
     static glyph_t *glyph(uint16_t character);
     static glyph_t *glyph(uint16_t *character) { return glyph(*character); }
@@ -186,7 +193,7 @@ class TFT_String {
     static uint16_t center(const uint16_t width) { return span > width ? 0 : (width - span) / 2; }
     static uint16_t vcenter(const uint16_t height) {
       const uint16_t mid = (height + font_header->capitalAHeight + 1) / 2;
-      return mid > font_header->fontAscent ? mid - font_header->fontAscent : 0;
+      return mid > ascent ? mid - ascent : 0;
     }
 };
 

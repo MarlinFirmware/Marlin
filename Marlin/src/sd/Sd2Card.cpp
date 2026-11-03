@@ -127,7 +127,7 @@ uint8_t DiskIODriver_SPI_SD::cardCommand(const uint8_t cmd, const uint32_t arg) 
   chipSelect();
 
   #if SD_WRITE_TIMEOUT
-    waitNotBusy(SD_WRITE_TIMEOUT);  // Wait up to 600 ms (by default) if busy
+    waitNotBusy(initResult ? SD_WRITE_TIMEOUT : 0);  // Wait up to 600 ms (by default) if busy. Don't wait during init.
   #endif
 
   uint8_t *pa = (uint8_t *)(&arg);
@@ -275,27 +275,32 @@ bool DiskIODriver_SPI_SD::eraseSingleBlockEnable() {
  * The reason for failure can be determined by calling errorCode() and errorData().
  */
 bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPin) {
+  initStart(sckRateID, chipSelectPin);
+  int8_t result;
+  while (!(result = initStep())) hal.watchdog_refresh(); // In case init takes too long
+  return result > 0;
+}
+
+/**
+ * Start initializing an SD card. Call initStep() to complete it.
+ *
+ * \param[in] sckRateID SPI clock rate selector. See setSckRate().
+ * \param[in] chipSelectPin SD chip select pin number.
+ */
+void DiskIODriver_SPI_SD::initStart(const uint8_t sckRateID, const pin_t chipSelectPin) {
   #if IS_TEENSY_35_36 || IS_TEENSY_40_41
     chipSelectPin_ = BUILTIN_SDCARD;
     const uint8_t ret = SDHC_CardInit();
     type_ = SDHC_CardGetType();
-    return (ret == 0);
+    initResult = ret == 0 ? 1 : -1;
+    return;
   #endif
 
   errorCode_ = type_ = 0;
+  initResult = 0;
   chipSelectPin_ = chipSelectPin;
-
-  // 16-bit init start time allows over a minute
-  #if SD_INIT_TIMEOUT
-    const millis_t init_timeout = millis() + SD_INIT_TIMEOUT;
-    #define INIT_TIMEOUT() ELAPSED(millis(), init_timeout)
-  #else
-    #define INIT_TIMEOUT() false
-  #endif
-
-  uint32_t arg;
-
-  hal.watchdog_refresh(); // In case init takes too long
+  initSckRateID_ = sckRateID;
+  initTimeout_ = millis() + SD_INIT_TIMEOUT;
 
   // Set pin modes
   #if ENABLED(ZONESTAR_12864OLED)
@@ -316,74 +321,83 @@ bool DiskIODriver_SPI_SD::init(const uint8_t sckRateID, const pin_t chipSelectPi
   // Must supply min of 74 clock cycles with CS high.
   for (uint8_t i = 0; i < 10; ++i) spiSend(0xFF);
 
-  hal.watchdog_refresh(); // In case init takes too long
+  initState_ = INIT_CMD0;
+}
 
-  // Command to go idle in SPI mode
-  while ((status_ = cardCommand(CMD0, 0)) != R1_IDLE_STATE) {
-    if (INIT_TIMEOUT()) {
-      error(SD_CARD_ERROR_CMD0);
-      goto FAIL;
-    }
-  }
+/**
+ * Send the next SD card initialization command.
+ * The card is deselected between steps, so the SPI bus is free for other devices.
+ *
+ * \return 0 while in progress, 1 for success, or -1 for failure.
+ * The reason for failure can be determined by calling errorCode() and errorData().
+ */
+int8_t DiskIODriver_SPI_SD::initStep() {
+  if (initResult) return initResult;
 
-  #if ENABLED(SD_CHECK_AND_RETRY)
-    crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
+  #if SD_INIT_TIMEOUT
+    const bool timed_out = ELAPSED(millis(), initTimeout_);
+  #else
+    constexpr bool timed_out = false;
   #endif
 
-  hal.watchdog_refresh(); // In case init takes too long
+  switch (initState_) {
 
-  // check SD version
-  for (;;) {
-    if (cardCommand(CMD8, 0x1AA) == (R1_ILLEGAL_COMMAND | R1_IDLE_STATE)) {
-      type(SD_CARD_TYPE_SD1);
+    case INIT_CMD0:   // Command to go idle in SPI mode
+      if ((status_ = cardCommand(CMD0, 0)) == R1_IDLE_STATE) {
+        #if ENABLED(SD_CHECK_AND_RETRY)
+          crcSupported = (cardCommand(CMD59, 1) == R1_IDLE_STATE);
+        #endif
+        initState_ = INIT_CMD8;
+      }
+      else if (timed_out)
+        return initFail(SD_CARD_ERROR_CMD0);
       break;
-    }
 
-    // Get the last byte of r7 response
-    for (uint8_t i = 0; i < 4; ++i) status_ = spiRec();
-    if (status_ == 0xAA) {
-      type(SD_CARD_TYPE_SD2);
+    case INIT_CMD8:   // Check SD version
+      if (cardCommand(CMD8, 0x1AA) == (R1_ILLEGAL_COMMAND | R1_IDLE_STATE)) {
+        type(SD_CARD_TYPE_SD1);
+        initState_ = INIT_ACMD41;
+        break;
+      }
+      for (uint8_t i = 0; i < 4; ++i) status_ = spiRec(); // Get the last byte of r7 response
+      if (status_ == 0xAA) {
+        type(SD_CARD_TYPE_SD2);
+        initState_ = INIT_ACMD41;
+      }
+      else if (timed_out)
+        return initFail(SD_CARD_ERROR_CMD8);
       break;
-    }
 
-    if (INIT_TIMEOUT()) {
-      error(SD_CARD_ERROR_CMD8);
-      goto FAIL;
-    }
-  }
+    case INIT_ACMD41: // Initialize card and send host supports SDHC if SD2
+      if ((status_ = cardAcmd(ACMD41, type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0)) != R1_READY_STATE) {
+        if (timed_out) return initFail(SD_CARD_ERROR_ACMD41);
+        break;
+      }
 
-  hal.watchdog_refresh(); // In case init takes too long
+      // If SD2 read OCR register to check for SDHC card
+      if (type() == SD_CARD_TYPE_SD2) {
+        if (cardCommand(CMD58, 0)) return initFail(SD_CARD_ERROR_CMD58);
+        if ((spiRec() & 0xC0) == 0xC0) type(SD_CARD_TYPE_SDHC);
+        // Discard rest of ocr - contains allowed voltage range
+        for (uint8_t i = 0; i < 3; ++i) spiRec();
+      }
 
-  // Initialize card and send host supports SDHC if SD2
-  arg = type() == SD_CARD_TYPE_SD2 ? 0x40000000 : 0;
-  while ((status_ = cardAcmd(ACMD41, arg)) != R1_READY_STATE) {
-    // Check for timeout
-    if (INIT_TIMEOUT()) {
-      error(SD_CARD_ERROR_ACMD41);
-      goto FAIL;
-    }
-  }
-
-  // If SD2 read OCR register to check for SDHC card
-  if (type() == SD_CARD_TYPE_SD2) {
-    if (cardCommand(CMD58, 0)) {
-      error(SD_CARD_ERROR_CMD58);
-      goto FAIL;
-    }
-    if ((spiRec() & 0xC0) == 0xC0) type(SD_CARD_TYPE_SDHC);
-    // Discard rest of ocr - contains allowed voltage range
-    for (uint8_t i = 0; i < 3; ++i) spiRec();
+      chipDeselect();
+      ready = true;
+      initResult = setSckRate(initSckRateID_) ? 1 : -1;
+      return initResult;
   }
 
   chipDeselect();
+  return 0;
+}
 
-  ready = true;
-  return setSckRate(sckRateID);
-
-  FAIL:
+int8_t DiskIODriver_SPI_SD::initFail(const uint8_t code) {
+  error(code);
   chipDeselect();
   ready = false;
-  return false;
+  initResult = -1;
+  return initResult;
 }
 
 /**

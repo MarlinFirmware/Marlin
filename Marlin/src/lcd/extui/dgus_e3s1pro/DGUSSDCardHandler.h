@@ -55,7 +55,7 @@ class DGUS_SDCardHandler {
       FILE_Count
     };
 
-  static char filenames[5][LONG_FILENAME_LENGTH];
+  static char filenames[5][LONG_FILENAME_BYTES];
 
 public:
   static void Reset();

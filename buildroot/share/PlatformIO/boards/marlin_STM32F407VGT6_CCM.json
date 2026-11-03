@@ -16,7 +16,7 @@
     ],
     "mcu": "stm32f407vgt6",
     "product_line": "STM32F407xx",
-    "variant": "Generic_F4x7Vx"
+    "variant": "MARLIN_F4x7Vx"
   },
   "debug": {
     "default_tools": [

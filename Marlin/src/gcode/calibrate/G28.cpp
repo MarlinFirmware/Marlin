@@ -40,7 +40,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(SENSORLESS_HOMING)
+#if ANY(SENSORLESS_HOMING, HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
   #include "../../feature/tmc_util.h"
 #endif
 
@@ -87,10 +87,16 @@
     const float minfr = _MIN(motion.homing_feedrate(X_AXIS), motion.homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
-    // Set homing current to X and Y axis if defined
-    TERN_(X_HAS_HOME_CURRENT, motion.set_homing_current(X_AXIS));
+    // Use homing current and Hybrid Threshold for X and Y until this function returns
+    TERN_(X_HAS_HOME_CURRENT, const TemporaryHomingCurrent temp_current_x(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      motion.set_homing_current(Y_AXIS);
+      const TemporaryHomingCurrent temp_current_y(Y_AXIS);
+    #endif
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      const TemporaryHomingHybridThreshold temp_hybrid_thrs_x(X_AXIS);
+      #if NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+        const TemporaryHomingHybridThreshold temp_hybrid_thrs_y(Y_AXIS);
+      #endif
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -129,11 +135,6 @@
     endstops.validate_homing_move();
 
     motion.position.set(0.0, 0.0);
-
-    TERN_(X_HAS_HOME_CURRENT, motion.restore_homing_current(X_AXIS));
-    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      motion.restore_homing_current(Y_AXIS);
-    #endif
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));

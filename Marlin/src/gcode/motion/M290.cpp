@@ -84,14 +84,13 @@ void GcodeSuite::M290() {
   #endif
 
   if (!parser.seen(STR_AXES_MAIN) || parser.seen('R')) {
-    SERIAL_ECHO_START();
-
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+      SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     #endif
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
         PSTR("Hotend "), motion.extruder
         #if ENABLED(BABYSTEP_XY)
@@ -107,11 +106,12 @@ void GcodeSuite::M290() {
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPGM("MBL Adjust Z", bedlevel.z_offset);
+      SERIAL_ECHO_MSG("MBL Adjust Z", bedlevel.z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     {
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
         #if ENABLED(BABYSTEP_XY)
             PSTR("Babystep X"), babystep.axis_total[X_AXIS]
