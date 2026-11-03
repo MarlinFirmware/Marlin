@@ -25,8 +25,8 @@
   #error "Sorry! FSMC TFT displays are not available for HAL/ESP32."
 #endif
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
+#if ENABLED(EMERGENCY_PARSER) && RX_BUFFER_SIZE < 2
+  #error "EMERGENCY_PARSER on ESP32 requires an RX_BUFFER_SIZE of 2 or more."
 #endif
 
 #if ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125
