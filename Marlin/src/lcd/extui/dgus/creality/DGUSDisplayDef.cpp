@@ -465,6 +465,19 @@ const struct VPMapping VPMap[] PROGMEM = {
 static bool probing_heaters_off = ENABLED(PROBING_HEATERS_OFF),
             probing_stabilize = ANY(WAIT_FOR_BED_HEATER, WAIT_FOR_HOTEND);
 
+// These options can only be changed in Configuration.h. The Leveling Settings screen has
+// no message field, so tell the user with the popup, which returns to the same screen.
+static void handleCompileTimeSetting(DGUS_VP_Variable &var, void *val_ptr) {
+  const bool is_heaters = var.VP == VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON,
+             enabled = is_heaters ? probing_heaters_off : probing_stabilize;
+  screen.sendInfoScreen(
+    is_heaters ? F("Heaters off while probing") : F("Wait for temperature"),
+    enabled ? F("Enabled in Configuration.h") : F("Disabled in Configuration.h"),
+    FPSTR(NUL_STR), F("Continue")
+  );
+  screen.gotoScreen(DGUS_SCREEN_POPUP);
+}
+
 const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
   // Back button state
   VPHELPER(VP_BACK_BUTTON_STATE, nullptr, nullptr, screen.sendBusyState),
@@ -652,9 +665,9 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
 
   // Leveling Settings. The probing options are fixed in Configuration.h, so only show them.
   VPHELPER(VP_TOGGLE_PROBE_SETTINGS_NAV_BUTTON, nullptr, screen.navigateToPage<DGUS_SCREEN_LEVELING_SETTINGS>, nullptr),
-  VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON, nullptr, screen.handleCompileTimeSetting, nullptr),
+  VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_BUTTON, nullptr, handleCompileTimeSetting, nullptr),
   VPHELPER(VP_TOGGLE_PROBING_HEATERS_OFF_ONOFF_ICON, &probing_heaters_off, nullptr, (screen.sendIconValue<ICON_ACCURACY_TOGGLE_ON, ICON_ACCURACY_TOGGLE_OFF>)),
-  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_BUTTON, nullptr, screen.handleCompileTimeSetting, nullptr),
+  VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_BUTTON, nullptr, handleCompileTimeSetting, nullptr),
   VPHELPER(VP_TOGGLE_POST_PROBING_TEMPERATURE_STABILIZATION_ICON, &probing_stabilize, nullptr, (screen.sendIconValue<ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_ON, ICON_POST_PROBE_TEMP_STABILIZATION_TOGGLE_OFF>)),
   #if HAS_LEVELING_TEMP_EDIT
     #if HAS_HOTEND
