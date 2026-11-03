@@ -539,3 +539,56 @@ const char* shortenNum(const char * convptr, const bool removeWhole0/*=false*/, 
   if (neg && o < COUNT(out) - 1) { memmove(out + 1, out, o + 1); out[0] = '-'; }
   return out;
 }
+
+// Format a float into a buffer, like dtostrf, without avr-libc's float formatter.
+// See numtostr.h for the details and limits.
+char * ftostrf(char * const str, float value, const int8_t width, uint8_t prec) {
+  char tmp[FTOSTRF_BUFSIZE];
+  uint8_t len = 0;
+
+  if (value != value) {                 // NaN
+    tmp[len++] = 'n'; tmp[len++] = 'a'; tmp[len++] = 'n';
+  }
+  else {
+    if (value < 0) { tmp[len++] = '-'; value = -value; }
+    if (prec > 6) prec = 6;
+
+    if (value >= 4294967040.0f) {       // Too big for 32 bits (also infinity)
+      tmp[len++] = 'o'; tmp[len++] = 'v'; tmp[len++] = 'f';
+    }
+    else {
+      // The integer part is exact, and so is what's left. Only the fraction is scaled and rounded.
+      uint32_t ip = uint32_t(value);
+      uint32_t fscale = 1;
+      for (uint8_t i = prec; i--;) fscale *= 10;
+      uint32_t fp = uint32_t((value - float(ip)) * float(fscale) + 0.5f);
+      if (fp >= fscale) { fp -= fscale; ++ip; }   // Rounded up to the next whole number
+
+      // Integer digits, last to first, then in order
+      char digits[10];
+      uint8_t d = 0;
+      do { digits[d++] = char('0' + (ip % 10)); ip /= 10; } while (ip);
+      while (d) tmp[len++] = digits[--d];
+
+      // Fraction digits, with leading zeros
+      if (prec) {
+        tmp[len++] = '.';
+        for (uint8_t i = prec; i--;) { tmp[len + i] = char('0' + (fp % 10)); fp /= 10; }
+        len += prec;
+      }
+    }
+  }
+
+  // Pad to the field width, left or right
+  uint8_t w = width < 0 ? uint8_t(-width) : uint8_t(width);
+  if (w > FTOSTRF_BUFSIZE - 1) w = FTOSTRF_BUFSIZE - 1;
+  uint8_t pad = w > len ? w - len : 0;
+
+  char *p = str;
+  if (width >= 0) while (pad) { *p++ = ' '; --pad; }
+  for (uint8_t i = 0; i < len; ++i) *p++ = tmp[i];
+  if (width < 0) while (pad) { *p++ = ' '; --pad; }
+  *p = '\0';
+
+  return str;
+}

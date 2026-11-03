@@ -131,3 +131,27 @@ $ ./bin/makeIco.py icons-7 7.ICO
   ...Scanned 16 icon files
   Scanning done. 16 icons included.
 ```
+
+Files in the icon folder must be named `NNN-ICON_Name.jpg` with a unique 3-digit index. Other files are ignored. Duplicate indexes and progressive JPEGs are errors, and the tools exit with a non-zero status on any error.
+
+## Building the unified DWIN_SET
+
+`make_dwin_set.py` builds Marlin's unified `DWIN_SET` for Ender-3 V2 family DWIN displays. One flash of this set serves every DWIN UI: Creality UI, JyersUI, ProUI, and MarlinUI (portrait and landscape). The contents are described in `dwin_set.toml`:
+
+- `DWIN_SET/` holds files copied as-is: Creality's boot and text images, font, and display configuration.
+- `icons-3`, `icons-4`, and `icons-7` are combined into `3.ICO`, `4.ICO`, and `7.ICO`.
+- Icons 0-92 of `7.ICO` are Creality's stock icons. Marlin's own icons are drawn as SVG in `icons-svg/` and listed under `[render]`.
+
+#### Usage:
+
+```sh
+bin/make_dwin_set.py [--render] [--out DIR] [--compare OLD.tar.gz]
+```
+
+- `--render` re-renders the `[render]` icons from `icons-svg/` before building. This needs `rsvg-convert` (librsvg). Icons are saved as baseline JPEGs with no chroma subsampling and no metadata.
+- `--out` sets the output folder (default `build/`, which Git ignores).
+- `--compare` lists the files and icon indexes that differ from an existing `DWIN_SET.tar.gz`.
+
+The script checks that every numbered file fits in the display's 16 banks of 32KB and that no two files of the same kind overlap. It writes `build/DWIN_SET/` (copy this folder to the root of the display's SD card) and a reproducible `build/DWIN_SET.tar.gz` for the Configurations repository: the same sources always give the same bytes.
+
+To add an icon, draw it as an SVG in `icons-svg/`, add an entry under `[render]` with its index, size, and background, give it a name in `common/dwin_set.h` and `bin/DWIN_ICO.py`, then run `bin/make_dwin_set.py --render`.

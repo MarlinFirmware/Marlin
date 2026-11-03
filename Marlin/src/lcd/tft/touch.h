@@ -135,6 +135,11 @@ class Touch {
     static void add_control(TouchControlType type, uint16_t x, uint16_t y, uint16_t width, uint16_t height, void (*handler)()) {
       add_control(type, x, y, width, height, intptr_t(handler));
     }
+
+    #if defined(__PLAT_NATIVE_SIM__) && HAS_SPI_TFT
+      #define HAS_SIM_TOUCH_RECTS 1
+      static void sim_touch_rects();
+    #endif
 };
 
 extern Touch touch;
