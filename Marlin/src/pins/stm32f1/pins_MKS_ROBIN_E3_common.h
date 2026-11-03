@@ -264,3 +264,24 @@
 #define SD_MISO_PIN                  EXP2_01_PIN
 #define SD_MOSI_PIN                  EXP2_06_PIN
 #define SD_SS_PIN              ONBOARD_SD_CS_PIN
+
+//
+// TMC SPI drivers (E3D) share SPI2 (TMC_SPI_* pins) with the onboard SD card and EXP2.
+// The default 'SPI' object is elsewhere (SPI3 on the E0 STEP/DIR/EN pins with the
+// STM32 HAL, SPI1 on EXP1 with Maple) so keep all TMC traffic on the shared bus.
+//
+#if HAS_TMC_SPI
+  #define USES_SHARED_SPI                         // SPI is shared by SD card with TMC SPI drivers
+  #ifdef MAPLE_STM32F1
+    #ifndef SPI_DEVICE
+      #define SPI_DEVICE                       2  // Maple: Put the global 'SPI' on SPI2
+    #endif
+  #else
+    #ifndef TMC_USE_SW_SPI
+      #define TMC_USE_SW_SPI                      // Bit-bang the TMC_SPI_* pins
+    #endif
+    #ifndef FORCE_SOFT_SPI
+      #define FORCE_SOFT_SPI                      // SD and LCD on the same pins must also bit-bang
+    #endif
+  #endif
+#endif

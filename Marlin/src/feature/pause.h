@@ -82,7 +82,7 @@ typedef struct FilamentChangeSettings {
   constexpr fil_change_settings_t fc_settings[EXTRUDERS];
 #endif
 
-extern uint8_t did_pause_print;
+extern uint8_t paused_for_filament_change;
 
 #define DXC_PARAMS OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext=-1)
 #define DXC_ARGS   OPTARG(DUAL_X_CARRIAGE, const int8_t DXC_ext)
@@ -137,6 +137,6 @@ bool unload_filament(
 
 #else // !ADVANCED_PAUSE_FEATURE
 
-  constexpr uint8_t did_pause_print = 0;
+  constexpr uint8_t paused_for_filament_change = 0;
 
 #endif // !ADVANCED_PAUSE_FEATURE

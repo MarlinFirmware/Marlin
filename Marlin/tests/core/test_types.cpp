@@ -639,6 +639,35 @@ MARLIN_TEST(types, MString2) {
   TEST_ASSERT_TRUE(TSS(repchr_t('-', 100)).length() == 20);
 }
 
+MARLIN_TEST(types, MString_utrunc) {
+  // "abジュ" is 8 bytes: 'a', 'b', then two 3-byte glyphs
+  #define AB_JU "ab\xE3\x82\xB8\xE3\x83\xA5"
+
+  // A copy cut short inside a glyph drops the partial glyph
+  MString<6> cut;
+  cut.set(AB_JU);
+  TEST_ASSERT_EQUAL(6, cut.length());
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &cut.utrunc());
+
+  // A complete string is unchanged
+  MString<20> str;
+  TEST_ASSERT_EQUAL_STRING(AB_JU, &str.set(AB_JU).utrunc());
+
+  // Truncate to a byte count on a glyph boundary
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &str.set(AB_JU).utrunc(7));
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &str.set(AB_JU).utrunc(5));
+  TEST_ASSERT_EQUAL_STRING("ab", &str.set(AB_JU).utrunc(4));
+  TEST_ASSERT_EQUAL_STRING("abc", &str.set("abcdef").utrunc(3));
+
+  // 2- and 4-byte glyphs
+  MString<2> two;
+  TEST_ASSERT_EQUAL_STRING("x", &two.set("x\xC3\xA9").utrunc());    // "xé"
+  MString<4> four;
+  TEST_ASSERT_EQUAL_STRING("x", &four.set("x\xF0\x9F\x98\x80").utrunc()); // "x😀"
+
+  #undef AB_JU
+}
+
 MARLIN_TEST(types, SString) {
   // Hello World!-123456------   < spaces!33
   // ^ eol! ... 1234.50*2345.602 = 2895645.67

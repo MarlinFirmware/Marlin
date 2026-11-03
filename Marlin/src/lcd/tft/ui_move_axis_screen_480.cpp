@@ -99,9 +99,11 @@ void drawCurStepValue() {
 
 void drawMessage_P(PGM_P const msg) {
   #if ENABLED(TFT_COLOR_UI_PORTRAIT)
-    tft.canvas(X_MARGIN, TFT_HEIGHT - 2 * MOVE_AXIS_MARGIN_SIZE - BTN_HEIGHT - FONT_LINE_HEIGHT, TFT_WIDTH - X_MARGIN * 2, FONT_LINE_HEIGHT);
+    const uint16_t h = _MAX(FONT_LINE_HEIGHT, tft_string.font_height()); // Room for tall scripts, e.g., Vietnamese
+    tft.canvas(X_MARGIN, TFT_HEIGHT - 2 * MOVE_AXIS_MARGIN_SIZE - BTN_HEIGHT - FONT_LINE_HEIGHT, TFT_WIDTH - X_MARGIN * 2, h);
   #else
-    tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - Y_OFFSET, TFT_HEIGHT / 2, Y_OFFSET);
+    const uint16_t h = _MAX(Y_OFFSET, tft_string.font_height());
+    tft.canvas(X_MARGIN, TFT_HEIGHT - Y_MARGIN - Y_OFFSET, TFT_HEIGHT / 2, h);
   #endif
   tft.set_background(COLOR_BACKGROUND);
   tft.add_text(0, 0, COLOR_STATUS_MESSAGE, msg);

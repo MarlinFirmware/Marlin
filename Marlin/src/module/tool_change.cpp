@@ -1048,7 +1048,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // Park
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
+            motion.position.x = toolchange_settings.change_point.x;
+            // Keep an IDEX carriage out of the other carriage's path
+            #if ALL(DUAL_X_CARRIAGE, HAS_SOFTWARE_ENDSTOPS)
+              LIMIT(motion.position.x, motion.soft_endstop.min.x, motion.soft_endstop.max.x);
+            #endif
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(
@@ -1125,11 +1131,15 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     UNUSED(no_move);
 
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
+
     mmu3.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
+
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
 
     mmu2.tool_change(new_tool);
 
@@ -1244,7 +1254,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && !HAS_SWITCHING_NOZZLE
         if (can_move_away && toolchange_settings.enable_park) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          // With DUAL_X_CARRIAGE the old carriage is parked at its own home below,
+          // so don't send it to an X change point that may be in the other carriage's path.
+          #if NONE(TOOLCHANGE_PARK_Y_ONLY, DUAL_X_CARRIAGE)
+            motion.position.x = toolchange_settings.change_point.x;
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(
@@ -1440,7 +1454,12 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       #define HAS_TC_GCODE_USE_GLOBAL 1
     #endif
 
-    if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
+    // Event G-code may call G28 or T, which call tool_change again. Don't recurse.
+    static bool in_event_gcode; // = false
+
+    if (!in_event_gcode && (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move)) {
+
+      REMEMBER(evt, in_event_gcode, true);
 
       #if ANY(HAS_EVENT_GCODE_PARK, HAS_TC_GCODE_USE_GLOBAL)
         xyz_pos_t old_workspace_offset;
