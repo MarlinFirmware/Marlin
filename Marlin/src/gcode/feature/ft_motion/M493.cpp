@@ -222,8 +222,8 @@ void GcodeSuite::M493() {
     if (parser.seen('S')) {
       const bool active = parser.value_bool();
       if (active != c.active) {
-        const bool old_inverse_time = parser.inverse_time_enabled;
         #if ENABLED(FEEDRATE_MODE_SUPPORT)
+          const bool old_inverse_time = parser.inverse_time_enabled;
           if (parser.inverse_time_enabled) parser.inverse_time_enabled = false;
         #endif
         ftMotion.toggle();
