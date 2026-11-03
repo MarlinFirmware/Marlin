@@ -187,7 +187,7 @@ void GcodeSuite::M493_report(const bool forReplay/*=true*/) {
  *       5: EI    : Extra-Intensive
  *       6: 2HEI  : 2-Hump Extra-Intensive
  *       7: 3HEI  : 3-Hump Extra-Intensive
- *       8: MZV   : Mass-based Zero Vibration
+ *       8: MZV   : Modified Zero Vibration
  *
  *    A<Hz>     Set static/base frequency for the specified axes only X and Y axes
  *    I<flt>    Set damping ratio for the specified axes
@@ -287,7 +287,7 @@ void GcodeSuite::M493() {
   const float zetaVal = seenI ? parser.value_float() : 0.0f;
   const bool goodZeta = seenI && c.goodZeta(zetaVal);
   if (seenI && !goodZeta)
-    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.01-" STRINGIFY(FTM_MAX_DAMPENING) ")")); // Zeta out of range
+    SERIAL_ECHOLN(F("?Invalid "), F("(I) Zeta value. (0.00-" STRINGIFY(FTM_MAX_DAMPENING) ")")); // Zeta out of range
 
   #if HAS_FTM_EI_SHAPING
     // Vibration Tolerance parameter

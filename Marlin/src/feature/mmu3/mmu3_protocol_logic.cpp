@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_protocol_logic.cpp
+ * mmu3_protocol_logic.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -52,7 +52,16 @@
 
 namespace MMU3 {
 
+  // Major and minor must match exactly. The patch level must be at least the one in
+  // MMU_VERSION (the minimum supported). The registers and commands Marlin uses are the
+  // same in 3.0.0 through 3.0.4, so users don't have to flash their MMU to match Marlin.
+  // Prusa-Firmware requires an exact match because it ships paired with a specific MMU FW.
   static constexpr uint8_t supportedMmuFWVersion[] PROGMEM = { mmuVersionMajor, mmuVersionMinor, mmuVersionPatch };
+
+  static bool isSupportedVersionPart(const uint8_t stage, const uint8_t value) {
+    const uint8_t want = pgm_read_byte(&supportedMmuFWVersion[stage]);
+    return stage == 2 ? (value >= want) : (value == want);
+  }
 
   const Register ProtocolLogic::regs8Addrs[ProtocolLogic::regs8Count] PROGMEM = {
     Register::FINDA_State,            // FINDA state
@@ -288,7 +297,7 @@ namespace MMU3 {
     }
     else {
       mmuFwVersion[stage] = rsp.paramValue;
-      if (mmuFwVersion[stage] != pgm_read_byte(&supportedMmuFWVersion[stage])) {
+      if (!isSupportedVersionPart(stage, mmuFwVersion[stage])) {
         if (--retries == 0) return VersionMismatch;
         SendVersion(stage);
       }
@@ -751,29 +760,33 @@ namespace MMU3 {
   }
 
   void ProtocolLogic::LogRequestMsg(const uint8_t *txbuff, uint8_t size) {
-    constexpr uint_fast8_t rqs = modules::protocol::Protocol::MaxRequestSize() + 1;
-    char tmp[rqs] = ">";
-    static char lastMsg[rqs] = "";
-    for (uint8_t i = 0; i < size; ++i) {
-      uint8_t b = txbuff[i];
-      // Check for printable character, including space
-      if (b < 32 || b > 127)
-        b = '.';
-      tmp[i + 1] = b;
-    }
-    tmp[size + 1] = 0;
-    if (!strncmp_P(tmp, PSTR(">S0*c6."), rqs) && !strncmp(lastMsg, tmp, rqs)) {
-      // @@TODO we skip the repeated request msgs for now
-      // to avoid spoiling the whole log just with ">S0" messages
-      // especially when the MMU is not connected.
-      // We'll lose the ability to see if the printer is actually
-      // trying to find the MMU, but since it has been reliable in the past
-      // we can live without it for now.
-    }
-    else {
-      MMU2_ECHO_MSGLN(tmp);
-    }
-    strncpy(lastMsg, tmp, rqs);
+    #if ENABLED(MMU_DEBUG)
+      constexpr uint_fast8_t rqs = modules::protocol::Protocol::MaxRequestSize() + 1;
+      char tmp[rqs] = ">";
+      static char lastMsg[rqs] = "";
+      for (uint8_t i = 0; i < size; ++i) {
+        uint8_t b = txbuff[i];
+        // Check for printable character, including space
+        if (b < 32 || b > 127)
+          b = '.';
+        tmp[i + 1] = b;
+      }
+      tmp[size + 1] = 0;
+      if (!strncmp_P(tmp, PSTR(">S0*c6."), rqs) && !strncmp(lastMsg, tmp, rqs)) {
+        // @@TODO we skip the repeated request msgs for now
+        // to avoid spoiling the whole log just with ">S0" messages
+        // especially when the MMU is not connected.
+        // We'll lose the ability to see if the printer is actually
+        // trying to find the MMU, but since it has been reliable in the past
+        // we can live without it for now.
+      }
+      else {
+        MMU2_ECHO_MSGLN(tmp);
+      }
+      strncpy(lastMsg, tmp, rqs);
+    #else
+      UNUSED(txbuff); UNUSED(size);
+    #endif
   }
 
   void ProtocolLogic::LogError(const char *reason_P) {
@@ -788,7 +801,9 @@ namespace MMU3 {
   void ProtocolLogic::LogResponse() {
     char _lrb[COUNT(lastReceivedBytes)];
     FormatLastResponseMsgAndClearLRB(_lrb);
-    MMU2_ECHO_MSGLN(_lrb);
+    #if ENABLED(MMU_DEBUG)
+      MMU2_ECHO_MSGLN(_lrb);
+    #endif
   }
 
   StepStatus ProtocolLogic::SuppressShortDropOuts(const char *msg_P, StepStatus ss) {
@@ -873,18 +888,18 @@ namespace MMU3 {
 
   void ProtocolLogic::DecrementRetryAttempts() {
     if (inAutoRetry && retryAttempts) {
-      SERIAL_ECHOLNPGM("DecrementRetryAttempts");
+      TERN_(MMU_DEBUG, SERIAL_ECHOLNPGM("DecrementRetryAttempts"));
       retryAttempts--;
     }
   }
 
   void ProtocolLogic::ResetRetryAttempts() {
-    SERIAL_ECHOLNPGM("ResetRetryAttempts");
+    TERN_(MMU_DEBUG, SERIAL_ECHOLNPGM("ResetRetryAttempts"));
     retryAttempts = MMU3_MAX_RETRIES;
   }
 
   void __attribute__((noinline)) ProtocolLogic::ResetCommunicationTimeoutAttempts() {
-    SERIAL_ECHOLNPGM("RSTCommTimeout");
+    TERN_(MMU_DEBUG, SERIAL_ECHOLNPGM("RSTCommTimeout"));
     dataTO.reset();
   }
 

@@ -68,6 +68,10 @@
   #endif
 #endif
 
+#if ENABLED(PROBING_USE_CURRENT_HOME)
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(MEASURE_BACKLASH_WHEN_PROBING)
   #include "../feature/backlash.h"
 #endif
@@ -80,7 +84,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
+#if ANY(HAS_Z_SERVO_PROBE, HAS_MAG_MOUNTED_SERVO_PROBE, SWITCHING_NOZZLE_LIFT_TO_PROBE)
   #include "servo.h"
 #endif
 
@@ -754,7 +758,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm lower.
-  const float z_probe_low_point = zoffs + z_min_point -float((!motion.axis_is_trusted(Z_AXIS)) * 10);
+  const float z_probe_low_point = zoffs + z_min_point - float((!motion.axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
   #if DISABLED(DWIN_LCD_PROUI)
@@ -994,8 +998,8 @@ float Probe::probe_at_point(
   // Move the probe to the starting XYZ
   motion.blocking_move(npos, feedRate_t(XY_PROBE_FEEDRATE_MM_S));
 
-  // Change Z motor current to homing current
-  TERN_(PROBING_USE_CURRENT_HOME, motion.set_homing_current(Z_AXIS));
+  // Use the Z homing current until this function returns
+  TERN_(PROBING_USE_CURRENT_HOME, const TemporaryHomingCurrent temp_current(Z_AXIS));
 
   float measured_z;
 
@@ -1053,9 +1057,6 @@ float Probe::probe_at_point(
     }
 
   #endif // !BD_SENSOR
-
-  // Restore the Z homing current
-  TERN_(PROBING_USE_CURRENT_HOME, motion.restore_homing_current(Z_AXIS));
 
   return measured_z;
 }

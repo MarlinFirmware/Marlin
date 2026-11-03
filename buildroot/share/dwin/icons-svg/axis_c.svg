@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marlin DWIN icon: Bed center -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <path d="M10 1.5 L13.5 5.5 H11.2 V8 H8.8 V5.5 H6.5 Z" fill="#45bed9"/>
+  <path d="M10 18.5 L13.5 14.5 H11.2 V12 H8.8 V14.5 H6.5 Z" fill="#45bed9"/>
+  <path d="M1.5 10 L5.5 6.5 V8.8 H8 V11.2 H5.5 V13.5 Z" fill="#45bed9"/>
+  <path d="M18.5 10 L14.5 6.5 V8.8 H12 V11.2 H14.5 V13.5 Z" fill="#45bed9"/>
+  <circle cx="10" cy="10" r="1.8" fill="#ffffff"/>
+</svg>

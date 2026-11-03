@@ -30,4 +30,6 @@
 #define BOARD_INFO_NAME      "Creality V4.2.2 MFL"
 #define DEFAULT_MACHINE_NAME "Ender-3 MFL"
 
+#define BOARD_LCD_SERIAL_PORT               2
+
 #include "../stm32f1/pins_CREALITY_V4.h"

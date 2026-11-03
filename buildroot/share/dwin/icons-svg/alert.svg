@@ -1,85 +1,103 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="https://creativecommons.org/ns#"
-   xmlns:rdf="https://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="https://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://inkscape.org/namespaces/inkscape"
    width="96"
    height="96"
    viewBox="0 0 96 96"
    version="1.1"
    id="svg8"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
-   sodipodi:docname="alert.svg">
+   inkscape0:version="1.0 (4035a4fb49, 2020-05-01)"
+   sodipodi0:docname="alert.svg"
+   sodipodi:docname="alert.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:sodipodi0="https://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape0="http://inkscape.org/namespaces/inkscape"
+   xmlns:ns="https://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:ns0="https://creativecommons.org/ns#">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="4.5625"
+     inkscape:cx="48"
+     inkscape:cy="47.890411"
+     inkscape:window-width="1088"
+     inkscape:window-height="1212"
+     inkscape:window-x="0"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="layer1" />
   <defs
      id="defs2" />
-  <sodipodi:namedview
+  <sodipodi0:namedview
      id="base"
      pagecolor="#ffffff"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="3.959798"
-     inkscape:cx="49.267767"
-     inkscape:cy="47.823799"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     inkscape:document-rotation="0"
+     inkscape0:pageopacity="0.0"
+     inkscape0:pageshadow="2"
+     inkscape0:zoom="3.959798"
+     inkscape0:cx="49.267767"
+     inkscape0:cy="47.823799"
+     inkscape0:document-units="px"
+     inkscape0:current-layer="layer1"
+     inkscape0:document-rotation="0"
      showgrid="false"
      units="px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1027"
-     inkscape:window-x="-8"
-     inkscape:window-y="22"
-     inkscape:window-maximized="1" />
+     inkscape0:window-width="1920"
+     inkscape0:window-height="1027"
+     inkscape0:window-x="-8"
+     inkscape0:window-y="22"
+     inkscape0:window-maximized="1" />
   <metadata
      id="metadata5">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
+    <ns:RDF>
+      <ns0:Work
+         ns:about="">
         <dc:format>image/svg+xml</dc:format>
         <dc:type
-           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+           ns:resource="http://purl.org/dc/dcmitype/StillImage" />
         <dc:title />
-      </cc:Work>
-    </rdf:RDF>
+      </ns0:Work>
+    </ns:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     inkscape0:label="Layer 1"
+     inkscape0:groupmode="layer"
+     id="layer1"
+     inkscape:label="layer1">
     <path
-       transform="matrix(0.72413714,0,0,0.83644748,12.836005,14.016541)"
-       inkscape:transform-center-y="-17.743729"
-       inkscape:transform-center-x="-0.18357981"
-       d="M 106.06602,91.671344 -8.9523053,91.912213 48.348258,-7.8170121 Z"
-       inkscape:randomized="0"
-       inkscape:rounded="0"
-       inkscape:flatsided="true"
-       sodipodi:arg2="1.5687021"
-       sodipodi:arg1="0.5215046"
-       sodipodi:r2="42.866257"
-       sodipodi:r1="66.406006"
-       sodipodi:cy="58.588848"
-       sodipodi:cx="48.487324"
-       sodipodi:sides="3"
+       inkscape0:transform-center-y="-17.743729"
+       inkscape0:transform-center-x="-0.18357981"
+       d="M 88.124246,90.418388 7.8719804,90.612516 47.852566,10.235745 Z"
+       inkscape0:randomized="0"
+       inkscape0:rounded="0"
+       inkscape0:flatsided="true"
+       sodipodi0:arg2="1.5687021"
+       sodipodi0:arg1="0.5215046"
+       sodipodi0:r2="42.866257"
+       sodipodi0:r1="66.406006"
+       sodipodi0:cy="58.588848"
+       sodipodi0:cx="48.487324"
+       sodipodi0:sides="3"
        id="path833"
-       style="fill:#fbff04;fill-opacity:1;stroke:#9aa000;stroke-width:5.35363;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
-       sodipodi:type="star" />
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:74.6667px;line-height:1.25;font-family:sans-serif;fill:#000000;fill-opacity:1;stroke:none"
-       x="25.001272"
-       y="81.569824"
-       id="text1406"><tspan
-         sodipodi:role="line"
-         id="tspan1404"
-         x="25.001272"
-         y="81.569824"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:74.6667px;font-family:'Liberation Mono';-inkscape-font-specification:'Liberation Mono Bold';fill:#000000;fill-opacity:1">!</tspan></text>
+       style="fill:#fbff04;fill-opacity:1;stroke:#9aa000;stroke-width:7.70831;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+       sodipodi0:type="star"
+       inkscape:label="bkgd" />
+    <path
+       d="M 52.530898,66.765329 H 43.47284 L 42.212589,30.414949 H 53.79115 Z M 42.212589,83.542427 V 72.909055 h 11.342263 v 10.633372 z"
+       id="text1406"
+       style="font-weight:bold;font-size:80.6561px;line-height:1.25;font-family:'Liberation Mono';-inkscape-font-specification:'Liberation Mono, Bold';stroke-width:1.08021"
+       aria-label="!"
+       inkscape:label="char" />
   </g>
 </svg>

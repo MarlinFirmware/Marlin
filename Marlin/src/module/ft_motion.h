@@ -83,7 +83,7 @@ typedef struct FTConfig {
 
     #if HAS_DYNAMIC_FREQ
       dynFreqMode_t dynFreqMode = FTM_DEFAULT_DYNFREQ_MODE; // Dynamic frequency mode configuration.
-      ft_shaped_xy_float_t dynFreqK = { 0.0f };             // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
+      ft_shaped_xy_float_t dynFreqK = {};                   // Scaling / gain for dynamic frequency. [Hz/mm] or [Hz/g]
     #else
       static constexpr dynFreqMode_t dynFreqMode = dynFreqMode_DISABLED;
     #endif

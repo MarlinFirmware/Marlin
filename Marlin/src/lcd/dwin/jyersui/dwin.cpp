@@ -37,6 +37,7 @@
 #include "../../../module/temperature.h"
 #include "../../../module/planner.h"
 #include "../../../module/settings.h"
+#include "../../../sd/cardreader.h"
 #include "../../../libs/buzzer.h"
 
 //#define DEBUG_OUT 1
@@ -184,7 +185,7 @@ uint8_t valueunit;
 uint8_t valuetype;
 
 char statusmsg[64];
-char filename[LONG_FILENAME_LENGTH];
+char filename[LONG_FILENAME_BYTES];
 bool printing = false;
 bool paused = false;
 bool sdprint = false;
@@ -2272,7 +2273,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.block_heat_capacity, row, false, 100);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0, 40, 100);
+                modifyValue(thermalManager.temp_hotend[0].mpc.block_heat_capacity, 0.01f, 40, 100);
               break;
 
             case MPCMENU_SENSOR_RESPONSIVENESS:
@@ -2281,7 +2282,7 @@ void JyersDWIN::menuItemHandler(const uint8_t menu, const uint8_t item, bool dra
                 drawFloat(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, row, false, 10000);
               }
               else
-                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0, 1, 10000);
+                modifyValue(thermalManager.temp_hotend[0].mpc.sensor_responsiveness, 0.0001f, 1, 10000);
               break;
 
             case MPCMENU_AMBIENT_XFER_COEFF:
@@ -4719,6 +4720,7 @@ void JyersDWIN::popupControl() {
             redrawMenu(true, true, false);
           break;
         case Popup_PurgeMore:
+          marlin.user_resume(); // Break out of ADVANCED_PAUSE_CONTINUOUS_PURGE
           if (selection == 0) {
             pause_menu_response = PAUSE_RESPONSE_EXTRUDE_MORE;
             popupHandler(Popup_FilChange);
@@ -4850,8 +4852,8 @@ void JyersDWIN::modifyOption(const uint8_t value, const char * const * options, 
 
 void JyersDWIN::updateStatus(const char * const text) {
   if (strncmp_P(text, PSTR("<F>"), 3) == 0) {
-    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_LENGTH, strlen(text)); ++i) filename[i] = text[i + 3];
-    filename[_MIN((size_t)LONG_FILENAME_LENGTH - 1, strlen(text))] = '\0';
+    for (uint8_t i = 0; i < _MIN((size_t)LONG_FILENAME_BYTES, strlen(text)); ++i) filename[i] = text[i + 3];
+    filename[_MIN((size_t)LONG_FILENAME_BYTES - 1, strlen(text))] = '\0';
     drawPrintFilename(true);
   }
   else {

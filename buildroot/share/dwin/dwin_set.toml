@@ -1,0 +1,69 @@
+# Marlin unified DWIN_SET for Ender-3 V2 family DWIN displays.
+#
+# One flash serves every DWIN UI: Creality UI, JyersUI, ProUI and MarlinUI
+# (portrait and landscape). Build with:
+#
+#   bin/make_dwin_set.py            # build ICOs and the tarball from committed JPEGs
+#   bin/make_dwin_set.py --render   # first re-render the [render] icons from SVG
+#
+# Each file's leading number is its 32KB flash bank on the display.
+
+[set]
+name   = "DWIN_SET"   # Folder name the display looks for on the SD card
+static = "DWIN_SET"   # Files copied as-is (Creality images, font, display config)
+banks  = 16           # 16 banks x 32KB = 512KB of image/icon flash
+
+# Icon containers built from icons-N folders
+[[ico]]
+file  = "3.ICO"     # MarlinUI boot icons (marlinui/dwin_lcd.h BOOT_ICON)
+icons = "icons-3"
+
+[[ico]]
+file  = "4.ICO"     # MarlinUI status icons (marlinui/dwin_lcd.h ICON)
+icons = "icons-4"
+
+[[ico]]
+file  = "7.ICO"     # Creality UI, JyersUI and ProUI icons (common/dwin_set.h ICON)
+icons = "icons-7"
+
+[render]
+# Icons rendered from icons-svg/ with --render.
+# size = [width, height], bg = background color, rotate = degrees clockwise.
+# Icons 0-91 of 7.ICO are Creality stock icons and have no SVG source.
+icons = [
+  # 4.ICO: MarlinUI status icons
+  { svg = "hotend_off.svg",      out = "icons-4/001-ICON_HotendOff.jpg",     size = [48, 36], bg = "#080808" },
+  { svg = "hotend_on.svg",       out = "icons-4/002-ICON_HotendOn.jpg",      size = [48, 36], bg = "#080808" },
+  { svg = "bed_off.svg",         out = "icons-4/003-ICON_BedOff.jpg",        size = [48, 36], bg = "#080808" },
+  { svg = "bed_on.svg",          out = "icons-4/004-ICON_BedOn.jpg",         size = [48, 36], bg = "#080808" },
+  { svg = "fan.svg",             out = "icons-4/005-ICON_Fan0.jpg",          size = [48, 48], bg = "#080808" },
+  { svg = "fan.svg",             out = "icons-4/006-ICON_Fan1.jpg",          size = [48, 48], bg = "#080808", rotate = 22.5 },
+  { svg = "fan.svg",             out = "icons-4/007-ICON_Fan2.jpg",          size = [48, 48], bg = "#080808", rotate = 45 },
+  { svg = "fan.svg",             out = "icons-4/008-ICON_Fan3.jpg",          size = [48, 48], bg = "#080808", rotate = 67.5 },
+  { svg = "halted.svg",          out = "icons-4/009-ICON_Halted.jpg",        size = [96, 96], bg = "#333e44" },
+  { svg = "question.svg",        out = "icons-4/010-ICON_Question.jpg",      size = [96, 96], bg = "#333e44" },
+  { svg = "alert.svg",           out = "icons-4/011-ICON_Alert.jpg",         size = [96, 96], bg = "#333e44" },
+  { svg = "rotate_cw.svg",       out = "icons-4/012-ICON_RotateCW.jpg",      size = [48, 48], bg = "#080808" },
+  { svg = "rotate_ccw.svg",      out = "icons-4/013-ICON_RotateCCW.jpg",     size = [48, 48], bg = "#080808" },
+  { svg = "up_arrow.svg",        out = "icons-4/014-ICON_UpArrow.jpg",       size = [48, 48], bg = "#080808" },
+  { svg = "down_arrow.svg",      out = "icons-4/015-ICON_DownArrow.jpg",     size = [48, 48], bg = "#080808" },
+  { svg = "bedline.svg",         out = "icons-4/016-ICON_Bedline.jpg",       size = [48, 8],  bg = "#080808" },
+  { svg = "bed_leveled_off.svg", out = "icons-4/017-ICON_BedLeveledOff.jpg", size = [48, 36], bg = "#080808" },
+  { svg = "bed_leveled_on.svg",  out = "icons-4/018-ICON_BedLeveledOn.jpg",  size = [48, 36], bg = "#080808" },
+
+  # 7.ICO: Marlin icons added to the Creality set (common/dwin_set.h)
+  { svg = "printer.svg",         out = "icons-7/093-ICON_Printer_0.jpg",     size = [110, 100], bg = "#313d42" },
+  { svg = "box.svg",             out = "icons-7/200-ICON_Checkbox_F.jpg",    size = [20, 20], bg = "#080808" },
+  { svg = "checkbox.svg",        out = "icons-7/201-ICON_Checkbox_T.jpg",    size = [20, 20], bg = "#080808" },
+  { svg = "fade.svg",            out = "icons-7/202-ICON_Fade.jpg",          size = [20, 20], bg = "#080808" },
+  { svg = "mesh.svg",            out = "icons-7/203-ICON_Mesh.jpg",          size = [20, 20], bg = "#080808" },
+  { svg = "tilt.svg",            out = "icons-7/204-ICON_Tilt.jpg",          size = [20, 20], bg = "#080808" },
+  { svg = "brightness.svg",      out = "icons-7/205-ICON_Brightness.jpg",    size = [20, 20], bg = "#080808" },
+  { svg = "probe.svg",           out = "icons-7/206-ICON_Probe.jpg",         size = [20, 20], bg = "#080808" },
+  { svg = "axis_d.svg",          out = "icons-7/249-ICON_AxisD.jpg",         size = [20, 20], bg = "#080808" },
+  { svg = "axis_br.svg",         out = "icons-7/250-ICON_AxisBR.jpg",        size = [20, 20], bg = "#080808" },
+  { svg = "axis_tr.svg",         out = "icons-7/251-ICON_AxisTR.jpg",        size = [20, 20], bg = "#080808" },
+  { svg = "axis_bl.svg",         out = "icons-7/252-ICON_AxisBL.jpg",        size = [20, 20], bg = "#080808" },
+  { svg = "axis_tl.svg",         out = "icons-7/253-ICON_AxisTL.jpg",        size = [20, 20], bg = "#080808" },
+  { svg = "axis_c.svg",          out = "icons-7/254-ICON_AxisC.jpg",         size = [20, 20], bg = "#080808" },
+]

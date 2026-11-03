@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_marlin1.cpp
+ * mmu3_marlin1.cpp
  * MK3 / Marlin1 implementation of support routines for the MMU3
  */
 
@@ -34,7 +34,10 @@
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
 
-#include "../pause.h"
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../pause.h"
+#endif
+
 #include "../../libs/nozzle.h"
 #include "mmu3_marlin.h"
 
@@ -94,11 +97,9 @@ namespace MMU3 {
   }
 
   void nozzle_park() {
-    #if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
-      #if ALL(ADVANCED_PAUSE_FEATURE)
-        xyz_pos_t park_point = NOZZLE_PARK_POINT;
-        nozzle.park(0, park_point);
-      #endif
+    #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
+      xyz_pos_t park_point = NOZZLE_PARK_POINT;
+      nozzle.park(0, park_point);
     #endif
   }
 

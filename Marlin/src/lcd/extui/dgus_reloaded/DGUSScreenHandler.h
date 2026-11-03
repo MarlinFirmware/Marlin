@@ -75,6 +75,7 @@ public:
 
   static void setStatusMessage(const char* msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
   static void setStatusMessage(FSTR_P const msg, const millis_t duration=DGUS_STATUS_EXPIRATION_MS);
+  static void setStandingStatus(const char * const msg);
 
   static void showWaitScreen(const DGUS_ScreenID return_screenID, const bool has_continue=false);
   static void showWaitScreen(FSTR_P const msg, const DGUS_ScreenID return_screenID, const bool has_continue=false);
@@ -113,6 +114,12 @@ public:
 
   static bool leveling_active;
 
+  static uint8_t language;
+
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    static uint16_t jam_length;
+  #endif
+
 private:
   static const DGUS_Addr* findScreenAddrList(const DGUS_ScreenID screenID);
   static bool callScreenSetup(const DGUS_ScreenID screenID);
@@ -130,6 +137,7 @@ private:
   static DGUS_ScreenID wait_return_screenID;
 
   static millis_t status_expire;
+  static char standing_status[DGUS_STATUS_LEN + 1];
   static millis_t eeprom_save;
 
   typedef struct {
@@ -137,6 +145,7 @@ private:
     uint8_t volume;
     uint8_t brightness;
     bool abl_okay;
+    uint8_t language;
   } eeprom_data_t;
 };
 

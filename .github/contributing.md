@@ -16,6 +16,7 @@ The following is a set of guidelines for contributing to Marlin, hosted by the [
 - [Suggesting Features or Changes](#suggesting-features-or-changes)
 - [Your First Code Contribution](#your-first-code-contribution)
 - [Pull Requests](#pull-requests)
+- [AI-Assisted Contributions](#ai-assisted-contributions)
 
 [Styleguides](#styleguides)
 
@@ -134,6 +135,18 @@ Pull Requests should always be targeted to working branches (e.g., `bugfix-2.1.x
 - Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html) posted on our website.
 - Document new code with clear and concise comments.
 - End all files with a newline.
+
+### AI-Assisted Contributions
+
+Marlin accepts contributions written with the help of AI coding tools. We judge a Pull Request on its merits, not on how it was produced. Whoever submits the PR is the author and is fully responsible for it, so:
+
+- **Understand it.** Read and test every change. Be ready to explain it and to respond to review feedback yourself.
+- **Keep it sensible.** Follow the [Coding Standards](https://marlinfw.org/docs/development/coding_standards.html), match the style of the surrounding code, and don't add unrelated refactors, reformatting, or speculative features.
+- **Don't submit too much at once.** Reviewers are volunteers, and a large PR is hard to review, test, and revert. When a change can be split into two or more smaller, self-contained PRs, please do so. Each PR should stand on its own, build on its own, and do one thing. If a later PR depends on an earlier one, say so in the description.
+- **Test it.** Build the affected boards and configurations, and say in the PR what you tested and on what hardware. AI-generated code is not exempt from CI.
+- **Be honest in the description.** Describe what the PR does and why. You don't need to hide that AI was used, and you shouldn't use AI to pad the description with vague or inflated claims.
+
+Contributors using AI agents will find build and test helpers in [`buildroot/skills`](../buildroot/skills), and guidelines for constructing a PR in [`AGENTS.md`](../AGENTS.md).
 
 ## Styleguides
 

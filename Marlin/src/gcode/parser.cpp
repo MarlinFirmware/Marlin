@@ -52,7 +52,7 @@ uint16_t GCodeParser::codenum;
 #endif
 
 #if ENABLED(GCODE_MOTION_MODES)
-  int16_t GCodeParser::motion_mode_codenum = -1;
+  int8_t GCodeParser::motion_mode_codenum = -1;
   #if USE_GCODE_SUBCODES
     uint8_t GCodeParser::motion_mode_subcode;
   #endif
@@ -68,6 +68,58 @@ uint16_t GCodeParser::codenum;
 
 // Create a global instance of the G-Code parser singleton
 GCodeParser parser;
+
+// Skip spaces and read the sign. Leaves p on the first character after them.
+static bool dec_sign(const char *&p) {
+  while (*p == ' ') ++p;
+  const bool neg = (*p == '-');
+  if (neg || *p == '+') ++p;
+  return neg;
+}
+
+// Read digits, saturating at the largest uint32_t (4294967295, so 429496729 is the last safe 9-digit step)
+static uint32_t dec_digits(const char *&p) {
+  uint32_t n = 0;
+  for (uint8_t d; (d = uint8_t(*p - '0')) < 10; ++p)
+    n = (n > 429496729UL || (n == 429496729UL && d > 5)) ? UINT32_MAX : n * 10 + d;
+  return n;
+}
+
+NO_INLINE uint32_t GCodeParser::dec_to_ulong(const char *p) {
+  const bool neg = dec_sign(p);
+  const uint32_t n = dec_digits(p);
+  return neg ? 0UL - n : n;                      // Same as strtoul: a minus sign negates
+}
+
+NO_INLINE int32_t GCodeParser::dec_to_long(const char *p) {
+  const bool neg = dec_sign(p);
+  const uint32_t n = dec_digits(p);
+  if (neg) return n >= 0x80000000UL ? INT32_MIN : -int32_t(n);
+  return n > uint32_t(INT32_MAX) ? INT32_MAX : int32_t(n);
+}
+
+NO_INLINE float GCodeParser::dec_to_float(const char *p) {
+  const bool neg = dec_sign(p);
+  uint32_t mant = 0;                             // Up to 9 significant digits
+  uint8_t sig = 0, decimals = 0, extra = 0;
+  bool point = false;
+  for (;; ++p) {
+    if (*p == '.' && !point) { point = true; continue; }
+    const uint8_t d = uint8_t(*p - '0');
+    if (d >= 10) break;
+    if (sig < 9) {
+      mant = mant * 10 + d;
+      if (mant) ++sig;
+      if (point) ++decimals;
+    }
+    else if (!point) ++extra;                    // A whole digit that doesn't fit: scale up
+  }
+  float f = float(mant), scale = 1;
+  for (uint8_t i = decimals; i--;) scale *= 10;
+  f /= scale;
+  for (uint8_t i = extra; i--;) f *= 10;
+  return neg ? -f : f;
+}
 
 /**
  * Clear all code-seen (and value pointers)
@@ -235,7 +287,7 @@ void GCodeParser::parse(char *p) {
         if (letter == 'G'
           && (codenum <= TERN(ARC_SUPPORT, 3, 1) || TERN0(BEZIER_CURVE_SUPPORT, codenum == 5) || TERN0(G38_PROBE_TARGET, codenum == 38))
         ) {
-          motion_mode_codenum = codenum;
+          motion_mode_codenum = int8_t(codenum);
           TERN_(USE_GCODE_SUBCODES, motion_mode_subcode = subcode);
         }
       #endif
@@ -263,7 +315,7 @@ void GCodeParser::parse(char *p) {
       case 'F':
         if (motion_mode_codenum < 0) return;
         command_letter = 'G';
-        codenum = motion_mode_codenum;
+        codenum = uint16_t(motion_mode_codenum);
         TERN_(USE_GCODE_SUBCODES, subcode = motion_mode_subcode);
         p--; // Back up one character to use the current parameter
         break;
