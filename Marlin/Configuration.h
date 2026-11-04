@@ -411,10 +411,11 @@
  *   PRUSA_MMU3           : Průša MMU3  (Requires MK3S extruder with motion sensor and MMU firmware version 3.x.x, EXTRUDERS = 5)
  *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   CHAMELEON            : 3D Chameleon Mk4 (EXTRUDERS = 2 to 4). A single button is pressed by an axis move.
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * See additional options in Configuration_adv.h.
- * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+ * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S", "CHAMELEON"]
  */
 //#define MMU_MODEL PRUSA_MMU3
 
@@ -3369,13 +3370,17 @@
  *  - Download https://www.crealitycloud.com/downloads/firmware/sermoon-series/sermoon-d1
  *  - Copy the DWIN_SET folder from the firmware package to the SD card.
  *
+ * SERMOON_V1 (T5L)
+ *  - Download https://www.crealitycloud.com/downloads/firmware/sermoon-series/sermoon-v1
+ *  - Copy the DWIN_SET folder from the firmware package to the SD card.
+ *
  * Flash display with DGUS Displays for Marlin:
  *  - Format the SD card to FAT32 with an allocation size of 4kb.
  *  - Download files as specified for your type of display.
  *  - Plug the microSD card into the back of the display.
  *  - Boot the display and wait for the update to complete.
  *
- * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1' ]
+ * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1', 'SERMOON_V1' ]
  */
 //#define DGUS_LCD_UI ORIGIN
 #if DGUS_UI_IS(MKS)

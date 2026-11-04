@@ -969,19 +969,19 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
             break;
           }
 
-          while (mStr[index] == ' ') index++;
+          while (spStr[index] == ' ') index++;
 
           if (MKSW_WIFI_TYPE == ESP_WIFI) {
             char * const path = tempBuf;
-            if (strlen(&mStr[index]) < 80) {
+            if (strlen(&spStr[index]) < 80) {
               print_to_wifi(STR_BEGIN_FILE_LIST "\r\n");
 
-              if (strncmp(&mStr[index], "1:", 2) == 0)
+              if (strncmp(&spStr[index], "1:", 2) == 0)
                 MKSW_FILESYS_TYPE = FILE_SYS_SD;
-              else if (strncmp(&mStr[index], "0:", 2) == 0)
+              else if (strncmp(&spStr[index], "0:", 2) == 0)
                 MKSW_FILESYS_TYPE = FILE_SYS_USB;
 
-              strcpy(path, &mStr[index]);
+              strcpy(path, &spStr[index]);
               const bool with_longnames = strchr(mStr, 'L') != nullptr;
               get_file_list(path, with_longnames);
               print_to_wifi(STR_END_FILE_LIST "\r\n");
@@ -995,26 +995,26 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 23:
         // Select the file
-        if (MKSW_PRINT_STATE == IDLE) {
+        if (spStr && MKSW_PRINT_STATE == IDLE) {
           int index = 0;
-          while (mStr[index] == ' ') index++;
+          while (spStr[index] == ' ') index++;
 
-          if (strstr_P(&mStr[index], PSTR(".g")) || strstr_P(&mStr[index], PSTR(".G"))) {
-            if (strlen(&mStr[index]) < 80) {
+          if (strstr_P(&spStr[index], PSTR(".g")) || strstr_P(&spStr[index], PSTR(".G"))) {
+            if (strlen(&spStr[index]) < 80) {
               ZERO(MKSW_SEL_FILE);
               ZERO(MKSW_SEL_LONGNAME);
               uint8_t has_path_selected = 0;
 
               if (MKSW_WIFI_TYPE == ESP_WIFI) {
-                if (strncmp_P(&mStr[index], PSTR("1:"), 2) == 0) {
+                if (strncmp_P(&spStr[index], PSTR("1:"), 2) == 0) {
                   MKSW_FILESYS_TYPE = FILE_SYS_SD;
                   has_path_selected = 1;
                 }
-                else if (strncmp_P(&mStr[index], PSTR("0:"), 2) == 0) {
+                else if (strncmp_P(&spStr[index], PSTR("0:"), 2) == 0) {
                   MKSW_FILESYS_TYPE = FILE_SYS_USB;
                   has_path_selected = 1;
                 }
-                else if (mStr[index] != '/')
+                else if (spStr[index] != '/')
                   strcat_P((char *)MKSW_SEL_FILE, PSTR("/"));
 
                 if (file_writer.fileTransfer == 1) {
@@ -1022,23 +1022,23 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   uint8_t fileName[sizeof(MKSW_SEL_FILE)];
                   fileName[0] = '\0';
                   if (has_path_selected == 1) {
-                    strcat((char *)fileName, &mStr[index + 3]);
+                    strcat((char *)fileName, &spStr[index + 3]);
                     strcat_P((char *)MKSW_SEL_FILE, PSTR("/"));
                   }
-                  else strcat((char *)fileName, &mStr[index]);
+                  else strcat((char *)fileName, &spStr[index]);
                   if (!sanitizeName((const char *)fileName, dosName))
                     strcpy_P(MKSW_SEL_FILE, PSTR("notValid"));
                   strcat((char *)MKSW_SEL_FILE, dosName);
                   strcat((char *)MKSW_SEL_LONGNAME, (const char *)fileName);
                 }
                 else {
-                  strcat((char *)MKSW_SEL_FILE, &mStr[index]);
-                  strcat((char *)MKSW_SEL_LONGNAME, &mStr[index]);
+                  strcat((char *)MKSW_SEL_FILE, &spStr[index]);
+                  strcat((char *)MKSW_SEL_LONGNAME, &spStr[index]);
                 }
 
               }
               else
-                strcpy(MKSW_SEL_FILE, &mStr[index]);
+                strcpy(MKSW_SEL_FILE, &spStr[index]);
 
               char *cur_name = strrchr(MKSW_SEL_FILE,'/');
 
@@ -1158,13 +1158,13 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 28:
         // Begin to transfer file to filesys
-        if (MKSW_PRINT_STATE == IDLE) {
+        if (spStr && MKSW_PRINT_STATE == IDLE) {
 
           int index = 0;
-          while (mStr[index] == ' ') index++;
+          while (spStr[index] == ' ') index++;
 
-          if (strstr_P(&mStr[index], PSTR(".g")) || strstr_P(&mStr[index], PSTR(".G"))) {
-            strcpy((char *)file_writer.saveFileName, &mStr[index]);
+          if (strstr_P(&spStr[index], PSTR(".g")) || strstr_P(&spStr[index], PSTR(".G"))) {
+            strcpy((char *)file_writer.saveFileName, &spStr[index]);
 
             if (MKSW_FILESYS_TYPE == FILE_SYS_SD) {
               ZERO(tempBuf);
@@ -1181,7 +1181,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
               card.openFileWrite(cur_name);
               if (card.isFileOpen()) {
                 ZERO(file_writer.saveFileName);
-                strcpy((char *)file_writer.saveFileName, &mStr[index]);
+                strcpy((char *)file_writer.saveFileName, &spStr[index]);
                 ZERO(tempBuf);
                 sprintf_P(tempBuf, PSTR("Writing to file: %s\r\n"), (char *)file_writer.saveFileName);
                 wifi_ret_ack();
@@ -1250,7 +1250,6 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
         }
 
         print_to_wifi(tempBuf);
-        queue.enqueue_one(F("M105"));
         break;
 
       case 992:
@@ -1289,7 +1288,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
       case 998:
         if (MKSW_PRINT_STATE == IDLE) {
-          const int v = atoi(mStr);
+          const int v = spStr ? atoi(spStr) : -1;
           if (v == 0 || v == 1) set_cur_file_sys(v);
           wifi_ret_ack();
         }

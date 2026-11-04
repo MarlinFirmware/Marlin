@@ -193,6 +193,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("主板信息");                                     // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("温度计");                                      // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("挤出机");                                      // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU固件版本");                                  // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("波特率");                                      // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("协议");                                       // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("外壳灯");                                      // Case Light
