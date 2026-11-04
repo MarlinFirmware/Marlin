@@ -30,12 +30,12 @@
  * the user resumes. Commands injected by the screen, such as Load / Unload
  * filament from the Tune menu, cannot run during that wait. The CR-6 touch
  * screen expects to use them while paused, so it parks with ordinary queued
- * moves instead. With PARK_HEAD_ON_PAUSE enabled the stock behavior is kept.
+ * moves instead. PARK_HEAD_ON_PAUSE still parks for M600 and filament runout.
  */
 
 #include "../../../../inc/MarlinConfigPre.h"
 
-#if ALL(HAS_MEDIA, NOZZLE_PARK_FEATURE) && DISABLED(PARK_HEAD_ON_PAUSE)
+#if ALL(HAS_MEDIA, NOZZLE_PARK_FEATURE)
   #define CREALITY_PARK_ON_PAUSE 1
 #endif
 
