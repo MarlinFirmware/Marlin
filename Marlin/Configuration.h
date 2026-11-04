@@ -3616,6 +3616,7 @@
     //#define GALAXY_FAST_SPI           // Double the TFT SPI clock (STM32F4 on SPI1: 21 to 42MHz) to halve redraw time.
                                         // Exceeds most panel specs. Disable if the screen shows noise or glitches.
   #endif
+
 #endif // TFT_COLOR_UI
 
 #if ENABLED(TFT_LVGL_UI)
