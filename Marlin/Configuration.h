@@ -3613,9 +3613,10 @@
   #if ENABLED(NOVIN3DP_GALAXY_UI)
     //#define GALAXY_TOUCH_BEEP         // Short beep on every touch
     //#define GALAXY_HOME_ICONS_FLAT    // Home screen icons: flat instead of 3D
+    //#define GALAXY_FAST_SPI           // Double the TFT SPI clock (STM32F4 on SPI1: 21 to 42MHz) to halve redraw time.
+                                        // Exceeds most panel specs. Disable if the screen shows noise or glitches.
   #endif
-  //#define TFT_SPI1_PRESCALER SPI_BAUDRATEPRESCALER_2  // STM32: Override the TFT SPI1 clock (default _4, 21MHz on F407)
-#endif
+#endif // TFT_COLOR_UI
 
 #if ENABLED(TFT_LVGL_UI)
   //#define MKS_WIFI_MODULE // MKS WiFi module
