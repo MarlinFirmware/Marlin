@@ -261,7 +261,7 @@ void PrintPauseDialogHandler(DGUS_VP_Variable &var, unsigned short buttonValue) 
         case 2:
           screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING);
           screen.setStatusMessage(F("Pausing print - please wait..."));
-          if (TERN0(CREALITY_PARK_ON_PAUSE, PauseParkHandler::pause()) break;
+          if (TERN0(CREALITY_PARK_ON_PAUSE, PauseParkHandler::pause())) break;
           ExtUI::pausePrint();
           break;
 
