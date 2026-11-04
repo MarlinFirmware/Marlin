@@ -23,7 +23,7 @@
 /**
  * lcd/extui/dgus/creality/PauseParkHandler.cpp
  *
- * Pause:  M25, then (once the queue is empty) retract and G27.
+ * Pause:  M25 (or the same without the modal M125), then (once the queue is empty) retract and G27.
  * Resume: reheat if needed, un-retract, move back to X Y, then Z, restore the
  *         E position, and finish with M24.
  * Each stage is queued and the next one starts when the queue is done, because
@@ -45,6 +45,11 @@
 #include "../../../marlinui.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/temperature.h"
+#include "../../../../module/printcounter.h"
+#include "../../../../sd/cardreader.h"
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../../../feature/powerloss.h"
+#endif
 
 #ifdef PAUSE_PARK_RETRACT_LENGTH
   #define PARK_RETRACT_LENGTH PAUSE_PARK_RETRACT_LENGTH
@@ -93,7 +98,17 @@ bool PauseParkHandler::pause() {
   screen.setStatusMessage(F("Pausing print - please wait..."));
 
   // Let the buffered commands finish before parking
-  ExtUI::injectCommands(F("M25"));
+  #if ENABLED(PARK_HEAD_ON_PAUSE)
+    // M25 would run the modal M125, so pause the media directly, as M25 does otherwise
+    if (card.isStillPrinting()) card.pauseSDPrint();
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      if (recovery.enabled) recovery.save(true);
+    #endif
+    print_job_timer.pause();
+    ui.reset_status();
+  #else
+    ExtUI::injectCommands(F("M25"));
+  #endif
   screen.runWhenQueueDone(onPaused);
   return true;
 }
