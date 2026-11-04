@@ -374,6 +374,7 @@ namespace MMU3 {
     uint16_t mmuFwVersionBuild;
 
     uint8_t retryAttempts;
+    bool commandErrorLogged = false; // The current Command Error has been reported (report each error once)
     bool inAutoRetry;
 
     friend class MMU3;

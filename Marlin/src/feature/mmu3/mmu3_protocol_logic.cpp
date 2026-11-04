@@ -845,6 +845,7 @@ namespace MMU3 {
     if (!ExpectsResponse()) // if not waiting for a response, activate a planned request immediately
       ActivatePlannedRequest();
     auto currentStatus = ScopeStep();
+    if (currentStatus != CommandError) commandErrorLogged = false;
     switch (currentStatus) {
       case Processing:
         // we are ok, the state machine continues correctly
@@ -870,7 +871,11 @@ namespace MMU3 {
         CommandRestart();
         break;
       case CommandError:
-        LogError(PSTR("Command Error"));
+        // The MMU repeats the error on every status poll until it is answered. Report it once.
+        if (!commandErrorLogged) {
+          commandErrorLogged = true;
+          LogError(PSTR("Command Error"));
+        }
         // we should probably transfer into the Idle state and await further instructions from the upper layer
         // Idle state may solve the problem of keeping up the heart beat running
         break;
