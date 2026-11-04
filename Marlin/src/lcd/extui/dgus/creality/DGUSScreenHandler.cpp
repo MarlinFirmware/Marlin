@@ -335,9 +335,17 @@ void DGUSScreenHandlerCreality::sendPrintTimeRemainingToDisplay(DGUS_VP_Variable
 
     // Send a progress update to the display if anything is different.
     // This allows custom M117 commands to override the displayed string if desired.
-    const duration_t remaining(remaining_time);
+    // M73 R gives whole minutes, so show no seconds, which would always be 0
     char buffer[21] = { 0 };
-    remaining.toString(buffer);
+    if (remaining_time < 60)
+      sprintf_P(buffer, PSTR("%us"), unsigned(remaining_time));
+    else {
+      const uint32_t mins = remaining_time / 60;
+      if (mins >= 60)
+        sprintf_P(buffer, PSTR("%uh %um"), unsigned(mins / 60), unsigned(mins % 60));
+      else
+        sprintf_P(buffer, PSTR("%um"), unsigned(mins));
+    }
     dgus.writeVariable(VP_PrintTimeRemaining, buffer, var.size, true);
 
     lastRemainingTime = remaining_time;
