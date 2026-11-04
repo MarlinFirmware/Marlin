@@ -82,6 +82,8 @@
   #include "../feature/mmu/mmu2.h"
 #elif HAS_PRUSA_MMU1
   #include "../feature/mmu/mmu.h"
+#elif HAS_CHAMELEON
+  #include "../feature/mmu/chameleon.h"
 #endif
 
 #if HAS_MARLINUI_MENU
@@ -1134,6 +1136,14 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
     if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
 
     mmu3.tool_change(new_tool);
+
+  #elif HAS_CHAMELEON
+
+    UNUSED(no_move);
+
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
+
+    chameleon.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 

@@ -29,7 +29,11 @@
 #include "wifi.h"
 #include <ESPAsyncWebServer.h>
 
-MSerialWebSocketT webSocketSerial(false);
+#if ENABLED(EMERGENCY_PARSER)
+  #include "../../../feature/e_parser.h"
+#endif
+
+MSerialWebSocketT webSocketSerial(ENABLED(EMERGENCY_PARSER));
 AsyncWebSocket ws("/ws"); // TODO Move inside the class.
 
 // RingBuffer impl
@@ -114,8 +118,12 @@ void WebSocketSerial::begin(const long baud_setting) {
       case WS_EVT_PONG: break;                    // pong message was received (in response to a ping request maybe)
       case WS_EVT_DATA: {                         // data packet
         AwsFrameInfo * info = (AwsFrameInfo*)arg;
-        if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT)
+        if (info->opcode == WS_TEXT || info->message_opcode == WS_TEXT) {
           this->rx_buffer.write(data, len);
+          #if ENABLED(EMERGENCY_PARSER)
+            for (size_t i = 0; i < len; ++i) emergency_parser.update(webSocketSerial.emergency_state, data[i]);
+          #endif
+        }
       }
     }
   });
