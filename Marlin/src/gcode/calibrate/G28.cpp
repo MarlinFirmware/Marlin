@@ -316,7 +316,6 @@ void GcodeSuite::G28() {
       (void)select_coordinate_system(-1);
     #endif
 
-    #define HOMING_USE_T0 // Always home with tool 0 active
     #if ALL(HAS_MULTI_HOTEND, HOMING_USE_T0)
       #if DISABLED(DELTA) || ENABLED(DELTA_HOME_TO_SAFE_ZONE)
         const uint8_t old_tool_index = motion.extruder;
