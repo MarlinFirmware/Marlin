@@ -297,12 +297,12 @@ namespace MMU3 {
           runout.filament_ran_out = false; // trying to disable the purge more / continue message
           runout.enabled = false;
         #endif
-        queue.enqueue_now(F("M600A")); // Save print and run M600 A (automatic) command
+        queue.inject(F("M600A")); // Save print and run M600 A (automatic) command
       }
       else {
         marlin_stop_and_save_print_to_ram();
-        resume_print();
-        queue.enqueue_now(F("M600")); // Save print and run M600 command
+        resume_print(0, 0, 0, 0, 0, false); // Restore the state only. No load, purge, or "Purge More / Continue" prompt.
+        queue.inject(F("M600")); // Save print and run M600 command
       }
     }
   }
