@@ -195,6 +195,7 @@ namespace LanguageNarrow_bg {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Инфо платка");                              // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Термистори");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Екструдери");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Версия фърмуер MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Скорост (бод)");                            // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Протокол");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Осветление");                               // Case Light
