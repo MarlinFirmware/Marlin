@@ -3275,6 +3275,17 @@
 #endif
 
 /**
+ * Switching Toolhead docks may be at either side of the Y axis.
+ * SWITCHING_TOOLHEAD_DOCK_DIR is the direction from the docks toward the work area:
+ *   +1 for docks at the low-Y side (front), -1 for docks at the high-Y side (rear).
+ * It is inferred from the half of the Y travel that SWITCHING_TOOLHEAD_Y_POS lies in.
+ * Y_SECURITY, Y_CLEAR and Y_RELEASE are distances from the dock toward the work area.
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_DOCK_DIR ((SWITCHING_TOOLHEAD_Y_POS) < ((Y_MIN_POS) + (Y_MAX_POS)) * 0.5f ? 1 : -1)
+#endif
+
+/**
  * Only constrain Z on DELTA / TPARA machines.
  * SCARA can also constrain XY to the bed bounds.
  */
@@ -3567,6 +3578,10 @@
     #else
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
+  #endif
+  // Galaxy UI: TFT backlight brightness is set in the UI and saved with M500
+  #if ALL(NOVIN3DP_GALAXY_UI, TFT_COLOR_UI) && PIN_EXISTS(TFT_BACKLIGHT) && !defined(HAS_LCD_BRIGHTNESS)
+    #define HAS_LCD_BRIGHTNESS 1
   #endif
   // Prepare the LCD to show the bootscreen early in setup
   #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)

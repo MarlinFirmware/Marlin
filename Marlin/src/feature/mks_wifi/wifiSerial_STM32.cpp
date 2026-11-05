@@ -41,6 +41,8 @@ void WifiSerial::setTx(PinName _tx)  { _serial.pin_tx = _tx; }
 void WifiSerial::init(PinName _rx, PinName _tx) {
   _serial.pin_rx  = (_rx == _tx) ? NC : _rx;
   _serial.pin_tx  = _tx;
+  _serial.pin_rts = NC; // Without these uart_init() gives up: 0 is PA_0, which isn't an RTS pin
+  _serial.pin_cts = NC;
   _serial.rx_buff = wifiRxBuf;
   _serial.rx_head = 0;
   _serial.rx_tail = 0;

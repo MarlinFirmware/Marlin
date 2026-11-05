@@ -498,6 +498,7 @@
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
 #define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
 #define BOARD_LDO_LEVIATHAN_V1_2            5264  // LDO Leviathan v1.2 (STM32F446ZE)
+#define BOARD_CREALITY_V24S1_200            5265  // Creality v2.4.S1_200 (STM32F401RC) CR-FDM-v2.4.S1_200 as found in the Sermoon V1 / V1 Pro
 
 //
 // Other ARM Cortex-M4
@@ -515,7 +516,7 @@
 #define BOARD_BTT_SKR_V3_0                  6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_SKR_V3_0_EZ               6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0       6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE / STM32F446ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1          6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 #define BOARD_BTT_MANTA_M8P_V2_0            6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
 #define BOARD_BTT_KRAKEN_V1_0               6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)

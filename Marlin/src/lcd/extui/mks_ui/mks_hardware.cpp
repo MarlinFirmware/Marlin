@@ -99,7 +99,9 @@
     constexpr static bool endstopz4_sta = true;
   #endif
 
-  #define LOWSTATE(S) (READ(S##_PIN) == LOW)
+  // Expand S first so TERN() arguments resolve to a pin name before pasting
+  #define _LOWSTATE(S) (READ(S##_PIN) == LOW)
+  #define LOWSTATE(S) _LOWSTATE(S)
 
   void test_gpio_readlevel_L() {
     #if PIN_EXISTS(WIFI_IO0)

@@ -193,6 +193,7 @@ namespace LanguageNarrow_vi {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Thông Tin Bo Mạch");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Điện Trở Nhiệt");                           // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Máy đùn");                                  // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Phiên bản FW MMU");                         // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Giao Thức");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Đèn Khuông");                               // Case Light
