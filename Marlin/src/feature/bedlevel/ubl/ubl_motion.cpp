@@ -357,23 +357,39 @@
 
     const xyze_pos_t total = motion.destination - motion.position;
 
-    const float cart_xy_mm_2 = HYPOT2(total.x, total.y),
-                cart_xy_mm = SQRT(cart_xy_mm_2);                               // Total XY distance
+    // If the move is only in Z/E don't split up the move
+    if (!total.x && !total.y) {
+      planner.buffer_line(motion.destination, scaled_fr_mm_s);
+      return false; // caller will update current_position
+    }
+    #if HAS_ROTATIONAL_AXES
+      bool cartes_move = true;
+    #endif
+    float cartesian_mm = motion.get_move_distance(total OPTARG(HAS_ROTATIONAL_AXES, cartes_move));
+
+    // If the move is very short, check the E move distance
+    TERN_(HAS_EXTRUDERS, if (UNEAR_ZERO(cartesian_mm)) cartesian_mm = ABS(total.e));
+
+    // No E move either? Game over.
+    if (UNEAR_ZERO(cartesian_mm)) return true;
 
     #if IS_KINEMATIC
-      const float seconds = cart_xy_mm / scaled_fr_mm_s;                       // Duration of XY move at requested rate
+      // Minimum number of seconds to move the given distance
+      const float seconds = cartesian_mm / scaled_fr_mm_s;
+
       uint16_t segments = LROUND(segments_per_second * seconds),               // Preferred number of segments for distance @ feedrate
-               seglimit = LROUND(cart_xy_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+               seglimit = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Number of segments at minimum segment length
+    
       NOMORE(segments, seglimit);                                              // Limit to minimum segment length (fewer segments)
     #else
-      uint16_t segments = LROUND(cart_xy_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
+      uint16_t segments = LROUND(cartesian_mm * RECIPROCAL(SEGMENT_MIN_LENGTH)); // Cartesian fixed segment length
     #endif
 
     NOLESS(segments, 1U);                                                      // Must have at least one segment
     const float inv_segments = 1.0f / segments;                                // Reciprocal to save calculation
 
     // Add hints to help optimize the move
-    PlannerHints hints(SQRT(cart_xy_mm_2 + sq(total.z)) * inv_segments);       // Length of each segment
+    PlannerHints hints(cartesian_mm * inv_segments);       // Length of each segment
     #if ENABLED(FEEDRATE_SCALING)
       hints.inv_duration = scaled_fr_mm_s / hints.millimeters;
     #endif

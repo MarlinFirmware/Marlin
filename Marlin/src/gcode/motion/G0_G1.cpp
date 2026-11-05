@@ -50,15 +50,28 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   if (motion.gcode_motion_ignored()) return;
 
   TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_RUNNING));
-
+  
   #ifdef G0_FEEDRATE
     feedRate_t old_feedrate;
     #if ENABLED(VARIABLE_G0_FEEDRATE)
+      #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+        parser.linear_motion_gcode = true;
+      #endif
       if (fast_move) {
         old_feedrate = motion.feedrate_mm_s;            // Back up the (old) motion mode feedrate
         motion.feedrate_mm_s = fast_move_feedrate;      // Get G0 feedrate from last usage
       }
     #endif
+    #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+      if (fast_move) {
+        parser.linear_motion_gcode = false;
+      }
+      else {
+        parser.linear_motion_gcode = true;
+      }
+    #endif
+  #elif HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.linear_motion_gcode = true;
   #endif
 
   get_destination_from_command();                       // Get X Y [Z[I[J[K]]]] [E] F (and set cutter power)
@@ -102,6 +115,10 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
   #ifdef G0_FEEDRATE
     // Restore the motion mode feedrate
     if (fast_move) motion.feedrate_mm_s = old_feedrate;
+  #endif
+
+  #if HAS_ROTATIONAL_AXES || IS_KINEMATIC || HAS_LEVELING || ENABLED(FEEDRATE_MODE_SUPPORT)
+    parser.linear_motion_gcode = false;
   #endif
 
   #if ENABLED(NANODLP_Z_SYNC)
