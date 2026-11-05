@@ -415,6 +415,12 @@
   #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define LCD_USE_DMA_SPI
 
+  #if HAS_FSMC_TFT
+    // FSMC panels are driven like SPI panels (see HAL/NATIVE_SIM/tft/tft_fsmc.h)
+    #define FSMC_CS_PIN               TFT_CS_PIN
+    #define FSMC_RS_PIN               TFT_DC_PIN
+  #endif
+
   #define BEEPER_PIN                          42
 
   #define BTN_ENC                             59
@@ -666,6 +672,38 @@
       #define KILL_PIN                        64
 
       //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+
+    #elif ENABLED(FYSETC_MINI_12864)
+
+      // From https://wiki.fysetc.com/docs/Mini12864Panel
+
+      #define DOGLCD_A0              EXP1_04_PIN
+      #define DOGLCD_CS              EXP1_03_PIN
+
+      #define BEEPER_PIN             EXP1_01_PIN
+
+      #define BTN_EN1                EXP2_05_PIN
+      #define BTN_EN2                EXP2_03_PIN
+      #define BTN_ENC                EXP1_02_PIN
+
+      #define SD_DETECT_PIN          EXP2_07_PIN
+      #define KILL_PIN               EXP2_08_PIN
+
+      #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
+
+      #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+        #ifndef RGB_LED_R_PIN
+          #define RGB_LED_R_PIN      EXP1_06_PIN
+        #endif
+        #ifndef RGB_LED_G_PIN
+          #define RGB_LED_G_PIN      EXP1_07_PIN
+        #endif
+        #ifndef RGB_LED_B_PIN
+          #define RGB_LED_B_PIN      EXP1_08_PIN
+        #endif
+      #elif ENABLED(FYSETC_MINI_12864_2_1)
+        #define NEOPIXEL_PIN         EXP1_06_PIN
+      #endif
 
     #elif ENABLED(MINIPANEL)
 

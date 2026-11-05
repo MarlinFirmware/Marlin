@@ -97,7 +97,7 @@ void ControllerFan::update() {
     #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
       || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
     #endif
-  ) lastComponentOn = ms; //... set time to NOW so the fan will turn on
+  ) lastComponentOn = next_millis(ms); //... set time to NOW so the fan will turn on
 
   /**
    * Fan Settings. Set fan > 0:
@@ -118,7 +118,7 @@ void ControllerFan::update() {
 
     if (s > FAN_OFF_PWM) {                      // Is the fan turned on?
       if (!kick_end_ms) {                       // No kickstart yet?
-        kick_end_ms = ms + FAN_KICKSTART_TIME;  // Set a future time at which to stop
+        kick_end_ms = next_millis(ms + FAN_KICKSTART_TIME);  // Set a future time at which to stop
         s = FAN_KICKSTART_POWER;                // Override the power
       }
       else if (PENDING(ms, kick_end_ms))        // Still waiting for end of kickstart time?
