@@ -126,6 +126,9 @@ enum {
 #include "save_settings_dialog_box.h"
 #include "confirm_start_print_dialog_box.h"
 #include "confirm_abort_print_dialog_box.h"
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "power_loss_resume_dialog_box.h"
+#endif
 #include "confirm_user_request_alert_box.h"
 #include "filament_prompt_box.h"
 #include "touch_calibration_screen.h"

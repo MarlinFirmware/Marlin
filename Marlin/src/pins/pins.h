@@ -834,6 +834,10 @@
   #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
 #elif MB(PRUSA_BUDDY)
   #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
+#elif MB(LDO_LEVIATHAN_V1_2)
+  #include "stm32f4/pins_LDO_LEVIATHAN.h"           // STM32F4                              env:LDO_LEVIATHAN env:LDO_LEVIATHAN_no_bootloader env:LDO_LEVIATHAN_katapult
+#elif MB(CREALITY_V24S1_200)
+  #include "stm32f4/pins_CREALITY_V24S1_200.h"      // STM32F4                              env:STM32F401RC_creality
 
 //
 // Other ARM Cortex-M4
@@ -861,7 +865,7 @@
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"           // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_0_1)
-  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive env:STM32F446ZE_btt_katapult env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"         // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_MANTA_M8P_V2_0)
@@ -886,6 +890,8 @@
   #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
 #elif MB(FYSETC_SPIDER_V3_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_V3_H723.h"        // STM32H7                         env:STM32H723VG_fysetc
+#elif MB(LDO_LEVIATHAN_V1_3)
+  #include "stm32h7/pins_LDO_LEVIATHAN_V1_3.h"           // STM32H7                         env:LDO_LEVIATHAN_V13 env:LDO_LEVIATHAN_V13_no_bootloader env:LDO_LEVIATHAN_V13_katapult
 
 //
 // Espressif ESP32

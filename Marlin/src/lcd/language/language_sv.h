@@ -195,6 +195,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Styrkortsinfo");                            // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistorer");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderare");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU-firmwareversion");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Datahastighet");                            // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoll");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kapslingsljus");                            // Case Light
