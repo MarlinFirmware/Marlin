@@ -80,6 +80,7 @@ MMU2 mmu2;
 #define MMU_BAUD    115200
 
 bool MMU2::_enabled, MMU2::ready;
+uint16_t MMU2::mmu_fw_buildnr = 0;
 #if HAS_PRUSA_MMU2S
   bool MMU2::mmu2s_triggered;
   static uint8_t mmu2s_c0_tries;  // C0 re-sends since the last C0 command
@@ -182,6 +183,7 @@ void MMU2::mmu_loop() {
     case -3:
       if (rx_ok()) {
         const uint16_t buildnr = uint16_t(strtoul(rx_buffer, nullptr, 10));
+        mmu_fw_buildnr = buildnr;
         DEBUG_ECHOLNPGM("MMU => ", buildnr);
 
         check_version(buildnr);

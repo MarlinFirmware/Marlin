@@ -350,15 +350,15 @@
 //#define ELECTROMAGNETIC_SWITCHING_TOOLHEAD
 
 #if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
-  #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock
-  #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis
-  #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock for unobstructed X axis
+  #define SWITCHING_TOOLHEAD_Y_POS          235         // (mm) Y position of the toolhead dock. The docks are at the low-Y end if this is in the lower half of the Y travel, else at the high-Y end.
+  #define SWITCHING_TOOLHEAD_Y_SECURITY      10         // (mm) Security distance Y axis, from the dock toward the work area
+  #define SWITCHING_TOOLHEAD_Y_CLEAR         60         // (mm) Minimum distance from dock (toward the work area) for unobstructed X axis
   #define SWITCHING_TOOLHEAD_X_POS          { 215, 0 }  // (mm) X positions for parking the extruders
   #if ENABLED(SWITCHING_TOOLHEAD)
     #define SWITCHING_TOOLHEAD_SERVO_NR       2         // Index of the servo connector
     #define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 }  // (degrees) Angles for Lock, Unlock
   #elif ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
-    #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis
+    #define SWITCHING_TOOLHEAD_Y_RELEASE      5         // (mm) Security distance Y axis, from the dock toward the work area
     #define SWITCHING_TOOLHEAD_X_SECURITY   { 90, 150 } // (mm) Security distance X axis (T0,T1)
     //#define PRIME_BEFORE_REMOVE                       // Prime the nozzle before release from the dock
     #if ENABLED(PRIME_BEFORE_REMOVE)
@@ -411,10 +411,11 @@
  *   PRUSA_MMU3           : Průša MMU3  (Requires MK3S extruder with motion sensor and MMU firmware version 3.x.x, EXTRUDERS = 5)
  *   EXTENDABLE_EMU_MMU2  : MMU with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
  *   EXTENDABLE_EMU_MMU2S : MMUS with configurable number of filaments (ERCF, SMuFF or similar with Průša MMU2 compatible firmware)
+ *   CHAMELEON            : 3D Chameleon Mk4 (EXTRUDERS = 2 to 4). A single button is pressed by an axis move.
  *
  * Requires NOZZLE_PARK_FEATURE to park print head in case MMU unit fails.
  * See additional options in Configuration_adv.h.
- * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+ * :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "PRUSA_MMU3", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S", "CHAMELEON"]
  */
 //#define MMU_MODEL PRUSA_MMU3
 
@@ -3375,13 +3376,17 @@
  *  - Download https://www.crealitycloud.com/downloads/firmware/sermoon-series/sermoon-d1
  *  - Copy the DWIN_SET folder from the firmware package to the SD card.
  *
+ * SERMOON_V1 (T5L)
+ *  - Download https://www.crealitycloud.com/downloads/firmware/sermoon-series/sermoon-v1
+ *  - Copy the DWIN_SET folder from the firmware package to the SD card.
+ *
  * Flash display with DGUS Displays for Marlin:
  *  - Format the SD card to FAT32 with an allocation size of 4kb.
  *  - Download files as specified for your type of display.
  *  - Plug the microSD card into the back of the display.
  *  - Boot the display and wait for the update to complete.
  *
- * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1' ]
+ * :[ 'ORIGIN', 'FYSETC', 'HYPRECY', 'MKS', 'RELOADED', 'IA_CREALITY', 'E3S1PRO', 'CR10SPROV2', 'SERMOON_D1', 'SERMOON_V1' ]
  */
 //#define DGUS_LCD_UI ORIGIN
 #if DGUS_UI_IS(MKS)
@@ -3440,6 +3445,14 @@
 // Requires a 6x6 (Pro), 7x7 (Plus), or 7x9 (Max) bilinear leveling grid.
 //
 //#define ELEGOO_NEPTUNE_3_TFT
+
+//
+// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
+// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
+// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
+// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
+//
+//#define PANELDUE
 
 //
 // Third-party or vendor-customized controller interfaces.
@@ -3608,7 +3621,23 @@
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
-#endif
+
+  /**
+   * Galaxy UI (by NOVIN3DP) for 480x320 touch screens (e.g., MKS TS35)
+   * Replaces the Color UI screens with a dark-blue touch UI: home tiles, print status
+   * with QOI G-code thumbnails, USB/SD storage selector and file grid, round XY jog pad,
+   * heater/fan sliders. Marlin list menus are drawn in the same style.
+   * Slicer: export G-code thumbnails as 48x48/QOI and 150x150/QOI.
+   */
+  //#define NOVIN3DP_GALAXY_UI
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    //#define GALAXY_TOUCH_BEEP         // Short beep on every touch
+    //#define GALAXY_HOME_ICONS_FLAT    // Home screen icons: flat instead of 3D
+    //#define GALAXY_FAST_SPI           // Double the TFT SPI clock (STM32F4 on SPI1: 21 to 42MHz) to halve redraw time.
+                                        // Exceeds most panel specs. Disable if the screen shows noise or glitches.
+  #endif
+
+#endif // TFT_COLOR_UI
 
 /**
  * TFT Rotation. Set to one of the following values:
@@ -3682,14 +3711,6 @@
 // EasyThreeD ET-4000+ with button input and status LED
 //
 //#define EASYTHREED_UI
-
-//
-// PanelDue touch controller by Duet3D (PanelDueFirmware 3.2 or newer)
-// https://docs.duet3d.com/User_manual/Connecting_hardware/Display_PanelDue
-// Connect the PanelDue to a free UART and define LCD_SERIAL_PORT with its index.
-// The PanelDue baud rate must be set to 57600, or define LCD_BAUDRATE to match.
-//
-//#define PANELDUE
 
 //=============================================================================
 //=============================== Extra Features ==============================

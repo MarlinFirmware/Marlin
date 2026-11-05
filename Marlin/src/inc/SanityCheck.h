@@ -635,6 +635,26 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * 3D Chameleon requirements
+ */
+#if HAS_CHAMELEON
+  #if EXTRUDERS < 2 || EXTRUDERS > 4
+    #undef SINGLENOZZLE
+    #error "CHAMELEON requires 2 to 4 EXTRUDERS (one per filament). Please update your Configuration."
+  #elif NUM_AXES < 3
+    #error "CHAMELEON requires X, Y, and Z axes."
+  #elif !HAS_TEMP_HOTEND
+    #error "CHAMELEON requires a hotend temperature sensor (TEMP_SENSOR_0)."
+  #elif !defined(CHAMELEON_BUTTON_AXIS) || !defined(CHAMELEON_BUTTON_POS)
+    #error "CHAMELEON requires CHAMELEON_BUTTON_AXIS and CHAMELEON_BUTTON_POS. Please update your Configuration_adv.h."
+  #elif CHAMELEON_PRESS_MM <= 0
+    #error "CHAMELEON_PRESS_MM must be greater than 0."
+  #elif CHAMELEON_PULSE_MS < 100
+    #error "CHAMELEON_PULSE_MS must be at least 100."
+  #endif
+#endif
+
+/**
  * Options only for EXTRUDERS > 1
  */
 #if HAS_MULTI_EXTRUDER
@@ -936,6 +956,31 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
   constexpr float thpx[] = SWITCHING_TOOLHEAD_X_POS;
   static_assert(COUNT(thpx) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_POS must be an array EXTRUDERS long.");
+#endif
+
+/**
+ * Magnetic Switching Toolhead: sliding a tool out of its dock (to SWITCHING_TOOLHEAD_X_SECURITY)
+ * must not carry it to the position of the next dock in that direction, where another tool is parked.
+ * Marlin doesn't know how wide a tool is, so this is only a warning for the worst case.
+ */
+#if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
+  namespace SwitchingToolheadCheck {
+    constexpr float xpos[] = SWITCHING_TOOLHEAD_X_POS, xsec[] = SWITCHING_TOOLHEAD_X_SECURITY;
+    static_assert(COUNT(xsec) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_SECURITY must be an array EXTRUDERS long.");
+    constexpr bool slide_reaches_next_dock() {
+      for (uint8_t i = 0; i < EXTRUDERS; ++i) {
+        const float slide = xsec[i] - xpos[i];
+        for (uint8_t j = 0; j < EXTRUDERS; ++j) {
+          const float gap = xpos[j] - xpos[i];
+          if (i != j && slide * gap > 0 && (slide < 0 ? -slide : slide) >= (gap < 0 ? -gap : gap)) return true;
+        }
+      }
+      return false;
+    }
+    template<bool bad> struct SlideCheck { };
+    template<> struct [[deprecated("SWITCHING_TOOLHEAD_X_SECURITY slides a tool as far as the next dock. A tool slid that far collides with the tool parked there.")]] SlideCheck<true> { };
+    [[maybe_unused]] static SlideCheck<slide_reaches_next_dock()> slide_check;
+  }
 #endif
 
 /**
@@ -4717,6 +4762,25 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #endif
 #endif
 
+/**
+ * Require certain features for DGUS_LCD_UI SERMOON_V1.
+ */
+#if DGUS_UI_IS(SERMOON_V1)
+  #if !(HOTENDS == 1 && EXTRUDERS == 1)
+    #error "DGUS_LCD_UI SERMOON_V1 requires 1 hotend and 1 extruder."
+  #elif !HAS_HEATED_BED
+    #error "DGUS_LCD_UI SERMOON_V1 requires a heated bed."
+  #elif !HAS_FAN
+    #error "DGUS_LCD_UI SERMOON_V1 requires a fan."
+  #elif !HAS_MEDIA
+    #error "DGUS_LCD_UI SERMOON_V1 requires SDSUPPORT."
+  #elif !defined(PREHEAT_1_TEMP_HOTEND) || !defined(PREHEAT_2_TEMP_HOTEND)
+    #error "DGUS_LCD_UI SERMOON_V1 requires 2 preheating presets."
+  #elif NUM_RUNOUT_SENSORS > 1
+    #error "DGUS_LCD_UI SERMOON_V1 requires NUM_RUNOUT_SENSORS < 2."
+  #endif
+#endif
+
 // JTAG support in the HAL
 #if ENABLED(DISABLE_DEBUG) && !defined(JTAGSWD_DISABLE)
   #error "DISABLE_DEBUG is not supported for the selected MCU/Board."
@@ -4862,10 +4926,14 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
 #endif // FT_MOTION
 
 /**
- * Resonance Test requires EMERGENCY_PARSER
+ * Resonance Test requires a 32-bit CPU and EMERGENCY_PARSER
  */
-#if ENABLED(RESONANCE_TEST) && DISABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
+#if ENABLED(RESONANCE_TEST)
+  #ifdef __AVR__
+    #error "RESONANCE_TEST requires a 32-bit CPU."
+  #elif DISABLED(EMERGENCY_PARSER)
+    #error "EMERGENCY_PARSER is required with RESONANCE_TEST (to cancel the test)."
+  #endif
 #endif
 
 // Multi-Stepping Limit
