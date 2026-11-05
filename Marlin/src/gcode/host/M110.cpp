@@ -35,6 +35,9 @@
  */
 void GcodeSuite::M110() {
 
+  // Line numbers belong to a serial port. Commands from SD or injected G-code have none.
+  if (!queue.ring_buffer.command_port().valid()) return;
+
   if (parser.seenval('N'))
     queue.set_current_line_number(parser.value_long());
   else

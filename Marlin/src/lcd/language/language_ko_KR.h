@@ -193,6 +193,7 @@ namespace LanguageNarrow_ko_KR {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("보드 정보");                                    // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("서미스터");                                     // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("익스트루더");                                    // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU 펌웨어 버전");                               // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("보드레이트");                                    // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("프로토콜");                                     // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("케이스 조명");                                   // Case Light
