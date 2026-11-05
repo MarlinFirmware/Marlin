@@ -201,6 +201,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info o desce");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudéry");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Verze firmwaru MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Rychlost");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Osvětlení");                                // Case Light

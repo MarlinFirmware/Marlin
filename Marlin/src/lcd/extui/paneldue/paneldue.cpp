@@ -189,6 +189,9 @@ static int8_t mbox_mode;      // RRF M291 mode
 static uint16_t mbox_seq;
 static char mbox_msg[96];
 static bool mbox_waited;      // Marlin has waited for the user since the box was shown
+#if ENABLED(POWER_LOSS_RECOVERY)
+  static bool mbox_plr;       // The message box offers "Resume" / "Cancel" for power-loss recovery
+#endif
 
 static char status_msg[MAX_MESSAGE_BYTES + 1];
 static bool status_pending;
@@ -197,13 +200,15 @@ static uint16_t beep_freq, beep_ms;
 static void mbox_clear() {
   if (!mbox_active) return;
   mbox_active = mbox_choices = mbox_waited = false;
+  TERN_(POWER_LOSS_RECOVERY, mbox_plr = false);
   mbox_mode = -1;
   seq_state++;
 }
 
 static bool waiting_for_user() {
   return ExtUI::awaitingUserConfirm()
-    || TERN0(ADVANCED_PAUSE_FEATURE, (mbox_choices && pause_menu_response == PAUSE_RESPONSE_WAIT_FOR));
+    || TERN0(ADVANCED_PAUSE_FEATURE, (mbox_choices && pause_menu_response == PAUSE_RESPONSE_WAIT_FOR))
+    || TERN0(POWER_LOSS_RECOVERY, mbox_plr);
 }
 
 // Update the message box mode to match what Marlin is waiting for
@@ -213,7 +218,7 @@ static void mbox_update() {
   if (waiting) mbox_waited = true;
   else if (mbox_waited) { mbox_clear(); return; }     // Confirmed some other way
 
-  const int8_t mode = mbox_choices ? 4 : waiting ? 2 : 1; // Choices, OK, or Close button
+  const int8_t mode = (mbox_choices || TERN0(POWER_LOSS_RECOVERY, mbox_plr)) ? 4 : waiting ? 2 : 1; // Choices, OK, or Close button
   if (mode != mbox_mode) {
     mbox_mode = mode;
     mbox_seq++;
@@ -464,6 +469,14 @@ static void om_state(const bool live) {
       o_key(F("seq")); o_uint(mbox_seq);
       o_key(F("timeout")); o_char('0');
       o_key(F("title")); o_jstr(MACHINE_NAME);
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        if (mbox_plr) {
+          o_key(F("cancelButton")); o_bool(false);
+          o_key(F("choices")); o_fstr(F("[\"Resume\",\"Cancel\"]"));
+          o_key(F("default")); o_char('0');
+        }
+        else
+      #endif
       if (mbox_choices) {
         o_key(F("cancelButton")); o_bool(false);
         o_key(F("choices")); o_fstr(F("[\"Purge more\",\"Continue\"]"));
@@ -883,6 +896,16 @@ static void handle_command(char * const cmd) {
 
     case 292: {                                       // M292: Message box response
       if (!mbox_active) return;
+      #if ENABLED(POWER_LOSS_RECOVERY)
+        if (mbox_plr) {
+          // R{0} = Resume, R{1} = Cancel
+          const char * const r = find_param(args, 'R');
+          const int choice = r ? atoi(r[0] == '{' ? r + 1 : r) : 0;
+          enqueue(choice == 0 ? F("M1000") : F("M1000 C"));
+          mbox_clear();
+          return;
+        }
+      #endif
       #if ENABLED(ADVANCED_PAUSE_FEATURE)
         if (mbox_choices) {
           // R{0} = Purge more, R{1} = Continue
@@ -1098,6 +1121,13 @@ void PanelDue::user_confirm(const char * const msg) {
   mbox_mode = -1;                                     // Set in mbox_update
   mbox_update();
 }
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  void PanelDue::power_loss_resume() {
+    mbox_plr = true;
+    user_confirm("Power outage. Resume print?");
+  }
+#endif
 
 void PanelDue::pause_option(const bool show) {
   if (mbox_choices != show) { mbox_choices = show; mbox_mode = -1; }
