@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2026 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -21,24 +21,20 @@
  */
 #pragma once
 
-#ifdef SERIAL_PORT_2
-  #error "SERIAL_PORT_2 must be disabled with TFT_LVGL_UI* and MKS_WIFI_MODULE."
-#endif
+/**
+ * LDO Leviathan V1.3 (STM32H743ZIT6) pin assignments
+ * Schematic: https://github.com/MotorDynamicsLab/Leviathan/blob/master/Schematic/Leviathan_V1.3.pdf
+ *
+ * The V1.3 swaps the V1.2's STM32F446ZET6 for an STM32H743ZIT6 with an
+ * identical pinout, so all pin assignments are shared with the V1.2.
+ */
 
-#define WIFI_BAUDRATE          115200
-#define WIFI_UPLOAD_BAUDRATE  1958400
-#define USART_SAFE_INSERT
+#define BOARD_INFO_NAME "LDO Leviathan V1.3"
 
-#define WIFI_RX_BUF_SIZE  (1024)
-#define WIFI_TX_BUF_SIZE  (64)
+// On the STM32H743's 144-pin package PC2/PC3 are bonded as the dual-pad
+// PC2_C/PC3_C pins, whose analog switches to the PC2/PC3 GPIOs are closed
+// at reset, so they serve the same endstop inputs as on the V1.2.
+#define PC2                              PC2_C
+#define PC3                              PC3_C
 
-#include "tft_lvgl_configuration.h"
-
-#ifdef __STM32F1__
-  #include "wifiSerial_STM32F1.h"
-#else
-  #include "wifiSerial_STM32.h"
-#endif
-
-extern WifiSerial WifiSerial1;
-#define WIFISERIAL WifiSerial1
+#include "../stm32f4/pins_LDO_LEVIATHAN.h"

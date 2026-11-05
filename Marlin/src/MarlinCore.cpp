@@ -53,6 +53,9 @@
 #if ENABLED(FT_MOTION)
   #include "module/ft_motion.h"
 #endif
+#if ENABLED(RESONANCE_TEST)
+  #include "feature/resonance/resonance_generator.h"
+#endif
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
@@ -71,6 +74,10 @@
   #include "lcd/extui/mks_ui/draw_ui.h"
   #include "lcd/extui/mks_ui/mks_hardware.h"
   #include <lvgl.h>
+#endif
+
+#if ENABLED(MKS_WIFI_MODULE)
+  #include "feature/mks_wifi/wifi_module.h"
 #endif
 
 #if HAS_DWIN_E3V2
@@ -307,7 +314,7 @@ PGMSTR(M112_KILL_STR, "M112 Shutdown");
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_start();
-    if (ms) ms += millis(); // expire time
+    if (ms) ms = next_millis(ms + millis()); // expire time
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     user_resume();
@@ -363,13 +370,13 @@ bool Marlin::printJobOngoing() { return print_job_timer.isRunning() || card.isSt
 /**
  * Printing is active when a job is underway but not paused
  */
-bool Marlin::printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool Marlin::printingIsActive() { return !paused_for_filament_change && printJobOngoing(); }
 
 /**
  * Printing is paused according to SD or host indicators
  */
 bool Marlin::printingIsPaused() {
-  return did_pause_print || print_job_timer.isPaused() || card.isPaused();
+  return paused_for_filament_change || print_job_timer.isPaused() || card.isPaused();
 }
 
 void Marlin::startOrResumeJob() {
@@ -442,7 +449,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   // Prevent steppers timing-out
   const bool do_reset_timeout = no_stepper_sleep
-                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
+                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, paused_for_filament_change);
 
   // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout.
   // Resonance blocks bypass the planner queue, so keep the stepper timeout
@@ -915,6 +922,13 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
+
+  // Pull G-code and file data from the MKS WiFi module.
+  // With the LVGL UI these are driven by LV_TASK_HANDLER / printer_state_polling.
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    get_wifi_commands();
+    wifi_looping();
+  #endif
 
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
@@ -1700,6 +1714,15 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  // Without the LVGL UI nothing else starts the WiFi module
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    SETUP_RUN(mks_esp_wifi_init());
+    #if HAS_MEDIA
+      if (!card.isMounted()) SETUP_RUN(card.mount());  // Mount SD to look for ESP firmware
+      SETUP_RUN(mks_wifi_firmware_update());
+    #endif
   #endif
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)

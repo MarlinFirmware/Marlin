@@ -563,6 +563,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
+      #if DGUS_LCD_UI_SERMOON_V1
+        case 72: M72(); break;                                    // M72: Set Creality Cloud job name
+      #endif
+
       #if ENABLED(SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
@@ -573,6 +577,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(PRINTCOUNTER)
         case 78: M78(); break;                                    // M78: Show print statistics
+      #endif
+
+      #if DGUS_LCD_UI_SERMOON_V1
+        case 79: M79(); break;                                    // M79: Creality Cloud print status
       #endif
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -971,6 +979,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
+      #endif
+
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
       #endif
 
       #if ENABLED(NONLINEAR_EXTRUSION)

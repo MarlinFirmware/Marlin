@@ -22,7 +22,8 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if ENABLED(TFT_COLOR_UI)
+// The NOVIN3DP galaxy UI (lcd/tft/galaxy) replaces this file's screens
+#if ENABLED(TFT_COLOR_UI) && DISABLED(NOVIN3DP_GALAXY_UI)
 
 #include "ui_common.h"
 
@@ -116,7 +117,8 @@ void MarlinUI::tft_idle() {
     if ((BOOTSCREEN_TIMEOUT) > sofar) safe_delay((BOOTSCREEN_TIMEOUT) - sofar);
     clear_for_drawing();
   }
-#endif
+
+#endif // SHOW_BOOTSCREEN
 
 void MarlinUI::draw_kill_screen() {
   tft.queue.reset();

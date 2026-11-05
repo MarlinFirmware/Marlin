@@ -177,7 +177,7 @@
         if (speed > FAN_OFF_PWM) {
           const bool first_kick = kick_end_ms == 0 && TERN1(FAN_KICKSTART_LINEAR, speed > prev_fan_speed);
           if (first_kick)
-            kick_end_ms = ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (speed - prev_fan_speed) / 255);
+            kick_end_ms = next_millis(ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (speed - prev_fan_speed) / 255));
           if (first_kick || PENDING(ms, kick_end_ms))
             return FAN_KICKSTART_POWER;
         }
