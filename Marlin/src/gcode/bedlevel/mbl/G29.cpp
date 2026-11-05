@@ -187,8 +187,8 @@ void GcodeSuite::G29() {
       else {
         // Move to the after probing position
         motion.position.z = (
-          #ifdef Z_AFTER_PROBING
-            Z_AFTER_PROBING
+          #ifdef Z_POST_CLEARANCE
+            Z_POST_CLEARANCE
           #else
             Z_CLEARANCE_BETWEEN_MANUAL_PROBES
           #endif
