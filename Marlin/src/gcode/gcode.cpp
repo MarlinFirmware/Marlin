@@ -563,11 +563,8 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
-      #if DGUS_LCD_UI_SERMOON_V1 || (ENABLED(CREALITY_RTS) && HAS_MEDIA)
-        case 72: M72(); break;                                    // M72: Cloud print filename
-      #endif
-      #if EITHER(DGUS_LCD_UI_SERMOON_V1, CREALITY_RTS)
-        case 79: M79(); break;                                    // M79: Cloud print statistics
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+        case 72: M72(); break;                                    // M72: Set Creality Cloud job name
       #endif
 
       #if ENABLED(SET_PROGRESS_MANUALLY)
@@ -582,7 +579,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 78: M78(); break;                                    // M78: Show print statistics
       #endif
 
-      #if DGUS_LCD_UI_SERMOON_V1
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
         case 79: M79(); break;                                    // M79: Creality Cloud print status
       #endif
 
@@ -1153,9 +1150,12 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
 
+      #if ENABLED(MENU_RESET_WIFI)
+        case 194: M194(); break;                                  // M194: Reset WiFi
+      #endif
+
       #if ENABLED(CREALITY_WIFI)
         case 930: M930(); break;                                  // M930: Support Creality WIFI Box
-        case 194: M194(); break;
       #endif
 
       case 999: M999(); break;                                    // M999: Restart after being Stopped

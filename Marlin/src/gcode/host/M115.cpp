@@ -263,15 +263,15 @@ void GcodeSuite::M115() {
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
-    // Creality Cloud WiFi board: switched on the Sermoon V1 screen, power-loss popup shown, enclosure LED
+    // Creality Cloud WiFi board
     #if DGUS_LCD_UI_SERMOON_V1
+      // switched on the Sermoon V1 screen, power-loss popup shown, enclosure LED
       cap_line(F("WIFI"), RTS::settings.wifi_led);
       cap_line(F("IS_PLR"), RTS::recoveryPrompt());
       cap_line(F("LED_STAT"), TERN0(CASE_LIGHT_ENABLE, caselight.on));
+    #elif ALL(CREALITY_RTS, HAS_MEDIA)
+      cap_line(F("WIFI"), wifi_enable_flag);
     #endif
-
-    // Creality WiFi
-    TERN_(CREALITY_RTS, cap_line(F("WIFI"), wifi_enable_flag));
 
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)

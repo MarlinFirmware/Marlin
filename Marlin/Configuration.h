@@ -3436,7 +3436,7 @@
 //#define CREALITY_RTS
 #if ENABLED(CREALITY_RTS)
   //#define CREALITY_WIFI      // Creality WiFi module
-  //#define MENU_RESET_WIFI    // A menu to reset WiFi with the RESET_WIFI_PIN
+  //#define MENU_RESET_WIFI    // The controller has a menu to reset WiFi with RESET_WIFI_PIN
 #endif
 
 //

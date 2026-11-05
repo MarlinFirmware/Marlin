@@ -29,29 +29,32 @@
 
 /**
  * M930: WIFI Box Function
+ *
+ * F S1: Show WiFi icon on the screen
+ * F S2: Show WiFi icon on the screen and show the connected icon
+ * F S3: Show WiFi icon on the screen and hide the connected icon
  */
 void GcodeSuite::M930() {
-  if (parser.boolval('F')) {
-    switch (parser.intval('S')) {
-      case 1:
-        if (hmiFlag.flag_counter_wifi_reset) {
-          hmiFlag.flag_counter_wifi_reset = false;
-          rts.sendData(ExchangePageBase + 33, ExchangepageAddr);
-          change_page_font = 33;
-        }
-        rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
-        break;
+  if (!parser.boolval('F')) return;
+  switch (parser.intval('S')) {
+    case 1:
+      if (hmiFlag.flag_counter_wifi_reset) {
+        hmiFlag.flag_counter_wifi_reset = false;
+        rts.sendData(ExchangePageBase + 33, ExchangepageAddr);
+        change_page_font = 33;
+      }
+      rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
+      break;
 
-      case 2:
-        rts.sendData(0, ADV_SETTING_WIFI_ICON_VP);
-        rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
-        break;
+    case 2:
+      rts.sendData(0, ADV_SETTING_WIFI_ICON_VP);
+      rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
+      break;
 
-      case 3:
-        rts.sendData(1, ADV_SETTING_WIFI_ICON_VP);
-        rts.sendData(0, WIFI_CONNECTED_DISPLAY_ICON_VP);
-        break;
-    }
+    case 3:
+      rts.sendData(1, ADV_SETTING_WIFI_ICON_VP);
+      rts.sendData(0, WIFI_CONNECTED_DISPLAY_ICON_VP);
+      break;
   }
 }
 

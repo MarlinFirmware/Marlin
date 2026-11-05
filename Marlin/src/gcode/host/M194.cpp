@@ -33,6 +33,8 @@
 
 /**
  * M194: Reset WiFi Module
+ *
+ * S<0/1> - Disable/Enable WiFi
  */
 void GcodeSuite::M194() {
   TERN_(CREALITY_RTS, if (parser.seen('S')) wifi_enable_flag = parser.boolval('S'));
