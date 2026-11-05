@@ -55,6 +55,9 @@ struct MarlinSerial : public UsartSerial {
 
   #if ENABLED(EMERGENCY_PARSER)
     EmergencyParser::State emergency_state;
+    #if ENABLED(SERIAL_DMA)
+      size_t rx_dma_pos;  // Next DMA buffer index for the emergency parser to scan
+    #endif
 
     // Accessor method to get the last received byte
     auto get_last_data() -> uint8_t { return usart_.get_last_data(); }

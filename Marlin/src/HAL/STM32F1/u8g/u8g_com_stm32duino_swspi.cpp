@@ -24,7 +24,12 @@
 
 #include "../../../inc/MarlinConfig.h"
 
-#if ALL(HAS_MARLINUI_U8GLIB, FORCE_SOFT_SPI)
+// DOGM display with software SPI
+#if HAS_MARLINUI_U8GLIB && defined(DOGLCD_SCK) && defined(DOGLCD_MOSI) && defined(DOGLCD_A0) && defined(DOGLCD_CS)
+  #define HAS_DOGLCD_SW_SPI 1
+#endif
+
+#if HAS_DOGLCD_SW_SPI
 
 #include <U8glib-HAL.h>
 #include "../../shared/HAL_SPI.h"
@@ -166,5 +171,5 @@ uint8_t u8g_com_HAL_STM32F1_sw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
   return 1;
 }
 
-#endif // HAS_MARLINUI_U8GLIB && FORCE_SOFT_SPI
+#endif // HAS_DOGLCD_SW_SPI
 #endif // __STM32F1__

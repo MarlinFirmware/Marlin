@@ -2,6 +2,7 @@
 # common-dependencies.py
 # Convenience script to check dependencies and add libs and sources for Marlin Enabled Features
 #
+
 import pioutil
 if pioutil.is_pio_build():
 
@@ -313,6 +314,13 @@ if pioutil.is_pio_build():
     # Add a method for other PIO scripts to query enabled features
     #
     env.AddMethod(MarlinHas)
+
+    #
+    # PlatformIO 6.1.19+ deletes libdeps/<env> before the build when the env has no lib_deps
+    # of its own, removing the libraries added below. Install them to a folder it doesn't prune.
+    #
+    if not env.GetProjectOption('lib_deps'):
+        env.Replace(PROJECT_LIBDEPS_DIR=os.path.join(env['PROJECT_LIBDEPS_DIR'], '_marlin'))
 
     #
     # Add dependencies for enabled Marlin features

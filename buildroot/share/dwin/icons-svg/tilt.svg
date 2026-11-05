@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marlin DWIN icon: Tilt mesh -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <path d="M2 17 H18" stroke="#45bed9" stroke-width="2" stroke-linecap="round"/>
+  <path d="M3 16 L17 6" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+  <path d="M11 17 A8 8 0 0 0 9.9 12" fill="none" stroke="#45bed9" stroke-width="1.3"/>
+</svg>

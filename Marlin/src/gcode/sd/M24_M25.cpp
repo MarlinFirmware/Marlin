@@ -68,7 +68,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-    thermalManager.set_fans_paused(false);
+    Fan::all_resume();
   #endif
 
   #if DGUS_LCD_UI_MKS
@@ -82,7 +82,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    if (did_pause_print) {
+    if (paused_for_filament_change) {
       resume_print(); // will call print_job_timer.start()
       return;
     }
@@ -140,7 +140,7 @@ void GcodeSuite::M25() {
     #endif
 
     #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-      thermalManager.set_fans_paused(true);
+      Fan::all_pause();
     #endif
 
     #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT

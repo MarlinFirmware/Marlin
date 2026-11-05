@@ -179,11 +179,12 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         motion.destination[i] = motion.position[i];
-      else
+      else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
     else
       motion.destination[i] = motion.position[i];
@@ -562,6 +563,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
+      #if DGUS_LCD_UI_SERMOON_V1
+        case 72: M72(); break;                                    // M72: Set Creality Cloud job name
+      #endif
+
       #if ENABLED(SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
@@ -572,6 +577,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(PRINTCOUNTER)
         case 78: M78(); break;                                    // M78: Show print statistics
+      #endif
+
+      #if DGUS_LCD_UI_SERMOON_V1
+        case 79: M79(); break;                                    // M79: Creality Cloud print status
       #endif
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -848,7 +857,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 
-      #if ENABLED(SCARA)
+      #if ENABLED(SCARA_CALIBRATION)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
         case 362: if (M362()) return; break;                      // M362: SCARA Psi pos1
@@ -970,6 +979,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
+      #endif
+
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
       #endif
 
       #if ENABLED(NONLINEAR_EXTRUSION)
@@ -1238,7 +1251,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #pragma GCC diagnostic pop
@@ -1254,7 +1267,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)

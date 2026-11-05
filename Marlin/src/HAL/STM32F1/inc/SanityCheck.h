@@ -53,6 +53,6 @@
 // Emergency Parser needs at least one serial with HardwareSerial or USBComposite.
 // The USBSerial maple don't allow any hook to implement EMERGENCY_PARSER.
 // And copy all USBSerial code to marlin space to support EMERGENCY_PARSER, when we have another options, don't worth it.
-#if ENABLED(EMERGENCY_PARSER) && !defined(USE_USB_COMPOSITE) && ((SERIAL_PORT == -1 && !defined(SERIAL_PORT_2)) || (SERIAL_PORT_2 == -1 && !defined(SERIAL_PORT)))
+#if ENABLED(EMERGENCY_PARSER) && DISABLED(USE_USB_COMPOSITE) && ((SERIAL_PORT == -1 && !defined(SERIAL_PORT_2)) || (SERIAL_PORT_2 == -1 && !defined(SERIAL_PORT)))
   #error "EMERGENCY_PARSER is only supported by HardwareSerial or USBComposite in HAL/STM32F1."
 #endif

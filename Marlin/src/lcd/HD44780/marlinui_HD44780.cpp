@@ -265,16 +265,18 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     #endif
   };
 
-  const static PROGMEM byte clock[8] = {
-    B00000,
-    B01110,
-    B10011,
-    B10101,
-    B10001,
-    B01110,
-    B00000,
-    B00000
-  };
+  #if NEED_CLOCK_GLYPH
+    const static PROGMEM byte clock[8] = {
+      B00000,
+      B01110,
+      B10011,
+      B10101,
+      B10001,
+      B01110,
+      B00000,
+      B00000
+    };
+  #endif
 
   #if ENABLED(LCD_PROGRESS_BAR)
 
@@ -353,12 +355,14 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
     #endif
 
     default: {
-      // Info Screen uses 5 special characters
+      // The Status Screen uses 4-5 special characters
       createChar_P(LCD_STR_BEDTEMP[0], bedTemp);
       createChar_P(LCD_STR_DEGREE[0], degree);
       createChar_P(LCD_STR_THERMOMETER[0], thermometer);
       createChar_P(LCD_STR_FEEDRATE[0], feedrate);
-      createChar_P(LCD_STR_CLOCK[0], clock);
+
+      // A Clock Glyph may be used for some display themes
+      TERN_(NEED_CLOCK_GLYPH, createChar_P(LCD_STR_CLOCK[0], clock));
 
       #if ENABLED(LCD_PROGRESS_BAR)
         if (screen_charset == CHARSET_INFO) { // 3 Progress bar characters for info screen
@@ -1133,15 +1137,15 @@ void MarlinUI::draw_status_screen() {
           #if HAS_FAN0
             if (true
               #if ALL(HAS_EXTRUDERS, ADAPTIVE_FAN_SLOWING)
-                && (blink || thermalManager.fan_speed_scaler[0] < 128)
+                && (blink || fans[0].speed_scaler < 128)
               #endif
             ) {
-              uint16_t spd = thermalManager.fan_speed[0];
+              uint16_t spd = fans[0].speed;
               if (blink) c = 'F';
               #if ENABLED(ADAPTIVE_FAN_SLOWING)
-                else { c = '*'; spd = thermalManager.scaledFanSpeed(0, spd); }
+                else { c = '*'; spd = fans[0].scaled_speed(spd); }
               #endif
-              pct = thermalManager.pwmToPercent(spd);
+              pct = Fan::pwmToPercent(spd);
             }
             else
           #endif
@@ -1395,14 +1399,14 @@ void MarlinUI::draw_status_screen() {
       if (TERN0(HAS_HOTEND, thermalManager.degTargetHotend(0) > 0)) leds |= LED_B;
 
       #if HAS_FAN
-        if ( TERN0(HAS_FAN0, thermalManager.fan_speed[0])
-          || TERN0(HAS_FAN1, thermalManager.fan_speed[1])
-          || TERN0(HAS_FAN2, thermalManager.fan_speed[2])
-          || TERN0(HAS_FAN3, thermalManager.fan_speed[3])
-          || TERN0(HAS_FAN4, thermalManager.fan_speed[4])
-          || TERN0(HAS_FAN5, thermalManager.fan_speed[5])
-          || TERN0(HAS_FAN6, thermalManager.fan_speed[6])
-          || TERN0(HAS_FAN7, thermalManager.fan_speed[7])
+        if ( TERN0(HAS_FAN0, fans[0].speed)
+          || TERN0(HAS_FAN1, fans[1].speed)
+          || TERN0(HAS_FAN2, fans[2].speed)
+          || TERN0(HAS_FAN3, fans[3].speed)
+          || TERN0(HAS_FAN4, fans[4].speed)
+          || TERN0(HAS_FAN5, fans[5].speed)
+          || TERN0(HAS_FAN6, fans[6].speed)
+          || TERN0(HAS_FAN7, fans[7].speed)
         ) leds |= LED_C;
       #endif // HAS_FAN
 

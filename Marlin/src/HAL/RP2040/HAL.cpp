@@ -38,7 +38,7 @@ extern "C" {
   #include "pico/time.h"
 }
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
   #include "msc_sd.h"
 #endif
 
@@ -178,7 +178,7 @@ void MarlinHAL::init() {
 
   TERN_(POSTMORTEM_DEBUGGING, install_min_serial());    // Install the min serial handler
 
-  TERN_(HAS_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
+  TERN_(HAL_SD_HOST_DRIVE, MSC_SD_init());              // Enable USB SD card access
 
   #if PIN_EXISTS(USB_CONNECT)
     OUT_WRITE(USB_CONNECT_PIN, !USB_CONNECT_INVERTING); // USB clear connection
@@ -186,6 +186,8 @@ void MarlinHAL::init() {
     WRITE(USB_CONNECT_PIN, USB_CONNECT_INVERTING);
   #endif
 }
+
+void MarlinHAL::idletask() { TERN_(HAL_SD_HOST_DRIVE, tuh_task()); }
 
 uint8_t MarlinHAL::get_reset_source() {
   return watchdog_enable_caused_reboot() ? RST_WATCHDOG : 0;
@@ -279,8 +281,8 @@ uint16_t MarlinHAL::adc_value() {
   return adc_values[channel];
 }
 
-// Reset the system to initiate a firmware flash
-void flashFirmware(const int16_t) { hal.reboot(); }
+// Reboot into the UF2 bootloader to initiate a firmware flash
+void flashFirmware(const int16_t) { reset_usb_boot(0, 0); }
 
 extern "C" {
   void * _sbrk(int incr);

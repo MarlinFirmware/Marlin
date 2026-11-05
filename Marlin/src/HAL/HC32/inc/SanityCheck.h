@@ -66,6 +66,10 @@
   #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
 #endif
 
+#if ENABLED(FLASH_EEPROM_EMULATION) && !defined(HC32_FLASH_SIZE)
+  #error "FLASH_EEPROM_EMULATION requires HC32_FLASH_SIZE (in KB). Use an HC32F460C or HC32F460E environment."
+#endif
+
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
   #error "SERIAL_STATS_MAX_RX_QUEUED is not supported on this platform."
 #elif ENABLED(SERIAL_STATS_DROPPED_RX)

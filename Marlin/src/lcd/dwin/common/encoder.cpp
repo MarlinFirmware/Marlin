@@ -68,9 +68,13 @@ EncoderState encoderReceiveAnalyze() {
         ui.refresh_brightness();
         return ENCODER_DIFF_NO;
       }
-      const bool was_waiting = marlin.wait_for_user;
-      marlin.user_resume();
-      return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
+      #if ENABLED(DWIN_CREALITY_LCD_JYERSUI)
+        return ENCODER_DIFF_ENTER; // JyersUI handlers clear wait_for_user themselves
+      #else
+        const bool was_waiting = marlin.wait_for_user;
+        marlin.user_resume();
+        return was_waiting ? ENCODER_DIFF_NO : ENCODER_DIFF_ENTER;
+      #endif
     }
     else return ENCODER_DIFF_NO;
   }

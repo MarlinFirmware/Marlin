@@ -232,7 +232,6 @@ GitHub Actions workflows run on every pull request and push:
 | `ci-validate-boards.yml` | Validates board pin configurations |
 | `ci-validate-pins.yml` | Checks for missing/invalid pin definitions |
 | `ci-validate-lines.yml` | Validates line count limits for 8-bit boards |
-| `auto-label.yml` | Auto-labels PRs by changed paths |
 | `check-pr.yml` | PR quality checks |
 
 ### 6.4 Docker Build Environment
@@ -242,7 +241,6 @@ A Dockerfile (`docker/Dockerfile`) provides a reproducible build environment:
 ```dockerfile
 FROM python:3.11-bookworm
 RUN pip install -U platformio PyYaml
-RUN pio upgrade --dev
 WORKDIR /code
 ```
 
@@ -529,6 +527,50 @@ Marlin/src/
 └── platformio.ini               # Main PlatformIO configuration
 ```
 
----
+## 11. Constructing a Pull Request
 
-_This document was consolidated from `docs/project-summary.md` into the top-level `AGENTS.md` on 2026-07-11 to serve as the canonical repo orientation reference. It reflects the codebase as of the bugfix-2.1.x branch._
+Marlin accepts AI-assisted code (see `.github/contributing.md`). It must be sensible and reviewable. Follow these rules when preparing a PR.
+
+### Scope and size
+
+- **One PR, one purpose.** A PR should be a single self-contained change that builds and passes CI on its own.
+- **Split large changes.** If a change touches several unrelated areas, or is large enough that a reviewer can't hold it in their head, split it into two (or more) smaller PRs. Typical splits: refactor first, feature second; core logic first, UI/LCD support second; one HAL or board family per PR; sanity checks and docs with the feature they cover.
+- **Order dependent PRs.** If PR B needs PR A, say so in B's description and don't open B until A is far enough along to be reviewed.
+- **No drive-by changes.** Don't reformat, rename, or tidy code you aren't changing. Keep the diff minimal.
+- **Don't change defaults** in `Configuration.h` / `Configuration_adv.h` unless that is the purpose of the PR. New features are disabled by default.
+
+### Before you start
+
+- Branch from the latest `bugfix-2.1.x` (the working branch). Never target release branches.
+- We occasionally backport fixes to lts-* branches. Very small non-duplicate patches are accepted.
+- Read the neighboring code and follow its conventions. Check `buildroot/skills/` for step-by-step procedures.
+- Read the HAL-specific `AGENTS.md` (`Marlin/src/HAL/<FAMILY>/AGENTS.md`) when touching a HAL.
+
+### Making the change
+
+- Code must compile on 8-bit AVR and 32-bit targets. Mind flash and RAM on AVR. Keep the base build requirements from growing.
+- Gate optional code with `ENABLED()` / `DISABLED()` / `ANY()` / `NONE()` / etc. and add validation to `Marlin/src/inc/SanityCheck.h`.
+- Use a suitable insertion point for Configuration and Conditionals. They follow a strict order set by `Marlin/src/inc/MarlinConfig.h`.
+- Don't hardcode pins; use the pin headers in `src/pins`.
+- When adding or changing a user-facing option, update its comments in `Configuration*.h` and note any `Conditionals`, `Warnings.cpp`, or `config.ini` impacts.
+- Follow the Marlin coding standards (2-space indent, no tabs, spacing as in nearby code). Indent new code similar to surroundings (including preprocessor nesting) and avoid auto-formatters.
+
+### Verifying
+
+- Use `MarlinSimUI` for direct testing in a simulated environment with a rich MCP interface. (And contribute your enhancements to `MarlinSimUI`.)
+- Build at least one affected environment (`buildroot/bin/mftest`; see the `marlin-build-test` skill).
+- **Add tests with new features and options.** Add or update a `buildroot/tests/<env>/config-NN.ini` build test so CI exercises the feature, along with its dependent options.
+- Add a unit test in `Marlin/tests/<area>/` (run with `make unit-test-all-local`) when the logic can be checked without hardware.
+  - Bug fixes should get a test when one can catch the regression. See the `marlin-build-test` skill.
+- Report honestly what was and wasn't tested. Never claim a build or test passed unless you ran it.
+
+### Commit messages and PR description
+
+- Imperative mood, first line of 72 characters or fewer, prefixed with a gitmoji-style emoji as in `git log` (e.g. 🐛 fix, ✨ feature, ⚡️ performance, 🔧 config, 🩹 minor fix, 🧑‍💻 developer tooling, 🚸 UX).
+- Don't put issue numbers in the PR title. Reference them in the description.
+- Fill in every section of `.github/pull_request_template.md`: Description, Requirements, Benefits, Configurations, Related Issues.
+- Keep history clean: rebase on `bugfix-2.1.x` rather than merging, and squash fixups into the commits they belong to.
+
+### Skills
+
+Reusable procedures for contributors and their tools live in `buildroot/skills/`. Each skill is a folder with a `SKILL.md`. See `buildroot/skills/README.md`.

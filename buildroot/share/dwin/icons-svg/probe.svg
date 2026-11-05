@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marlin DWIN icon: Bed probe -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <rect x="3" y="1.5" width="14" height="3" rx="0.8" fill="#ffffff"/>
+  <path d="M5 4.5 H15 L13.5 14 H6.5 Z" fill="#e0182a"/>
+  <rect x="9.2" y="14" width="1.6" height="4.5" fill="#ffffff"/>
+</svg>
