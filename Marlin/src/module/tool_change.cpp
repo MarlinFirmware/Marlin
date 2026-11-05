@@ -803,7 +803,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 7. Engage magnetic field for new extruder parking
 
-    DEBUG_SYNCHRONIZE();
+    planner.synchronize(); // The carriage must be at the new dock before the magnet engages
     DEBUG_ECHOLNPGM("(7) Engage magnetic field");
     est_activate_solenoid();
 
