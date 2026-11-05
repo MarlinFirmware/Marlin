@@ -179,13 +179,12 @@ uint32_t Stepper::acceleration_time, Stepper::deceleration_time;
  */
 #if MULTISTEPPING_LIMIT > 1
   uint8_t Stepper::steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
-#endif
-
-/**
- * Standard Motion Legacy Adaptive Multi-stepping - Automatically adjust steps-per-ISR to avoid ISR overhead
- */
-#if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
-  hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
+  /**
+   * Standard Motion Legacy Adaptive Multi-stepping - Automatically adjust steps-per-ISR to avoid ISR overhead
+   */
+  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+    hal_timer_t Stepper::time_spent_in_isr = 0, Stepper::time_spent_out_isr = 0;
+  #endif
 #endif
 
 /**
@@ -656,13 +655,13 @@ bool Stepper::disable_axis(const AxisEnum axis) {
 
   hal_timer_t Stepper::resonance_block_phase_isr() {
 
-    const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-    #if MULTISTEPPING_LIMIT > 1
+    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1
+      const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
       if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent)
         steps_per_isr >>= 1;
+      time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
+      time_spent_out_isr = 0;
     #endif
-    time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
-    time_spent_out_isr = 0;
 
     // If current block is not finished, continue with it
     if (step_events_completed < step_event_count)
@@ -1961,21 +1960,12 @@ void Stepper::isr() {
      */
     min_ticks = HAL_timer_get_count(MF_TIMER_STEP) + hal_timer_t(TERN(__AVR__, 8, 1) * (STEPPER_TIMER_TICKS_PER_US));
 
-    #if ENABLED(OLD_ADAPTIVE_MULTISTEPPING)
-      /**
-       * NB: If for some reason the stepper monopolizes the MPU, eventually the
-       * timer will wrap around (and so will 'next_isr_ticks'). So, limit the
-       * loop to 10 iterations. Beyond that, there's no way to ensure correct pulse
-       * timing, since the MCU isn't fast enough.
-       */
-      if (!--max_loops) next_isr_ticks = min_ticks;
-    #endif
+    // Advance pulses if not enough time to wait for the next ISR or we've hit the loop limit.
+    // We limit to max_loop iterations to avoid timer (and 'next_isr_ticks') overflow and to
+    // avoid this (high priority) ISR completely monopolizing the MPU.
+  } while (--max_loops && next_isr_ticks < min_ticks);
 
-    // Advance pulses if not enough time to wait for the next ISR
-  } while (TERN(OLD_ADAPTIVE_MULTISTEPPING, true, --max_loops) && next_isr_ticks < min_ticks);
-
-  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
-
+  #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1
     // Track the time spent in the ISR
     const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
     time_spent_in_isr += time_spent;
@@ -1984,21 +1974,20 @@ void Stepper::isr() {
       next_isr_ticks = min_ticks;
 
       // When forced out of the ISR, increase multi-stepping
-      #if MULTISTEPPING_LIMIT > 1
-        if (steps_per_isr < MULTISTEPPING_LIMIT) {
-          steps_per_isr <<= 1;
-          // ticks_nominal will need to be recalculated if we are in cruise phase
-          ticks_nominal = 0;
-        }
-      #endif
+      if (steps_per_isr < MULTISTEPPING_LIMIT) {
+        steps_per_isr <<= 1;
+        // ticks_nominal will need to be recalculated if we are in cruise phase
+        ticks_nominal = 0;
+      }
     }
     else {
       // Track the time spent voluntarily outside the ISR
       time_spent_out_isr += next_isr_ticks;
       time_spent_out_isr -= time_spent;
     }
-
-  #endif // !OLD_ADAPTIVE_MULTISTEPPING
+  #else
+    NOLESS(next_isr_ticks, min_ticks);
+  #endif // DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1
 
   // Now 'next_isr_ticks' contains the period to the next Stepper ISR - And we are
   // sure that the time has not arrived yet - Warrantied by the scheduler
@@ -2613,16 +2602,16 @@ void Stepper::isr() {
    * have been done, so it is less time critical.
    */
   hal_timer_t Stepper::block_phase_isr() {
-    #if NONE(OLD_ADAPTIVE_MULTISTEPPING, I2S_STEPPER_STREAM) // I2S has no stepper timer to time the ISR
+    // I2S has no stepper timer to time the ISR
+    #if DISABLED(I2S_STEPPER_STREAM) \
+      && (DISABLED(OLD_ADAPTIVE_MULTISTEPPING) && MULTISTEPPING_LIMIT > 1)
       // If the ISR uses < 50% of MPU time, halve multi-stepping
       const hal_timer_t time_spent = HAL_timer_get_count(MF_TIMER_STEP);
-      #if MULTISTEPPING_LIMIT > 1
-        if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
-          steps_per_isr >>= 1;
-          // ticks_nominal will need to be recalculated if we are in cruise phase
-          ticks_nominal = 0;
-        }
-      #endif
+      if (steps_per_isr > 1 && time_spent_out_isr >= time_spent_in_isr + time_spent) {
+        steps_per_isr >>= 1;
+        // ticks_nominal will need to be recalculated if we are in cruise phase
+        ticks_nominal = 0;
+      }
       time_spent_in_isr = -time_spent;    // Unsigned but guaranteed to be +ve when needed
       time_spent_out_isr = 0;
     #endif

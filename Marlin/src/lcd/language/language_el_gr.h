@@ -195,6 +195,7 @@ namespace LanguageNarrow_el_gr {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Πληρ. πλακέτας");                           // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Θερμίστορ");                                // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Εξωθητές");                                 // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Έκδοση firmware MMU");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Πρωτόκολλο");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Φωτισμός θαλάμου");                         // Case Light

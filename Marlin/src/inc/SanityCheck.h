@@ -959,6 +959,31 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * Magnetic Switching Toolhead: sliding a tool out of its dock (to SWITCHING_TOOLHEAD_X_SECURITY)
+ * must not carry it to the position of the next dock in that direction, where another tool is parked.
+ * Marlin doesn't know how wide a tool is, so this is only a warning for the worst case.
+ */
+#if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
+  namespace SwitchingToolheadCheck {
+    constexpr float xpos[] = SWITCHING_TOOLHEAD_X_POS, xsec[] = SWITCHING_TOOLHEAD_X_SECURITY;
+    static_assert(COUNT(xsec) == EXTRUDERS, "SWITCHING_TOOLHEAD_X_SECURITY must be an array EXTRUDERS long.");
+    constexpr bool slide_reaches_next_dock() {
+      for (uint8_t i = 0; i < EXTRUDERS; ++i) {
+        const float slide = xsec[i] - xpos[i];
+        for (uint8_t j = 0; j < EXTRUDERS; ++j) {
+          const float gap = xpos[j] - xpos[i];
+          if (i != j && slide * gap > 0 && (slide < 0 ? -slide : slide) >= (gap < 0 ? -gap : gap)) return true;
+        }
+      }
+      return false;
+    }
+    template<bool bad> struct SlideCheck { };
+    template<> struct [[deprecated("SWITCHING_TOOLHEAD_X_SECURITY slides a tool as far as the next dock. A tool slid that far collides with the tool parked there.")]] SlideCheck<true> { };
+    [[maybe_unused]] static SlideCheck<slide_reaches_next_dock()> slide_check;
+  }
+#endif
+
+/**
  * Switching Toolhead requirements
  */
 #if ENABLED(SWITCHING_TOOLHEAD)

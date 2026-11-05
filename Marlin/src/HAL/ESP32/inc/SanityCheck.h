@@ -29,6 +29,15 @@
   #error "EMERGENCY_PARSER on ESP32 requires an RX_BUFFER_SIZE of 2 or more."
 #endif
 
+// Software SPI can't drive pins that the SD card's hardware SPI has taken over
+#if HAS_MEDIA && NONE(SOFTWARE_SPI, TEMP_SENSOR_FORCE_HW_SPI)
+  #define _MAX_TC_ON_SD_PINS(N) (TEMP_SENSOR_##N##_HAS_SPI_PINS && (TEMP_##N##_SCK_PIN == SD_SCK_PIN || TEMP_##N##_MISO_PIN == SD_MISO_PIN || TEMP_##N##_MOSI_PIN == SD_MOSI_PIN))
+  #if _MAX_TC_ON_SD_PINS(0) || _MAX_TC_ON_SD_PINS(1) || _MAX_TC_ON_SD_PINS(2) || _MAX_TC_ON_SD_PINS(BED)
+    #error "A MAX thermocouple using software SPI can't share pins with the SD card. Define only its CS pin, or enable TEMP_SENSOR_FORCE_HW_SPI."
+  #endif
+  #undef _MAX_TC_ON_SD_PINS
+#endif
+
 #if ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125
   #error "SPINDLE_LASER_FREQUENCY maximum value is 78125Hz for ESP32."
 #endif
