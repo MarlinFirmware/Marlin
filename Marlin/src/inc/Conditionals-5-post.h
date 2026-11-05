@@ -3275,6 +3275,17 @@
 #endif
 
 /**
+ * Switching Toolhead docks may be at either side of the Y axis.
+ * SWITCHING_TOOLHEAD_DOCK_DIR is the direction from the docks toward the work area:
+ *   +1 for docks at the low-Y side (front), -1 for docks at the high-Y side (rear).
+ * It is inferred from the half of the Y travel that SWITCHING_TOOLHEAD_Y_POS lies in.
+ * Y_SECURITY, Y_CLEAR and Y_RELEASE are distances from the dock toward the work area.
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_DOCK_DIR ((SWITCHING_TOOLHEAD_Y_POS) < ((Y_MIN_POS) + (Y_MAX_POS)) * 0.5f ? 1 : -1)
+#endif
+
+/**
  * Only constrain Z on DELTA / TPARA machines.
  * SCARA can also constrain XY to the bed bounds.
  */
