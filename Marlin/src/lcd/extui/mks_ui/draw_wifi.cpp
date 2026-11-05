@@ -68,7 +68,7 @@ void lv_draw_wifi() {
 
   const bool enc_ena = TERN0(HAS_ROTARY_ENCODER, gCfgItems.encoder_enable);
 
-  if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+  if (mks_wifi.mode == STA_MODEL) {
 
     if (gCfgItems.cloud_enable)
       buttonCloud = lv_imgbtn_create(scr, "F:/bmp_cloud.bin", BTN_SIZE_X + INTERVAL_W * 2, BTN_SIZE_Y + INTERVAL_H + titleHeight, event_handler, ID_W_CLOUD);
@@ -90,7 +90,7 @@ void lv_draw_wifi() {
   lv_obj_t *label_Back = lv_label_create_empty(buttonBack);
 
   if (gCfgItems.multiple_language) {
-    if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+    if (mks_wifi.mode == STA_MODEL) {
       if (gCfgItems.cloud_enable) {
         lv_label_set_text(label_Cloud, wifi_menu.cloud);
         lv_obj_align(label_Cloud, buttonCloud, LV_ALIGN_IN_BOTTOM_MID, 0, BUTTON_TEXT_Y_OFFSET);

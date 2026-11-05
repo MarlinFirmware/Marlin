@@ -23,22 +23,7 @@
 
 /**
  * Pins Debugging for GD32
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -51,54 +36,57 @@
 #endif
 
 #define NUM_DIGITAL_PINS  TOTAL_PIN_COUNT
-#define NUMBER_PINS_TOTAL TOTAL_PIN_COUNT
 
-#define getPinByIndex(x) pin_t(pin_array[x].pin)
-#define isValidPin(P) WITHIN(P, 0, (NUM_DIGITAL_PINS - 1))
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNumber(P) do { sprintf_P(buffer, PSTR("%3hd "), pin_t(P)); SERIAL_ECHO(buffer); } while (0)
-#define printPinAnalog(P) do { sprintf_P(buffer, PSTR(" (A%2d)  "), pin_t(getAdcChannelFromPin(P))); SERIAL_ECHO(buffer); } while (0)
-#define printPinNameByIndex(x) do { sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); } while (0)
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = TOTAL_PIN_COUNT;
+  static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin
 
-#define MULTI_NAME_PAD 21 // Space needed to be pretty if not first name assigned to a pin
+  static bool is_valid(const pin_t pin) { return WITHIN(pin, 0, (NUM_DIGITAL_PINS - 1)); }
 
-#ifndef M43_NEVER_TOUCH
-  #define M43_NEVER_TOUCH(x) WITHIN(x, 9, 10) // SERIAL pins: PA9(TX) PA10(RX)
-#endif
+  // SERIAL pins: PA9(TX) PA10(RX)
+  static bool never_touch(const uint16_t index) { return WITHIN(index, 9, 10); }
 
-bool isAnalogPin(const pin_t pin) {
-  if (!isValidPin(pin)) return false;
+  static bool is_analog(const pin_t pin) {
+    if (!is_valid(pin)) return false;
 
-  if (getAdcChannel(pin) != adc::ADC_Channel::INVALID) {
-    const PortPinPair& pp = port_pin_map[pin];
-    auto& instance = gpio::GPIO::get_instance(pp.port).value();
-    return instance.get_pin_mode(pp.pin) == gpio::Pin_Mode::ANALOG && !M43_NEVER_TOUCH(pin);
+    if (getAdcChannel(pin) != adc::ADC_Channel::INVALID) {
+      const PortPinPair& pp = port_pin_map[pin];
+      auto& instance = gpio::GPIO::get_instance(pp.port).value();
+      return instance.get_pin_mode(pp.pin) == gpio::Pin_Mode::ANALOG && !never_touch(pin);
+    }
+
+    return false;
   }
 
-  return false;
-}
+  static int16_t analog_index(const pin_t pin) {
+    if (!is_valid(pin) || !is_analog(pin)) return -1;
+    return pin; // Analog and digital pin indexes are shared
+  }
 
-bool getValidPinMode(const pin_t pin) {
-  if (!isValidPin(pin)) return false;
+  static bool is_output(const pin_t pin) {
+    if (!is_valid(pin)) return false;
 
-  const PortPinPair& pp = port_pin_map[pin];
-  auto& instance = gpio::GPIO::get_instance(pp.port).value();
-  gpio::Pin_Mode mode = instance.get_pin_mode(pp.pin);
+    const PortPinPair& pp = port_pin_map[pin];
+    auto& instance = gpio::GPIO::get_instance(pp.port).value();
+    gpio::Pin_Mode mode = instance.get_pin_mode(pp.pin);
 
-  return mode != gpio::Pin_Mode::ANALOG && mode != gpio::Pin_Mode::INPUT_FLOATING &&
-         mode != gpio::Pin_Mode::INPUT_PULLUP && mode != gpio::Pin_Mode::INPUT_PULLDOWN;
-}
+    return mode != gpio::Pin_Mode::ANALOG && mode != gpio::Pin_Mode::INPUT_FLOATING &&
+           mode != gpio::Pin_Mode::INPUT_PULLUP && mode != gpio::Pin_Mode::INPUT_PULLDOWN;
+  }
 
-bool getPinIsDigitalByIndex(const int16_t index) {
-  const pin_t pin = getPinByIndex(index);
-  return (!isAnalogPin(pin));
-}
+  static bool is_digital_at(const uint16_t index) { return !is_analog(getPinByIndex(index)); }
 
-int8_t digitalPinToAnalogIndex(const pin_t pin) {
-  if (!isValidPin(pin) || !isAnalogPin(pin)) return -1;
-  return pin; // Analog and digital pin indexes are shared
-}
+  // TODO: pwm_active, print_pwm, print_port
 
-bool pwm_status(const pin_t pin) { return false; }
-void printPinPWM(const pin_t pin) { /* TODO */ }
-void printPinPort(const pin_t pin) { /* TODO */ }
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%3hd "), pin_t(pin));
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_analog(const pin_t pin) {
+    char buffer[12];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), pin_t(getAdcChannelFromPin(pin)));
+    SERIAL_ECHO(buffer);
+  }
+};

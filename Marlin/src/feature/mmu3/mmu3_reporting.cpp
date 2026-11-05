@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_reporting.cpp
+ * mmu3_reporting.cpp
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -544,15 +544,15 @@ namespace MMU3 {
   }
 
   void TryLoadUnloadReporter::DumpToSerial() {
-    char buf[LCD_WIDTH + 1];
-    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf));
+    char buf[LCD_WIDTH + 1] = {};
+    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf, LCD_WIDTH));
     for (uint8_t i = 0; i < sizeof(buf); i++) {
       // 0xFF is -1 when converting from unsigned to signed char
       // If the number is negative, that means filament is present
       buf[i] = (buf[i] < 0) ? '1' : '0';
     }
     buf[LCD_WIDTH] = 0;
-    MMU2_ECHO_MSGLN(buf);
+    TERN_(MMU_DEBUG, MMU2_ECHO_MSGLN(buf));
   }
 
   void IncrementLoadFails() {
@@ -594,7 +594,9 @@ namespace MMU3 {
 
   void fullScreenMsgRestoringTemperature() {
     #if HAS_WIRED_LCD
-      lcd_display_message_fullscreen(F("MMU Retry: Restoring temperature..."));
+      // Show the status screen (with live temperatures) so the error menu can't be clicked again
+      ui.return_to_status();
+      ui.set_status(F("MMU Retry: Heating..."), true);
     #endif
   }
 

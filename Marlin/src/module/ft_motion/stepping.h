@@ -69,8 +69,9 @@ typedef struct Stepping {
 
   AxisBits dir_bits, step_bits;
 
-  xyze_ulong_t axis_interval_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
-  xyze_ulong_t ticks_left_per_axis_fp{ LOGICAL_AXIS_LIST_1(FTM_NEVER) };
+  // Braced union and struct for GCC 5 (ESP32)
+  xyze_ulong_t axis_interval_fp{ { { LOGICAL_AXIS_LIST_1(FTM_NEVER) } } };
+  xyze_ulong_t ticks_left_per_axis_fp{ { { LOGICAL_AXIS_LIST_1(FTM_NEVER) } } };
   uint32_t ticks_left_in_frame_fp = 0;
 
   // Return how many full ticks we must wait before
@@ -156,7 +157,7 @@ typedef struct Stepping {
 
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
-  XYZEval<int64_t> curr_steps_q48_16{0};
+  XYZEval<int64_t> curr_steps_q48_16{};
 
   FORCE_INLINE void enqueue(XYZEval<int64_t> next_steps_q48_16) {
 

@@ -79,7 +79,7 @@ CardReader card;
 // public:
 
 card_flags_t CardReader::flag;
-char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_LENGTH];
+char CardReader::filename[FILENAME_LENGTH], CardReader::longFilename[LONG_FILENAME_BYTES];
 
 IF_DISABLED(NO_SD_AUTOSTART, uint8_t CardReader::autofile_index); // = 0
 
@@ -117,7 +117,7 @@ int16_t CardReader::nrItems = -1;
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         uint8_t *CardReader::isDir;
       #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-        uint8_t CardReader::isDir[(SDSORT_LIMIT+7)>>3];
+        uint8_t CardReader::isDir[(SDSORT_LIMIT + 7) >> 3];
       #endif
       #define IS_DIR(n) TEST(isDir[(n) >> 3], (n) & 0x07)
     #endif
@@ -370,6 +370,27 @@ void CardReader::ls(const uint8_t lsflags/*=0*/) {
     printListing(root, nullptr, lsflags);
   }
 }
+
+#if ENABLED(PANELDUE)
+
+  //
+  // Get the next visible item (folder or G-code file) in a folder.
+  // Call dir.rewind() to start from the first item.
+  // The long filename buffer is not touched.
+  // Return false when there are no more items.
+  //
+  bool CardReader::nextVisibleItem(MediaFile &dir, char * const dosFilename, bool &isDir) {
+    dir_t p;
+    while (dir.readDir(&p, nullptr) > 0) {
+      if (!is_visible_entity(p)) continue;
+      createFilename(dosFilename, p);
+      isDir = flag.filenameIsDir;
+      return true;
+    }
+    return false;
+  }
+
+#endif // PANELDUE
 
 #if ENABLED(LONG_FILENAME_HOST_SUPPORT)
 
@@ -712,7 +733,7 @@ void CardReader::manage_media() {
       // Not mounted? Leave the status unchanged to try again later
       if (!isMounted() && retries_left) {
         --retries_left;
-        next_retry_ms = millis() + mount_retry_ms;
+        next_retry_ms = next_millis(millis() + mount_retry_ms);
         prev_stat = old_stat;
         TERN_(HAS_MULTI_VOLUME, no_reenter = false);
         return;
@@ -824,7 +845,7 @@ void CardReader::startOrResumeFilePrinting() {
 // Run tasks upon finishing or aborting a file print.
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
-  TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+  TERN_(ADVANCED_PAUSE_FEATURE, paused_for_filament_change = 0);
   TERN_(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) myfile.close();
@@ -1433,8 +1454,8 @@ void CardReader::cdroot() {
     #else
       // Copy filenames into the static array
       #define _SET_SORTNAME(I) strlcpy(sortnames[I], longest_filename(), sizeof(sortnames[I]))
-      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_LENGTH
-        // Short name sorting always use LONG_FILENAME_LENGTH with no trailing nul
+      #if SORTED_LONGNAME_MAXLEN == LONG_FILENAME_BYTES
+        // Short name sorting always use LONG_FILENAME_BYTES with no trailing nul
         #define SET_SORTNAME(I) _SET_SORTNAME(I)
       #else
         // Copy multiple name blocks. Add a nul for the longest case.
@@ -1525,7 +1546,7 @@ void CardReader::cdroot() {
         {
           auto sort_cmp_files = [&](const int16_t o1, const int16_t o2) -> bool {
             #if DISABLED(SDSORT_USES_RAM)
-              char name1[LONG_FILENAME_LENGTH];
+              char name1[LONG_FILENAME_BYTES];
               selectFileByIndex(o1);
               strcpy(name1, longest_filename());
               #if HAS_FOLDER_SORTING
@@ -1612,7 +1633,7 @@ void CardReader::cdroot() {
           #if DISABLED(SDSORT_USES_RAM)
             // By default re-read the names from SD for every compare, retaining two
             // filenames at a time. This is very slow but is safest and uses minimal RAM.
-            char name1[LONG_FILENAME_LENGTH];
+            char name1[LONG_FILENAME_BYTES];
           #endif
 
           // Bubble Sort
@@ -1774,7 +1795,7 @@ void CardReader::fileHasFinished() {
 #if ENABLED(POWER_LOSS_RECOVERY)
 
   bool CardReader::jobRecoverFileExists() {
-    const bool exists = recovery.file.open(&root, recovery.filename, O_READ);
+    const bool exists = isMounted() && recovery.file.open(&root, recovery.filename, O_READ);
     if (exists) recovery.file.close();
     return exists;
   }
