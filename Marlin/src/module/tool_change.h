@@ -69,7 +69,8 @@
     extern migration_settings_t migration;
     bool extruder_migration();
   #endif
-#endif
+
+#endif // HAS_MULTI_EXTRUDER
 
 #if DO_SWITCH_EXTRUDER
   void move_extruder_servo(const uint8_t e);

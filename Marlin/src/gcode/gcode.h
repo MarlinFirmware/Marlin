@@ -114,11 +114,13 @@
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
+ * M72  - Set the Creality Cloud job name. (Requires DGUS_LCD_UI SERMOON_V1)
  * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
  * M78  - Show statistical information about the print jobs. (Requires PRINTCOUNTER)
+ * M79  - Creality Cloud WiFi board print status. (Requires DGUS_LCD_UI SERMOON_V1)
  *
  * M80  - Turn on Power Supply. (Requires PSU_CONTROL)
  * M81  - Turn off Power Supply. (Requires PSU_CONTROL)
@@ -270,6 +272,7 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
@@ -730,6 +733,10 @@ private:
     static void M48();
   #endif
 
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M72();
+  #endif
+
   #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
@@ -740,6 +747,10 @@ private:
 
   #if ENABLED(PRINTCOUNTER)
     static void M78();
+  #endif
+
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M79();
   #endif
 
   #if ENABLED(PSU_CONTROL)
@@ -1180,6 +1191,11 @@ private:
 
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
+  #endif
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    static void M587();
+    static void M587_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(NONLINEAR_EXTRUSION)

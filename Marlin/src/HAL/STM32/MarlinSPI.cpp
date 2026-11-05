@@ -51,7 +51,7 @@ void MarlinSPI::begin(void) {
   _mustInit = false;
 }
 
-void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc) {
+void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc/*=false*/) {
   _dmaHandle.Init.Direction = direction;
   _dmaHandle.Init.PeriphInc = DMA_PINC_DISABLE;
   _dmaHandle.Init.Mode = DMA_NORMAL;

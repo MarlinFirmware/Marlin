@@ -1688,6 +1688,212 @@
   #endif
 #endif
 
+/**
+ * Default each axis to the global TMC software SPI bus. A pins file may override
+ * any of these to put a driver on its own bus, as needed by add-on driver boards
+ * wired to a different SPI peripheral than the onboard drivers.
+ */
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef X_SPI_MOSI
+    #define X_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X_SPI_MISO
+    #define X_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X_SPI_SCK
+    #define X_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef X2_SPI_MOSI
+    #define X2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X2_SPI_MISO
+    #define X2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X2_SPI_SCK
+    #define X2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y_SPI_MOSI
+    #define Y_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y_SPI_MISO
+    #define Y_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y_SPI_SCK
+    #define Y_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y2_SPI_MOSI
+    #define Y2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y2_SPI_MISO
+    #define Y2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y2_SPI_SCK
+    #define Y2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z_SPI_MOSI
+    #define Z_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z_SPI_MISO
+    #define Z_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z_SPI_SCK
+    #define Z_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z2_SPI_MOSI
+    #define Z2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z2_SPI_MISO
+    #define Z2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z2_SPI_SCK
+    #define Z2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z3_SPI_MOSI
+    #define Z3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z3_SPI_MISO
+    #define Z3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z3_SPI_SCK
+    #define Z3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z4_SPI_MOSI
+    #define Z4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z4_SPI_MISO
+    #define Z4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z4_SPI_SCK
+    #define Z4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef I_SPI_MOSI
+    #define I_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef I_SPI_MISO
+    #define I_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef I_SPI_SCK
+    #define I_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef J_SPI_MOSI
+    #define J_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef J_SPI_MISO
+    #define J_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef J_SPI_SCK
+    #define J_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef K_SPI_MOSI
+    #define K_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef K_SPI_MISO
+    #define K_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef K_SPI_SCK
+    #define K_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef U_SPI_MOSI
+    #define U_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef U_SPI_MISO
+    #define U_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef U_SPI_SCK
+    #define U_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef V_SPI_MOSI
+    #define V_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef V_SPI_MISO
+    #define V_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef V_SPI_SCK
+    #define V_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef W_SPI_MOSI
+    #define W_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef W_SPI_MISO
+    #define W_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef W_SPI_SCK
+    #define W_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E0_SPI_MOSI
+    #define E0_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E0_SPI_MISO
+    #define E0_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E0_SPI_SCK
+    #define E0_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E1_SPI_MOSI
+    #define E1_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E1_SPI_MISO
+    #define E1_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E1_SPI_SCK
+    #define E1_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E2_SPI_MOSI
+    #define E2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E2_SPI_MISO
+    #define E2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E2_SPI_SCK
+    #define E2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E3_SPI_MOSI
+    #define E3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E3_SPI_MISO
+    #define E3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E3_SPI_SCK
+    #define E3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E4_SPI_MOSI
+    #define E4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E4_SPI_MISO
+    #define E4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E4_SPI_SCK
+    #define E4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E5_SPI_MOSI
+    #define E5_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E5_SPI_MISO
+    #define E5_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E5_SPI_SCK
+    #define E5_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E6_SPI_MOSI
+    #define E6_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E6_SPI_MISO
+    #define E6_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E6_SPI_SCK
+    #define E6_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E7_SPI_MOSI
+    #define E7_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E7_SPI_MISO
+    #define E7_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E7_SPI_SCK
+    #define E7_SPI_SCK TMC_SPI_SCK
+  #endif
+#endif
+
 // Clean up unused ESP_WIFI pins
 #ifdef ESP_WIFI_MODULE_COM
   #if !SERIAL_IN_USE(ESP_WIFI_MODULE_COM)
@@ -3069,6 +3275,17 @@
 #endif
 
 /**
+ * Switching Toolhead docks may be at either side of the Y axis.
+ * SWITCHING_TOOLHEAD_DOCK_DIR is the direction from the docks toward the work area:
+ *   +1 for docks at the low-Y side (front), -1 for docks at the high-Y side (rear).
+ * It is inferred from the half of the Y travel that SWITCHING_TOOLHEAD_Y_POS lies in.
+ * Y_SECURITY, Y_CLEAR and Y_RELEASE are distances from the dock toward the work area.
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_DOCK_DIR ((SWITCHING_TOOLHEAD_Y_POS) < ((Y_MIN_POS) + (Y_MAX_POS)) * 0.5f ? 1 : -1)
+#endif
+
+/**
  * Only constrain Z on DELTA / TPARA machines.
  * SCARA can also constrain XY to the bed bounds.
  */
@@ -3190,7 +3407,7 @@
 #if PIN_EXISTS(BEEPER)
   #define HAS_BEEPER 1
 #endif
-#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER)
+#if ANY(IS_TFTGLCD_PANEL, PCA9632_BUZZER, LCD_USE_I2C_BUZZER, PANELDUE)
   #define USE_MARLINUI_BUZZER 1
 #endif
 #if ANY(HAS_BEEPER, USE_MARLINUI_BUZZER)
@@ -3361,6 +3578,10 @@
     #else
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
+  #endif
+  // Galaxy UI: TFT backlight brightness is set in the UI and saved with M500
+  #if ALL(NOVIN3DP_GALAXY_UI, TFT_COLOR_UI) && PIN_EXISTS(TFT_BACKLIGHT) && !defined(HAS_LCD_BRIGHTNESS)
+    #define HAS_LCD_BRIGHTNESS 1
   #endif
   // Prepare the LCD to show the bootscreen early in setup
   #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)

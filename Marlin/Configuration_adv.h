@@ -2524,7 +2524,8 @@
  */
 //#define NONLINEAR_EXTRUSION
 #if ENABLED(NONLINEAR_EXTRUSION)
-  //#define NONLINEAR_EXTRUSION_DEFAULT_ON    // Enable if NLE should be ON by default
+  //#define NONLINEAR_EXTRUSION_DEFAULT_ON          // Enable if NLE should be ON by default
+  //#define NONLINEAR_FACTORS { 0.0f, 0.0f, 1.0f }  // Quadratic, Linear, Constant coefficients
 #endif
 
 // @section leveling
@@ -3515,13 +3516,21 @@
    * Optimize spreadCycle chopper parameters by using predefined parameter sets
    * or with the help of an example included in the library.
    * Provided parameter sets are
-   * CHOPPER_DEFAULT_12V
+   * CHOPPER_DEFAULT_12V  // 1.8 degree steppers (also CHOPPER_18STEP_<V>)
    * CHOPPER_DEFAULT_19V
    * CHOPPER_DEFAULT_24V
    * CHOPPER_DEFAULT_36V
-   * CHOPPER_09STEP_24V   // 0.9 degree steppers (24V)
+   * CHOPPER_DEFAULT_48V
+   * CHOPPER_DEFAULT_60V
+   * CHOPPER_09STEP_12V   // 0.9 degree steppers
+   * CHOPPER_09STEP_19V
+   * CHOPPER_09STEP_24V
+   * CHOPPER_09STEP_36V
+   * CHOPPER_09STEP_48V
    * CHOPPER_PRUSAMK3_24V // Imported parameters from the official Průša firmware for MK3 (24V)
    * CHOPPER_MARLIN_119   // Old defaults from Marlin v1.1.9
+   *
+   * Presets over 24V require a driver rated for the supply voltage.
    *
    * Define your own with:
    * { <off_time[1..15]>, <hysteresis_end[-3..12]>, hysteresis_start[1..8] }
@@ -3579,6 +3588,7 @@
    * This mode allows for faster movements at the expense of higher noise levels.
    * STEALTHCHOP_(XY|Z|E) must be enabled to use HYBRID_THRESHOLD.
    * M913 X/Y/Z/E to live tune the setting
+   * Set THRESHOLD to zero to disable this function on specific axis.
    */
   //#define HYBRID_THRESHOLD
 
@@ -4646,33 +4656,59 @@
 //#define WIFISUPPORT         // Marlin embedded WiFi management. Not needed for simple WiFi serial port.
 //#define ESP3D_WIFISUPPORT   // ESP3D Library WiFi management (https://github.com/luc-github/ESP3DLib)
 
-#if ENABLED(WIFISUPPORT)
+#if ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
   /**
-   * Marlin's own webserver and OTA, implemented in HAL/ESP32/wifi/ and built
-   * only for an ESP32 build of Marlin. With an add-on WiFi module the module
-   * runs its own firmware, so neither option has any effect there.
+   * MKS WiFi module: an ESP8266/ESP32 co-processor on its own UART, fitted to
+   * MKS Robin / Neptune / Monster boards. Unlike a plain add-on module, which
+   * just bridges a serial port, Marlin talks to this one directly to transfer
+   * files and to set the network from WIFI_SSID / WIFI_PWD below.
+   *
+   * Requires a board that defines WIFI_RESET_PIN and WIFI_IO1_PIN, and
+   * SDSUPPORT for file transfers.
    */
-  //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
-  //#define OTASUPPORT          // Support over-the-air firmware updates
+  //#define MKS_WIFI_MODULE
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    /**
+     * WIFI_SSID / WIFI_PWD are only the defaults here. The network is stored
+     * with the rest of Marlin's settings, so M587 or the TFT_LVGL_UI screens
+     * can change it at runtime and M500 makes the change stick. M502 restores
+     * the values below.
+     *
+     *   M587                       ; Report the current network
+     *   M587 S"MyNetwork" P"pass"  ; Join a network (needs GCODE_QUOTED_STRINGS)
+     *   M587 A1                    ; Host an access point instead
+     */
+    //#define MKS_WIFI_AP_MODE      // Host WIFI_SSID as an access point instead of joining it
+
+  #else
+    /**
+     * Webserver and OTA updates.
+     * With WIFISUPPORT these are Marlin's own, implemented in HAL/ESP32/wifi/ and built
+     * only for an ESP32 build of Marlin. With an add-on WiFi module the module runs its
+     * own firmware, so neither option has any effect there.
+     * With ESP3D_WIFISUPPORT these enable the ESP3D web interface and ESP3D OTA updates.
+     */
+    //#define WEBSUPPORT          // Start a webserver (which may include auto-discovery) using SPIFFS
+    //#define OTASUPPORT          // Support over-the-air firmware updates
+  #endif
+
+  #if ENABLED(ESP3D_WIFISUPPORT)
+    //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
+  #endif
 
   /**
-   * The network is set at compile time. To set a default WiFi SSID / Password, create a file
-   * called Configuration_Secure.h with the following defines, customized for your network.
-   * This specific file is excluded via .gitignore to prevent it from accidentally leaking
-   * to the public.
+   * To set a default WiFi SSID / Password, create a file called Configuration_Secure.h with
+   * the following defines, customized for your network. This specific file is excluded via
+   * .gitignore to prevent it from accidentally leaking to the public.
    *
    *   #define WIFI_SSID "WiFi SSID"
    *   #define WIFI_PWD  "WiFi Password"
+   *
+   * With WIFISUPPORT the network is set at compile time. With ESP3D_WIFISUPPORT these are
+   * the defaults for station mode, which can be changed at runtime with '[ESP100]' / '[ESP101]'.
    */
   //#include "Configuration_Secure.h" // External file with WiFi SSID / Password
-
-#elif ENABLED(ESP3D_WIFISUPPORT)
-  /**
-   * ESP3D brings its own webserver and OTA, so WEBSUPPORT and OTASUPPORT don't apply here.
-   * The network is configured at runtime with '[ESP100]' / '[ESP101]' and stored on the ESP,
-   * so WIFI_SSID / WIFI_PWD don't apply either.
-   */
-  //#define WIFI_CUSTOM_COMMAND // Accept ESP3D '[ESP...]' commands from the host
 #endif
 
 // @section multi-material
@@ -4881,6 +4917,70 @@
   #endif
 
 #endif // HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
+
+#if HAS_CHAMELEON
+
+  /**
+   * 3D Chameleon Mk4 (https://www.3dchameleon.com)
+   *
+   * The Chameleon's one button is pressed by moving a printer axis into it.
+   * Hold times select the filament and run its feed motor, so timing matters.
+   * Use the "Mk4 G-code Generator" values from the Chameleon site as a guide.
+   */
+  #define CHAMELEON_BUTTON_AXIS     X_AXIS    // (X_AXIS, Y_AXIS, Z_AXIS) Axis that presses the button
+  #define CHAMELEON_BUTTON_POS      X_MAX_POS // (mm) Axis position where the button is fully pressed (within the axis limits)
+  #define CHAMELEON_PRESS_MM        3         // (mm) Standby this far short of the button, toward the middle of the axis
+  #define CHAMELEON_PRESS_FEEDRATE  2000      // (mm/min) Speed of button presses
+  #define CHAMELEON_TRAVEL_FEEDRATE 5000      // (mm/min) Speed of moves to and from the standby position
+
+  // Where to wait while changing. The button axis is set by CHAMELEON_BUTTON_POS.
+  // Z is only raised, never lowered. These are ignored for the button axis.
+  //#define CHAMELEON_TOOLCHANGE_X  X_CENTER
+  //#define CHAMELEON_TOOLCHANGE_Y  Y_CENTER
+  //#define CHAMELEON_TOOLCHANGE_Z  Z_MAX_POS
+
+  // Timing. Press a number of pulses to select a filament (1 = T0, 2 = T1, ...).
+  // If the wrong filament is selected, adjust the pulse time to match your Chameleon.
+  #define CHAMELEON_PULSE_MS         500      // (ms) One pulse
+  #define CHAMELEON_CUT_MS          2000      // (ms) After selecting, wait for the cutter and the selector to finish
+  #define CHAMELEON_UNLOAD_MS       4000      // (ms) Hold to pull the old filament back out of the Y adapter
+  #define CHAMELEON_LOAD_MS         4000      // (ms) Hold to push the new filament to the extruder, including the assist
+  #define CHAMELEON_SETTLE_MS        400      // (ms) Wait after releasing the button
+  #define CHAMELEON_HOME_MS         2000      // (ms) Wait for the selector to home
+  #define CHAMELEON_HOME_FIRST                // Home the selector before the first load. (The Chameleon starts out empty.)
+
+  // Extruder moves
+  #define CHAMELEON_EXTRUDER_TO_HOTEND_MM 86  // (mm) Distance from the extruder gears to the nozzle
+  #define CHAMELEON_CUT_RETRACT_MM        20  // (mm) Initial retract, to make room for the cut
+  #define CHAMELEON_RELEASE_MM           -30  // (mm) Final move to clear the extruder. Use a positive value with a mechanical cutter.
+  #define CHAMELEON_LOAD_ASSIST_MM        25  // (mm) Extruder move to catch the filament as the Chameleon lets go
+  #define CHAMELEON_ASSIST_FEEDRATE     1500  // (mm/min)
+  #define CHAMELEON_SLOW_FEEDRATE        500  // (mm/min)
+  #define CHAMELEON_FAST_FEEDRATE       2000  // (mm/min)
+
+  /**
+   * Tip shaping. Not needed with a 3DClippy filament cutter, so comment this out.
+   * Each step is { temp, extrude, feedrate }. If 'temp' is non-zero Marlin waits for
+   * the hotend to reach it before the move. The hotend returns to its target
+   * temperature afterward. Cold extrusion is allowed during the sequence.
+   */
+  #define CHAMELEON_TIP_SEQUENCE \
+    { 180,  +20, 1500 }, /* Cool to 180C to prevent swelling, then ram */ \
+    {   0,   -5,  500 }, \
+    { 165,   +5, 1500 }, \
+    {   0,   -1,  500 }, \
+    { 155,   +1, 1500 }, \
+    {   0,  -25,  500 }, \
+    { 150,  +24, 1500 }, /* Last tip dip with a cold tip */ \
+    {   0,  -24, 1500 }, \
+    { 180,  -80,  500 }  /* Heat up again and back out of the extruder */
+
+  // Optional G-code to run at each stage of an unload (e.g., for a cooling fan or a mechanical cutter)
+  //#define CHAMELEON_START_GCODE "M106 S255"  // Just after reaching the standby position
+  //#define CHAMELEON_CUT_GCODE   "M280 P0 S90" // After the cut retract, before tip shaping
+  //#define CHAMELEON_END_GCODE   "M106 S0"    // After the new filament is loaded
+
+#endif // HAS_CHAMELEON
 
 /**
  * Advanced Print Counter settings
