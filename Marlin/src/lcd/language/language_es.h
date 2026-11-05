@@ -201,6 +201,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. Controlador");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrusores");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Versión firmw. MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baudios");                                  // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocolo");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz cabina");                               // Case Light

@@ -202,6 +202,7 @@ namespace LanguageNarrow_sk {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. o doske");                            // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudéry");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Verzia firmvéru MMU");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Rýchlosť");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Osvetlenie");                               // Case Light
