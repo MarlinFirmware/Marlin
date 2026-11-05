@@ -3615,7 +3615,23 @@
   //#define TFT_SHARED_IO   // I/O is shared between TFT display and other devices. Disable async data transfer.
 
   #define COMPACT_MARLIN_BOOT_LOGO  // Use compressed data to save Flash space
-#endif
+
+  /**
+   * Galaxy UI (by NOVIN3DP) for 480x320 touch screens (e.g., MKS TS35)
+   * Replaces the Color UI screens with a dark-blue touch UI: home tiles, print status
+   * with QOI G-code thumbnails, USB/SD storage selector and file grid, round XY jog pad,
+   * heater/fan sliders. Marlin list menus are drawn in the same style.
+   * Slicer: export G-code thumbnails as 48x48/QOI and 150x150/QOI.
+   */
+  //#define NOVIN3DP_GALAXY_UI
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    //#define GALAXY_TOUCH_BEEP         // Short beep on every touch
+    //#define GALAXY_HOME_ICONS_FLAT    // Home screen icons: flat instead of 3D
+    //#define GALAXY_FAST_SPI           // Double the TFT SPI clock (STM32F4 on SPI1: 21 to 42MHz) to halve redraw time.
+                                        // Exceeds most panel specs. Disable if the screen shows noise or glitches.
+  #endif
+
+#endif // TFT_COLOR_UI
 
 /**
  * TFT Rotation. Set to one of the following values:
