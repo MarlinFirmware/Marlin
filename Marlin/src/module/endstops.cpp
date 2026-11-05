@@ -352,6 +352,22 @@ void Endstops::event_handler() {
       );
     #endif
 
+    #define _ENDSTOP_SET_POS(A) do { \
+      if (TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN)))) { \
+        motion.position[_AXIS(A)] = motion.base_min_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
+      } \
+      else if (TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) { \
+        motion.position[_AXIS(A)] = motion.base_max_pos(_AXIS(A)) + TERN0(HAS_HOME_OFFSET, motion.home_offset[_AXIS(A)]) + TERN0(HAS_HOTEND_OFFSET, motion.hotend_offset[motion.extruder][_AXIS(A)]); \
+        motion.destination[_AXIS(A)] = motion.position[_AXIS(A)]; \
+      } \
+    } while(0);
+
+    if (abort_enabled() && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
+      MAIN_AXIS_MAP(_ENDSTOP_SET_POS);
+      motion.sync_plan_position();
+    }
+
     #if ENABLED(SD_ABORT_ON_ENDSTOP_HIT)
       if (planner.abort_on_endstop_hit) {
         card.abortFilePrintNow();
