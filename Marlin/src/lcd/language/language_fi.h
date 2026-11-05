@@ -195,6 +195,7 @@ namespace LanguageNarrow_fi {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Piirilevyn tiedot");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistorit");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderit");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU-firmware versio");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokolla");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kotelon valo");                             // Case Light

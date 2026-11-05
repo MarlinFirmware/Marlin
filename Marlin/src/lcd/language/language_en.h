@@ -65,6 +65,9 @@
 #ifndef CUSTOM_MENU_MAIN_TITLE
   #define CUSTOM_MENU_MAIN_TITLE ""
 #endif
+#if HAS_PRUSA_MMU3
+  #include "../../feature/mmu3/mmu3_supported_version.h"  // MMU_VERSION
+#endif
 #ifndef MMU_VERSION
   #define MMU_VERSION ""
 #endif
@@ -225,6 +228,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruders");
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU Firmware Version");
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocol");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
