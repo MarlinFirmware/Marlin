@@ -53,12 +53,13 @@ namespace MMU3 {
   }
 
   void extruder_move(const float delta, const float feedRate_mm_s, const bool sync/*=true*/) {
-    const float de = delta / planner.e_factor[motion.extruder];
-    motion.position.e += de;
-
-    planner.buffer_e_move(de, feedRate_mm_s, motion.extruder);
-
-    if (sync) planner.synchronize();
+    if (sync)
+      motion.unscaled_e_move(delta, feedRate_mm_s, true); // Don't reset the runout sensor
+    else {
+      const float de = delta / planner.e_factor[motion.extruder];
+      motion.position.e += de;
+      planner.buffer_e_move(de, feedRate_mm_s, motion.extruder);
+    }
   }
 
   void planner_abort_queued_moves() {
