@@ -56,13 +56,7 @@ namespace MMU3 {
     const float de = delta / planner.e_factor[motion.extruder];
     motion.position.e += de;
 
-    // Queue an E-only move from the planner's own end position.
-    // Building the target from motion.position can add a small XYZ move because the
-    // two differ by the leveling offset (UBL, or any leveling that buffer_line does not apply).
-    abce_pos_t target;
-    LOOP_NUM_AXES(i) target[i] = planner.position[i] * planner.mm_per_step[i];
-    target.e = planner.position.e * planner.mm_per_step[E_AXIS_N(motion.extruder)] + de;
-    planner.buffer_segment(target OPTARG(HAS_DIST_MM_ARG, xyze_float_t({ 0, 0, 0, de })), feedRate_mm_s, motion.extruder);
+    planner.buffer_e_move(de, feedRate_mm_s, motion.extruder);
 
     if (sync) planner.synchronize();
   }
