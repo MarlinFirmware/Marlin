@@ -53,6 +53,9 @@
 #if ENABLED(FT_MOTION)
   #include "module/ft_motion.h"
 #endif
+#if ENABLED(RESONANCE_TEST)
+  #include "feature/resonance/resonance_generator.h"
+#endif
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
