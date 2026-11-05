@@ -43,6 +43,7 @@ void wifi_init() {
   SERIAL_ECHO_MSG("Starting WiFi...");
 
   WiFi.mode(WIFI_STA);
+  WiFi.setSleep(false); // Modem sleep delays inbound packets; a late ACK stalls the WebSocket until lwIP retransmits
   WiFi.begin(WIFI_SSID, WIFI_PWD);
 
   while (WiFi.waitForConnectResult() != WL_CONNECTED) {

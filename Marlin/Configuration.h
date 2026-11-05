@@ -76,10 +76,11 @@
 /**
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
- * Serial port -1 is the USB emulated serial port, if available.
+ * Serial port -1 is the USB emulated serial port, if available (ESP32-S3: the native USB port).
+ * ESP32: Serial port -3 is the WiFi serial port (WIFISUPPORT or ESP3D_WIFISUPPORT).
  * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
  *
- * :[-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+ * :[-3, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 #define SERIAL_PORT 0
 
@@ -101,16 +102,17 @@
 /**
  * Select a secondary serial port on the board to use for communication with the host.
  * Currently Ethernet (-2) is only supported on Teensy 4.1 boards.
- * ESP3D_WIFISUPPORT requires -1, which carries G-code from ESP3D to Marlin.
- * :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+ * ESP3D_WIFISUPPORT requires a serial port set to -3, which carries G-code from ESP3D to Marlin.
+ * :[-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_2 -1
 //#define BAUDRATE_2 250000   // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Enable to override BAUDRATE
 
 /**
  * Select a third serial port on the board to use for communication with the host.
- * Currently supported for AVR, DUE, SAMD51, LPC1768/9, STM32/STM32F1/HC32, and Teensy 4.x
- * :[-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+ * Currently supported for AVR, DUE, SAMD51, LPC1768/9, STM32/STM32F1/HC32, and Teensy 4.x,
+ * and ESP32 (-3, the WiFi serial port; ESP32-S3: -1, the native USB port).
+ * :[-3, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_3 1
 //#define BAUDRATE_3 250000   // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Enable to override BAUDRATE

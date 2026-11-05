@@ -68,3 +68,21 @@
 #if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
   #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
 #endif
+
+#if ENABLED(I2S_STEPPER_SPLIT_STREAM) && !ESP32_CLASSIC
+  #error "I2S_STEPPER_SPLIT_STREAM is only available on the original ESP32."
+#elif ENABLED(I2S_STEPPER_STREAM) && !ESP32_CLASSIC && !(defined(I2S_WS) && defined(I2S_BCK) && defined(I2S_DATA))
+  #error "I2S_STEPPER_STREAM requires I2S_WS, I2S_BCK and I2S_DATA."
+#endif
+
+#if MB(ESPRESSIF_ESP32S3) && !CONFIG_IDF_TARGET_ESP32S3
+  #error "BOARD_ESPRESSIF_ESP32S3 requires an ESP32-S3 environment (env:esp32s3_idf4)."
+#endif
+
+#if !CONFIG_IDF_TARGET_ESP32S3 && SERIAL_PORT_2 == -1 && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "The WiFi serial port is now -3 (e.g., SERIAL_PORT_2 -3). Serial port -1 is the native USB port (ESP32-S3 only)."
+#elif !CONFIG_IDF_TARGET_ESP32S3 && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+  #error "Serial port -1 (native USB) requires an ESP32-S3."
+#elif (SERIAL_PORT == -3 || SERIAL_PORT_2 == -3 || SERIAL_PORT_3 == -3) && NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "Serial port -3 (WiFi) requires WIFISUPPORT or ESP3D_WIFISUPPORT."
+#endif
