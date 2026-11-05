@@ -164,7 +164,12 @@ typedef struct {
   #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t zAfterHoming = Z_AFTER_HOMING;
+    #ifdef Z_AFTER_HOMING
+      #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
+    #else
+      #define DEF_Z_AFTER_HOMING 0
+    #endif
+    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)

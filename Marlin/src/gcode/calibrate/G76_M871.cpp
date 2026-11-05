@@ -201,7 +201,7 @@
         motion.blocking_move(parkpos);
 
         // Wait for heatbed to reach target temp and probe to cool below target temp
-        if (wait_for_temps(target_bed, target_probe, next_temp_report, millis() + MIN_TO_MS(15))) {
+        if (wait_for_temps(target_bed, target_probe, next_temp_report, next_millis(millis() + MIN_TO_MS(15)))) {
           SERIAL_ECHOLNPGM("!Bed heating timeout.");
           break;
         }
@@ -262,7 +262,7 @@
 
         say_waiting_for_probe_heating();
         SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
-        const millis_t probe_timeout_ms = millis() + MIN_TO_MS(15);
+        const millis_t probe_timeout_ms = next_millis(millis() + MIN_TO_MS(15));
         while (thermalManager.degProbe() < target_probe) {
           if (report_temps(next_temp_report, probe_timeout_ms)) {
             SERIAL_ECHOLNPGM("!Probe heating timed out.");

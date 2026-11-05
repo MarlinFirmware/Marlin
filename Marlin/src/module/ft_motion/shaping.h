@@ -52,7 +52,7 @@ enum dynFreqMode_t : uint8_t {
   #define SHAPED_AXIS_NAMES       XY_LIST(X, Y) OPTARG(FTM_SHAPER_Z, Z) OPTARG(FTM_SHAPER_E, E)
   #define SHAPED_GANG(A,B,C,D)    XY_GANG(A, B) TERN_(FTM_SHAPER_Z, C) TERN_(FTM_SHAPER_E, D)
   #define SHAPED_LIST(A,B,C,D)    XY_LIST(A, B) OPTARG(FTM_SHAPER_Z, C) OPTARG(FTM_SHAPER_E, D)
-  #define SHAPED_ARRAY(A,B,C,D) { SHAPED_LIST(A, B, C, D) }
+  #define SHAPED_ARRAY(A,B,C,D) { { { SHAPED_LIST(A, B, C, D) } } } // Braced union and struct for GCC 5 (ESP32)
   #define SHAPED_CODE(A,B,C,D)    XY_CODE(A, B) OPTCODE(FTM_SHAPER_Z, C) OPTCODE(FTM_SHAPER_E, D)
   #define SHAPED_MAP(F)           MAP(F, SHAPED_AXIS_NAMES)
   #define NUM_XY_SHAPED           COUNT_ENABLED(HAS_X_AXIS, HAS_Y_AXIS)

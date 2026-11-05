@@ -43,8 +43,8 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../feature/pause.h"
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+  #include "../feature/pause.h" //  for types
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)

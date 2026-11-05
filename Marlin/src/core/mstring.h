@@ -43,6 +43,7 @@
 #include "types.h"
 #include "utility.h" // AXIS_CHAR
 #include "../lcd/utf8.h"
+#include "../libs/numtostr.h" // ftostrf
 
 #ifndef DEFAULT_MSTRING_SIZE
   #define DEFAULT_MSTRING_SIZE 20
@@ -122,7 +123,7 @@ public:
   MString& set(const unsigned long &l)    { SNPRINTF_P(str, SIZE, PSTR("%lu"), l);    debug(F("ulong"));   return *this; }
   MString& set(const float &f)            { return set(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
   MString& set(const p_float_t &pf)       { return set(w_float_t(pf.value, 1, pf.prec)); }
-  MString& set(const w_float_t &wf)       { char f1[20]; return set(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+  MString& set(const w_float_t &wf)       { char f1[FTOSTRF_BUFSIZE]; return set(w_float_to_str(wf, f1)); }
   MString& set(const serial_char_t &v)    { return set(char(v.c)); }
   MString& set(const xyz_pos_t &v)        { set(); return append(v); }
   MString& set(const xyze_pos_t &v)       { set(); return append(v); }
@@ -180,7 +181,7 @@ public:
   #endif
   MString& append(const float &f)             { return append(p_float_t(f, SERIAL_FLOAT_PRECISION)); }
   MString& append(const p_float_t &pf)        { return append(w_float_t(pf.value, 1, pf.prec)); }
-  MString& append(const w_float_t &wf)        { char f1[20]; return append(dtostrf(wf.value, wf.width, wf.prec, f1)); }
+  MString& append(const w_float_t &wf)        { char f1[FTOSTRF_BUFSIZE]; return append(w_float_to_str(wf, f1)); }
   MString& append(const serial_char_t &v)     { return append(char(v.c)); }
   MString& append(const xyz_pos_t &v)         { LOOP_NUM_AXES(i)     { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyz")); return *this; }
   MString& append(const xyze_pos_t &v)        { LOOP_LOGICAL_AXES(i) { if (i) append(' '); append(AXIS_CHAR(i), v[i]); } debug(F("xyze")); return *this; }

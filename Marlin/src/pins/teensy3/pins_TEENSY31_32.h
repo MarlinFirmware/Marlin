@@ -90,7 +90,7 @@
 // Misc. Functions
 //
 #define LED_PIN                               13
-//#define SOL1_PIN                            28
+//#define SOL0_PIN                            28
 //#define SD_SS_PIN                           16  // 8
 
 //
