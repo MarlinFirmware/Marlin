@@ -70,6 +70,18 @@ void TFT_String::set_font(const uint8_t *font) {
   add_glyphs(font);
 }
 
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+
+  const uint8_t *TFT_String::base_font = nullptr, *TFT_String::base_symbols = nullptr;
+
+  void TFT_String::use_font(const uint8_t *font) {
+    if (!font || (const uint8_t *)font_header == font) return;
+    set_font(font);
+    if (font == base_font && base_symbols) add_glyphs(base_symbols);
+  }
+
+#endif
+
 void TFT_String::add_glyphs(const uint8_t *font) {
   uint16_t unicode, fontStartEncoding, fontEndEncoding;
   uint8_t *pointer;

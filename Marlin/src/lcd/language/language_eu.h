@@ -196,6 +196,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Txartelaren Info.");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistoreak");                             // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusoreak");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU firm. bertsioa");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baudioak");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoloa");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kabina Argia");                             // Case Light

@@ -123,30 +123,27 @@ struct {
 
 #endif
 
+#if HAS_TMC_HW_SERIAL
+
+  // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
+  // Without pins, begin() would route the port to its default pins (for Serial1, flash pins
+  // on most modules) and they'd stay routed, so start it once on the board's pins.
+  void tmc_hw_serial_begin(HardwareSerial &serial, const uint32_t baud) {
+    #if defined(HARDWARE_SERIAL1_RX) && defined(HARDWARE_SERIAL1_TX)
+      if (&serial == &Serial1) return serial.begin(baud, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
+    #endif
+    #if defined(HARDWARE_SERIAL2_RX) && defined(HARDWARE_SERIAL2_TX)
+      if (&serial == &Serial2) return serial.begin(baud, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
+    #endif
+    serial.begin(baud);
+  }
+
+#endif
+
 void MarlinHAL::init_board() {
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
-  // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
-  // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
-  // if they have been defined.
-  #if defined(HARDWARE_SERIAL1_RX) && defined(HARDWARE_SERIAL1_TX)
-    HardwareSerial Serial1(1);
-    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
-      Serial1.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
-    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
-      Serial1.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
-    #endif
-  #endif
-  #if defined(HARDWARE_SERIAL2_RX) && defined(HARDWARE_SERIAL2_TX)
-    HardwareSerial Serial2(2);
-    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
-      Serial2.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
-    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
-      Serial2.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
-    #endif
-  #endif
-
   // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
   // The following initialization is performed after Serial1 and Serial2 are defined as
   // their native pins might conflict with the i2s stream even when they are remapped.
