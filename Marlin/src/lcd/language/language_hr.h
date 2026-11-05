@@ -195,6 +195,7 @@ namespace LanguageNarrow_hr {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Podaci o elektronici");                     // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistori");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderi");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU verzija FW-a");                         // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Osvjetljenje");                             // Case Light

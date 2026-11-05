@@ -445,6 +445,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOL_SENSOR
 
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  // A Y distance from the dock toward the work area, as a signed offset from SWITCHING_TOOLHEAD_Y_POS
+  constexpr float dock_away(const float dist) { return (SWITCHING_TOOLHEAD_DOCK_DIR) * dist; }
+#endif
+
 #if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_lock(const bool locked) {
@@ -526,7 +531,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -549,7 +554,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(200);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     slow_line_to_current(Y_AXIS); // move away from docked toolhead
 
@@ -565,7 +570,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -591,7 +596,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(true);
     safe_delay(500);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
@@ -625,7 +630,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Move to switch position current toolhead
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
 
     SERIAL_ECHOLNPGM("(1) Place old tool ", motion.extruder);
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -658,11 +663,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_RELEASE);
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -683,7 +688,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_RELEASE);
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -714,7 +719,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(100); // Give switch time to settle
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize(); // Always sync last tool-change move
@@ -763,7 +768,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Moving ParkPos", motion.position);
 
     motion.position.set(hoffs.x + placexpos,
-                        hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                        hoffs.y + SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 3. Move gently to park position of active extruder
@@ -772,7 +777,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     SERIAL_ECHOLNPGM("(3) Move gently to park position of active extruder", motion.extruder);
     DEBUG_POS("Moving ParkPos", motion.position);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y -= dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     slow_line_to_current(Y_AXIS);
 
     // 4. Disengage magnetic field, wait for delay
@@ -786,15 +791,15 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_ECHOLNPGM("(5) Move near new extruder parking");
     DEBUG_POS("Moving ParkPos", motion.position);
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     slow_line_to_current(Y_AXIS);
     motion.position.set(hoffs.x + grabxpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 6. Move gently to park position of new extruder
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y -= dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     if (DEBUGGING(LEVELING)) {
       planner.synchronize();
       DEBUG_ECHOLNPGM("(6) Move near new extruder");
@@ -803,13 +808,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 7. Engage magnetic field for new extruder parking
 
-    DEBUG_SYNCHRONIZE();
+    planner.synchronize(); // The carriage must be at the new dock before the magnet engages
     DEBUG_ECHOLNPGM("(7) Engage magnetic field");
     est_activate_solenoid();
 
     // 8. Unpark extruder
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_ECHOLNPGM("(8) Unpark extruder");
     slow_line_to_current(X_AXIS);
     planner.synchronize(); // Always sync the final move
@@ -1364,7 +1369,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Prevent a move outside physical bounds
         #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
           // If the original position is within tool store area, go to X origin at once
-          if (motion.destination.y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
+          if ((motion.destination.y - SWITCHING_TOOLHEAD_Y_POS) * (SWITCHING_TOOLHEAD_DOCK_DIR) < SWITCHING_TOOLHEAD_Y_CLEAR) {
             motion.position.x = X_MIN_POS;
             planner.buffer_line(motion.position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
