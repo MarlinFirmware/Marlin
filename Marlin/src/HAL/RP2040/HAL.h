@@ -28,6 +28,7 @@
 #endif
 
 #include "arduino_extras.h"
+#include "Servo.h"
 #include "../../core/macros.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
@@ -35,10 +36,6 @@
 #include "watchdog.h"
 
 #include "../../inc/MarlinConfigPre.h"
-
-#if HAS_SD_HOST_DRIVE
-  #include "msc_sd.h"
-#endif
 
 // ADC index 4 is the MCU temperature
 #define HAL_ADC_MCU_TEMP_DUMMY_PIN 127
@@ -167,7 +164,7 @@ public:
   static void delay_ms(const int ms) { delay(ms); }
 
   // Tasks, called from marlin.idle()
-  static void idletask() { TERN_(HAS_SD_HOST_DRIVE, tuh_task()); }
+  static void idletask();
 
   // Reset
   static uint8_t get_reset_source();

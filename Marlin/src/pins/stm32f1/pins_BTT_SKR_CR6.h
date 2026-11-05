@@ -46,11 +46,8 @@
 // EEPROM
 //
 
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
-#endif
-
-#if ENABLED(I2C_EEPROM)
   #define IIC_EEPROM_SDA                    PB7
   #define IIC_EEPROM_SCL                    PB6
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K

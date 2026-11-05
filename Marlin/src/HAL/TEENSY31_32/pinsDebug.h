@@ -25,47 +25,26 @@
 
 /**
  * Pins Debugging for ESP32
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
-#define digitalRead_mod(P) extDigitalRead(P)
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%02d"), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-#define getPinByIndex(x) pin_array[x].pin
-#define getPinIsDigitalByIndex(x) pin_array[x].is_digital
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define digitalPinToAnalogIndex(P) int(P - analogInputToDigitalPin(0))
-#define isAnalogPin(P) WITHIN(P, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)))
-bool pwm_status(const pin_t) { return false; }
-
-void printPinPort(const pin_t) {}
-
-static bool getValidPinMode(const pin_t pin) {
-  return isValidPin(pin) /* && !IS_INPUT(pin) */ ;
-}
-
-void printPinPWM(const int32_t pin) {
-  if (pwm_status(pin)) {
-    //uint32_t chan = g_APinDescription[pin].ulPWMChannel TODO when fast pwm is operative;
-    //SERIAL_ECHOPGM("PWM = ", duty);
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+  static int16_t analog_index(const pin_t pin) { return int(pin - analogInputToDigitalPin(0)); }
+  static bool is_analog(const pin_t pin) {
+    return WITHIN(pin, pin_t(analogInputToDigitalPin(0)), pin_t(analogInputToDigitalPin(NUM_ANALOG_INPUTS - 1)));
   }
-}
+
+  static bool is_output(const pin_t pin) { return is_valid(pin) /* && !IS_INPUT(pin) */ ; }
+
+  // TODO: Report the PWM channel and duty when fast pwm is operative
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%02d"), pin);
+    SERIAL_ECHO(buffer);
+  }
+};

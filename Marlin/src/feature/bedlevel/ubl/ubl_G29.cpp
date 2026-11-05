@@ -840,7 +840,8 @@ void unified_bed_leveling::adjust_mesh_to_mean(const bool cflag, const float off
    *   This attempts to fill in locations closest to the nozzle's start location first.
    */
   void unified_bed_leveling::probe_entire_mesh(const xy_pos_t &nearby, const bool do_ubl_mesh_map, const bool stow_probe, const bool do_furthest) {
-    probe.deploy(); // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
+
+    TERN_(PAUSE_BEFORE_DEPLOY_STOW, probe.deploy());  // Deploy before ui.capture() to allow for PAUSE_BEFORE_DEPLOY_STOW
 
     TERN_(HAS_MARLINUI_MENU, ui.capture());
     TERN_(EXTENSIBLE_UI, ExtUI::onLevelingStart());
@@ -1731,7 +1732,7 @@ void unified_bed_leveling::smart_fill_mesh() {
     }
 
     if (DEBUGGING(LEVELING)) {
-      rotation.debug(F("rotation matrix:\n"));
+      rotation.debug(F("rotation matrix:\n"), 7);
       DEBUG_ECHOLN(F("LSF Results A="), p_float_t(lsf_results.A, 7), F("  B="), p_float_t(lsf_results.B, 7), F("  D="), p_float_t(lsf_results.D, 7));
       DEBUG_DELAY(55);
       DEBUG_ECHOLN(F("bed plane normal = ["), p_float_t(normal.x, 7), C(','), p_float_t(normal.y, 7), C(','), p_float_t(normal.z, 7), C(']'));

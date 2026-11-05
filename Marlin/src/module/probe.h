@@ -71,15 +71,6 @@
 // In BLTOUCH HS mode, the probe travels in a deployed state.
 #define Z_TWEEN_SAFE_CLEARANCE SUM_TERN(BLTOUCH, Z_CLEARANCE_BETWEEN_PROBES, bltouch.z_extra_clearance())
 
-#if ENABLED(PREHEAT_BEFORE_LEVELING)
-  #ifndef LEVELING_NOZZLE_TEMP
-    #define LEVELING_NOZZLE_TEMP 0
-  #endif
-  #ifndef LEVELING_BED_TEMP
-    #define LEVELING_BED_TEMP 0
-  #endif
-#endif
-
 #if ENABLED(SENSORLESS_PROBING)
   extern abc_float_t offset_sensorless_adj;
 #endif
@@ -95,10 +86,6 @@ public:
   #if HAS_BED_PROBE
 
     static xyz_pos_t offset;
-
-    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
-      static void preheat_for_probing(const celsius_t hotend_temp, const celsius_t bed_temp, const bool early=false);
-    #endif
 
     static void probe_error_stop();
 

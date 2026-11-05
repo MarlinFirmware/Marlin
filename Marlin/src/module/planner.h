@@ -53,6 +53,10 @@
 #include "motion.h"
 #include "../gcode/queue.h"
 
+#if HAS_FAN
+  #include "temperature.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
@@ -309,7 +313,7 @@ typedef struct PlannerBlock {
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
-  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
+  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is forward motion
 
   #if ENABLED(FT_MOTION)
     ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
@@ -349,7 +353,7 @@ typedef struct PlannerBlock {
   #endif
 
   #if HAS_FAN
-    uint8_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];           // Speeds of all fans
   #endif
 
   #if ENABLED(BARICUDA)
@@ -735,16 +739,6 @@ class Planner {
       static float get_high_e_speed();
     #endif
 
-    // Apply fan speeds
-    #if HAS_FAN
-      static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
-      #if FAN_KICKSTART_TIME
-        static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
-      #else
-        FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}
-      #endif
-    #endif
-
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
       void apply_filament_width_sensor(const int8_t encoded_ratio);
 
@@ -1010,7 +1004,7 @@ class Planner {
      * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
@@ -1024,14 +1018,14 @@ class Planner {
      *
      * @brief Add a new linear movement to the buffer.
      * @details The target is cartesian. It's translated to
-     *          delta/scara if needed.
+     *          DELTA/SCARA if needed.
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
      * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
       , const uint8_t extruder=motion.extruder

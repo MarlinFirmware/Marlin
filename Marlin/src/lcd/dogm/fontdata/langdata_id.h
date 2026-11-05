@@ -7,5 +7,4 @@
 
 #include "langdata.h"
 
-// Indonesian reuses the base ISO10646-1 font set; no extra glyphs needed.
 static const uxg_fontinfo_t g_fontinfo_id[] PROGMEM = {};

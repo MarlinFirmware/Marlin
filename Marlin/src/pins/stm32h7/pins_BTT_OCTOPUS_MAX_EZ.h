@@ -28,8 +28,7 @@
 #define USES_DIAG_JUMPERS
 
 // Onboard I2C EEPROM
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
-  #undef NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM                         // Force the use of Software I2C
   #define I2C_SCL_PIN                       PB10

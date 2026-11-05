@@ -79,6 +79,25 @@
   #warning "Rename 'Config-export.h' to 'Config.h' to override Configuration.h and Configuration_adv.h."
 #endif
 
+/**
+ * WiFi options that do nothing where they are, but don't stop anything working.
+ */
+#if ENABLED(WIFISUPPORT)
+  #if ENABLED(WIFI_CUSTOM_COMMAND)
+    #warning "WIFI_CUSTOM_COMMAND does nothing with WIFISUPPORT. It applies to ESP3D_WIFISUPPORT."
+  #endif
+  #if DISABLED(ARDUINO_ARCH_ESP32)
+    // WIFISUPPORT on another board only powers up an add-on module (esp_wifi_init).
+    // Marlin's own webserver, OTA and credentials are all native-ESP32 only.
+    #if ANY(WEBSUPPORT, OTASUPPORT)
+      #warning "WEBSUPPORT and OTASUPPORT need a native ESP32 motherboard. They do nothing with an add-on WiFi module."
+    #endif
+    #if (defined(WIFI_SSID) || defined(WIFI_PWD)) && DISABLED(MKS_WIFI_MODULE)
+      #warning "WIFI_SSID and WIFI_PWD need a native ESP32 motherboard or MKS_WIFI_MODULE. Other add-on WiFi modules configure themselves."
+    #endif
+  #endif
+#endif
+
 #if DISABLED(DEBUG_FLAGS_GCODE)
   #warning "DEBUG_FLAGS_GCODE is recommended if you have space. Some hosts rely on it."
 #endif
@@ -833,6 +852,34 @@
 #endif
 
 /**
+ * LDO Leviathan thermistor pullups and HV stepper sense resistors
+ */
+#if MB(LDO_LEVIATHAN_V1_2, LDO_LEVIATHAN_V1_3)
+
+  // The board has 2.2kohm thermistor pullups, so Marlin's built-in sensor
+  // tables (which assume 4.7kohm) misread, typically MINTEMP at room temperature.
+  #if DISABLED(NO_LEVIATHAN_PULLUP_WARNING)
+    #if (TEMP_SENSOR_0 && TEMP_SENSOR_0 != 1000) || (TEMP_SENSOR_BED && TEMP_SENSOR_BED != 1000)
+      #warning "The LDO Leviathan has 2.2kohm thermistor pullups. Use TEMP_SENSOR_* 1000 with *_PULLUP_RESISTOR_OHMS 2200 or temperatures will misread. (Define NO_LEVIATHAN_PULLUP_WARNING to suppress this warning.)"
+    #else
+      #if TEMP_SENSOR_0 == 1000 && HOTEND0_PULLUP_RESISTOR_OHMS != 2200
+        #warning "Set HOTEND0_PULLUP_RESISTOR_OHMS to 2200 to match the LDO Leviathan. (Define NO_LEVIATHAN_PULLUP_WARNING to suppress this warning.)"
+      #endif
+      #if TEMP_SENSOR_BED == 1000 && BED_PULLUP_RESISTOR_OHMS != 2200
+        #warning "Set BED_PULLUP_RESISTOR_OHMS to 2200 to match the LDO Leviathan. (Define NO_LEVIATHAN_PULLUP_WARNING to suppress this warning.)"
+      #endif
+    #endif
+  #endif
+
+  // The HV stepper slots are populated with TMC5160s using 0.075ohm sense
+  // resistors. RSENSE is a float, so the preprocessor can't test its value here.
+  #if HAS_DRIVER(TMC5160) && DISABLED(NO_LEVIATHAN_RSENSE_WARNING)
+    #warning "The LDO Leviathan HV stepper slots use 0.075ohm sense resistors. Set *_RSENSE to 0.075 for those axes. (Define NO_LEVIATHAN_RSENSE_WARNING to suppress this warning.)"
+  #endif
+
+#endif
+
+/**
  * BD Sensor should always include BABYSTEPPING
  */
 #if ENABLED(BD_SENSOR) && DISABLED(BABYSTEPPING)
@@ -1012,4 +1059,11 @@
  */
 #if FREEZE_STOLE_KILL_PIN_WARNING
   #warning "FREEZE_FEATURE uses KILL_PIN replacing the KILL button. Define a separate FREEZE_PIN if you don't want this behavior."
+#endif
+
+/**
+ * Board automatically set NO_SD_HOST_DRIVE
+ */
+#if DISABLED_HOST_DRIVE_WARNING
+  #warning "The selected board has automatically enabled NO_SD_HOST_DRIVE."
 #endif

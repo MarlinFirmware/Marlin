@@ -114,11 +114,13 @@
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
+ * M72  - Set the Creality Cloud job name. (Requires DGUS_LCD_UI SERMOON_V1)
  * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
  * M78  - Show statistical information about the print jobs. (Requires PRINTCOUNTER)
+ * M79  - Creality Cloud WiFi board print status. (Requires DGUS_LCD_UI SERMOON_V1)
  *
  * M80  - Turn on Power Supply. (Requires PSU_CONTROL)
  * M81  - Turn off Power Supply. (Requires PSU_CONTROL)
@@ -270,6 +272,7 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
@@ -330,11 +333,11 @@
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
  *** SCARA ***
- * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
- * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
- * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration)
- * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
- * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+ * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position) (Requires SCARA_CALIBRATION)
  *
  *** Custom codes (can be changed to suit future G-code standards) ***
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
@@ -730,6 +733,10 @@ private:
     static void M48();
   #endif
 
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M72();
+  #endif
+
   #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
@@ -740,6 +747,10 @@ private:
 
   #if ENABLED(PRINTCOUNTER)
     static void M78();
+  #endif
+
+  #if DGUS_LCD_UI_SERMOON_V1
+    static void M79();
   #endif
 
   #if ENABLED(PSU_CONTROL)
@@ -1050,7 +1061,7 @@ private:
     static void M360();
   #endif
 
-  #if ENABLED(SCARA)
+  #if ENABLED(SCARA_CALIBRATION)
     static bool M360();
     static bool M361();
     static bool M362();
@@ -1180,6 +1191,11 @@ private:
 
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
+  #endif
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    static void M587();
+    static void M587_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(NONLINEAR_EXTRUSION)

@@ -217,16 +217,8 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
 
     while (marlin.wait_for_user) {
       impatient_beep(max_beep_count);
-      #if ALL(HAS_FILAMENT_SENSOR, FILAMENT_CHANGE_RESUME_ON_INSERT)
-        #if MULTI_FILAMENT_SENSOR
-          #define _CASE_INSERTED(N) case N-1: if (!FILAMENT_IS_OUT(N)) marlin.user_resume(); break;
-          switch (motion.extruder) {
-            REPEAT_1(NUM_RUNOUT_SENSORS, _CASE_INSERTED)
-          }
-        #else
-          if (!FILAMENT_IS_OUT()) marlin.user_resume();
-        #endif
-      #endif
+      if (TERN0(FILAMENT_CHANGE_RESUME_ON_INSERT, !active_filament_is_out()))
+        marlin.user_resume();
       marlin.idle_no_sleep();
     }
   }
@@ -299,12 +291,26 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           marlin.user_resume();
           pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
-          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) marlin.idle_no_sleep();
+          #if HAS_FILAMENT_SENSOR
+            bool ran_out = runout.filament_ran_out;
+          #endif
+          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) {
+            marlin.idle_no_sleep();
+            #if HAS_FILAMENT_SENSOR
+              // A runout can be detected after the prompt (e.g., a motion sensor at the end of
+              // the purge) or cleared from the menu. Update the prompt and menu to match.
+              if (runout.filament_ran_out != ran_out) {
+                ran_out = !ran_out;
+                TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt());
+                ui.refresh();
+              }
+            #endif
+          }
         }
       #endif
 
@@ -414,13 +420,13 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
  *
  * Return 'true' if pause was completed, 'false' for abort
  */
-uint8_t did_pause_print = 0;
+uint8_t paused_for_filament_change = 0;
 
 bool pause_print(const float retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const float unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
-  if (did_pause_print) return false; // already paused
+  if (paused_for_filament_change) return false; // already paused
 
   #if ENABLED(HOST_ACTION_COMMANDS)
     #ifdef ACTION_ON_PAUSED
@@ -433,14 +439,14 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
 
   // Indicate that the printer is paused
-  ++did_pause_print;
+  ++paused_for_filament_change;
 
   // Pause the print job and timer
   #if HAS_MEDIA
     const bool was_sd_printing = card.isStillPrinting();
     if (was_sd_printing) {
       card.pauseSDPrint();
-      ++did_pause_print; // Indicate SD pause also
+      ++paused_for_filament_change; // Indicate SD pause also
     }
   #endif
 
@@ -462,7 +468,7 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   planner.synchronize();
 
   #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-    thermalManager.set_fans_paused(true);
+    Fan::all_pause();
   #endif
 
   // Initial retract before move to filament change position
@@ -553,8 +559,30 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
   TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_NOZZLE_PARKED)));
   TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_NOZZLE_PARKED)));
   marlin.wait_start();    // LCD click or M108 will clear this
+
+  #if ENABLED(FILAMENT_CHANGE_RESUME_ON_INSERT)
+    // Old filament may still be in the sensor, so wait for it to stay clear before
+    // treating "filament present" as a new insert. This also rides out switch bounce.
+    constexpr millis_t clear_ms = 500;
+    millis_t last_present_ms = millis();
+    bool cleared = false;
+  #endif
+
   while (marlin.wait_for_user) {
     impatient_beep(max_beep_count);
+
+    #if ENABLED(FILAMENT_CHANGE_RESUME_ON_INSERT)
+      if (is_reload) {
+        const millis_t ms = millis();
+        if (active_filament_is_out()) {
+          if (ELAPSED(ms, last_present_ms + clear_ms)) cleared = true;
+        }
+        else if (cleared)
+          marlin.user_resume();
+        else
+          last_present_ms = ms;
+      }
+    #endif
 
     // If the nozzle has timed out...
     if (!nozzle_timed_out)
@@ -665,7 +693,7 @@ void resume_print(
   );
   //*/
 
-  if (!did_pause_print) return;
+  if (!paused_for_filament_change) return;
 
   // Re-enable the heaters if they timed out
   bool nozzle_timed_out = pause_for_user;
@@ -746,7 +774,7 @@ void resume_print(
     hostui.resume();
   #endif
 
-  --did_pause_print;
+  --paused_for_filament_change;
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming"), FPSTR(DISMISS_STR)));
 
@@ -754,8 +782,8 @@ void resume_print(
   if (print_job_timer.isPaused()) print_job_timer.start();
 
   #if HAS_MEDIA
-    if (did_pause_print) {
-      --did_pause_print;
+    if (paused_for_filament_change) {
+      --paused_for_filament_change;
       card.startOrResumeFilePrinting();
       // Write PLR now to update the z axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));
@@ -763,7 +791,7 @@ void resume_print(
   #endif
 
   #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
-    thermalManager.set_fans_paused(false);
+    Fan::all_resume();
   #endif
 
   TERN_(HAS_FILAMENT_SENSOR, runout.reset());

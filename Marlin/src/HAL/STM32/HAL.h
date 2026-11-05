@@ -180,7 +180,12 @@ public:
   static void adc_enable(const pin_t pin) { pinMode(pin, INPUT); }
 
   // Begin ADC sampling on the given pin. Called from Temperature::isr!
-  static void adc_start(const pin_t pin) { adc_result = analogRead(pin); }
+  // Find the pin with digitalPinToPinName() instead of analogRead(), which since STM32duino 2.0
+  // only takes Ax numbers and reads nothing from variants that number analog pins as digital pins.
+  static void adc_start(const pin_t pin) {
+    const PinName pn = digitalPinToPinName(pin);
+    adc_result = pn == NC ? 0 : adc_read_value(pn, HAL_ADC_RESOLUTION);
+  }
 
   // Is the ADC ready for reading?
   static bool adc_ready() { return true; }
