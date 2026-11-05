@@ -38,6 +38,7 @@ public:
     static void authentication_done();
     static void media_gatekeeper();
     static void media_gatekeeper_sd();
+    static void media_gatekeeper_sdio();
     static void media_gatekeeper_usb();
 
     private:

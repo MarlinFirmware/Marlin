@@ -142,9 +142,14 @@ void Password::access_menu_password() {
   void Password::media_gatekeeper() {
     authenticate_user(menu_file_selector, menu_main);
   }
-  #if HAS_SDCARD
+  #if NEED_SD2CARD_SPI
     void Password::media_gatekeeper_sd() {
       authenticate_user(menu_file_selector_sd, menu_main);
+    }
+  #endif
+  #if NEED_SD2CARD_SDIO
+    void Password::media_gatekeeper_sdio() {
+      authenticate_user(menu_file_selector_sdio, menu_main);
     }
   #endif
   #if HAS_USB_FLASH_DRIVE
