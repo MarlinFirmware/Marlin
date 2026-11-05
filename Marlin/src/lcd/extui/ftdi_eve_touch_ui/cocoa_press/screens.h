@@ -89,6 +89,9 @@ enum {
 #include "../generic/restore_failsafe_dialog_box.h"
 #include "../generic/save_settings_dialog_box.h"
 #include "../generic/confirm_abort_print_dialog_box.h"
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../generic/power_loss_resume_dialog_box.h"
+#endif
 #include "../generic/confirm_user_request_alert_box.h"
 #include "../generic/touch_calibration_screen.h"
 #include "../generic/move_axis_screen.h"

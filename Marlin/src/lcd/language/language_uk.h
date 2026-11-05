@@ -195,6 +195,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Про плату");                                // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Термістори");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Екструдери");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Версія прошивки MMU");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Бод");                                      // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Протокол");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Підсвітка");                                // Case Light

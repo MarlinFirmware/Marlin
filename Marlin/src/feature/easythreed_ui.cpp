@@ -25,7 +25,6 @@
 #if ENABLED(EASYTHREED_UI)
 
 #include "easythreed_ui.h"
-#include "pause.h"
 #include "../module/temperature.h"
 #include "../module/printcounter.h"
 #include "../sd/cardreader.h"

@@ -40,6 +40,7 @@
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
+#include "../lcd/marlinui.h"  // For GET_TEXT_F with multiple languages
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
@@ -277,7 +278,7 @@ uint32_t FTMotion::calc_runout_samples() {
   xyze_long_t delay = {0};
   #if ENABLED(FTM_SMOOTHING)
     #define _DELAY_ADD(A) delay.A += smoothing.A.delay_samples;
-    LOGICAL_AXIS_MAP(_DELAY_ADD)
+    CARTES_MAP(_DELAY_ADD)
     #undef _DELAY_ADD
   #endif
 
