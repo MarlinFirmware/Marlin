@@ -248,6 +248,11 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     #ifdef STM32F1xx
       __HAL_RCC_SDIO_CLK_ENABLE();
       __HAL_RCC_DMA2_CLK_ENABLE();
+      // F1 has no SDIO reset bit. Return the registers to their reset values so a re-mount starts clean.
+      SDIO->POWER = 0; SDIO->CLKCR = 0; SDIO->ARG = 0; SDIO->CMD = 0;
+      SDIO->DTIMER = 0; SDIO->DLEN = 0; SDIO->DCTRL = 0;
+      SDIO->ICR = 0x00C007FFU; SDIO->MASK = 0;
+      delay(2);
     #else
       __HAL_RCC_SDIO_FORCE_RESET();   delay(2);
       __HAL_RCC_SDIO_RELEASE_RESET(); delay(2);

@@ -47,6 +47,9 @@ public:
   static void status_message(const char * const msg);
   static void user_confirm(const char * const msg);
   static void pause_option(const bool show);
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static void power_loss_resume();
+  #endif
   static void beep(const uint16_t frequency, const uint16_t duration);
   static void media_changed();
   static void killed(FSTR_P const error, FSTR_P const component);

@@ -415,6 +415,12 @@
   #define TFT_MOSI_PIN               SD_MOSI_PIN
   #define LCD_USE_DMA_SPI
 
+  #if HAS_FSMC_TFT
+    // FSMC panels are driven like SPI panels (see HAL/NATIVE_SIM/tft/tft_fsmc.h)
+    #define FSMC_CS_PIN               TFT_CS_PIN
+    #define FSMC_RS_PIN               TFT_DC_PIN
+  #endif
+
   #define BEEPER_PIN                          42
 
   #define BTN_ENC                             59

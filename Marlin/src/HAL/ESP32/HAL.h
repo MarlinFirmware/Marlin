@@ -106,6 +106,10 @@ typedef Servo hal_servo_t;
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res);
+// Start a hardware serial port used by TMC drivers
+void tmc_hw_serial_begin(HardwareSerial &serial, const uint32_t baud);
+#define TMC_HW_SERIAL_BEGIN(S, B) tmc_hw_serial_begin(S, B)
+
 void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_FREQUENCY, const uint16_t res=8);
 
 //
