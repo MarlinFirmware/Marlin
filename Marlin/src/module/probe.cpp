@@ -84,7 +84,7 @@
   #include "../feature/host_actions.h" // for PROMPT_USER_CONTINUE
 #endif
 
-#if HAS_Z_SERVO_PROBE || HAS_MAG_MOUNTED_SERVO_PROBE
+#if ANY(HAS_Z_SERVO_PROBE, HAS_MAG_MOUNTED_SERVO_PROBE, SWITCHING_NOZZLE_LIFT_TO_PROBE)
   #include "servo.h"
 #endif
 
@@ -758,7 +758,7 @@ float Probe::run_z_probe(const bool sanity_check/*=true*/, const float z_min_poi
 
   // Stop the probe before it goes too low to prevent damage.
   // For known Z probe below the expected trigger point, otherwise -10mm lower.
-  const float z_probe_low_point = zoffs + z_min_point -float((!motion.axis_is_trusted(Z_AXIS)) * 10);
+  const float z_probe_low_point = zoffs + z_min_point - float((!motion.axis_is_trusted(Z_AXIS)) * 10);
   if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probe Low Point: ", z_probe_low_point);
 
   #if DISABLED(DWIN_LCD_PROUI)

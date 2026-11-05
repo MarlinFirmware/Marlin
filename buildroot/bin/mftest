@@ -135,7 +135,7 @@ fi
 case $TESTENV in
     tree) pio run -d . -e include_tree ; exit 1 ;;
      due) TESTENV='DUE' ;;
-     esp) TESTENV='esp32' ;;
+     esp) TESTENV='esp32_idf4' ;;
     lin*) TESTENV='linux_native' ;;
 lp8|lpc8) TESTENV='LPC1768' ;;
 lp9|lpc9) TESTENV='LPC1769' ;;
