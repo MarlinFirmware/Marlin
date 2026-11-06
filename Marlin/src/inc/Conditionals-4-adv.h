@@ -2045,3 +2045,8 @@
 #if ALL(MKS_WIFI_MODULE, HAS_TFT_LVGL_UI)
   #define HAS_MKS_WIFI_UI 1
 #endif
+
+// MarlinUI for DOGM displays using U8g2lib instead of U8glib-HAL
+#if ALL(HAS_MARLINUI_U8GLIB, USE_U8G2_LIB)
+  #define HAS_MARLINUI_U8G2 1
+#endif
