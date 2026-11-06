@@ -145,6 +145,12 @@ void DGUSScreenHandlerCreality::storeSettings(char *buff) {
   memcpy(buff, &lcd_settings, sizeof(creality_dwin_settings_t));
 }
 
+// The display may only apply new settings after a page change, so send the current page again
+void DGUSScreenHandlerCreality::refreshTouchScreenConfiguration() {
+  setTouchScreenConfiguration();
+  dgus.requestScreen(current_screenID);
+}
+
 void DGUSScreenHandlerCreality::setTouchScreenConfiguration() {
   LIMIT(lcd_settings.screen_brightness, 10, 100);     // Prevent a possible all-dark screen
   LIMIT(lcd_settings.standby_time_seconds, 10, 655);  // Prevent a possible all-dark screen for standby, yet also don't go higher than the DWIN limitation
@@ -955,7 +961,7 @@ void DGUSScreenHandlerCreality::handleTouchScreenBrightnessSetting(DGUS_VP_Varia
   const uint16_t newvalue = BE16_P(val_ptr);
   DEBUG_ECHOLNPGM("handleTouchScreenBrightnessSetting: ", newvalue);
   lcd_settings.screen_brightness = newvalue;
-  setTouchScreenConfiguration();
+  refreshTouchScreenConfiguration();
 
   requestSaveSettings();
   forceCompleteUpdate();
@@ -965,7 +971,7 @@ void DGUSScreenHandlerCreality::handleTouchScreenStandbyBrightnessSetting(DGUS_V
   const uint16_t newvalue = BE16_P(val_ptr);
   DEBUG_ECHOLNPGM("handleTouchScreenStandbyBrightnessSetting: ", newvalue);
   lcd_settings.standby_screen_brightness = newvalue;
-  setTouchScreenConfiguration();
+  refreshTouchScreenConfiguration();
 
   requestSaveSettings();
   forceCompleteUpdate();
@@ -975,7 +981,7 @@ void DGUSScreenHandlerCreality::handleTouchScreenStandbyTimeSetting(DGUS_VP_Vari
   const uint16_t newvalue = BE16_P(val_ptr);
   DEBUG_ECHOLNPGM("handleTouchScreenStandbyTimeSetting: ", newvalue);
   lcd_settings.standby_time_seconds = newvalue;
-  setTouchScreenConfiguration();
+  refreshTouchScreenConfiguration();
 
   requestSaveSettings();
   forceCompleteUpdate();
@@ -983,7 +989,7 @@ void DGUSScreenHandlerCreality::handleTouchScreenStandbyTimeSetting(DGUS_VP_Vari
 
 void DGUSScreenHandlerCreality::handleToggleTouchScreenStandbySetting(DGUS_VP_Variable &var, void *val_ptr) {
   lcd_settings.display_standby = !lcd_settings.display_standby;
-  setTouchScreenConfiguration();
+  refreshTouchScreenConfiguration();
 
   requestSaveSettings();
   forceCompleteUpdate();

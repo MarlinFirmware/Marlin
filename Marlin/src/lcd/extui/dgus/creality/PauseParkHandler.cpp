@@ -46,6 +46,9 @@
 #include "../../../../module/motion.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/printcounter.h"
+#if ENABLED(HOST_ACTION_COMMANDS)
+  #include "../../../../feature/host_actions.h"
+#endif
 #include "../../../../sd/cardreader.h"
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../../feature/powerloss.h"
@@ -106,6 +109,12 @@ bool PauseParkHandler::pause() {
     #endif
     print_job_timer.pause();
     ui.reset_status();
+    #if ENABLED(HOST_ACTION_COMMANDS)
+      TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_PAUSE_RESUME, F("Pause SD"), F("Resume")));
+      #ifdef ACTION_ON_PAUSE
+        hostui.pause();
+      #endif
+    #endif
   #else
     ExtUI::injectCommands(F("M25"));
   #endif
@@ -141,6 +150,19 @@ void PauseParkHandler::onParked() {
   parked = true;
   working = false;
   screen.setStatusMessage(F("Print paused"));
+}
+
+// M600 during an SD print pauses and parks like the Pause button. Other prints use Marlin's M600,
+// which also keeps the host prompts. Once parked, M600 is ignored rather than started over.
+bool PauseParkHandler::onFilamentChange() {
+  if (working || parked) return true;
+  return pause();
+}
+
+// M24 (from G-code or a host "Resume" prompt) unparks first. While moving, it is ignored.
+bool PauseParkHandler::onResumeRequest() {
+  if (working) return true;
+  return resume();
 }
 
 bool PauseParkHandler::resume() {
@@ -190,6 +212,7 @@ void PauseParkHandler::onResumed() {
   leaveMoveModes();
   parked = retracted = false;
   working = false;
+  screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING); // Also when the host resumed
   ExtUI::resumePrint();
 }
 

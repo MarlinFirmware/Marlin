@@ -97,6 +97,11 @@ namespace ExtUI {
 
   void onPrintDone() { screen.onPrintDone(); }
 
+  #if CREALITY_PARK_ON_PAUSE
+    bool onFilamentChangeRequest() { return PauseParkHandler::onFilamentChange(); }
+    bool onResumeRequest()         { return PauseParkHandler::onResumeRequest(); }
+  #endif
+
   void onFilamentRunout(const extruder_t) {
     #ifdef FILAMENT_RUNOUT_SCRIPT
       // Only navigate to filament runout screen when we don't use M600 for changing the filament - otherwise it gets confusing for the user
