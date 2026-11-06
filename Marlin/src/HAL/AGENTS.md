@@ -15,7 +15,7 @@ The current family folders are:
 
 ```
 AT32/  AVR/  DUE/  ESP32/  GD32_MFL/  HC32/  LINUX/  LPC1768/
-NATIVE_SIM/  RP2040/  SAMD21/  SAMD51/  STM32/  STM32F1/
+NATIVE_SIM/  RP2040/  SAM3U/  SAMD21/  SAMD51/  STM32/  STM32F1/
 TEENSY31_32/  TEENSY35_36/  TEENSY40_41/
 ```
 
@@ -43,6 +43,7 @@ There is **no** `Marlin/src/HAL/inc/` subfolder at the HAL top level. Family-loc
 | `__SAMD51__`                      | `HAL/SAMD51`                           |
 | `__SAMD21__`                      | `HAL/SAMD21`                           |
 | `__PLAT_RP2040__`                 | `HAL/RP2040`                           |
+| `__SAM3U4E__`                     | `HAL/SAM3U`                            |
 | `ARDUINO_ARCH_AT32`               | `HAL/AT32`                             |
 
 If none match, `platforms.h` emits `#error "Unsupported Platform!"`. The guard macros are supplied by the Arduino core / toolchain / board JSON for the active environment, so the _compiler_ (not the build script) decides which family `HAL_PATH` points at.
@@ -71,6 +72,7 @@ So by default _no_ family folder is compiled (only `HAL/shared/` and a few named
 - `ini/at32.ini` (`[AT32F403_base]`): `build_src_filter = ${common.default_src_filter} +<src/HAL/AT32>`
 - `ini/avr.ini`: `+<src/HAL/AVR>`
 - `ini/raspberrypi.ini`: `+<src/HAL/RP2040>`
+- `ini/sam3u.ini`: `+<src/HAL/SAM3U>`
 - `ini/esp32.ini`: `+<src/HAL/ESP32>`
 - `ini/lpc176x.ini`: `+<src/HAL/LPC1768> -<src/HAL/LPC1768/tft> +<src/HAL/shared/backtrace>`
 - `ini/stm32f1-maple.ini`: `+<src/HAL/STM32F1> -<src/HAL/STM32F1/tft>`
@@ -161,7 +163,7 @@ So the _family_ sanity checks run **last**, after the top-level `SanityCheck.h` 
 
 ## Related
 
-- Per-family docs: `Marlin/src/HAL/<FAMILY>/AGENTS.md` (e.g. `STM32/`, `AT32/`, `AVR/`, `ESP32/`, `RP2040/`, `LPC1768/`, `LINUX/`, `NATIVE_SIM/`, …).
+- Per-family docs: `Marlin/src/HAL/<FAMILY>/AGENTS.md` (e.g. `STM32/`, `AT32/`, `AVR/`, `ESP32/`, `RP2040/`, `SAM3U/`, `LPC1768/`, `LINUX/`, `NATIVE_SIM/`, …).
 - `Marlin/src/inc/MarlinConfig.h`, `MarlinConfigPre.h` — the include cascade.
 - `Marlin/src/core/boards.h` — board selection; `Marlin/src/pins/` — board pin maps.
 - `Marlin/src/HAL/shared/` — shared HAL APIs every family reuses.
