@@ -61,14 +61,14 @@ inline void echo_zt(const int t, const float z) {
 void GcodeSuite::M166() {
   if (parser.seenval('A')) mixer.gradient.start_z = parser.value_float();
   if (parser.seenval('Z')) mixer.gradient.end_z = parser.value_float();
-  if (parser.seenval('I')) mixer.gradient.start_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS);
-  if (parser.seenval('J')) mixer.gradient.end_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS);
+  if (parser.seenval('I')) mixer.gradient.start_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS - 1);
+  if (parser.seenval('J')) mixer.gradient.end_vtool = (uint8_t)constrain(parser.value_int(), 0, MIXING_VIRTUAL_TOOLS - 1);
 
   #if ENABLED(GRADIENT_VTOOL)
     if (parser.seen('T')) mixer.gradient.vtool_index = parser.byteval('T', -1);
   #endif
 
-  if (parser.seen('S')) mixer.gradient.enabled = parser.value_bool();
+  if (parser.seen('S')) mixer.gradient.allowed = parser.value_bool();
 
   mixer.refresh_gradient();
 
@@ -102,5 +102,26 @@ void GcodeSuite::M166() {
 
   SERIAL_EOL();
 }
+
+#if ENABLED(GRADIENT_MIX_IN_EEPROM)
+
+  void GcodeSuite::M166_report(const bool forReplay/*=true*/) {
+    TERN_(MARLIN_SMALL_BUILD, return);
+
+    report_heading_etc(forReplay, F("Gradient Mix"));
+    SERIAL_ECHOPGM("  M166 S", mixer.gradient.allowed,
+      " A", mixer.gradient.start_z,
+      " Z", mixer.gradient.end_z,
+      " I", mixer.gradient.start_vtool,
+      " J", mixer.gradient.end_vtool
+    );
+    #if ENABLED(GRADIENT_VTOOL)
+      SERIAL_ECHOPGM(" T");
+      if (mixer.gradient.vtool_index >= 0) SERIAL_ECHO(mixer.gradient.vtool_index);
+    #endif
+    SERIAL_EOL();
+  }
+
+#endif
 
 #endif // GRADIENT_MIX
