@@ -739,7 +739,7 @@ G29_TYPE GcodeSuite::G29() {
               abl.probePos = abl.probe_position_lf + abl.gridSpacing * abl.meshCount.asFloat();
 
               // Coordinate that puts the probe at the grid point
-              const xy_pos_t nozPos = abl.probePos - probe.offset_xy;
+              const xy_pos_t nozPos = abl.probePos - probe.offset_xy_at_probe(abl.probePos);
               if (DEBUGGING(LEVELING)) SERIAL_ECHOLNPGM("BD X", nozPos.x, " Y", nozPos.y);
 
               // Put a G1 move into the buffer
@@ -764,7 +764,7 @@ G29_TYPE GcodeSuite::G29() {
             // Wait around until the real axis position reaches the comparison point
             // TODO: Use NEAR() because float is imprecise
             constexpr AxisEnum axis = TERN(PROBE_Y_FIRST, Y_AXIS, X_AXIS);
-            const float cmp = abl.probePos[axis] - probe.offset_xy[axis];
+            const float cmp = abl.probePos[axis] - probe.offset_xy_at_probe(abl.probePos)[axis];
             float pos;
             for (;;) {
               pos = planner.get_axis_position_mm(axis);
@@ -987,8 +987,9 @@ G29_TYPE GcodeSuite::G29() {
         planner.force_unapply_leveling(converted); // use conversion machinery
 
         // Use the last measured distance to the bed, if possible
-        if ( NEAR(motion.position.x, abl.probePos.x - probe.offset_xy.x)
-          && NEAR(motion.position.y, abl.probePos.y - probe.offset_xy.y)
+        const xy_pos_t probe_nozzle_pos = abl.probePos - probe.offset_xy_at_probe(abl.probePos);
+        if ( NEAR(motion.position.x, probe_nozzle_pos.x)
+          && NEAR(motion.position.y, probe_nozzle_pos.y)
         ) {
           const float simple_z = motion.position.z - abl.measured_z;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Probed Z", simple_z, "  Matrix Z", converted.z, "  Discrepancy ", simple_z - converted.z);

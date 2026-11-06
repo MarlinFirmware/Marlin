@@ -788,13 +788,8 @@ void Motion::report_position_projected() {
 
     #elif IS_SCARA
 
-      const float R2 = HYPOT2(rx - SCARA_OFFSET_X, ry - SCARA_OFFSET_Y);
-      can_reach = (
-        R2 <= sq(L1 + L2) - inset
-        #if MIDDLE_DEAD_ZONE_R > 0
-          && R2 >= FLOAT_SQ(MIDDLE_DEAD_ZONE_R)
-        #endif
-      );
+      // The ring around the shoulder that the active tool can reach
+      can_reach = scara_can_reach({ rx, ry }, scara_active_tool(), inset);
 
     #elif ENABLED(POLARGRAPH)
 
@@ -1378,7 +1373,7 @@ void Motion::restore_feedrate_and_scaling() {
         default: break;
       }
 
-    #elif HAS_HOTEND_OFFSET
+    #elif HAS_HOTEND_OFFSET && DISABLED(SCARA) // SCARA tool offsets are in its kinematics, so its limits are the same for every tool
 
       // Software endstops are relative to the tool 0 workspace, so
       // the movement limits must be shifted by the tool offset to
@@ -1478,6 +1473,40 @@ void Motion::restore_feedrate_and_scaling() {
         }
       #endif
 
+    #endif
+
+    #if ENABLED(SCARA)
+      // The software endstops are a box (the bed), but the tool reaches a ring around the shoulder. Bring a target
+      // the arm can't reach to the nearest point that it can, inside the box.
+      if (axis_was_homed(X_AXIS) && axis_was_homed(Y_AXIS)) {
+        // A side whose software endstop is disabled has no limit
+        xy_pos_t lo = { -1e6f, -1e6f }, hi = { 1e6f, 1e6f };
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
+          lo.x = soft_endstop.min.x;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
+          lo.y = soft_endstop.min.y;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
+          hi.x = soft_endstop.max.x;
+        #endif
+        #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
+          hi.y = soft_endstop.max.y;
+        #endif
+        const scara_tool_t tool = scara_active_tool();
+        xy_pos_t p = target;
+        bool moved = scara_clamp_to_limits(p, tool, lo, hi, SCARA_REACH_MARGIN);
+
+        // The joints are kept inside their ranges too, and a point they can't reach is the nearest one that they can.
+        // That can leave the box or the reach, so settle between them, and end on the joints, which are the hard stop.
+        for (uint8_t i = 0; i < 3 && scara_clamp_joints(p, tool); ++i) {
+          moved = true;
+          if (!scara_clamp_to_limits(p, tool, lo, hi, SCARA_REACH_MARGIN)) break;
+        }
+        scara_clamp_joints(p, tool);
+
+        if (moved) { target.x = p.x; target.y = p.y; }
+      }
     #endif
 
     #if HAS_Z_AXIS
