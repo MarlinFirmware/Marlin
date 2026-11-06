@@ -33,15 +33,15 @@
 
 namespace MMU3 {
 
-  enum CommandInProgress : uint8_t {
-    NoCommand = 0,
-    CutFilament = 'K',
-    EjectFilament = 'E',
-    Homing = 'H',
-    LoadFilament = 'L',
-    Reset = 'X',
-    ToolChange = 'T',
-    UnloadFilament = 'U',
+  enum CommandInProgress : unsigned char {
+    NoCommand      = '\0',
+    CutFilament    = 'K',
+    EjectFilament  = 'E',
+    Homing         = 'H',
+    LoadFilament   = 'L',
+    Reset          = 'X',
+    ToolChange     = 'T',
+    UnloadFilament = 'U'
   };
 
   /**
@@ -164,5 +164,6 @@ namespace MMU3 {
   void tuneIdlerStallguardThreshold();
 
   void write_register_and_return_to_status_menu(uint8_t address, uint8_t value);
+  void TuneApplyPendingWrite();
 
 } // MMU3

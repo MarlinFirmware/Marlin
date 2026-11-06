@@ -163,8 +163,9 @@ namespace MMU3 {
     switch (lastErrorCode) {
       case ErrorCode::HOMING_SELECTOR_FAILED:
       case ErrorCode::HOMING_IDLER_FAILED: {
-        // Prompt a menu for different values
-        tuneIdlerStallguardThreshold();
+        // Prompt a menu for different values. Reading the register needs the MMU protocol to
+        // keep running, which it cannot do from here (inside mmu_loop). manage_response() does it.
+        tunePending = true;
         break;
       }
       default: break;
@@ -197,12 +198,27 @@ namespace MMU3 {
   void MMU3::powerOff() { power_off(); }
   void MMU3::powerOn()  { power_on(); }
 
+  /**
+   * Read or write a register and wait for the MMU to answer. Unlike manage_response() this
+   * also works while the MMU is in an error state, where the answer never ends a command.
+   * Call it outside of mmu_loop(), which doesn't run recursively.
+   */
+  bool MMU3::accessRegister(const uint8_t address, const bool write, const uint16_t data) {
+    logic.registerAccessDone = false;
+    if (write) logic.writeRegister(address, data); else logic.readRegister(address);
+
+    const millis_t timeout = millis() + 3000UL;
+    while (!logic.registerAccessDone) {
+      if (ELAPSED(millis(), timeout)) return false;
+      safe_delay_keep_alive(0); // calls logicStep()
+    }
+    return true;
+  }
+
   bool MMU3::readRegister(uint8_t address) {
     if (!waitForMMUReady()) return false;
 
-    do {
-      logic.readRegister(address); // we may signal the accepted/rejected status of the response as return value of this function
-    } while (!manage_response(false, false));
+    if (!accessRegister(address, false, 0)) return false;
 
     // Update cached value
     lastReadRegisterValue = logic.rsp.paramValue;
@@ -219,11 +235,7 @@ namespace MMU3 {
       default: break; // Don't intercept any other register writes
     }
 
-    do {
-      logic.writeRegister(address, data); // we may signal the accepted/rejected status of the response as return value of this function
-    } while (!manage_response(false, false));
-
-    return true;
+    return accessRegister(address, true, data);
   }
 
   void MMU3::mmu_loop() {
@@ -860,7 +872,7 @@ namespace MMU3 {
           default: break;
         }
         break;
-      case Buttons::TuneMMU:
+      case Buttons::TuneMMU: // TODO: May go unutilized, but it's here for now
         tune();
         break;
       case Buttons::Load:
@@ -907,6 +919,12 @@ namespace MMU3 {
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status
+
+      if (tunePending) {
+        tunePending = false;
+        tuneIdlerStallguardThreshold();
+      }
+      TuneApplyPendingWrite();
 
       if (mmu_print_saved & SavedState::CooldownPending) {
         if (!nozzle_timer.isRunning()) {
