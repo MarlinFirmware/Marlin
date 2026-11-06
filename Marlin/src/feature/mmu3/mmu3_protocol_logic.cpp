@@ -444,6 +444,7 @@ namespace MMU3 {
       case ScopeState::CommandSent: {
         switch (rsp.paramCode) { // the response should be either accepted or rejected
           case ResponseMsgParamCodes::Accepted:
+            rejectedSinceMs = 0;
             progressCode = ProgressCode::OK;
             errorCode = ErrorCode::RUNNING;
             scopeState = ScopeState::Wait;
@@ -825,6 +826,7 @@ namespace MMU3 {
   }
 
   StepStatus ProtocolLogic::HandleProtocolError() {
+    rejectedSinceMs = 0;
     MMU_SERIAL.flush(); // clear the output buffer
     state = State::InitSequence;
     currentScope = Scope::DelayedRestart;
@@ -857,8 +859,20 @@ namespace MMU3 {
         // we have to repeat it - that's the only thing we can do
         // no change in state
         // @@TODO wait until Q0 returns command in progress finished, then we can send this one
+        // The MMU may still be busy, in which case a resend succeeds. It may also refuse the command for good
+        // (e.g., Load while it believes filament is loaded), so only keep trying for a limited time.
         LogError(PSTR("Command rejected"));
-        CommandRestart();
+        {
+          const millis_t now = _millis();
+          if (!rejectedSinceMs) rejectedSinceMs = now ?: 1;
+          if (ELAPSED(now, rejectedSinceMs + commandRejectedTimeout)) {
+            LogError(PSTR("Command rejected too long"));
+            // Raise a printer error so the user sees a screen, instead of silently resending forever
+            SetPrinterError(ErrorCode::PROTOCOL_ERROR);
+            rejectedSinceMs = 0; // keep resending, and report again after another interval if still rejected
+          }
+          CommandRestart();
+        }
         break;
       case CommandError:
         LogError(PSTR("Command Error"));
