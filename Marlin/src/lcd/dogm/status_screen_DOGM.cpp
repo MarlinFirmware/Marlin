@@ -27,7 +27,7 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI)
+#if HAS_MARLINUI_U8GLIB && DISABLED(LIGHTWEIGHT_UI, PANCAKEBOT_PANEL)
 
 #include "dogm_Statusscreen.h"
 #include "marlinui_DOGM.h"
@@ -1014,4 +1014,4 @@ void MarlinUI::draw_status_message(const bool blink) {
   #endif
 }
 
-#endif // HAS_MARLINUI_U8GLIB && !LIGHTWEIGHT_UI
+#endif // HAS_MARLINUI_U8GLIB && !LIGHTWEIGHT_UI && !PANCAKEBOT_PANEL

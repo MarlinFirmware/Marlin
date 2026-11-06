@@ -641,6 +641,11 @@
 #if ANY(SCARA, AXEL_TPARA)
   #define IS_SCARA 1              // Linear Motion derives from SCARA kinematics
 #endif
+// The PancakeBot batter pump is on the fan output and must stop while paused
+#if ENABLED(PANCAKEBOT) && DISABLED(ADVANCED_PAUSE_FANS_PAUSE)
+  #define ADVANCED_PAUSE_FANS_PAUSE
+#endif
+
 #if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR)
   #define IS_KINEMATIC 1          // Linear Motion derives from kinematic conversion and segmentation
 #else
