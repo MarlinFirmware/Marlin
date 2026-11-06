@@ -133,6 +133,8 @@ namespace ExtUI {
   WEAK_EXTUI void onPrinterKilled(FSTR_P const, FSTR_P const) {}
   WEAK_EXTUI void onPrintTimerStarted() {}
   WEAK_EXTUI void onPrintTimerPaused() {}
+  WEAK_EXTUI bool onFilamentChangeRequest() { return false; }
+  WEAK_EXTUI bool onResumeRequest() { return false; }
   WEAK_EXTUI void onPrintTimerStopped() {}
   WEAK_EXTUI void onPrintDone() {}
   WEAK_EXTUI void onFilamentRunout(const extruder_t) {}
