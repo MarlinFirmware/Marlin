@@ -534,6 +534,10 @@ namespace ExtUI {
 
   void onPrintTimerStarted();
   void onPrintTimerPaused();
+
+  // A UI may take over M600 (Filament Change) or M24 (Resume SD print). Return true if handled.
+  bool onFilamentChangeRequest();
+  bool onResumeRequest();
   void onPrintTimerStopped();
   void onPrintDone();
 

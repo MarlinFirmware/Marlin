@@ -30,6 +30,9 @@
 #include "../../../module/printcounter.h"
 
 #include "../../../lcd/marlinui.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../../lcd/extui/ui_api.h"
+#endif
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../../../lcd/sovol_rts/sovol_rts.h"
 #endif
@@ -83,6 +86,9 @@
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
+
+  // A UI that pauses without holding the queue may handle this
+  if (TERN0(EXTENSIBLE_UI, ExtUI::onFilamentChangeRequest())) return;
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t eindex = get_target_e_stepper_from_command();

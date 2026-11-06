@@ -79,6 +79,7 @@ public:
     settings.request_autosave();
   }
   static void setTouchScreenConfiguration();
+  static void refreshTouchScreenConfiguration();
 
   static void killScreenCalled();
 
