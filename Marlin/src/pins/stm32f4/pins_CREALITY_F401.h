@@ -119,7 +119,7 @@
 //#define FAN2_PIN                          PE1   // Controller fan FET
 
 #ifndef E0_AUTO_FAN_PIN
-  #define E0_AUTO_FAN_PIN                   PA1   // FAN1_PIN
+  #define E0_AUTO_FAN_PIN                   PC0   // Heatbreak fan FET (PA1 is the hotend heater)
 #endif
 
 //
@@ -132,13 +132,48 @@
 #define ONBOARD_SDIO
 #define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
-// SPI 2
-#if ENABLED(RET6_12864_LCD)
+//
+// LCD / Controller
+//
+// The "LCD" header is the same 10-pin EXP3 found on the Creality V4.x and Ender-3 S1 boards.
+// The stock touch screen uses UART2 on pins 3 and 4 (PA2/PA3), so it is not available when
+// a 12864 display is used on this header.
+//
+/**
+ *                 ------
+ *           PC6  | 1  2 | PB2
+ *  UART2_TX PA2  | 3  4 | PA3  UART2_RX
+ *           PB14   5  6 | PB13
+ *           PB12 | 7  8 | PB15
+ *            GND | 9 10 | 5V
+ *                 ------
+ *                  EXP3
+ */
+#define EXP3_01_PIN                         PC6
+#define EXP3_02_PIN                         PB2
+#define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         PA3
+#define EXP3_05_PIN                         PB14
+#define EXP3_06_PIN                         PB13
+#define EXP3_07_PIN                         PB12
+#define EXP3_08_PIN                         PB15
 
-  #define LCD_PINS_RS                       PB12
-  #define LCD_PINS_EN                       PB15
-  #define LCD_PINS_D4                       PB13
-  #define BTN_EN2                           PB14
+#if ENABLED(CR10_STOCKDISPLAY)
+  #define LCD_PINS_RS                EXP3_07_PIN
+  #define LCD_PINS_EN                EXP3_08_PIN
+  #define LCD_PINS_D4                EXP3_06_PIN
+
+  #define BTN_ENC                    EXP3_02_PIN
+  #define BTN_EN1                    EXP3_03_PIN
+  #define BTN_EN2                    EXP3_05_PIN
+
+  #define BEEPER_PIN                 EXP3_01_PIN
+
+  // This MCU needs slower ST7920 serial timing than the 125 ns default for the CR-10 display.
+  // (Without these the effective delays are 300 / 125 / 340 ns, and the display stays blank.)
+  #define BOARD_ST7920_DELAY_1               600
+  #define BOARD_ST7920_DELAY_2               600
+  #define BOARD_ST7920_DELAY_3               600
 #endif
 
 //#define LED_CONTROL_PIN                   PA7

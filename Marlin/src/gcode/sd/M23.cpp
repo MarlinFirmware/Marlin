@@ -27,6 +27,9 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 /**
  * M23: Select File
@@ -44,6 +47,7 @@ void GcodeSuite::M23() {
   card.openFileRead(parser.string_arg);
 
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
+  TERN_(CREALITY_RTS, RTS_OpenFileCloud());
 }
 
 #endif // HAS_MEDIA
