@@ -2103,6 +2103,10 @@
   // Prevents infinite loops when reading from SD card with hardware/communication faults
   #define SD_MAX_READ_ERRORS 5
 
+  // Emulate RepRapFirmware with macro files stored in /sys and /macros
+  // Provide the M98 command to run a macro file as a sub-program
+  //#define MACHINE_COMMAND_MACROS
+
 #endif // HAS_MEDIA
 
 /**
