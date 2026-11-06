@@ -427,23 +427,45 @@ void menu_mmu2_choose_filament() {
 //
 // MMU2 Filament Runout
 //
+// Load and Load to Nozzle ask for the slot. The tool that was in use is unknown after an
+// Unload (or a runout), and a slot taken from it would be invalid for the MMU.
+//
+
+void menu_mmu2_pause();
+
+static void _mmu2_pause_load(const uint8_t slot) {
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_feeder(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void _mmu2_pause_load_to_nozzle(const uint8_t slot) {
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void menu_mmu2_pause_load() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load(MenuItemBase::itemIndex); });
+  END_MENU();
+}
+
+static void menu_mmu2_pause_load_to_nozzle() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load_to_nozzle(MenuItemBase::itemIndex); });
+  END_MENU();
+}
 
 void menu_mmu2_pause() {
-  feeder_index = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
-  #if HAS_PRUSA_MMU3
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu3.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu3.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu3.load_to_nozzle(feeder_index); });
-  #else
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
-  #endif
+  ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload(); });
+  SUBMENU(MSG_MMU2_LOAD_FILAMENT,       menu_mmu2_pause_load);
+  SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE,      menu_mmu2_pause_load_to_nozzle);
   END_MENU();
 }
 
