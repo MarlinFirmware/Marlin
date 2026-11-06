@@ -155,6 +155,8 @@ struct {
     #else
       esp_task_wdt_init(timeout_s, true);
     #endif
+  }
+
 #endif
 
 #if HAS_TMC_HW_SERIAL
