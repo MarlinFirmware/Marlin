@@ -121,7 +121,7 @@ bool flag_lcd_down = false;
 int last_target_temperature[4] = { 0 };
 int last_target_temperature_bed;
 uint8_t waitway = 0;
-int change_page_font = 1;
+int change_page_indx = 1;
 unsigned char Percentrecord = 0;
 // represents to update file list
 bool CardUpdate = false;
@@ -171,6 +171,11 @@ bool g_heaterLoadTempAdd = false; // Inlet and out material temperature heating
 bool g_uiXYAxisEnable = false; // Axis movement interface, YX axis motor enable flag bit
 bool g_uiZAxisEnable = false; // Axis movement interface, Z-axis motor enable flag
 
+static void goto_page_index(const int page) {
+  rts.sendData(ExchangePageBase + page, ExchangepageAddr);
+  change_page_indx = page;
+}
+
 // Monitor SD card eject
 static void Remove_card_window_check() {
   static bool lSDCardStatus = false;
@@ -189,8 +194,7 @@ static void Remove_card_window_check() {
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true, false)); // rock_20211016
 
       //SERIAL_ECHO_MSG("ROCK_MOVE_CARD2222\n");
-      rts.sendData(ExchangePageBase + 47, ExchangepageAddr);
-      change_page_font = 47;
+      goto_page_index(47);
       queue.inject(F("M25"));    // M25: Pause the SD print in progress.
     }
   }
@@ -240,6 +244,10 @@ RTS::RTS() {
   recdat.head[0] = snddat.head[0] = FHONE;
   recdat.head[1] = snddat.head[1] = FHTWO;
   ZERO(databuf);
+}
+
+void RTS::gotoPageIndex(const int page) {
+  goto_page_index(page);
 }
 
 void RTS::sdCardInit() {
@@ -495,8 +503,7 @@ void RTS::init() {
   sendData(1, PREHAEAT_NOZZLE_ICON_VP);
   sendData(1, PREHAEAT_HOTBED_ICON_VP);
 
-  sendData(ExchangePageBase, ExchangepageAddr);
-  change_page_font = 0;
+  goto_page_index(0);
 
   for (startprogress = 0; startprogress <= 80; startprogress++) {
     sendData(startprogress, START_PROCESS_ICON_VP);
@@ -862,8 +869,7 @@ void RTS::sdCardStop() {
     sendData(0, SELECT_FILE_TEXT_VP + j);
   }
   //waitway = 0;
-  //sendData(ExchangePageBase + 1, ExchangepageAddr);
-  //change_page_font = 1;
+  //goto_page_index(1);
 }
 
 void RTS::handleData() {
@@ -908,27 +914,23 @@ void RTS::handleData() {
         file_current_page = 1;
         sendData(file_current_page, PRINT_CURRENT_PAGE_DATA_VP);
 
-        sendData(ExchangePageBase + 2, ExchangepageAddr);
-        change_page_font = 2;
+        goto_page_index(2);
         if (card.isSDCardInserted()) RTS_line_to_filelist();
       }
       else if (recdat.data[0] == 2) {
         AxisUnitMode = 3;
         axis_unit = 0.1;
         RTS_UpdatePosition();
-        sendData(ExchangePageBase + 16, ExchangepageAddr);
-        change_page_font = 16;
+        goto_page_index(16);
       }
       else if (recdat.data[0] == 3) {
         if (true == g_heaterLoadTempAdd) break;
-        sendData(ExchangePageBase + 21, ExchangepageAddr);
-        change_page_font = 21;
+        goto_page_index(21);
       }
       else if (recdat.data[0] == 4) {
         hmiFlag.leveling_flag = true; // Enter the leveling page
         //gcode.process_subcommands_now(F("M420 S0")); // Enter the leveling page and turn off the automatic compensation first
-        sendData(ExchangePageBase + 25, ExchangepageAddr);
-        change_page_font = 25;
+        goto_page_index(25);
         gcode.process_subcommands_now(F("G28"));
         gcode.process_subcommands_now(F("M420 S0")); // Enter the leveling page and turn off the automatic compensation first
         gcode.process_subcommands_now(F("G1 X110 Y110 F3000"));
@@ -953,15 +955,13 @@ void RTS::handleData() {
           sendData(0, SELECT_FILE_TEXT_VP + j);
         }
         CardRecbuf.recordcount = -1; // Unselected
-        sendData(ExchangePageBase + 1, ExchangepageAddr); // rock_20220708
-        change_page_font = 1;
+        goto_page_index(1);
       }
       else if (recdat.data[0] == 6) {
         #if ENABLED(BLTOUCH)
           waitway = 3;
           sendData(ui.language + 1, BEDLEVELING_WAIT_TITLE_VP);
-          sendData(ExchangePageBase + 26, ExchangepageAddr);
-          change_page_font = 26;
+          goto_page_index(26);
 
           //RTS_ProbingPauseHotend();
           //RTS_ProbingPauseFans();
@@ -984,31 +984,26 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 8) {
         if (true == g_heaterLoadTempAdd) break;
-        sendData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
+        goto_page_index(1);
       }
       break;
 
     case AdjustEnterKey:
       if (recdat.data[0] == 1) {
         sendData(fans[0].speed ? 0 : 1, PRINTER_FANOPEN_TITLE_VP);
-        sendData(ExchangePageBase + 14, ExchangepageAddr);
-        change_page_font = 14;
+        goto_page_index(14);
       }
       else if (recdat.data[0] == 2) {
         if (PoweroffContinue) {
           if (card.isPrinting() || marlin.wait_for_heatup) {
-            sendData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
+            goto_page_index(10);
           }
           else {
-            sendData(ExchangePageBase + 12, ExchangepageAddr);
-            change_page_font = 12;
+            goto_page_index(12);
           }
         }
         else {
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
         }
         settings.save();
       }
@@ -1030,14 +1025,12 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 5) {
-        sendData(ExchangePageBase + 15, ExchangepageAddr);
-        change_page_font = 15;
+        goto_page_index(15);
       }
       else if (recdat.data[0] == 6) {
       }
       else if (recdat.data[0] == 7) {
-        sendData(ExchangePageBase + 14, ExchangepageAddr);
-        change_page_font = 14;
+        goto_page_index(14);
         settings.save();
       }
       else if (recdat.data[0] == 8) {
@@ -1070,8 +1063,7 @@ void RTS::handleData() {
         }
       }
       else if (recdat.data[0] == 10) {
-        sendData(ExchangePageBase + 32, ExchangepageAddr);
-        change_page_font = 32;
+        goto_page_index(32);
         settings.save();
       }
       break;
@@ -1085,8 +1077,7 @@ void RTS::handleData() {
     case StopPrintKey:
       if (recdat.data[0] == 1) { // Stop printing pop-up window entry
         if (hmiFlag.home_flag) break;
-        sendData(ExchangePageBase + 13, ExchangepageAddr);
-        change_page_font = 13;
+        goto_page_index(13);
       }
       else if (recdat.data[0] == 2) { // Stop printing popup confirmation
         if (!PoweroffContinue) { // rock_20220708 Cloud printing
@@ -1102,15 +1093,13 @@ void RTS::handleData() {
           SERIAL_ECHOLNPGM("M79 S4");
           queue.enqueue_now(F("M79 S4")); // 4:cloud print stop
           g_cloudPLRStatusValue = CLOUD_PLR_NULL_STATE;
-          sendData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
+          goto_page_index(1);
         }
 
         if (hmiFlag.G29_flag || hmiFlag.home_flag) break;
 
         if (PoweroffContinue) {
-          sendData(ExchangePageBase + 40, ExchangepageAddr);
-          change_page_font = 40;
+          goto_page_index(40);
           waitway = 7;
           sendData(0, PRINT_TIME_HOUR_VP);
           sendData(0, PRINT_TIME_MIN_VP);
@@ -1132,12 +1121,10 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 3) { // Stop printing the popup and return
         if (card.isPrinting() || marlin.wait_for_heatup || hmiFlag.home_flag) { // 暂停
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
         }
         else { // continue to print
-          sendData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          goto_page_index(12);
         }
       }
       else if (recdat.data[0] == 4) {
@@ -1147,8 +1134,7 @@ void RTS::handleData() {
             SERIAL_ECHOLNPGM("ok");
 
             runout.filament_ran_out = false;
-            sendData(ExchangePageBase + 40, ExchangepageAddr);
-            change_page_font = 40;
+            goto_page_index(40);
             waitway = 7;
             #if ENABLED(FILAMENT_RUNOUT_SENSOR)
               if (runout.enabled) {
@@ -1178,15 +1164,13 @@ void RTS::handleData() {
             sdCardStop();
 
             SERIAL_ECHOLNPGM("M79 S4"); // 4:cloud print stop
-            //sendData(ExchangePageBase + 1, ExchangepageAddr);
-            // change_page_font = 1;
+            //goto_page_index(1);
           }
           else if (!PoweroffContinue) {
             SERIAL_ECHOLNPGM("ok");
             PoweroffContinue = true;
             runout.filament_ran_out = false;
-            sendData(ExchangePageBase + 40, ExchangepageAddr);
-            change_page_font = 40;
+            goto_page_index(40);
             waitway = 7;
             #if ENABLED(FILAMENT_RUNOUT_SENSOR)
               if (runout.enabled) {
@@ -1219,15 +1203,13 @@ void RTS::handleData() {
 
             PoweroffContinue = false;
             SERIAL_ECHOLNPGM("M79 S4"); // 4:cloud print stop
-            sendData(ExchangePageBase + 1, ExchangepageAddr);
-            change_page_font = 1;
+            goto_page_index(1);
           }
         }
       }
       else if (recdat.data[0] == 5) { // Pull out the card
         if (PoweroffContinue) {
-          sendData(ExchangePageBase + 40, ExchangepageAddr);
-          change_page_font = 40;
+          goto_page_index(40);
           waitway = 7;
           sendData(0, PRINT_TIME_HOUR_VP);
           sendData(0, PRINT_TIME_MIN_VP);
@@ -1247,13 +1229,11 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         // Pull out the card
         if (!PoweroffContinue) {
-          sendData(ExchangePageBase + 11, ExchangepageAddr);
-          change_page_font = 11;
+          goto_page_index(11);
         }
         // Troubleshooting the issue of repeatedly clicking pause before starting a print causing it to restart - rock_20220714
         if (hmiFlag.G29_flag || hmiFlag.home_flag || marlin.wait_for_heatup) break;
-        sendData(ExchangePageBase + 11, ExchangepageAddr);
-        change_page_font = 11;
+        goto_page_index(11);
       }
       else if (recdat.data[0] == 2) {
         if (!PoweroffContinue) {
@@ -1262,8 +1242,7 @@ void RTS::handleData() {
           queue.enqueue_now(F("M79 S2")); // 2:cloud print pause
           update_time_value = 0;
           print_job_timer.pause();
-          sendData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          goto_page_index(12);
         }
 
         if (hmiFlag.G29_flag || hmiFlag.home_flag || marlin.wait_for_heatup) break;
@@ -1285,12 +1264,10 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 3) {
         if (card.isPrinting() || marlin.wait_for_heatup) {
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
         }
         else {
-          sendData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          goto_page_index(12);
         }
       }
       break;
@@ -1300,15 +1277,13 @@ void RTS::handleData() {
 
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           if (runout.enabled && runout.filament_ran_out) {
-            sendData(ExchangePageBase + 7, ExchangepageAddr);
-            change_page_font = 7;
+            goto_page_index(7);
             break;
           }
         #endif
 
         if (PoweroffContinue) {
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
 
           #if ENABLED(HAS_RESUME_CONTINUE)
             const bool was_wait = marlin.wait_for_user;
@@ -1350,18 +1325,15 @@ void RTS::handleData() {
 
           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
             if (runout.enabled && runout.filament_ran_out) {
-              sendData(ExchangePageBase + 7, ExchangepageAddr);
-              change_page_font = 7;
+              goto_page_index(7);
               break;
             }
             else {
               if (!planner.has_blocks_queued()) {
-                sendData(ExchangePageBase + 8, ExchangepageAddr);
-                change_page_font = 8;
+                goto_page_index(8);
               }
               else {
-                sendData(ExchangePageBase + 7, ExchangepageAddr);
-                change_page_font = 7;
+                goto_page_index(7);
                 break;
               }
             }
@@ -1370,8 +1342,7 @@ void RTS::handleData() {
         else if (!sdcard_pause_check) {
           if (card.flag.mounted) {
             if (runout.enabled && runout.filament_ran_out) {
-              sendData(ExchangePageBase + 7, ExchangepageAddr);
-              change_page_font = 7;
+              goto_page_index(7);
               break;
             }
             else {
@@ -1411,15 +1382,13 @@ void RTS::handleData() {
       else if (recdat.data[0] == 3) {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           if (runout.enabled && runout.filament_ran_out) {
-            sendData(ExchangePageBase + 7, ExchangepageAddr);
-            change_page_font = 7;
+            goto_page_index(7);
             break;
           }
         #endif
         if (PoweroffContinue) {
           runout.filament_ran_out = false;
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
           SERIAL_ECHOLNPGM("M79 S1");
           SERIAL_ECHOLNPGM("M79 S3");
           if (temphot > 0) {
@@ -1485,8 +1454,7 @@ void RTS::handleData() {
             pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
             ui.pause_show_message(PAUSE_MESSAGE_RESUME);
             //queue.inject(F("M108"));
-            sendData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
+            goto_page_index(10);
 
             //card.startOrResumeFilePrinting();
             print_job_timer.start();
@@ -1513,8 +1481,7 @@ void RTS::handleData() {
           pause_menu_response = PAUSE_RESPONSE_RESUME_PRINT;
           ui.pause_show_message(PAUSE_MESSAGE_RESUME);
 
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
 
           print_job_timer.start();
           update_time_value = 0;
@@ -1533,8 +1500,7 @@ void RTS::handleData() {
           hmiFlag.remove_card_flag = false;
           temp_remove_card_flag = false;
 
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
           gcode.process_subcommands_now(F("M24"));
         }
         else {
@@ -1542,8 +1508,7 @@ void RTS::handleData() {
           sdCardUpate();
           //card.mount();
           //SERIAL_ECHO_MSG("ROCK_MOVE_CARD!!!!\n");
-          sendData(ExchangePageBase + 47, ExchangepageAddr);
-          change_page_font = 47;
+          goto_page_index(47);
         }
       }
       break;
@@ -1569,22 +1534,19 @@ void RTS::handleData() {
 
     case TempControlKey:
       if (recdat.data[0] == 2) {
-        sendData(ExchangePageBase + 20, ExchangepageAddr);
-        change_page_font = 20;
+        goto_page_index(20);
       }
       else if (recdat.data[0] == 3) {
         sendData(ui.material_preset[0].hotend_temp, PREHEAT_PLA_SET_NOZZLE_TEMP_VP);
         sendData(ui.material_preset[0].bed_temp, PREHEAT_PLA_SET_BED_TEMP_VP);
         delay(2);
-        sendData(ExchangePageBase + 22, ExchangepageAddr);
-        change_page_font = 22;
+        goto_page_index(22);
       }
       else if (recdat.data[0] == 4) {
         sendData(ui.material_preset[1].hotend_temp, PREHEAT_ABS_SET_NOZZLE_TEMP_VP);
         sendData(ui.material_preset[1].bed_temp, PREHEAT_ABS_SET_BED_TEMP_VP);
         delay(2);
-        sendData(ExchangePageBase + 23, ExchangepageAddr);
-        change_page_font = 23;
+        goto_page_index(23);
       }
       else if (recdat.data[0] == 5) {
         thermalManager.setTargetHotend(ui.material_preset[0].hotend_temp, 0);
@@ -1618,13 +1580,11 @@ void RTS::handleData() {
         #endif
       }
       else if (recdat.data[0] == 7) {
-        sendData(ExchangePageBase + 21, ExchangepageAddr);
-        change_page_font = 21;
+        goto_page_index(21);
       }
       else if (recdat.data[0] == 8) {
         if (true == g_heaterLoadTempAdd) break;
-        sendData(ExchangePageBase + 20, ExchangepageAddr);
-        change_page_font = 20;
+        goto_page_index(20);
       }
       break;
 
@@ -1638,8 +1598,7 @@ void RTS::handleData() {
         sendData(0, PRINTER_FANOPEN_TITLE_VP);
       }
       else if (recdat.data[0] == 2) {
-        sendData(ExchangePageBase + 21, ExchangepageAddr);
-        change_page_font = 21;
+        goto_page_index(21);
       }
       else if (recdat.data[0] == 3) {   // Sound on / off
         rts_sound_on ^= true;
@@ -1682,19 +1641,16 @@ void RTS::handleData() {
 
     case PrepareEnterKey:
       if (recdat.data[0] == 1) {
-        sendData(ExchangePageBase + 28, ExchangepageAddr);
-        change_page_font = 28;
+        goto_page_index(28);
       }
       else if (recdat.data[0] == 2) {
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
       }
       else if (recdat.data[0] == 3) {
         if (true == g_heaterLoadTempAdd) break;
         RTS_UpdatePosition();
         delay(2);
-        sendData(ExchangePageBase + 16, ExchangepageAddr);
-        change_page_font = 16;
+        goto_page_index(16);
       }
       else if (recdat.data[0] == 4) {
         //OUT_WRITE(SHUTDOWN_PIN, LOW);
@@ -1702,8 +1658,7 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 5) {
         updateAboutDisplay();
-        sendData(ExchangePageBase + 24, ExchangepageAddr);
-        change_page_font = 24;
+        goto_page_index(24);
       }
       else if (recdat.data[0] == 6) {
         queue.enqueue_now(F("M84"));
@@ -1712,21 +1667,17 @@ void RTS::handleData() {
         g_uiZAxisEnable = false;
       }
       else if (recdat.data[0] == 7) {
-        sendData(ExchangePageBase + 43, ExchangepageAddr);
-        change_page_font = 43;
+        goto_page_index(43);
       }
       else if (recdat.data[0] == 8) {
         settings.save();
-        sendData(ExchangePageBase + 21, ExchangepageAddr);
-        change_page_font = 21;
+        goto_page_index(21);
       }
       else if (recdat.data[0] == 9) {
-        sendData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
+        goto_page_index(1);
       }
       else if (recdat.data[0] == 10) {
-        sendData(ExchangePageBase + 42, ExchangepageAddr);
-        change_page_font = 42;
+        goto_page_index(42);
       }
       else if (recdat.data[0] == 11) {
         #if ENABLED(MENU_RESET_WIFI)
@@ -1734,12 +1685,10 @@ void RTS::handleData() {
           OUT_WRITE(RESET_WIFI_PIN, LOW);
         #endif
         hmiFlag.flag_counter_wifi_reset = true;
-        sendData(ExchangePageBase + 45, ExchangepageAddr);
-        change_page_font = 45;
+        goto_page_index(45);
       }
       else if (recdat.data[0] == 12) {
-        sendData(ExchangePageBase + 44, ExchangepageAddr);
-        change_page_font = 44;
+        goto_page_index(44);
       }
       else if (recdat.data[0] == 13) {
         settings.reset();
@@ -1747,8 +1696,7 @@ void RTS::handleData() {
         updateLanguageDisplay();
         for (int i = 0; i < 9; i++) sendData(0, LANGUAGE_CHINESE_TITLE_VP + i);
         sendData(1, LANGUAGE_CHINESE_TITLE_VP + ui.language);
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
 
         sendData(ui.material_preset[0].hotend_temp, PREHEAT_PLA_SET_NOZZLE_TEMP_VP);
         sendData(ui.material_preset[0].bed_temp, PREHEAT_PLA_SET_BED_TEMP_VP);
@@ -1792,8 +1740,7 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 14) {
         if (!planner.has_blocks_queued()) {
-          sendData(ExchangePageBase + 33, ExchangepageAddr);
-          change_page_font = 33;
+          goto_page_index(33);
         }
       }
       else if (recdat.data[0] == 15) {
@@ -1804,8 +1751,7 @@ void RTS::handleData() {
           sendData(10 * motion.position.x, AXIS_X_COORD_VP);
           sendData(10 * motion.position.y, AXIS_Y_COORD_VP);
           sendData(10 * motion.position.z, AXIS_Z_COORD_VP);
-          sendData(ExchangePageBase + 21, ExchangepageAddr);
-          change_page_font = 21;
+          goto_page_index(21);
         }
         settings.save();
       }
@@ -1845,8 +1791,7 @@ void RTS::handleData() {
       else if (recdat.data[0] == 4) {
         gcode.process_subcommands_now(F("M420 S0")); // Rock_20220817 进入调平页面先关掉自动补偿
         if (!planner.has_blocks_queued()) {
-          sendData(ExchangePageBase + 25, ExchangepageAddr);
-          change_page_font = 25;
+          goto_page_index(25);
           queue.enqueue_one(F("G1 F200 Z3.0"));
           queue.enqueue_one(F("G1 X110 Y110 F3000"));
           queue.enqueue_one(F("G1 F200 Z0.0"));
@@ -1916,8 +1861,7 @@ void RTS::handleData() {
         sendData(0, AUTO_BED_LEVEL_TITLE_VP);
         sendData(0, AUTO_LEVELING_PERCENT_DATA_VP);
         if (!planner.has_blocks_queued()) {
-          sendData(ExchangePageBase + 26, ExchangepageAddr);
-          change_page_font = 26;
+          goto_page_index(26);
         }
       }
       sendData(0, MOTOR_FREE_ICON_VP);
@@ -1927,22 +1871,19 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) {
         AxisUnitMode = 1;
         axis_unit = 10.0;
-        sendData(ExchangePageBase + 16, ExchangepageAddr);
-        change_page_font = 16;
+        goto_page_index(16);
         sendData(3, MOVEAXIS_UNIT_ICON_VP);
       }
       else if (recdat.data[0] == 2) {
         AxisUnitMode = 2;
         axis_unit = 1.0;
-        sendData(ExchangePageBase + 17, ExchangepageAddr);
-        change_page_font = 17;
+        goto_page_index(17);
         sendData(2, MOVEAXIS_UNIT_ICON_VP);
       }
       else if (recdat.data[0] == 3) {
         AxisUnitMode = 3;
         axis_unit = 0.1;
-        sendData(ExchangePageBase + 18, ExchangepageAddr);
-        change_page_font = 18;
+        goto_page_index(18);
         sendData(1, MOVEAXIS_UNIT_ICON_VP);
       }
       else if (recdat.data[0] == 4) {
@@ -2050,8 +1991,7 @@ void RTS::handleData() {
         sendData(10 * FilamentLOAD, HEAD_FILAMENT_LOAD_DATA_VP);
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           if (runout.enabled && runout.filament_ran_out) {
-            sendData(ExchangePageBase + 46, ExchangepageAddr);
-            change_page_font = 46;
+            goto_page_index(46);
             sendData(0, HEAD_FILAMENT_LOAD_DATA_VP);
             break;
           }
@@ -2084,8 +2024,7 @@ void RTS::handleData() {
         sendData(10 * FilamentUnLOAD, HEAD_FILAMENT_UNLOAD_DATA_VP);
         #if ENABLED(FILAMENT_RUNOUT_SENSOR)
           if (runout.enabled && runout.filament_ran_out) {
-            sendData(ExchangePageBase + 46, ExchangepageAddr);
-            change_page_font = 46;
+            goto_page_index(46);
             sendData(0, HEAD_FILAMENT_UNLOAD_DATA_VP);
             break;
           }
@@ -2116,8 +2055,7 @@ void RTS::handleData() {
         if (!planner.has_blocks_queued()) {
           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
             if (runout.enabled && runout.filament_ran_out) {
-              sendData(ExchangePageBase + 46, ExchangepageAddr);
-              change_page_font = 46;
+              goto_page_index(46);
               break;
             }
           #endif
@@ -2136,20 +2074,17 @@ void RTS::handleData() {
             RTS_line_to_current(E_AXIS);
             planner.synchronize();
           }
-          sendData(ExchangePageBase + 19, ExchangepageAddr);
-          change_page_font = 19;
+          goto_page_index(19);
         }
       }
       else if (recdat.data[0] == 2) {
         if (!planner.has_blocks_queued()) {
-          sendData(ExchangePageBase + 19, ExchangepageAddr);
-          change_page_font = 19;
+          goto_page_index(19);
         }
       }
       else if (recdat.data[0] == 3) {
         queue.enqueue_now(F("G92 E0")); // rock_20210927 liuxu  Reset Extruder
-        sendData(ExchangePageBase + 19, ExchangepageAddr);
-        change_page_font = 19;
+        goto_page_index(19);
         sendData(0, HEAD_FILAMENT_LOAD_DATA_VP);
         sendData(0, HEAD_FILAMENT_UNLOAD_DATA_VP);
       }
@@ -2168,8 +2103,7 @@ void RTS::handleData() {
         if (recovery.recovery_flag && PoweroffContinue) {
           power_off_type_yes = true;
           update_time_value = 0;
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
           //recovery.resume();
           queue.enqueue_now(F("M1000"));
 
@@ -2189,8 +2123,7 @@ void RTS::handleData() {
       else if (recdat.data[0] == 2) {
         if (PoweroffContinue) {
           update_time_value = RTS_UPDATE_VALUE;
-          sendData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
+          goto_page_index(1);
 
           sendData(0, PRINT_TIME_HOUR_VP);
           sendData(0, PRINT_TIME_MIN_VP);
@@ -2227,8 +2160,7 @@ void RTS::handleData() {
 
     case StoreMemoryKey:
       if (recdat.data[0] == 1) {
-        sendData(ExchangePageBase + 37, ExchangepageAddr);
-        change_page_font = 37;
+        goto_page_index(37);
       }
       if (recdat.data[0] == 2) {
         //queue.enqueue_now(F("M502"));
@@ -2238,8 +2170,7 @@ void RTS::handleData() {
         sendData(1, LANGUAGE_CHINESE_TITLE_VP + ui.language);
         last_zoffset = zprobe_zoffset = probe.offset.z = 0;
         sendData(zprobe_zoffset * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
         // settings.save();
         ui.material_preset[0].hotend_temp = PREHEAT_1_TEMP_HOTEND;
         ui.material_preset[0].bed_temp = PREHEAT_1_TEMP_BED;
@@ -2289,16 +2220,13 @@ void RTS::handleData() {
         delay(200);
       }
       else if (recdat.data[0] == 3) {
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
       }
       else if (recdat.data[0] == 4) {
-        sendData(ExchangePageBase + 34, ExchangepageAddr);
-        change_page_font = 34;
+        goto_page_index(34);
       }
       else if (recdat.data[0] == 5) {
-        sendData(ExchangePageBase + 39, ExchangepageAddr);
-        change_page_font = 39;
+        goto_page_index(39);
       }
       else if (recdat.data[0] == 6) {
         wifi_enable_flag ^= true;
@@ -2307,30 +2235,24 @@ void RTS::handleData() {
         settings.save();
       }
       else if (recdat.data[0] == 7) {
-        sendData(ExchangePageBase + 38, ExchangepageAddr);
-        change_page_font = 38;
+        goto_page_index(38);
       }
       else if (recdat.data[0] == 8) {
-        sendData(ExchangePageBase + 36, ExchangepageAddr);
-        change_page_font = 36;
+        goto_page_index(36);
       }
       else if (recdat.data[0] == 9) {
-        sendData(ExchangePageBase + 37, ExchangepageAddr);
-        change_page_font = 37;
+        goto_page_index(37);
       }
       else if (recdat.data[0] == 10) {
-        sendData(ExchangePageBase + 35, ExchangepageAddr);
-        change_page_font = 35;
+        goto_page_index(35);
       }
       else if (recdat.data[0] == 11) {
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
         settings.save();
         delay(1000);
       }
       else if (recdat.data[0] == 12) {
-        sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        goto_page_index(33);
         settings.save();
         delay(1000);
       }
@@ -2489,8 +2411,7 @@ void RTS::handleData() {
         sendData(1, FILE1_SELECT_ICON_VP + (recdat.data[0] - 1));
       }
 
-      sendData(ExchangePageBase + 1, ExchangepageAddr);
-      change_page_font = 1;
+      goto_page_index(1);
       TERN_(HAS_GCODE_THUMBNAIL, sendPreview(CardRecbuf.Cardfilename[CardRecbuf.recordcount]));
       delay(20);
       sendData(CardRecbuf.Cardshowfilename[CardRecbuf.recordcount], SELECT_FILE_TEXT_VP);
@@ -2511,8 +2432,7 @@ void RTS::handleData() {
           strcpy(cmdbuf, cmd);
           #if ENABLED(FILAMENT_RUNOUT_SENSOR)
             if (runout.enabled && runout.filament_ran_out) {
-              sendData(ExchangePageBase + 7, ExchangepageAddr);
-              change_page_font = 7;
+              goto_page_index(7);
               sdcard_pause_check = false;
               break;
             }
@@ -2550,8 +2470,7 @@ void RTS::handleData() {
           else
             break;
           sendData(file_current_page, PRINT_CURRENT_PAGE_DATA_VP);
-          sendData(ExchangePageBase + 2, ExchangepageAddr);
-          change_page_font = 2;
+          goto_page_index(2);
 
           if (card.flag.mounted)
             RTS_line_to_filelist();
@@ -2565,8 +2484,7 @@ void RTS::handleData() {
           else
             break;
           sendData(file_current_page, PRINT_CURRENT_PAGE_DATA_VP);
-          sendData(ExchangePageBase + 2, ExchangepageAddr);
-          change_page_font = 2;
+          goto_page_index(2);
 
           if (card.flag.mounted)
             RTS_line_to_filelist();
@@ -2580,8 +2498,7 @@ void RTS::handleData() {
 
           RTS_line_to_filelist();
 
-          sendData(ExchangePageBase + 2, ExchangepageAddr);
-          change_page_font = 2;
+          goto_page_index(2);
         }
       }
       else if (recdat.data[0] == 5) {
@@ -2592,8 +2509,7 @@ void RTS::handleData() {
 
           RTS_line_to_filelist();
 
-          sendData(ExchangePageBase + 2, ExchangepageAddr);
-          change_page_font = 2;
+          goto_page_index(2);
         }
       }
       break;
@@ -2637,22 +2553,19 @@ void RTS::handleData() {
       //sendData(thermalManager.degTargetBed(), BED_SET_TEMP_VP);
       updateLanguageDisplay();
 
-      sendData(change_page_font + ExchangePageBase, ExchangepageAddr);
+      sendData(change_page_indx + ExchangePageBase, ExchangepageAddr);
       break;
 
     case ErrorKey:
       if (recdat.data[0] == 1) {
         if (marlin.printingIsActive()) {
-          sendData(ExchangePageBase + 10, ExchangepageAddr);
-          change_page_font = 10;
+          goto_page_index(10);
         }
         else if (marlin.printingIsPaused()) {
-          sendData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          goto_page_index(12);
         }
         else {
-          sendData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
+          goto_page_index(1);
         }
 
         if (errorway == 4) hal.reboot(); // reboot
@@ -2684,8 +2597,7 @@ void RTS::eachMomentUpdate() {
     if (wifiresetcount_ms > TIME_WIFI_RESET_BACKPAGE) {
       hmiFlag.flag_counter_wifi_reset = false;
       sendData(0, WIFI_CONNECTED_DISPLAY_ICON_VP);
-      sendData(ExchangePageBase + 33, ExchangepageAddr);
-      change_page_font = 33;
+      goto_page_index(33);
     }
   }
   else
@@ -2730,8 +2642,7 @@ void RTS::eachMomentUpdate() {
             break;
           }
         }
-        sendData(ExchangePageBase + 27, ExchangepageAddr);
-        change_page_font = 27;
+        goto_page_index(27);
         PoweroffContinue = true;
         g_cloudPLRStatusValue = CLOUD_PLR_CHOOSE_STATE; // 云打印断电续打的选择界面
         SERIAL_ECHOLNPGM("M79 S6"); // 6:cloud print power continue
@@ -2747,8 +2658,7 @@ void RTS::eachMomentUpdate() {
         sendData(StartSoundSet, SoundAddr);
         power_off_type_yes = true;
         update_time_value = RTS_UPDATE_VALUE;
-        sendData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
+        goto_page_index(1);
       }
       return;
     }
@@ -2842,8 +2752,7 @@ void RTS::eachMomentUpdate() {
 
     //static bool heatway = false;
     //if (heatway && thermalManager.degHotend(0) >= thermalManager.degTargetHotend(0)) {
-    //  sendData(ExchangePageBase + 19, ExchangepageAddr);
-    //  change_page_font = 19;
+    //  goto_page_index(19);
     //  heatway = false;
     //  sendData(10 * FilamentLOAD, HEAD_FILAMENT_LOAD_DATA_VP);
     //  sendData(10 * FilamentUnLOAD, HEAD_FILAMENT_UNLOAD_DATA_VP);
@@ -3034,20 +2943,17 @@ void RTS_Update() {
 
 void RTS_PauseMoveAxisPage() {
   if (waitway == 1) {
-    rts.sendData(ExchangePageBase + 12, ExchangepageAddr);
-    change_page_font = 12;
+    goto_page_index(12);
     waitway = 0;
     SERIAL_ECHOLNPGM("M79 S2"); // 2:cloud print pause
   }
   else if (waitway == 5) {
-    rts.sendData(ExchangePageBase + 7, ExchangepageAddr);
-    change_page_font = 7;
+    goto_page_index(7);
     waitway = 0;
   }
   else if (waitway == 7) {
     // Click stop print
-    rts.sendData(ExchangePageBase + 1, ExchangepageAddr);
-    change_page_font = 1;
+    goto_page_index(1);
     waitway = 0;
   }
 }
@@ -3055,8 +2961,7 @@ void RTS_PauseMoveAxisPage() {
 void RTS_AutoBedLevelPage() {
   if (waitway == 3) {
     rts.sendData(ui.language + 1, BEDLEVELING_WAIT_TITLE_VP);
-    rts.sendData(ExchangePageBase + 26, ExchangepageAddr);
-    change_page_font = 26;
+    goto_page_index(26);
     waitway = 0;
   }
 }
@@ -3064,18 +2969,16 @@ void RTS_AutoBedLevelPage() {
 void RTS_MoveAxisHoming() {
   if (waitway == 4) {
     rts.sendData(ExchangePageBase + 16 + (AxisUnitMode - 1), ExchangepageAddr);
-    change_page_font = 16;
+    change_page_indx = 16;
     waitway = 0;
   }
   else if (waitway == 6) {
-    rts.sendData(ExchangePageBase + 25, ExchangepageAddr);
-    change_page_font = 25;
+    goto_page_index(25);
     waitway = 0;
   }
   else if (waitway == 7) {
     // Click Print finish
-    rts.sendData(ExchangePageBase + 1, ExchangepageAddr);
-    change_page_font = 1;
+    goto_page_index(1);
     waitway = 0;
   }
 
@@ -3084,8 +2987,7 @@ void RTS_MoveAxisHoming() {
 
 void RTS_CommandPause() {
   if (marlin.printingIsActive()) {
-    rts.sendData(ExchangePageBase + 12, ExchangepageAddr);
-    change_page_font = 12;
+    goto_page_index(12);
     // card.pauseSDPrint();
     // print_job_timer.pause();
     // pause_action_flag = true;
@@ -3136,8 +3038,7 @@ void ErrorHanding() {
 ///////////////////////
 
 void RTS_Error(const char * const err) {
-  rts.sendData(ExchangePageBase + 41, ExchangepageAddr);
-  change_page_font = 41;
+  goto_page_index(41);
   rts.sendText(err, ABNORMAL_PAGE_TEXT_VP);
 }
 
@@ -3165,8 +3066,7 @@ void RTS_OpenFileCloud() {
 }
 
 void RTS_PausedPrint() {
-  rts.sendData(ExchangePageBase + 7, ExchangepageAddr);
-  change_page_font = 7;
+  goto_page_index(7);
   sdcard_pause_check = true;
 }
 
@@ -3174,8 +3074,7 @@ void RTS_PrintStartedSD() {
   if (PoweroffContinue) return;
   update_time_value = 0;
   print_job_timer.start();
-  rts.sendData(ExchangePageBase + 10, ExchangepageAddr);
-  change_page_font = 10;
+  goto_page_index(10);
 }
 
 void RTS_SDFileCompleted() {
@@ -3212,8 +3111,7 @@ void RTS_ReheatHotend(const celsius_t c/*=170*/) {
 
 void RTS_FilamentRanOut() {
   temphot = thermalManager.degTargetHotend(0);
-  rts.sendData(ExchangePageBase + 7, ExchangepageAddr);
-  change_page_font = 7;
+  goto_page_index(7);
   sdcard_pause_check = true;
 }
 
@@ -3271,8 +3169,7 @@ void RTS_LevelingUpdate(uint8_t &count, const uint8_t total) {
   rts.sendData(count * 50 / total, AUTO_BED_LEVEL_TITLE_VP);
   rts.sendData(count * 100 / total, AUTO_LEVELING_PERCENT_DATA_VP);
   rts.sendData(thermalManager.degHotend(0), HEAD_CURRENT_TEMP_VP);
-  rts.sendData(ExchangePageBase + 26, ExchangepageAddr);
-  change_page_font = 26;
+  goto_page_index(26);
   // TODO: Send the Z value from the in-progress leveling
   //rts.sendData(bedlevel.z_values[meshCount.x][meshCount.y]*1000, AUTO_BED_LEVEL_1POINT_VP + (count - 1) * 2);
 }
@@ -3303,8 +3200,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
       if (!PoweroffContinue) {
         update_time_value = 0;
         print_job_timer.start();
-        rts.sendData(ExchangePageBase + 10, ExchangepageAddr);
-        change_page_font = 10;
+        goto_page_index(10);
         g_couldPrintState = COULD_PRINT_STATE_RUNNING;
       }
       break;
@@ -3315,8 +3211,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
         update_time_value = 0;
         print_job_timer.pause();
         if (!runout.filament_ran_out) {
-          rts.sendData(ExchangePageBase + 12, ExchangepageAddr);
-          change_page_font = 12;
+          goto_page_index(12);
         }
         g_couldPrintState = COULD_PRINT_STATE_PAUSE;
       }
@@ -3345,8 +3240,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
       if (!PoweroffContinue) { // Cloud printing
         update_time_value = 0;
         print_job_timer.start();
-        rts.sendData(ExchangePageBase + 10, ExchangepageAddr);
-        change_page_font = 10;
+        goto_page_index(10);
         if (g_cloudPLRStatusValue == CLOUD_PLR_CHOOSE_STATE) // There is a power failure to continue playing
           g_cloudPLRStatusValue = CLOUD_PLR_YES_STATE;
         g_couldPrintState = COULD_PRINT_STATE_RUNNING;
@@ -3354,8 +3248,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
       else if (PoweroffContinue) { // Print locally
         if (CardReader::flag.mounted) {
           if (CLOUD_PLR_NULL_STATE == g_cloudPLRStatusValue) { // Continuous play without power failure
-            rts.sendData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
+            goto_page_index(10);
             #if ENABLED(HAS_RESUME_CONTINUE)
               const bool was_wait = marlin.wait_for_user;
               marlin.wait_for_user = false;
@@ -3373,13 +3266,12 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
               sdcard_pause_check = true;
             }
           }
-          else if (g_cloudPLRStatusValue == CLOUD_PLR_CHOOSE_STATE) { // 有断电续打
+          else if (g_cloudPLRStatusValue == CLOUD_PLR_CHOOSE_STATE) { // There is a power failure to continue playing
             g_cloudPLRStatusValue = CLOUD_PLR_YES_STATE;
             PoweroffContinue = true;
             power_off_type_yes = true;
             update_time_value = 0;
-            rts.sendData(ExchangePageBase + 10, ExchangepageAddr);
-            change_page_font = 10;
+            goto_page_index(10);
             // recovery.resume();
             queue.enqueue_now(F("M1000"));
             sdcard_pause_check = true;
@@ -3393,18 +3285,16 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
       // 4:cloud print stop
       if (!PoweroffContinue) {
         update_time_value = 0;
-        rts.sendData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
+        goto_page_index(1);
         rts.sendData(0, PRINT_PROCESS_VP);
         rts.sendData(0, PRINT_PROCESS_ICON_VP);
         print_job_timer.stop();
         g_cloudPLRStatusValue = CLOUD_PLR_NULL_STATE;
       }
       else if (PoweroffContinue) {
-        if (27 == change_page_font) { // 有本地断电续打
+        if (change_page_indx == 27) { // There is a local power failure to continue playing
           update_time_value = RTS_UPDATE_VALUE;
-          rts.sendData(ExchangePageBase + 1, ExchangepageAddr);
-          change_page_font = 1;
+          goto_page_index(1);
           rts.sendData(0, PRINT_TIME_HOUR_VP);
           rts.sendData(0, PRINT_TIME_MIN_VP);
           update_time_value = 0;
@@ -3429,8 +3319,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
       if (!PoweroffContinue) {
         update_time_value = 0;
         print_job_timer.stop();
-        rts.sendData(ExchangePageBase + 1, ExchangepageAddr);
-        change_page_font = 1;
+        goto_page_index(1);
         rts.sendData(0, PRINT_PROCESS_VP);
         rts.sendData(0, PRINT_PROCESS_ICON_VP);
       }
@@ -3439,8 +3328,7 @@ void RTS_CloudCommand(const cloudCommand_t cloud_cmd) {
     case 6:
       // 6:cloud print power continue
       if (!PoweroffContinue) {
-        rts.sendData(ExchangePageBase + 27, ExchangepageAddr);
-        change_page_font = 27;
+        goto_page_index(27);
         power_off_type_yes = true;
         g_cloudPLRStatusValue = CLOUD_PLR_CHOOSE_STATE;
       }

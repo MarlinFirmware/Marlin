@@ -461,6 +461,7 @@ class RTS {
     RTS();
 
     static void eachMomentUpdate();
+    static void gotoPageIndex(const int page);
 
     static int receiveData();
     static void sdCardInit();
@@ -628,7 +629,7 @@ void ErrorHanding();
 void RTS_Update();
 
 extern int16_t temphot;
-extern int change_page_font;
+extern int change_page_indx;
 extern bool wifi_enable_flag;
 extern bool rts_sound_on;
 extern int update_time_value;

@@ -1553,7 +1553,7 @@ void RTS::onIdle() {
   // Print the file before the power is off.
   if (!power_off_type_yes) {
     if (!poweroff_continue || (lcd_sd_status && poweroff_continue)) {
-      sendData(ExchangePageBase, ExchangepageAddr);
+      gotoPage(ID_Startup);
       if (startprogress < 0) startprogress = 0;
       if (startprogress < 56) sendData(startprogress, START1_PROCESS_ICON_VP);
       delay(80);

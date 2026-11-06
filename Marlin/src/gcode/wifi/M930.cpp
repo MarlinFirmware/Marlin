@@ -40,8 +40,7 @@ void GcodeSuite::M930() {
     case 1:
       if (hmiFlag.flag_counter_wifi_reset) {
         hmiFlag.flag_counter_wifi_reset = false;
-        rts.sendData(ExchangePageBase + 33, ExchangepageAddr);
-        change_page_font = 33;
+        rts.gotoPageIndex(33);
       }
       rts.sendData(1, WIFI_CONNECTED_DISPLAY_ICON_VP);
       break;
