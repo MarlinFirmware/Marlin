@@ -8,17 +8,17 @@ Always validate with `mftest` (it regenerates `Marlin/Configuration.h` per targe
 
 ```bash
 cd "$(git rev-parse --show-toplevel)"
-buildroot/bin/mftest -t WANHAO_0327001 -n1 -y          # AT32F403ARGT7, 256 KB flash
-buildroot/bin/mftest -t EASYTHREED_ET4000_PLUS -n1 -y  # AT32F403ARCT7, 1 MB flash
+buildroot/bin/mftest -t WANHAO_0327001 -n1 -y          # AT32F403ARGT7, 1 MB flash
+buildroot/bin/mftest -t EASYTHREED_ET4000_PLUS -n1 -y  # AT32F403ARCT7, 256 KB flash
 ```
 
-Both targets must be green before considering AT32 work done. The Wanhao (256 KB) build is the tighter constraint — if it fits there, EasyThreed (1 MB) will too.
+Both targets must be green before considering AT32 work done. The 256 KB EasyThreed builds are the tighter constraint — if they fit, the Wanhao (1 MB) build will too.
 
 > Do NOT use `rm -rf .pio/build/...` to force a rebuild — the cross-profile write guard blocks it and it is unsafe. Use `pio run -e <env> -t clean` (removes only build artifacts) or just let `mftest` rebuild.
 
 ## Framework / Platform Integration
 
-The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork (tag `marlin-1.0.0.2`, branch `marlin`), which carries the Marlin-specific fixes and the `marlin_at32f403` variant. The local platform in `buildroot/share/PlatformIO/platform-at32/` names that archive in its `platform.json`.
+The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork (tag `marlin-1.0.0.3`, branch `marlin`), which carries the Marlin-specific fixes and the `marlin_at32f403` variant. The local platform in `buildroot/share/PlatformIO/platform-at32/` names that archive in its `platform.json`.
 
 - Framework changes (core, variant, linker scripts, build script) are made in the fork, then pinned here by updating the archive URL in `platform-at32/platform.json`.
 - Editing `~/.platformio/packages/framework-arduino-at32f4/` only changes your local build. It is overwritten on reinstall and never reaches a PR.
@@ -26,7 +26,7 @@ The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the 
 
 ### Gotchas that are not obvious from the source
 
-1. **Pins are an `enum`, not `#define`.** The core's `libcore/gpio.h` defines `PC6`, `PC7`, … as a C `enum`. The C preprocessor cannot see `enum` values in `#if`, so `PIN_EXISTS(PC6)` evaluated `PC6` as `0` → false pin-conflict errors (e.g. `PART_COOLING_FAN1_PIN == PART_COOLING_FAN0_PIN`). The fix: `HAL/AT32/pins_arduino.h` (and the variant `variants/marlin_at32f403/pins_arduino.h`) define `#define PC6 PC6` etc. **Do not "fix" the symptom by editing SanityCheck — fix it at the pin-define level.**
+1. **Pins are an `enum`, not `#define`.** The core's `libcore/gpio.h` defines `PC6`, `PC7`, … as a C `enum`. The C preprocessor cannot see `enum` values in `#if`, so `PIN_EXISTS(PC6)` evaluated `PC6` as `0` → false pin-conflict errors (e.g. `PART_COOLING_FAN1_PIN == PART_COOLING_FAN0_PIN`). The fix: the framework variant's `variants/marlin_at32f403/pins_arduino.h` (included by `HAL.h` as `<pins_arduino.h>`) defines numeric macros (`#define PC6 38`, …) in enum order, checked by a `static_assert` on `PIN_MAX`. The AT32F403A has ports A–E only. **Do not "fix" the symptom by editing SanityCheck — fix it at the pin-define level.**
 
 2. **Optimization flags live in the framework build script, not `platform.json`.** PlatformIO does not auto-apply a custom `platform.json` `build.flags` to a custom framework `platformio-build-arduino.py`. Without `-Os -DNDEBUG` appended to `CFLAGS`/`CXXFLAGS` in that script, Marlin compiles to ~2 MB and overflows flash. Hard-float `LINKFLAGS` (`-mfloat-abi=hard -mfpu=fpv4-sp-d16`) are also required there or the link step rejects the hard-float objects.
 
@@ -38,7 +38,7 @@ The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the 
 
 6. **The bare `Serial` global + `println`.** The core only defines `Serial1`–`Serial5` / `Serial7`. Marlin feature code in the core (`DShot.cpp`, `UbxGpsParser.cpp`) references `Serial.println(...)`. `HardwareSerial.h` declares `extern HardwareSerial& Serial;`, `HardwareSerial.cpp` defines `HardwareSerial& Serial = Serial1;` and a `println(const char*)` that emits CRLF via `write((uint8_t)0x0D)` / `write((uint8_t)0x0A)`. **The core files are CRLF and string-literal `\r\n` escapes get mangled by some edit layers — use the hex byte writes instead.**
 
-7. **Flash size / linker script.** The Wanhao (ARGT7) has 256 KB flash; the framework only ships a 1 MB linker script. `AT32F403AxR_FLASH.ld` (256 KB) is assigned to the Wanhao board JSON; EasyThreed uses the 1 MB `AT32F403AxG_FLASH.ld`.
+7. **Flash size / linker script.** The ARCT7 (EasyThreed ET4000+) has 256 KB flash and uses `AT32F403AxR_FLASH.ld`; the ARGT7 (Wanhao) has 1 MB and uses `AT32F403AxG_FLASH.ld`; the AT32F407RCT7 (K7 Rev. B) uses `AT32F407xC_FLASH.ld`. These live in the framework variant and are named by the board JSONs.
 
 8. **EEPROM backend is per-board, not auto-selected.** Marlin does NOT auto-pick `SDCARD_EEPROM_EMULATION`. Each AT32 board's pins file must `#define SDCARD_EEPROM_EMULATION` (both Wanhao and EasyThreed do). `PersistentStore` is implemented in `eeprom/eeprom_sdcard.cpp` (ported from the STM32 HAL).
 

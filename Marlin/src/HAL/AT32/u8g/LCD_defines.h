@@ -21,14 +21,6 @@
 #pragma once
 
 /**
- * u8g LCD display defines for AT32F403
+ * AT32 LCD-specific defines
+ * U8G uses the generic Arduino software SPI (see HAL_LCD_com_defines.h).
  */
-
-#ifdef ARDUINO_ARCH_AT32
-
-// Default graphical display delays for AT32
-#define CPU_ST7920_DELAY_1 300
-#define CPU_ST7920_DELAY_2  40
-#define CPU_ST7920_DELAY_3 340
-
-#endif // ARDUINO_ARCH_AT32

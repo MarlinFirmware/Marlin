@@ -33,11 +33,18 @@
 #include "../shared/Marduino.h"
 #include "../shared/math_32bit.h"
 #include "../shared/HAL_SPI.h"
-#include "./pins_arduino.h"
+#include <pins_arduino.h>  // Pin names as macros (from the framework variant)
 
 #include "fastio.h"
 #include "timers.h"
 #include "MarlinHAL.h"
+
+//
+// Default graphical display delays
+//
+#define CPU_ST7920_DELAY_1 300
+#define CPU_ST7920_DELAY_2  40
+#define CPU_ST7920_DELAY_3 340
 
 //
 // Serial Ports

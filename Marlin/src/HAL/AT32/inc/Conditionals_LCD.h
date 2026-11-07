@@ -19,22 +19,3 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 #pragma once
-
-/**
- * AT32-specific LCD conditionals
- */
-
-#ifdef ARDUINO_ARCH_AT32
-
-// Default graphical display delays for AT32F403 (Cortex-M4 @ 240 MHz)
-#ifndef CPU_ST7920_DELAY_1
-  #define CPU_ST7920_DELAY_1 300
-#endif
-#ifndef CPU_ST7920_DELAY_2
-  #define CPU_ST7920_DELAY_2  40
-#endif
-#ifndef CPU_ST7920_DELAY_3
-  #define CPU_ST7920_DELAY_3 340
-#endif
-
-#endif // ARDUINO_ARCH_AT32

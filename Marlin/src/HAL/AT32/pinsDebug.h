@@ -31,6 +31,13 @@
 // AT32 pin debugging uses the Arduino PIN_MAP infrastructure
 #define NUM_DIGITAL_PINS  PIN_MAX
 
+#ifndef BOARD_USART1_TX_PIN
+  #define BOARD_USART1_TX_PIN PA9
+#endif
+#ifndef BOARD_USART1_RX_PIN
+  #define BOARD_USART1_RX_PIN PA10
+#endif
+
 #ifndef ADC_PIN_INVALID
   #define ADC_PIN_INVALID 0xFF
 #endif
@@ -47,7 +54,7 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
   static bool never_touch(const uint16_t index) {
     const pin_t pin = pin_t(index);
     return pin == BOARD_USART1_TX_PIN || pin == BOARD_USART1_RX_PIN     // Host USART
-        || pin == PH0 || pin == PH1 || pin == PC14 || pin == PC15;      // Oscillators
+        || pin == PD0 || pin == PD1 || pin == PC14 || pin == PC15;      // Oscillators (HEXT, LEXT)
   }
 
   static bool has_adc(const pin_t pin) {

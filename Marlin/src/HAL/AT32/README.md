@@ -8,8 +8,9 @@ The HAL is modeled on the HC32 HAL pattern: a Chinese-vendor Cortex-M4 MCU with 
 
 | Board | MCU | Flash | PlatformIO env | Pins file |
 | --- | --- | --- | --- | --- |
-| `BOARD_WANHAO_0327001` (8000) | AT32F403ARGT7 | 256 KB | `WANHAO_0327001` | `src/pins/at32f4/pins_WANHAO_0327001.h` |
-| `BOARD_EASYTHREED_ET4000_PLUS` (8001) | AT32F403ARCT7 | 1 MB | `EASYTHREED_ET4000_PLUS` | `src/pins/at32f4/pins_EASYTHREED_ET4000_PLUS.h` |
+| `BOARD_WANHAO_0327001` (7500) | AT32F403ARGT7 | 1 MB | `WANHAO_0327001` | `src/pins/at32f4/pins_WANHAO_0327001.h` |
+| `BOARD_EASYTHREED_ET4000_PLUS` (7501) | AT32F403ARCT7 | 256 KB | `EASYTHREED_ET4000_PLUS` | `src/pins/at32f4/pins_EASYTHREED_ET4000_PLUS.h` |
+| `BOARD_EASYTHREED_K7_REVB_AT32F407` (7502) | AT32F407RCT7 | 256 KB | `EASYTHREED_K7_REVB_AT32F407` | `src/pins/at32f4/pins_EASYTHREED_K7_REVB_AT32F407.h` |
 
 **Build status:** both targets compile and link cleanly via `mftest` (see `AGENTS.md` in this folder).
 
@@ -35,14 +36,14 @@ Uses `rizacelik/ArduinoCore-AT32F4` v1.0.0 (based on WeActStudio's core). Key co
 - Header chain `Arduino.h` → `libcore/mcu_core.h` → `adc.h`, `delay.h`, `exti.h`, `gpio.h`, `pwm.h`, `timer.h`, `wdg.h`.
 - `PIN_MAP[pin]` → `{ GPIOx, TIMx, ADCx, GPIO_Pin_x, TimerChannel, ADC_Channel }`; `IS_PIN` / `IS_ADC_PIN` / `IS_PWM_PIN`.
 - `F_CPU = system_core_clock` (set at runtime) — build forces `-DF_CPU=240000000L` for `constexpr` math.
-- **The core defines pin names (`PC6`, `PC7`, …) as a C `enum`, not `#define`.** The C preprocessor cannot see `enum` values in `#if`, so Marlin's `PIN_EXISTS(PC6)` evaluated `PC6` as `0` and produced false pin-conflict errors. The fix lives in `HAL/AT32/pins_arduino.h` (and the `marlin_at32f403` variant's `pins_arduino.h`): they provide `#define PC6 PC6` (etc.) so the preprocessor sees real numeric values.
+- **The core defines pin names (`PC6`, `PC7`, …) as a C `enum`, not `#define`.** The C preprocessor cannot see `enum` values in `#if`, so Marlin's `PIN_EXISTS(PC6)` evaluated `PC6` as `0` and produced false pin-conflict errors. The `marlin_at32f403` variant's `pins_arduino.h` (included by `HAL.h`) defines the same names as numeric macros (`#define PC6 38`, etc.) matching the enum order, with a `static_assert` on `PIN_MAX`.
 - The core's `HardwareSerial` is **NOT** derived from Arduino `Stream` (no `flush()` / `end()` / `peek()`); `AT32SerialAdapter` wraps it. The core also does not define a bare `Serial` global (only `Serial1`–`Serial5`), so `HardwareSerial.cpp` provides `HardwareSerial& Serial = Serial1;` plus a `println(const char*)` for Marlin feature code.
 - No core `Servo` class, no panic/postmortem — `MinSerial` uses raw USART writes.
 - USB-CDC is **not** used by Marlin (it uses hardware UART). All USB-CDC code in the core is guarded behind `#ifdef AT32_USB_CDC` (undefined for Marlin).
 
 ## PlatformIO Integration
 
-A local PlatformIO platform is scaffolded at `buildroot/share/PlatformIO/platform-at32/` (referenced via `file://` in `ini/at32.ini` to avoid SCons path-doubling). Board JSONs in `buildroot/share/PlatformIO/boards/`: `at32f403argt7.json` (Wanhao, 256 KB), `at32f403arct7.json` (EasyThreed, 1 MB). Variant: `marlin_at32f403` (provided by the framework package). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
+A local PlatformIO platform is scaffolded at `buildroot/share/PlatformIO/platform-at32/` (referenced via `file://` in `ini/at32.ini` to avoid SCons path-doubling). Board JSONs in `buildroot/share/PlatformIO/boards/`: `at32f403argt7.json` (Wanhao, 1 MB), `at32f403arct7.json` (EasyThreed, 256 KB), `at32f407rct7.json` (EasyThreed K7 Rev. B, 256 KB). Variant: `marlin_at32f403` (provided by the framework package). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
 
 Build/test commands:
 
@@ -66,7 +67,7 @@ Fully compiling for both boards. Key subsystems:
 - Core HAL (`HAL.h` / `MarlinHAL`), timers (TMR2 stepper / TMR4 temp @ 240 MHz), fast GPIO, serial (`AT32SerialAdapter`), servo (via `PWM_Init`/`PWM_Write`), PWM, ADC, endstop interrupts, SPI, SoC temp sensor, M43 pin debugging.
 - EEPROM: `SDCARD_EEPROM_EMULATION` is enabled per-board in the pins files; the `PersistentStore` SD backend is implemented in `eeprom/eeprom_sdcard.cpp`.
 - SD card: supported via the hardware-SPI path (`HAL_SPI.cpp`).
-- u8g display support: software-SPI (`u8g/u8g_com_HAL_AT32_sw_spi.cpp`) — needs validation.
+- u8g display support: generic Arduino software SPI from U8glib-HAL; ST7920 uses Marlin's shared driver with the `CPU_ST7920_DELAY_*` values in `HAL.h` — needs validation.
 
 ## Open / Placeholder Items
 
