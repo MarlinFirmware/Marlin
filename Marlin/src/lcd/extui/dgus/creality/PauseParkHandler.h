@@ -52,8 +52,7 @@ public:
   // Start a resume. Returns false if the print was not paused by pause().
   static bool resume();
 
-  // M600 and M24 requests, from G-code or the host. Return true if handled here.
-  static bool onFilamentChange();
+  // M24 request, from G-code or the host. Return true if handled here.
   static bool onResumeRequest();
 
   // Parking or unparking is in progress
