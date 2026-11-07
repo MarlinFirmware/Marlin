@@ -41,6 +41,10 @@
   #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -516,6 +520,7 @@ static millis_t mount_settle_ms;
 
 void CardReader::mount(const bool alert/*=true*/) {
   mount_state = MOUNT_IDLE; // Cancel mount_async()
+  delay(5);
 
   flag.mounted = false;
   nrItems = -1;
@@ -1786,6 +1791,8 @@ void CardReader::fileHasFinished() {
 
   flag.sdprintdone = true;          // Stop getting bytes from the SD card
   marlin.setState(MF_SD_COMPLETE);  // Tell Marlin to enqueue M1001 soon
+
+  TERN_(CREALITY_RTS, RTS_SDFileCompleted());
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
