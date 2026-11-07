@@ -22,75 +22,70 @@
 
 /**
  * Pins Debugging for AT32
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
 #include "../../inc/MarlinConfig.h"
 #include "fastio.h"
 
 // AT32 pin debugging uses the Arduino PIN_MAP infrastructure
-#define NUM_DIGITAL_PINS        PIN_MAX
-#define NUMBER_PINS_TOTAL       PIN_MAX
-#define isValidPin(P)           IS_PIN(P)
-
-#define getPinByIndex(x)        pin_t(pin_array[x].pin)
-#define digitalRead_mod(P)      extDigitalRead(P)
-
-#define printPinNumber(P)       do{ sprintf_P(buffer, PSTR("%3hd "), int16_t(P)); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P)       do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-
-#define printPinNameByIndex(x)  do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-
-#define MULTI_NAME_PAD 21
-
-//
-// Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
-//
-#ifndef M43_NEVER_TOUCH
-  #define IS_HOST_USART_PIN(Q) (Q == BOARD_USART1_TX_PIN || Q == BOARD_USART1_RX_PIN)
-  #define IS_OSC_PIN(Q) (Q == PH0 || Q == PH1 || Q == PC14 || Q == PC15)
-
-  #define M43_NEVER_TOUCH(Q) (IS_HOST_USART_PIN(Q) || IS_OSC_PIN(Q))
-#endif
+#define NUM_DIGITAL_PINS  PIN_MAX
 
 #ifndef ADC_PIN_INVALID
   #define ADC_PIN_INVALID 0xFF
 #endif
 
-int8_t digitalPinToAnalogIndex(const pin_t pin) {
-  if (!isValidPin(pin)) return -1;
-  if (PIN_MAP[pin].ADCx == NULL || PIN_MAP[pin].ADC_Channel == ADC_PIN_INVALID) return -1;
-  return int8_t(PIN_MAP[pin].ADC_Channel);
-}
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = PIN_MAX;
+  static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin
 
-bool isAnalogPin(pin_t pin) {
-  if (!isValidPin(pin)) return false;
-  if (PIN_MAP[pin].ADCx == NULL || PIN_MAP[pin].ADC_Channel == ADC_PIN_INVALID) return false;
-  return _GET_MODE(pin) == INPUT_ANALOG && !M43_NEVER_TOUCH(pin);
-}
+  static bool is_valid(const pin_t pin) { return IS_PIN(pin); }
 
-bool getValidPinMode(const pin_t pin) {
-  return isValidPin(pin) && !IS_INPUT(pin);
-}
+  //
+  // Pins that will cause a hang / reset / disconnect in M43 Toggle and Watch utils
+  //
+  static bool never_touch(const uint16_t index) {
+    const pin_t pin = pin_t(index);
+    return pin == BOARD_USART1_TX_PIN || pin == BOARD_USART1_RX_PIN     // Host USART
+        || pin == PH0 || pin == PH1 || pin == PC14 || pin == PC15;      // Oscillators
+  }
 
-bool getPinIsDigitalByIndex(const int16_t index) {
-  const pin_t pin = getPinByIndex(index);
-  return !isAnalogPin(pin);
-}
+  static bool has_adc(const pin_t pin) {
+    return PIN_MAP[pin].ADCx != NULL && PIN_MAP[pin].ADC_Channel != ADC_PIN_INVALID;
+  }
 
-bool pwm_status(const pin_t pin) {
-  return isValidPin(pin) && IS_PWM_PIN(pin);
-}
+  static int16_t analog_index(const pin_t pin) {
+    if (!is_valid(pin) || !has_adc(pin)) return -1;
+    return int16_t(PIN_MAP[pin].ADC_Channel);
+  }
 
-void printPinPWM(const pin_t pin) {
-  if (!pwm_status(pin)) return;
-  SERIAL_ECHOPGM("PWM");
-}
+  static bool is_analog(const pin_t pin) {
+    if (!is_valid(pin) || !has_adc(pin)) return false;
+    return _GET_MODE(pin) == INPUT_ANALOG && !never_touch(pin);
+  }
 
-void printPinPort(pin_t pin) {
-  const char port = 'A' + char(pin >> 4);
-  const uint8_t gbit = pin & 0x0F;
-  char buffer[8];
-  sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
-  if (gbit < 10) SERIAL_CHAR(' ');
-  SERIAL_ECHO(buffer);
-}
+  static bool is_output(const pin_t pin) { return is_valid(pin) && !IS_INPUT(pin); }
+
+  static bool is_digital_at(const uint16_t index) { return !is_analog(getPinByIndex(index)); }
+
+  static bool pwm_active(const pin_t pin) { return is_valid(pin) && IS_PWM_PIN(pin); }
+
+  static void print_pwm(const pin_t pin) {
+    if (pwm_active(pin)) SERIAL_ECHOPGM("PWM");
+  }
+
+  static void print_port(const pin_t pin) {
+    const char port = 'A' + char(pin >> 4);
+    const uint8_t gbit = pin & 0x0F;
+    char buffer[8];
+    sprintf_P(buffer, PSTR("P%c%hd "), port, gbit);
+    if (gbit < 10) SERIAL_CHAR(' ');
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_number(const pin_t pin) {
+    char buffer[10];
+    sprintf_P(buffer, PSTR("%3hd "), int16_t(pin));
+    SERIAL_ECHO(buffer);
+  }
+};
