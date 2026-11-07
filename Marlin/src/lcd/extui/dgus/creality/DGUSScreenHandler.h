@@ -73,11 +73,22 @@ public:
   static void loadSettings(const char *buff);
   static void storeSettings(char *buff);
   static void requestSaveSettings() { // Saved after EEPROM_AUTOSAVE_AFTER, if enabled
-    #ifdef EEPROM_AUTOSAVE_AFTER
-      setStatusMessage(F("Saving settings - please wait"));
+    #if defined(EEPROM_AUTOSAVE_AFTER) && ENABLED(EEPROM_SETTINGS)
+      if (!savedCrcKnown) { savedCrc = settings.last_crc(); savedCrcKnown = true; }
     #endif
     settings.request_autosave();
   }
+
+  // Called when settings were saved. Only say so if the settings changed.
+  static void onSettingsSaved(const bool success);
+
+  #if M600_PURGE_MORE_RESUMABLE
+    // After a filament change load: Confirm purges more, Cancel resumes the print
+    static void showPurgeMorePrompt();
+    static void handlePurgeMore(DGUS_VP_Variable &var, void *val_ptr);
+    static void resetPurgeMore();
+    static bool handlePurgeMoreCancel();
+  #endif
   static void setTouchScreenConfiguration();
   static void refreshTouchScreenConfiguration();
 
@@ -294,6 +305,17 @@ private:
   static bool hasSynchronousOperation;
   static bool printJobScreens;     // The print screens were shown for the current job timer run
   static queue_done_func_t queueDoneFunc;
+
+  static bool savedCrcKnown;
+  static uint16_t savedCrc;
+
+  #if M600_PURGE_MORE_RESUMABLE
+    static bool purgePrompt, purgeHeating, purgeRunning;
+    static celsius_t purgeTemp;
+    static void purgeMoreText(PGM_P const l1, PGM_P const l2, PGM_P const l3);
+    static void startPurge();
+    static void cancelPurgeMore();
+  #endif
 
 public: // Needed for VP auto-upload
   static bool hasRGBSettings;

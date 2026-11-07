@@ -678,6 +678,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #endif
   #endif
 
+  #if M600_PURGE_MORE_RESUMABLE
+    VPHELPER(VP_PurgeMoreConfirm, nullptr, screen.handlePurgeMore, nullptr),
+  #endif
+
   // File listing
   #if HAS_MEDIA
     VPHELPER(VP_SD_ScrollEvent, nullptr, screen.sdScrollFilelist, nullptr),

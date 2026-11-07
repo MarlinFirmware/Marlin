@@ -62,7 +62,21 @@ creality_dwin_settings_t DGUSScreenHandlerCreality::lcd_settings = { .settings_s
 
 bool DGUSScreenHandlerCreality::hasSynchronousOperation;
 bool DGUSScreenHandlerCreality::printJobScreens;
+#ifndef FEED_HEAT_HYSTERESIS
+  #ifdef THERMAL_PROTECTION_HYSTERESIS
+    #define FEED_HEAT_HYSTERESIS THERMAL_PROTECTION_HYSTERESIS
+  #else
+    #define FEED_HEAT_HYSTERESIS 4
+  #endif
+#endif
+
 DGUSScreenHandlerCreality::queue_done_func_t DGUSScreenHandlerCreality::queueDoneFunc = nullptr;
+bool DGUSScreenHandlerCreality::savedCrcKnown;
+uint16_t DGUSScreenHandlerCreality::savedCrc;
+#if M600_PURGE_MORE_RESUMABLE
+  bool DGUSScreenHandlerCreality::purgePrompt, DGUSScreenHandlerCreality::purgeHeating, DGUSScreenHandlerCreality::purgeRunning;
+  celsius_t DGUSScreenHandlerCreality::purgeTemp;
+#endif
 bool DGUSScreenHandlerCreality::hasScreenVersionMismatch;
 int8_t DGUSScreenHandlerCreality::meshLevelIndex = -1;
 uint8_t DGUSScreenHandlerCreality::meshLevelIconIndex = 0;
@@ -524,6 +538,85 @@ void DGUSScreenHandlerCreality::onFactoryReset() {
   }
 #endif
 
+void DGUSScreenHandlerCreality::onSettingsSaved(const bool success) {
+  if (!success) { setStatusMessage(F("Failed to save settings")); return; }
+  #if ENABLED(EEPROM_SETTINGS)
+    const uint16_t crc = settings.last_crc();
+    if (savedCrcKnown && crc == savedCrc) return; // Nothing changed
+    savedCrc = crc; savedCrcKnown = true;
+  #endif
+  setStatusMessage(F("Settings saved"));
+}
+
+#if M600_PURGE_MORE_RESUMABLE
+
+  // Marlin waits for "Purge More" or "Resume" after the first purge. The display has no page for
+  // that, so use the Confirm page: Confirm purges again, Cancel resumes the print.
+  void DGUSScreenHandlerCreality::purgeMoreText(PGM_P const l1, PGM_P const l2, PGM_P const l3) {
+    sendInfoScreen_P(l1, l2, l3, nullptr, true, true, true, true);
+  }
+
+  void DGUSScreenHandlerCreality::showPurgeMorePrompt() {
+    // Keep the temperature, in case the heater times out while waiting
+    const celsius_t t = ExtUI::getTargetTemp_celsius(ExtUI::E0);
+    if (t) purgeTemp = t;
+    thermalManager.reset_hotend_idle_timer(0);
+
+    purgePrompt = true;
+    purgeHeating = purgeRunning = false;
+    purgeMoreText(PSTR("Filament loaded"), PSTR("Confirm: purge more"), PSTR("Cancel: resume print"));
+    if (current_screenID == DGUS_SCREEN_CONFIRM)
+      forceCompleteUpdate();
+    else {
+      confirmVP = VP_PurgeMoreConfirm;
+      gotoScreen(DGUS_SCREEN_CONFIRM);
+    }
+    confirmVP = VP_PurgeMoreConfirm;
+  }
+
+  void DGUSScreenHandlerCreality::startPurge() {
+    purgeHeating = false;
+    purgeRunning = true;
+    purgeMoreText(PSTR("Purging..."), PSTR("Please wait"), NUL_STR);
+    ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_EXTRUDE_MORE);
+  }
+
+  void DGUSScreenHandlerCreality::handlePurgeMore(DGUS_VP_Variable &var, void *val_ptr) {
+    if (!purgePrompt) return;
+    if (purgeRunning || purgeHeating) { dgus.requestScreen(DGUS_SCREEN_CONFIRM); return; } // One purge at a time
+
+    // The heater may have timed out while waiting
+    if (purgeTemp && ExtUI::getTargetTemp_celsius(ExtUI::E0) < purgeTemp) {
+      thermalManager.reset_hotend_idle_timer(0);
+      ExtUI::setTargetTemp_celsius(purgeTemp, ExtUI::E0);
+    }
+    if (thermalManager.targetTooColdToExtrude(0) || ExtUI::getActualTemp_celsius(ExtUI::E0) < purgeTemp - (FEED_HEAT_HYSTERESIS)) {
+      purgeHeating = true;
+      purgeMoreText(PSTR("Heating..."), PSTR("Please wait"), NUL_STR);
+    }
+    else
+      startPurge();
+    dgus.requestScreen(DGUS_SCREEN_CONFIRM);
+  }
+
+  // Cancel on the Confirm page. Return true if it was the Purge More prompt.
+  bool DGUSScreenHandlerCreality::handlePurgeMoreCancel() {
+    if (!purgePrompt || current_screenID != DGUS_SCREEN_CONFIRM) return false;
+    if (!purgeRunning && !purgeHeating) cancelPurgeMore();
+    else dgus.requestScreen(DGUS_SCREEN_CONFIRM); // Wait for the purge
+    return true;
+  }
+
+  void DGUSScreenHandlerCreality::cancelPurgeMore() {
+    purgePrompt = purgeHeating = purgeRunning = false;
+    ExtUI::setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+    gotoScreen(isPrintJobActive() ? DGUS_SCREEN_PRINT_RUNNING : DGUS_SCREEN_MAIN, true);
+  }
+
+  void DGUSScreenHandlerCreality::resetPurgeMore() { purgePrompt = purgeHeating = purgeRunning = false; }
+
+#endif // M600_PURGE_MORE_RESUMABLE
+
 bool DGUSScreenHandlerCreality::handlePendingUserConfirmation() {
   if (!ExtUI::awaitingUserConfirm()) return false;
 
@@ -776,6 +869,10 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   const DGUS_ScreenID target = (DGUS_ScreenID)tmp[1];
 
   DEBUG_ECHOLNPGM("Current screen:", current_screenID, " Cancel target:", target);
+
+  #if M600_PURGE_MORE_RESUMABLE
+    if (screen.handlePurgeMoreCancel()) return;
+  #endif
 
   if (ExtUI::awaitingUserConfirm() && current_screenID == DGUS_SCREEN_POPUP) {
     DEBUG_ECHOLNPGM("Executing confirmation action");
@@ -1089,6 +1186,11 @@ bool DGUSScreenHandlerCreality::loop() {
     queueDoneFunc = nullptr;
     func();
   }
+
+  #if M600_PURGE_MORE_RESUMABLE
+    // Purge once the nozzle is hot again
+    if (purgeHeating && ExtUI::getActualTemp_celsius(ExtUI::E0) >= purgeTemp - (FEED_HEAT_HYSTERESIS)) startPurge();
+  #endif
 
   handleScreenVersionMismatchLEDFlash();
 

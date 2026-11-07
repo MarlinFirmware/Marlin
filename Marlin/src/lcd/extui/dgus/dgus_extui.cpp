@@ -132,9 +132,18 @@ namespace ExtUI {
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
       const uint8_t extruder/*=motion.extruder*/
     ) {
-      // This UI has no "Purge More / Resume" choice, so don't wait for one
-      if (message == PAUSE_MESSAGE_OPTION)
+      if (message == PAUSE_MESSAGE_OPTION) {
+        #if M600_PURGE_MORE_RESUMABLE && DGUS_LCD_UI_CREALITY_TOUCH
+          // Offer "Purge More / Resume" on the Confirm page after a filament change, but not
+          // when loading from the Feed page
+          if (getPauseMode() == PAUSE_MODE_PAUSE_PRINT && screen.getCurrentScreen() != DGUS_SCREEN_FEED) {
+            screen.showPurgeMorePrompt();
+            return;
+          }
+        #endif
+        // This UI has no "Purge More / Resume" choice, so don't wait for one
         setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+      }
       else
         stdOnPauseMode(message, mode, extruder);
     }

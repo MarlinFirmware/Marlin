@@ -84,6 +84,7 @@ namespace ExtUI {
   }
 
   void onPrintTimerStopped() {
+    TERN_(M600_PURGE_MORE_RESUMABLE, screen.resetPurgeMore());
     TERN_(CREALITY_PARK_ON_PAUSE, PauseParkHandler::reset());
     // Only a job that was shown as a print has a finish screen
     if (!screen.isPrintJobActive()) return;
@@ -91,9 +92,7 @@ namespace ExtUI {
     screen.gotoScreen(DGUS_SCREEN_PRINT_FINISH);
   }
 
-  void onSettingsStored(const bool success) {
-    screen.setStatusMessage(success ? F("Settings saved") : F("Failed to save settings"));
-  }
+  void onSettingsStored(const bool success) { screen.onSettingsSaved(success); }
 
   void onPrintDone() { screen.onPrintDone(); }
 
