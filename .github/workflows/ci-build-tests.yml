@@ -187,6 +187,9 @@ jobs:
         - LPC1768
         - LPC1769
 
+        # LPC5528
+        - MKS_OWL
+
     steps:
 
     - name: Check out the PR
