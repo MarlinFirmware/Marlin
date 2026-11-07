@@ -65,10 +65,19 @@ inline void pinMode(uint8_t pin, int mode) {
 #define SET_OUTPUT(IO)      OUT_WRITE(IO, LOW)
 #define SET_PWM(IO)         _SET_MODE(IO, OUTPUT_PWM)
 
-// Mode query is not cached by the core; report conservatively.
-#define _GET_MODE(IO)       (0)
-#define IS_INPUT(IO)        (true)
-#define IS_OUTPUT(IO)       (true)
+// Read a pin's 4-bit GPIO configuration from CFGLR/CFGHR:
+//   IOMC [1:0] : 0 = input, 1..3 = output (speed)
+//   IOFC [3:2] : input:  0 = analog, 1 = floating, 2 = pull-up/down
+//                output: 0 = push-pull, 1 = open-drain, 2 = mux push-pull, 3 = mux open-drain
+inline uint8_t _GET_CFG(const uint8_t IO) {
+  gpio_type * const gpio = PIN_MAP[IO].GPIOx;
+  const uint8_t bit = IO & 0x0F;
+  return ((bit < 8 ? gpio->cfglr : gpio->cfghr) >> ((bit & 0x07) * 4)) & 0x0F;
+}
+#define IS_INPUT(IO)        ((_GET_CFG(IO) & 0x03) == 0)
+#define IS_OUTPUT(IO)       !IS_INPUT(IO)
+#define IS_ANALOG(IO)       (_GET_CFG(IO) == 0)                     // Input, analog
+#define IS_MUX(IO)          (IS_OUTPUT(IO) && (_GET_CFG(IO) & 0x08)) // Output, peripheral (alternate function)
 
 #define PWM_PIN(IO)         IS_PWM_PIN(IO)
 

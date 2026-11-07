@@ -42,9 +42,11 @@ The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the 
 
 8. **EEPROM backend is per-board, not auto-selected.** Marlin does NOT auto-pick `SDCARD_EEPROM_EMULATION`. Each AT32 board's pins file must `#define SDCARD_EEPROM_EMULATION` (both Wanhao and EasyThreed do). `PersistentStore` is implemented in `eeprom/eeprom_sdcard.cpp` (ported from the STM32 HAL).
 
-9. **`pinMode` overload.** The core declares `pinMode(pin, PinMode_TypeDef)` strictly; `M43.cpp` calls `pinMode(pin, bool)`. `HAL/AT32/fastio.h` adds a `pinMode(uint8_t, int)` overload.
+9. **Pin modes come from the GPIO registers.** The core doesn't track pin modes, so `fastio.h` reads each pin's 4-bit config from CFGLR/CFGHR (`_GET_CFG`) for `IS_INPUT`/`IS_OUTPUT`/`IS_ANALOG`/`IS_MUX`. M43 (`pinsDebug.h`) uses these plus the timer registers (`ctrl1.tmren`, `cctrl` channel enable, `cNdt`/`pr`) to report PWM. The core's `analogRead()` takes a pin, so `PinsDebug::analog_index()` returns the pin and `print_analog()` shows the ADC channel.
 
-10. **`SPI` global.** The core leaves the global `SPI` commented out; `HAL_SPI.cpp` instantiates `SPIClass SPI(SPI_CLASS_1_SPI);` and provides `spiBegin()`.
+10. **`pinMode` overload.** The core declares `pinMode(pin, PinMode_TypeDef)` strictly; `M43.cpp` calls `pinMode(pin, bool)`. `HAL/AT32/fastio.h` adds a `pinMode(uint8_t, int)` overload.
+
+11. **`SPI` global.** The core leaves the global `SPI` commented out; `HAL_SPI.cpp` instantiates `SPIClass SPI(SPI_CLASS_1_SPI);` and provides `spiBegin()`.
 
 ## Conventions
 

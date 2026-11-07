@@ -38,10 +38,6 @@
   #define BOARD_USART1_RX_PIN PA10
 #endif
 
-#ifndef ADC_PIN_INVALID
-  #define ADC_PIN_INVALID 0xFF
-#endif
-
 struct PinsDebug : PinsDebugBase<PinsDebug> {
   static constexpr uint16_t count = PIN_MAX;
   static constexpr uint8_t name_pad = 21;   // Space needed to be pretty if not first name assigned to a pin
@@ -57,28 +53,49 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
         || pin == PD0 || pin == PD1 || pin == PC14 || pin == PC15;      // Oscillators (HEXT, LEXT)
   }
 
-  static bool has_adc(const pin_t pin) {
-    return PIN_MAP[pin].ADCx != NULL && PIN_MAP[pin].ADC_Channel != ADC_PIN_INVALID;
-  }
+  // The core's analogRead() takes a pin, not an ADC channel, so the "analog index"
+  // passed to it by the shared code is the pin itself. print_analog shows the channel.
+  static int16_t analog_index(const pin_t pin) { return IS_ADC_PIN(pin) ? int16_t(pin) : -1; }
 
-  static int16_t analog_index(const pin_t pin) {
-    if (!is_valid(pin) || !has_adc(pin)) return -1;
-    return int16_t(PIN_MAP[pin].ADC_Channel);
-  }
+  static bool is_analog(const pin_t pin) { return IS_ADC_PIN(pin) && IS_ANALOG(pin) && !never_touch(pin); }
 
-  static bool is_analog(const pin_t pin) {
-    if (!is_valid(pin) || !has_adc(pin)) return false;
-    return _GET_MODE(pin) == INPUT_ANALOG && !never_touch(pin);
-  }
-
-  static bool is_output(const pin_t pin) { return is_valid(pin) && !IS_INPUT(pin); }
+  static bool is_output(const pin_t pin) { return is_valid(pin) && IS_OUTPUT(pin); }
 
   static bool is_digital_at(const uint16_t index) { return !is_analog(getPinByIndex(index)); }
 
-  static bool pwm_active(const pin_t pin) { return is_valid(pin) && IS_PWM_PIN(pin); }
+  // Timer number for a PIN_MAP timer, or 0 if unknown
+  static uint8_t timer_number(const tmr_type * const tmr) {
+    static tmr_type * const timers[] = { TMR1, TMR2, TMR3, TMR4, TMR5, TMR6, TMR7, TMR8, TMR9, TMR10, TMR11, TMR12, TMR13, TMR14 };
+    for (uint8_t i = 0; i < COUNT(timers); ++i) if (tmr == timers[i]) return i + 1;
+    return 0;
+  }
 
+  // Compare value of the pin's timer channel (1-4)
+  static uint32_t channel_value(const tmr_type * const tmr, const uint8_t ch) {
+    switch (ch) {
+      case 1: return tmr->c1dt;
+      case 2: return tmr->c2dt;
+      case 3: return tmr->c3dt;
+      default: return tmr->c4dt;
+    }
+  }
+
+  // A pin is PWM output if it's routed to its timer (mux output),
+  // the timer is running, and the timer channel output is enabled.
+  static bool pwm_active(const pin_t pin) {
+    if (!IS_PWM_PIN(pin) || !IS_MUX(pin)) return false;
+    const tmr_type * const tmr = PIN_MAP[pin].TIMx;
+    const uint8_t ch = PIN_MAP[pin].TimerChannel;
+    return tmr->ctrl1_bit.tmren && TEST(tmr->cctrl, (ch - 1) * 4);
+  }
+
+  // Print the pin's timer and channel, e.g. "TMR3 CH2", plus the duty if PWM is active
   static void print_pwm(const pin_t pin) {
-    if (pwm_active(pin)) SERIAL_ECHOPGM("PWM");
+    if (!IS_PWM_PIN(pin)) return;
+    const tmr_type * const tmr = PIN_MAP[pin].TIMx;
+    const uint8_t ch = PIN_MAP[pin].TimerChannel;
+    SERIAL_ECHO(F("TMR"), timer_number(tmr), F(" CH"), ch);
+    if (pwm_active(pin)) SERIAL_ECHO(F(" PWM "), channel_value(tmr, ch), C('/'), tmr->pr + 1);
   }
 
   static void print_port(const pin_t pin) {
@@ -91,8 +108,14 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
   }
 
   static void print_number(const pin_t pin) {
-    char buffer[10];
+    char buffer[16];
     sprintf_P(buffer, PSTR("%3hd "), int16_t(pin));
+    SERIAL_ECHO(buffer);
+  }
+
+  static void print_analog(const pin_t pin) {
+    char buffer[16];
+    sprintf_P(buffer, PSTR(" (A%2d)  "), int(PIN_MAP[pin].ADC_Channel));
     SERIAL_ECHO(buffer);
   }
 };
