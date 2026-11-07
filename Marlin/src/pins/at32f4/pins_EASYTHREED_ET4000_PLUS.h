@@ -26,9 +26,7 @@
  * MCU: AT32F403ARCT7
  */
 
-#ifndef ARDUINO_ARCH_AT32
-  #error "AT32 HAL required for this board"
-#endif
+#include "env_validate.h"
 
 // Stepper motor pins
 #define X_STEP_PIN                          PA0

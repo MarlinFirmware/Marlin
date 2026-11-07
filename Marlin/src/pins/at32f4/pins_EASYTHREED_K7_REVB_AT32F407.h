@@ -35,9 +35,7 @@
  * The K7 has no heated bed, so no bed heater or bed sensor is exposed.
  */
 
-#ifndef ARDUINO_ARCH_AT32
-  #error "AT32 HAL required for this board"
-#endif
+#include "env_validate.h"
 
 #if HAS_MULTI_HOTEND || E_STEPPERS > 1
   #error "EasyThreed K7 Rev. B only supports 1 hotend / E stepper."
