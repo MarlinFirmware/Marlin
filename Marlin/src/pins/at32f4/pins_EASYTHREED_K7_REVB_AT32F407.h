@@ -56,7 +56,7 @@
 // The known-working Maple firmware uses I2C1 on PB6 / PB7.
 // Software I2C avoids relying on the incomplete AT32 Wire singleton.
 //
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if NO_EEPROM_SELECTED || ENABLED(I2C_EEPROM)
   #define I2C_EEPROM
   #define SOFT_I2C_EEPROM
   #define I2C_SCL_PIN                       PB6
