@@ -75,6 +75,9 @@ class MarlinSettings {
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
 
+      // CRC of the last settings read or written, e.g., to tell if a save changed anything
+      static uint16_t last_crc() { return working_crc; }
+
       #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
         static EEPROM_Error eeprom_status() { return (EEPROM_Error)working_crc; }
       #endif
