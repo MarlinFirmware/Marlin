@@ -1067,3 +1067,10 @@
 #if DISABLED_HOST_DRIVE_WARNING
   #warning "The selected board has automatically enabled NO_SD_HOST_DRIVE."
 #endif
+
+/**
+ * Z offset is now optional, so for backward compatibility
+ */
+#if ENABLED(MESH_BED_LEVELING) && DISABLED(GLOBAL_MESH_Z_OFFSET)
+  #warning "For backward-compatible MESH_BED_LEVELING enable GLOBAL_MESH_Z_OFFSET."
+#endif

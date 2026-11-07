@@ -34,8 +34,7 @@
 
   mesh_bed_leveling bedlevel;
 
-  float mesh_bed_leveling::z_offset,
-        mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
+  float mesh_bed_leveling::z_values[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y],
         mesh_bed_leveling::index_to_xpos[GRID_MAX_POINTS_X],
         mesh_bed_leveling::index_to_ypos[GRID_MAX_POINTS_Y];
 
@@ -50,17 +49,36 @@
   }
 
   void mesh_bed_leveling::report_mesh() {
-    SERIAL_ECHOLN(F(STRINGIFY(GRID_MAX_POINTS_X) "x" STRINGIFY(GRID_MAX_POINTS_Y) " mesh. Z offset: "), p_float_t(z_offset, 5), F("\nMeasured points:"));
+    SERIAL_ECHO(GRID_MAX_POINTS_X, C('x'), GRID_MAX_POINTS_Y, F(" mesh."));
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      SERIAL_ECHOPGM(" Z offset: ", p_float_t(mesh_z_offset, 5));
+    #endif
+    SERIAL_ECHOLNPGM("\nMeasured points:");
     print_2d_array(GRID_MAX_POINTS_X, GRID_MAX_POINTS_Y, 5, z_values[0]);
   }
 
   void mesh_bed_leveling::reset() {
-    z_offset = 0;
+    TERN_(GLOBAL_MESH_Z_OFFSET, mesh_z_offset = 0.0f);
     ZERO(z_values);
     #if ENABLED(EXTENSIBLE_UI)
       GRID_LOOP(x, y) ExtUI::onMeshUpdate(x, y, 0);
     #endif
   }
+
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+
+    void mesh_bed_leveling::center_z_mesh_offset() {
+      float z_low = 100.0f, z_high = -100.0f;
+      GRID_LOOP(x, y) {
+        const float z = z_values[x][y];
+        NOLESS(z_high, z);
+        NOMORE(z_low, z);
+      }
+      mesh_z_offset = (z_low + z_high) * 0.5f;
+      GRID_LOOP(x, y) z_values[x][y] -= mesh_z_offset;
+    }
+
+  #endif
 
   #if IS_CARTESIAN && DISABLED(SEGMENT_LEVELED_MOVES)
 
@@ -87,7 +105,7 @@
 
       float normalized_dist;
       xyze_pos_t dest;
-      const uint8_t gcx = _MAX(scel.x, ecel.x), gcy = _MAX(scel.y, ecel.y);
+      const int8_t gcx = _MAX(scel.x, ecel.x), gcy = _MAX(scel.y, ecel.y);
 
       // Crosses on the X and not already split on this X?
       // The x_splits flags are insurance against rounding errors.
