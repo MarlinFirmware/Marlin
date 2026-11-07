@@ -534,6 +534,9 @@ namespace ExtUI {
 
   void onPrintTimerStarted();
   void onPrintTimerPaused();
+
+  // A UI may take over M24 (Resume SD print), e.g., to unpark first. Return true if handled.
+  bool onResumeRequest();
   void onPrintTimerStopped();
   void onPrintDone();
 

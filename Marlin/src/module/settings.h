@@ -46,6 +46,14 @@ class MarlinSettings {
     static void reset();
     static bool save();    // Return 'true' if data was saved
 
+    // Save settings EEPROM_AUTOSAVE_AFTER ms after the last request, once not printing
+    #ifdef EEPROM_AUTOSAVE_AFTER
+      static void request_autosave();
+      static void autosave_task();
+    #else
+      static void request_autosave() {}
+    #endif
+
     FORCE_INLINE static bool init_eeprom() {
       reset();
       #if ENABLED(EEPROM_SETTINGS)
