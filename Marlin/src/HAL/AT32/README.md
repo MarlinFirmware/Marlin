@@ -2,7 +2,7 @@
 
 This HAL provides support for Artery Technology **AT32F403-series** ARM Cortex-M4 microcontrollers. It was added to satisfy feature requests #24894 (Wanhao 0327001 v2.0 / AT32F403ARGT7) and #25952 (EasyThreed K7 ET4000+ / AT32F403ARCT7).
 
-The HAL is modeled on the [[hal-hc32|HC32 HAL]] pattern: a Chinese-vendor Cortex-M4 MCU with its own Arduino core (not stm32duino), so only the Cortex-M4 core / SysTick / NVIC / FPU are binary-compatible with STM32 — the entire peripheral layer differs.
+The HAL is modeled on the HC32 HAL pattern: a Chinese-vendor Cortex-M4 MCU with its own Arduino core (not stm32duino), so only the Cortex-M4 core / SysTick / NVIC / FPU are binary-compatible with STM32 — the entire peripheral layer differs.
 
 ## Supported Boards
 
@@ -11,7 +11,7 @@ The HAL is modeled on the [[hal-hc32|HC32 HAL]] pattern: a Chinese-vendor Cortex
 | `BOARD_WANHAO_0327001` (8000) | AT32F403ARGT7 | 256 KB | `WANHAO_0327001` | `src/pins/at32f4/pins_WANHAO_0327001.h` |
 | `BOARD_EASYTHREED_ET4000_PLUS` (8001) | AT32F403ARCT7 | 1 MB | `EASYTHREED_ET4000_PLUS` | `src/pins/at32f4/pins_EASYTHREED_ET4000_PLUS.h` |
 
-**Build status:** both targets compile and link cleanly via `mftest` (see [[at32-build-notes]] and `AGENTS.md` in this folder).
+**Build status:** both targets compile and link cleanly via `mftest` (see `AGENTS.md` in this folder).
 
 ## Why a New HAL (not STM32 reuse)
 
@@ -42,7 +42,7 @@ Uses `rizacelik/ArduinoCore-AT32F4` v1.0.0 (based on WeActStudio's core). Key co
 
 ## PlatformIO Integration
 
-A local PlatformIO platform is scaffolded at `buildroot/share/PlatformIO/platform-at32/` (referenced via `file://` in `ini/at32.ini` to avoid SCons path-doubling). Board JSONs: `at32f403argt7.json` (Wanhao, 256 KB), `at32f403arct7.json` (EasyThreed, 1 MB). Variant: `marlin_at32f403` (generated at build time by `generic_create_variant.py`). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
+A local PlatformIO platform is scaffolded at `buildroot/share/PlatformIO/platform-at32/` (referenced via `file://` in `ini/at32.ini` to avoid SCons path-doubling). Board JSONs in `buildroot/share/PlatformIO/boards/`: `at32f403argt7.json` (Wanhao, 256 KB), `at32f403arct7.json` (EasyThreed, 1 MB). Variant: `marlin_at32f403` (provided by the framework package). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
 
 Build/test commands:
 
@@ -57,7 +57,7 @@ pio run -e EASYTHREED_ET4000_PLUS
 
 > Note: `pio run -e <env>` resolves the board from the generated `Marlin/Configuration.h`. If you switch envs with raw `pio`, an outdated generated `Configuration.h` can cause a spurious "incompatible with BOARD_…" preflight error. `mftest` regenerates the config correctly per target, so prefer `mftest` for HAL validation.
 
-The vendored framework (`buildroot/share/PlatformIO/framework-arduino-at32f4/`) and platform carry the integration fixes needed to build Marlin (optimization flags, hard-float link flags, peripheral-driver sources, clock config, 256 KB linker script, USB-CDC guards). See `AGENTS.md` in this folder for the full list and the integration gotchas.
+The framework (downloaded from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork, branch `marlin`) and the local platform carry the integration fixes needed to build Marlin (optimization flags, hard-float link flags, peripheral-driver sources, clock config, 256 KB linker script, USB-CDC guards). See `AGENTS.md` in this folder for the full list and the integration gotchas.
 
 ## Implementation Status
 
@@ -78,9 +78,9 @@ Fully compiling for both boards. Key subsystems:
 
 - AT32F403 datasheet: https://www.arterytek.com/en/product/AT32F403.html
 - ArduinoCore-AT32F4 (rizacelik): https://github.com/rizacelik/ArduinoCore-AT32F4
+- ArduinoCore-AT32F4 (Marlin fork, branch `marlin`): https://github.com/MarlinFirmware/ArduinoCore-AT32F4
 - Issue #24894: Wanhao 0327001 support
 - Issue #25952: EasyThreed ET4000+ support
-- Wiki: [[hal-at32]], [[at32-build-notes]]
 
 ## License
 

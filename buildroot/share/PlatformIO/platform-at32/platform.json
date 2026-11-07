@@ -38,7 +38,7 @@
     },
     "framework-arduino-at32f4": {
       "type": "framework",
-      "version": "file://buildroot/share/PlatformIO/framework-arduino-at32f4"
+      "version": "https://github.com/MarlinFirmware/ArduinoCore-AT32F4/archive/refs/tags/marlin-1.0.0.2.zip"
     },
     "tool-openocd-at32": {
       "type": "uploader",

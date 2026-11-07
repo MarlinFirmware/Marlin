@@ -16,14 +16,13 @@ Both targets must be green before considering AT32 work done. The Wanhao (256 KB
 
 > Do NOT use `rm -rf .pio/build/...` to force a rebuild — the cross-profile write guard blocks it and it is unsafe. Use `pio run -e <env> -t clean` (removes only build artifacts) or just let `mftest` rebuild.
 
-## Framework / Platform Integration (vendored, not the upstream core)
+## Framework / Platform Integration
 
-The AT32 Arduino core is **vendored** under `buildroot/share/PlatformIO/framework-arduino-at32f4/` and the platform under `buildroot/share/PlatformIO/platform-at32/`. These carry Marlin-specific fixes. If you change the build (flags, link, USB, serial), change them in BOTH:
+The AT32 Arduino core is **not** in this repo. PlatformIO downloads it from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork (tag `marlin-1.0.0.2`, branch `marlin`), which carries the Marlin-specific fixes and the `marlin_at32f403` variant. The local platform in `buildroot/share/PlatformIO/platform-at32/` names that archive in its `platform.json`.
 
-- `~/.platformio/packages/framework-arduino-at32f4/` (what the build actually uses), and
-- `buildroot/share/PlatformIO/framework-arduino-at32f4/` (what ships in the repo / PR).
-
-A framework change in the installed package alone will NOT be in the PR. Keep the two in sync.
+- Framework changes (core, variant, linker scripts, build script) are made in the fork, then pinned here by updating the archive URL in `platform-at32/platform.json`.
+- Editing `~/.platformio/packages/framework-arduino-at32f4/` only changes your local build. It is overwritten on reinstall and never reaches a PR.
+- Board JSONs live in `buildroot/share/PlatformIO/boards/` with the other Marlin boards.
 
 ### Gotchas that are not obvious from the source
 
@@ -50,12 +49,11 @@ A framework change in the installed package alone will NOT be in the PR. Keep th
 ## Conventions
 
 - All HAL source is guarded by `#ifdef ARDUINO_ARCH_AT32` (the core does not define it; `ini/at32.ini` adds `-DARDUINO_ARCH_AT32`).
-- Keep HAL changes in `Marlin/src/HAL/AT32/` and board pin changes in `Marlin/src/pins/at32f4/`. Framework/platform integration changes go in `buildroot/share/PlatformIO/` (and must be mirrored to the installed package).
-- When you change the vendored framework, update BOTH the repo copy and `~/.platformio/packages/...`, and verify the build before committing.
+- Keep HAL changes in `Marlin/src/HAL/AT32/` and board pin changes in `Marlin/src/pins/at32f4/`. Platform changes go in `buildroot/share/PlatformIO/platform-at32/`; framework changes go in the ArduinoCore-AT32F4 fork.
+- After changing the framework fork, update the archive URL in `platform-at32/platform.json` and verify the build before committing.
 - Pin mappings in `pins_at32f4/*.h` are placeholders pending schematic verification — mark them as such and do not "fix" them to match guesses without a source.
 
 ## Related
 
 - `README.md` in this folder — overview and supported boards.
-- Wiki: [[hal-at32]], [[at32-build-notes]].
 - `Marlin/src/HAL/shared/` — shared HAL APIs (`eeprom_api`, SPI helpers) the AT32 HAL reuses.
