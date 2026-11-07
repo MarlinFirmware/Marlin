@@ -1032,6 +1032,26 @@ class Planner {
       , const PlannerHints &hints=PlannerHints()
     );
 
+    #if HAS_EXTRUDERS
+      /**
+       * @fn Planner::buffer_e_move
+       *
+       * @brief Add an extruder-only movement relative to the end of the planner queue.
+       * @details Starts from the planner's own end position, so no other axis moves and
+       *          neither leveling nor kinematics need to be applied. Backlash is
+       *          unaffected (no other axis changes direction).
+       *
+       * @param de_mm     Distance to extrude (+) or retract (-) in mm of filament
+       * @param fr_mm_s   (Target) speed of the move (mm/s)
+       * @param extruder  Optional target extruder (otherwise motion.extruder)
+       *
+       * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
+       */
+      static bool buffer_e_move(const float de_mm, const feedRate_t fr_mm_s
+        , const uint8_t extruder=motion.extruder
+      );
+    #endif
+
     #if ENABLED(DIRECT_STEPPING)
       static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);
     #endif
