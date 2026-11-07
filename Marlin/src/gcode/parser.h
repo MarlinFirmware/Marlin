@@ -42,6 +42,11 @@
   typedef enum : uint8_t { LINEARUNIT_MM, LINEARUNIT_INCH } LinearUnit;
 #endif
 
+#if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+  enum SlicerType : int8_t { UNKNOWN = -1, PRUSA, ORCA };
+  typedef enum SlicerType slicer_id_t;
+#endif
+
 /**
  * G-Code parser
  *
@@ -87,6 +92,16 @@ public:
   static uint16_t codenum;                // 123
   #if USE_GCODE_SUBCODES
     static uint8_t subcode;               // .1
+  #endif
+
+  #if ENABLED(AUTO_FIRST_LAYER_Z_ADJUST)
+    static bool first_layer_detected,
+                aflza_active,                   // If true AFLZA active for all the print until the ornter is shutdwon and EEPROM datas loaded
+                aflza_applied;                  // If the correction had been applied
+    static float aflza_delta;                   // The Z offset to apply to the first layer, calculated as the difference between the detected first layer Z and the calibrated first layer height
+    static float calibrated_first_layer_height; // The first layer height as determined by calibration, used to calculate the Z offset
+    static slicer_id_t slicer_type;             // Slicer family Orca or Prusa
+    static bool z_hop;
   #endif
 
   #if ENABLED(GCODE_MOTION_MODES)
