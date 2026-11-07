@@ -22,5 +22,5 @@
 
 /**
  * AT32 LCD-specific defines
- * U8G uses the generic Arduino software SPI (see HAL_LCD_com_defines.h).
+ * No AT32-specific U8G com functions yet (see HAL_LCD_com_defines.h for the defaults).
  */

@@ -67,13 +67,13 @@ Fully compiling for both boards. Key subsystems:
 - Core HAL (`HAL.h` / `MarlinHAL`), timers (TMR2 stepper / TMR4 temp @ 240 MHz), fast GPIO, serial (`AT32SerialAdapter`), servo (via `PWM_Init`/`PWM_Write`), PWM, ADC, endstop interrupts, SPI, SoC temp sensor, M43 pin debugging.
 - EEPROM: `SDCARD_EEPROM_EMULATION` is enabled per-board in the pins files; the `PersistentStore` SD backend is implemented in `eeprom/eeprom_sdcard.cpp`.
 - SD card: supported via the hardware-SPI path (`HAL_SPI.cpp`).
-- u8g display support: generic Arduino software SPI from U8glib-HAL; ST7920 uses Marlin's shared driver with the `CPU_ST7920_DELAY_*` values in `HAL.h` — needs validation.
+- Graphical (U8glib) displays: not yet supported. `CPU_ST7920_DELAY_*` are set in `HAL.h` like other HALs, but a graphical LCD build currently fails: the core has no `wiring_private.h`, `spi_pins.h` defines `SPI_*_PIN` instead of `SD_*_PIN`, and there is no AT32 U8G hardware-SPI com function.
 
 ## Open / Placeholder Items
 
 - Pin mappings in `src/pins/at32f4/pins_*.h` are **placeholders** — awaiting schematic verification.
 - `get_reset_source()` is simplified (always power-on); `idletask()` is a no-op.
-- u8g software-SPI display path needs runtime validation on real hardware.
+- Graphical LCD support (U8G com layer, SPI pin names) is still to do.
 
 ## References
 
