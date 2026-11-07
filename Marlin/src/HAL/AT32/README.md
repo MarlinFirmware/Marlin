@@ -43,7 +43,7 @@ Uses `rizacelik/ArduinoCore-AT32F4` v1.0.0 (based on WeActStudio's core). Key co
 
 ## PlatformIO Integration
 
-A local PlatformIO platform is scaffolded at `buildroot/share/PlatformIO/platform-at32/` (referenced via `file://` in `ini/at32.ini` to avoid SCons path-doubling). Board JSONs in `buildroot/share/PlatformIO/boards/`: `at32f403argt7.json` (Wanhao, 1 MB), `at32f403arct7.json` (EasyThreed, 256 KB), `at32f407rct7.json` (EasyThreed K7 Rev. B, 256 KB). Variant: `marlin_at32f403` (provided by the framework package). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
+The PlatformIO platform is [MarlinFirmware/platform-at32](https://github.com/MarlinFirmware/platform-at32), referenced by tag in `ini/at32.ini`. Its board JSONs: `at32f403argt7` (Wanhao, 1 MB), `at32f403arct7` (EasyThreed, 256 KB), `at32f407rct7` (EasyThreed K7 Rev. B, 256 KB). Variant: `marlin_at32f403` (provided by the framework package). Build flags add `-DARDUINO_ARCH_AT32`, `-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16`.
 
 Build/test commands:
 
@@ -58,7 +58,7 @@ pio run -e EASYTHREED_ET4000_PLUS
 
 > Note: `pio run -e <env>` resolves the board from the generated `Marlin/Configuration.h`. If you switch envs with raw `pio`, an outdated generated `Configuration.h` can cause a spurious "incompatible with BOARD_…" preflight error. `mftest` regenerates the config correctly per target, so prefer `mftest` for HAL validation.
 
-The framework (downloaded from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork, branch `marlin`) and the local platform carry the integration fixes needed to build Marlin (optimization flags, hard-float link flags, peripheral-driver sources, clock config, 256 KB linker script, USB-CDC guards). See `AGENTS.md` in this folder for the full list and the integration gotchas.
+The framework (downloaded from the [MarlinFirmware/ArduinoCore-AT32F4](https://github.com/MarlinFirmware/ArduinoCore-AT32F4) fork, branch `marlin`) and the platform ([MarlinFirmware/platform-at32](https://github.com/MarlinFirmware/platform-at32)) carry the integration fixes needed to build Marlin (optimization flags, hard-float link flags, peripheral-driver sources, clock config, 256 KB linker script, USB-CDC guards). See `AGENTS.md` in this folder for the full list and the integration gotchas.
 
 ## Implementation Status
 
