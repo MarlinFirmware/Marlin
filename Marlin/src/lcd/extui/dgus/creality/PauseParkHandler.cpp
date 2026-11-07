@@ -152,13 +152,6 @@ void PauseParkHandler::onParked() {
   screen.setStatusMessage(F("Print paused"));
 }
 
-// M600 during an SD print pauses and parks like the Pause button. Other prints use Marlin's M600,
-// which also keeps the host prompts. Once parked, M600 is ignored rather than started over.
-bool PauseParkHandler::onFilamentChange() {
-  if (working || parked) return true;
-  return pause();
-}
-
 // M24 (from G-code or a host "Resume" prompt) unparks first. While moving, it is ignored.
 bool PauseParkHandler::onResumeRequest() {
   if (working) return true;

@@ -98,8 +98,7 @@ namespace ExtUI {
   void onPrintDone() { screen.onPrintDone(); }
 
   #if CREALITY_PARK_ON_PAUSE
-    bool onFilamentChangeRequest() { return PauseParkHandler::onFilamentChange(); }
-    bool onResumeRequest()         { return PauseParkHandler::onResumeRequest(); }
+    bool onResumeRequest() { return PauseParkHandler::onResumeRequest(); }
   #endif
 
   void onFilamentRunout(const extruder_t) {
