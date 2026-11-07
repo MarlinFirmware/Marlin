@@ -30,8 +30,18 @@
 
 #include "menu_item.h"
 
+#if ENABLED(MKS_WIFI_MODULE)
+  void menu_info_mks_wifi();
+#endif
+
 #if ENABLED(CONFIGURABLE_MACHINE_NAME)
   #include "../../MarlinCore.h"
+#endif
+
+#if HAS_PRUSA_MMU2
+  #include "../../feature/mmu/mmu2.h"
+#elif HAS_PRUSA_MMU3
+  #include "../../feature/mmu3/mmu3.h"
 #endif
 
 #if HAS_GAMES
@@ -247,6 +257,23 @@ void menu_info_board() {
     STATIC_ITEM(MSG_MARLIN, SS_DEFAULT|SS_INVERT);                // Marlin
     STATIC_ITEM_F(F(SHORT_BUILD_VERSION));                        // x.x.x-Branch
     STATIC_ITEM_F(F(STRING_DISTRIBUTION_DATE));                   // YYYY-MM-DD HH:MM
+    #if HAS_PRUSA_MMU3
+      const auto mmu_fw_version = mmu3.getMMUFWVersion();
+      if (mmu_fw_version.major || mmu_fw_version.minor || mmu_fw_version.build) {
+        char mmu_version[16];
+        sprintf_P(mmu_version, PSTR("%u.%u.%u"), mmu_fw_version.major, mmu_fw_version.minor, mmu_fw_version.build);
+        STATIC_ITEM(MSG_INFO_MMUFWVERSION, SS_CENTER);            // MMU Firmware Version
+        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);           // 3.0.0
+      }
+    #elif HAS_PRUSA_MMU2
+      const uint16_t mmu_fw_version = mmu2.getMMUFWVersion();
+      if (mmu_fw_version) {
+        char mmu_version[16];
+        sprintf_P(mmu_version, PSTR("%u"), mmu_fw_version);
+        STATIC_ITEM(MSG_INFO_MMUFWVERSION, SS_CENTER);            // MMU Firmware Version
+        STATIC_ITEM_F(nullptr, SS_CENTER, mmu_version);           // 126
+      }
+    #endif
     #if ENABLED(CONFIGURABLE_MACHINE_NAME)
       STATIC_ITEM_C(&marlin.machine_name, SS_DEFAULT|SS_INVERT);  // My3DPrinter
     #else
@@ -291,6 +318,9 @@ void menu_info() {
   #else
     SUBMENU(MSG_INFO_PRINTER_MENU, menu_info_printer);           // Printer Info >
     SUBMENU(MSG_INFO_BOARD_MENU, menu_info_board);               // Board Info >
+    #if ENABLED(MKS_WIFI_MODULE)
+      SUBMENU(MSG_MKS_WIFI, menu_info_mks_wifi);                 // WiFi Module >
+    #endif
     #if HAS_TEMP_SENSOR
       SUBMENU(MSG_INFO_THERMISTOR_MENU, menu_info_thermistors);  // Thermistors >
     #endif

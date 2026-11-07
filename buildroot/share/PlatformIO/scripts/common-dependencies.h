@@ -59,6 +59,9 @@
   #if ENABLED(BACKLASH_GCODE)
     #define HAS_MENU_BACKLASH
   #endif
+  #if ALL(MKS_WIFI_MODULE, LCD_INFO_MENU)
+    #define HAS_MENU_MKS_WIFI
+  #endif
   #if ENABLED(LCD_BED_TRAMMING)
     #define HAS_MENU_BED_TRAMMING
   #endif
@@ -116,6 +119,9 @@
   #if ENABLED(ONE_CLICK_PRINT)
     #define HAS_MENU_ONE_CLICK_PRINT
   #endif
+  #if ENABLED(X_AXIS_TWIST_COMPENSATION)
+    #define X_AXIS_TWIST_MENU
+  #endif
 #endif
 
 #if HAS_GRAPHICAL_TFT
@@ -123,6 +129,8 @@
   #define UI_INCL_(W, H) STRINGIFY_(../../../../Marlin/src/lcd/tft/ui_##W##x##H.h)
   #define UI_INCL(W, H) UI_INCL_(W, H)
   #include UI_INCL(TFT_WIDTH, TFT_HEIGHT)
+
+  #include "../../../../Marlin/src/lcd/tft/ui_ubl_labels.h"  // HAS_TFT_TINY_FONT
 
   #define Latin_Extended_A 1
   #define Cyrillic 2
@@ -334,8 +342,4 @@
       #define TFT_FONT_HELVETICA_19
     #endif
   #endif
-#endif
-
-#if ALL(X_AXIS_TWIST_COMPENSATION, HAS_MARLINUI_MENU)
-  #define X_AXIS_TWIST_MENU
 #endif

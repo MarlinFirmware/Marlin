@@ -43,7 +43,7 @@
   #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 
-#define BOARD_LCD_SERIAL_PORT 1
+#define BOARD_LCD_SERIAL_PORT               1
 
 #define LED_PIN                             PD8
 

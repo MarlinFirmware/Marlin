@@ -73,6 +73,9 @@ void GcodeSuite::M1000() {
 
     if (!force_resume && parser.seen_test('S')) {
 
+      // Not every ExtUI display can prompt, so also tell the host how to respond
+      TERN_(EXTENSIBLE_UI, SERIAL_ECHO_MSG("Power-loss recovery: M1000 to resume, M1000 C to cancel."));
+
       TERN_(PLR_HEAT_BED_ON_REBOOT, recovery.set_bed_temp(true));
 
       #if HAS_MARLINUI_MENU

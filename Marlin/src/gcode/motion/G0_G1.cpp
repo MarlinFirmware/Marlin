@@ -37,6 +37,8 @@
 
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../../lcd/sovol_rts/sovol_rts.h"
+#elif ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
 #endif
 
 #if ENABLED(VARIABLE_G0_FEEDRATE)
@@ -119,5 +121,7 @@ void GcodeSuite::G0_G1(TERN_(HAS_FAST_MOVES, const bool fast_move/*=false*/)) {
     TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_current_grblstate_moving());
   #endif
 
-  TERN_(SOVOL_SV06_RTS, RTS_PauseMoveAxisPage());
+  #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
+    RTS_PauseMoveAxisPage();
+  #endif
 }

@@ -40,7 +40,7 @@
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
-#if ENABLED(SENSORLESS_HOMING)
+#if ANY(SENSORLESS_HOMING, HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
   #include "../../feature/tmc_util.h"
 #endif
 
@@ -66,6 +66,10 @@
   #include "../../lcd/sovol_rts/sovol_rts.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
+
 #if ENABLED(LASER_FEATURE)
   #include "../../feature/spindle_laser.h"
 #endif
@@ -87,10 +91,16 @@
     const float minfr = _MIN(motion.homing_feedrate(X_AXIS), motion.homing_feedrate(Y_AXIS)),
                 fr_mm_s = HYPOT(minfr, minfr);
 
-    // Set homing current to X and Y axis if defined
-    TERN_(X_HAS_HOME_CURRENT, motion.set_homing_current(X_AXIS));
+    // Use homing current and Hybrid Threshold for X and Y until this function returns
+    TERN_(X_HAS_HOME_CURRENT, const TemporaryHomingCurrent temp_current_x(X_AXIS));
     #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      motion.set_homing_current(Y_AXIS);
+      const TemporaryHomingCurrent temp_current_y(Y_AXIS);
+    #endif
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      const TemporaryHomingHybridThreshold temp_hybrid_thrs_x(X_AXIS);
+      #if NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
+        const TemporaryHomingHybridThreshold temp_hybrid_thrs_y(Y_AXIS);
+      #endif
     #endif
 
     #if ENABLED(SENSORLESS_HOMING)
@@ -129,11 +139,6 @@
     endstops.validate_homing_move();
 
     motion.position.set(0.0, 0.0);
-
-    TERN_(X_HAS_HOME_CURRENT, motion.restore_homing_current(X_AXIS));
-    #if Y_HAS_HOME_CURRENT && NONE(CORE_IS_XY, MARKFORGED_XY, MARKFORGED_YX)
-      motion.restore_homing_current(Y_AXIS);
-    #endif
 
     #if ENABLED(SENSORLESS_HOMING) && DISABLED(ENDSTOPS_ALWAYS_ON_DEFAULT)
       TERN_(X_SENSORLESS, tmc_disable_stallguard(stepperX, stealth_states.x));
@@ -273,6 +278,7 @@ void GcodeSuite::G28() {
   #endif
 
   TERN_(DWIN_CREALITY_LCD, dwinHomingStart());
+  TERN_(CREALITY_RTS, hmiFlag.home_flag = true);
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingStart());
 
   planner.synchronize();          // Wait for planner moves to finish!
@@ -380,6 +386,8 @@ void GcodeSuite::G28() {
                    doI = home_all || homeI, doJ = home_all || homeJ, doK = home_all || homeK,
                    doU = home_all || homeU, doV = home_all || homeV, doW = home_all || homeW
                  );
+
+      UNUSED(homeZZ);
 
       #if !HAS_Y_AXIS
         constexpr bool doY = false;
@@ -574,6 +582,14 @@ void GcodeSuite::G28() {
   TERN_(SOVOL_SV06_RTS, RTS_MoveAxisHoming());
   TERN_(DWIN_CREALITY_LCD, dwinHomingDone());
   TERN_(EXTENSIBLE_UI, ExtUI::onHomingDone());
+
+  #if ENABLED(CREALITY_RTS)
+    hmiFlag.home_flag = false;
+    RTS_MoveAxisHoming();
+    //DEBUG_ECHOLNPGM(" leveling_flag=: ", hmiFlag.leveling_flag);
+    // If it is in leveling, the automatic compensation function will not be restored
+    //process_subcommands_now_P(hmiFlag.leveling_flag ? PSTR("M420 S0") : PSTR("M420 S1 Z10"));
+  #endif
 
   motion.report_position();
 

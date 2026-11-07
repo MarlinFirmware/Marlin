@@ -30,6 +30,10 @@
 #include "../../lcd/marlinui.h"
 #include "../../module/temperature.h"
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
+
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../feature/pause.h"
 #endif
@@ -82,7 +86,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    if (did_pause_print) {
+    if (paused_for_filament_change) {
       resume_print(); // will call print_job_timer.start()
       return;
     }
@@ -102,6 +106,8 @@ void GcodeSuite::M24() {
   #endif
 
   ui.reset_status();
+
+  TERN_(CREALITY_RTS, RTS_PrintStartedSD());
 }
 
 /**

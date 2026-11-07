@@ -1375,17 +1375,7 @@ void hmiMoveDone(const AxisEnum axis) {
       return;
     }
 
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMIN)
-      #define _OFFSET_ZMIN (PROBE_OFFSET_ZMIN)
-    #else
-      #define _OFFSET_ZMIN -20
-    #endif
-    #if ENABLED(BABYSTEP_ZPROBE_OFFSET) && defined(PROBE_OFFSET_ZMAX)
-      #define _OFFSET_ZMAX (PROBE_OFFSET_ZMAX)
-    #else
-      #define _OFFSET_ZMAX 20
-    #endif
-    LIMIT(hmiValues.offset_value, _OFFSET_ZMIN * 100, _OFFSET_ZMAX * 100);
+    LIMIT(hmiValues.offset_value, PROBE_OFFSET_ZMIN * 100, PROBE_OFFSET_ZMAX * 100);
 
     last_zoffset = dwin_zoffset;
     dwin_zoffset = hmiValues.offset_value * 0.01f;
@@ -1854,7 +1844,7 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
 
 #if ENABLED(SCROLL_LONG_FILENAMES)
 
-  char shift_name[LONG_FILENAME_LENGTH + 1];
+  char shift_name[LONG_FILENAME_BYTES + 1];
   int8_t shift_amt; // = 0
   millis_t shift_ms; // = 0
 
@@ -2758,7 +2748,7 @@ void hmiPrepare() {
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(PREPARE_CASE_ZOFF + MROWS - index_prepare, hmiValues.offset_value, true);
             encoderRate.enabled = true;
-          #else
+          #elif HAS_WORKSPACE_OFFSET
             // Apply workspace offset, making the current position 0,0,0
             queue.inject(F("G92X0Y0Z0"));
             hmiAudioFeedback();
@@ -3845,7 +3835,7 @@ void hmiTune() {
             hmiValues.offset_value = BABY_Z_VAR * 100;
             drawEditSignedFloat2(TUNE_CASE_ZOFF + MROWS - index_tune, hmiValues.offset_value, true);
             encoderRate.enabled = true;
-          #else
+          #elif HAS_WORKSPACE_OFFSET
             // Apply workspace offset, making the current position 0,0,0
             queue.inject(F("G92X0Y0Z0"));
             hmiAudioFeedback();

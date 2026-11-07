@@ -35,16 +35,109 @@
 #include "menu_mmu2.h"
 #include "menu_item.h"
 
+#include "../../module/temperature.h"
+#include "../../module/motion.h"
+
 //
 // Load Filament
 //
 
-inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
+//
+// Actions that need a hot nozzle: Load to Nozzle, Unload
+//
+// A cold nozzle cannot extrude, so the MMU would feed the filament and Marlin would drop the
+// extruder moves (MMU3), or the action would be refused and retried forever (MMU2 Unload).
+// Offer to preheat first, wait for the temperature (a click or M108 stops), then do the action.
+//
+
+enum MMUHotAction : uint8_t { MMU_HOT_LOAD_TO_NOZZLE, MMU_HOT_UNLOAD };
+static uint8_t mmu_hot_action, mmu_hot_tool;
+
+static void _mmu2_load_to_nozzle_now(const uint8_t tool) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
   TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(tool);
   ui.reset_status();
+}
+
+static void _mmu2_unload_now() {
+  ui.reset_status();
+  ui.return_to_status();
+  LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
+  while (!TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload()) {
+    safe_delay(50);
+    TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), marlin.idle());
+  }
+  ui.reset_status();
+}
+
+static void _mmu2_run_hot_action() {
+  switch (mmu_hot_action) {
+    case MMU_HOT_LOAD_TO_NOZZLE: _mmu2_load_to_nozzle_now(mmu_hot_tool); break;
+    case MMU_HOT_UNLOAD:         _mmu2_unload_now();                    break;
+  }
+}
+
+// Temperature to preheat to: the first preheat preset, or a PLA-like temperature without presets
+static celsius_t _mmu2_preheat_temp() {
+  celsius_t temp = TERN(HAS_PREHEAT, ui.material_preset[0].hotend_temp, 200);
+  NOLESS(temp, thermalManager.extrude_min_temp + 5);
+  return temp;
+}
+
+// Heat the nozzle, with progress on the Status Screen, then run the action
+static void _mmu2_heat_and_run() {
+  const uint8_t e = motion.extruder;
+  const celsius_t temp = _mmu2_preheat_temp(),
+                  old_target = thermalManager.degTargetHotend(e);
+
+  ui.reset_status();
+  ui.return_to_status();
+  LCD_MESSAGE(MSG_HEATING);
+
+  thermalManager.setTargetHotend(temp, e);
+  marlin.heatup_start();    // A click or M108 ends the wait
+  while (marlin.is_heating() && thermalManager.wholeDegHotend(e) < temp - (TEMP_WINDOW)) {
+    marlin.idle();
+    if (ui.use_click()) marlin.heatup_done();
+  }
+  const bool reached = marlin.is_heating();   // Still set if the temperature was reached
+  marlin.heatup_done();
+
+  if (reached)
+    _mmu2_run_hot_action();
+  else
+    thermalManager.setTargetHotend(old_target, e);  // Stopped: leave the target as it was
+
+  ui.reset_status();
+}
+
+// Start an action that needs a hot nozzle, asking to preheat first if the nozzle is too cold
+static void _mmu2_hot_action(const MMUHotAction action, const uint8_t tool=0) {
+  mmu_hot_action = action;
+  mmu_hot_tool = tool;
+
+  if (!thermalManager.tooColdToExtrude(motion.extruder)) {
+    _mmu2_run_hot_action();
+    return;
+  }
+
+  static MString<8> temp_str;
+  temp_str.set(' ').append(_mmu2_preheat_temp());
+
+  ui.push_current_screen();
+  ui.goto_screen([]{
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_BUTTON_PROCEED), GET_TEXT_F(MSG_BUTTON_STOP),
+      _mmu2_heat_and_run, nullptr,
+      GET_TEXT_F(MSG_PREHEAT_HOTEND), temp_str, F("?")
+    );
+  });
+}
+
+inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
+  _mmu2_hot_action(MMU_HOT_LOAD_TO_NOZZLE, tool);
 }
 
 void _mmu2_load_to_feeder(const uint8_t tool) {
@@ -95,14 +188,7 @@ void _mmu2_cut_filament(uint8_t index) {
 }
 
 void action_mmu2_unload_filament() {
-  ui.reset_status();
-  ui.return_to_status();
-  LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
-  while (!TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload()) {
-    safe_delay(50);
-    TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), marlin.idle());
-  }
-  ui.reset_status();
+  _mmu2_hot_action(MMU_HOT_UNLOAD);
 }
 
 void menu_mmu2_eject_filament() {
@@ -341,23 +427,45 @@ void menu_mmu2_choose_filament() {
 //
 // MMU2 Filament Runout
 //
+// Load and Load to Nozzle ask for the slot. The tool that was in use is unknown after an
+// Unload (or a runout), and a slot taken from it would be invalid for the MMU.
+//
+
+void menu_mmu2_pause();
+
+static void _mmu2_pause_load(const uint8_t slot) {
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_feeder(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void _mmu2_pause_load_to_nozzle(const uint8_t slot) {
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void menu_mmu2_pause_load() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load(MenuItemBase::itemIndex); });
+  END_MENU();
+}
+
+static void menu_mmu2_pause_load_to_nozzle() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load_to_nozzle(MenuItemBase::itemIndex); });
+  END_MENU();
+}
 
 void menu_mmu2_pause() {
-  feeder_index = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
-  #if HAS_PRUSA_MMU3
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu3.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu3.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu3.load_to_nozzle(feeder_index); });
-  #else
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
-  #endif
+  ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload(); });
+  SUBMENU(MSG_MMU2_LOAD_FILAMENT,       menu_mmu2_pause_load);
+  SUBMENU(MSG_MMU2_LOAD_TO_NOZZLE,      menu_mmu2_pause_load_to_nozzle);
   END_MENU();
 }
 
