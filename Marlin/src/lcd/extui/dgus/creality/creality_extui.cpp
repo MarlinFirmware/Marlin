@@ -93,6 +93,7 @@ namespace ExtUI {
   }
 
   void onSettingsStored(const bool success) { screen.onSettingsSaved(success); }
+  void onSettingsLoaded(const bool success) { screen.onSettingsLoaded(success); }
 
   void onPrintDone() { screen.onPrintDone(); }
 
