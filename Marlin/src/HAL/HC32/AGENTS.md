@@ -17,7 +17,7 @@ buildroot/bin/mftest -t HC32F460C_aquila_101 -n1 -y   # Voxelab Aquila V1.0.x, 2
 
 ## Framework / Platform Integration (upstream, not vendored)
 
-Unlike AT32, the HC32 HAL uses **upstream (third-party) Arduino packages** pulled straight from GitHub by PlatformIO — there is **no vendored framework** in this repo (`buildroot/share/PlatformIO/` carries only `framework-arduino-at32f4` and `platform-at32`, nothing for HC32). `ini/hc32.ini` declares them as remote archives:
+The HC32 HAL uses **upstream (third-party) Arduino packages** pulled straight from GitHub by PlatformIO — there is **no vendored framework** in this repo. `ini/hc32.ini` declares them as remote archives:
 
 ```ini
 platform          = https://github.com/shadow578/platform-hc32f46x/archive/1.1.1.zip
@@ -27,7 +27,7 @@ platform_packages = framework-hc32f46x-ddl@https://github.com/shadow578/framewor
 
 Implications:
 
-- **Framework fixes are NOT made in this repo.** To change the core (flags, serial, USB, DDL/DDL options) you edit `ini/hc32.ini` `build_flags` / `board_build.*` keys, or pin a new upstream core tag. There is no `buildroot/share/PlatformIO/framework-arduino-hc32f4x` to keep in sync with an installed package — the AT32 "mirror the two copies" rule does **not** apply here.
+- **Framework fixes are NOT made in this repo.** To change the core (flags, serial, USB, DDL/DDL options) you edit `ini/hc32.ini` `build_flags` / `board_build.*` keys, or pin a new upstream core tag.
 - The core version is pinned and **enforced at compile time**: `inc/SanityCheck.h` requires `ARDUINO_CORE_VERSION_INT >= 1.1.0` (for `app_config.h`) and gates `SERIAL_DMA`, `EMERGENCY_PARSER`, and `SoftwareSerial` on core 1.2.0 / 1.3.1. Bumping the core tag is a real compatibility event — check the `ARDUINO_CORE_VERSION_INT` checks before doing so.
 
 ### Gotchas that are not obvious from the source
