@@ -82,6 +82,11 @@ public:
   // Called when settings were saved. Only say so if the settings changed.
   static void onSettingsSaved(const bool success);
 
+  // After the settings are loaded, their CRC is what a save is compared against
+  static void onSettingsLoaded(const bool success) {
+    if (success) { savedCrc = settings.last_crc(); savedCrcKnown = true; }
+  }
+
   #if M600_PURGE_MORE_RESUMABLE
     // After a filament change load: Confirm purges more, Cancel resumes the print
     static void showPurgeMorePrompt();

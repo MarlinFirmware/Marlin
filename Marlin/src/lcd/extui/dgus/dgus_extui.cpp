@@ -136,7 +136,8 @@ namespace ExtUI {
         #if M600_PURGE_MORE_RESUMABLE && DGUS_LCD_UI_CREALITY_TOUCH
           // Offer "Purge More / Resume" on the Confirm page after a filament change, but not
           // when loading from the Feed page
-          if (getPauseMode() == PAUSE_MODE_PAUSE_PRINT && screen.getCurrentScreen() != DGUS_SCREEN_FEED) {
+          const PauseMode pm = getPauseMode(); // M600 ends up as PAUSE_PRINT or CHANGE_FILAMENT; M701 / M702 loads are not offered
+          if (pm != PAUSE_MODE_LOAD_FILAMENT && pm != PAUSE_MODE_UNLOAD_FILAMENT && screen.getCurrentScreen() != DGUS_SCREEN_FEED) {
             screen.showPurgeMorePrompt();
             return;
           }

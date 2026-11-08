@@ -542,7 +542,10 @@ void DGUSScreenHandlerCreality::onSettingsSaved(const bool success) {
   if (!success) { setStatusMessage(F("Failed to save settings")); return; }
   #if ENABLED(EEPROM_SETTINGS)
     const uint16_t crc = settings.last_crc();
-    if (savedCrcKnown && crc == savedCrc) return; // Nothing changed
+    if (savedCrcKnown && crc == savedCrc) {       // Nothing changed
+      setStatusMessage(F(""));                    // Remove the core "Settings Stored" message
+      return;
+    }
     savedCrc = crc; savedCrcKnown = true;
   #endif
   setStatusMessage(F("Settings saved"));
