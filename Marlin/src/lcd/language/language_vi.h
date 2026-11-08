@@ -1033,7 +1033,7 @@ namespace LanguageNarrow_vi {
 
 namespace LanguageWide_vi {
   using namespace LanguageNarrow_vi;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu phun"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Đầu phun ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Làm nóng ") PREHEAT_1_LABEL _UxGT(" Cài đặt"); // Preheat (PREHEAT_1_LABEL) Settings
