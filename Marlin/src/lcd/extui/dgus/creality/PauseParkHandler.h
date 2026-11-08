@@ -54,6 +54,8 @@ public:
 
   // M24 request, from G-code or the host. Return true if handled here.
   static bool onResumeRequest();
+  static void pauseFans();
+  static void resumeFans();
 
   // Parking or unparking is in progress
   static bool isBusy() { return working; }
@@ -72,7 +74,7 @@ private:
   static void enterMoveModes();
   static void leaveMoveModes();
 
-  static bool working, parked, retracted, modes_saved;
+  static bool working, parked, retracted, modes_saved, fans_paused;
   static float saved_x, saved_y, saved_z, saved_e;
   static celsius_t saved_temp;
   static relative_t saved_axis_relative;

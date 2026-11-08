@@ -567,7 +567,7 @@ void DGUSScreenHandlerCreality::onSettingsSaved(const bool success) {
 
     purgePrompt = true;
     purgeHeating = purgeRunning = false;
-    purgeMoreText(PSTR("Filament loaded"), PSTR("Confirm: purge more"), PSTR("Cancel: resume print"));
+    purgeMoreText(PSTR("Purge more?"), PSTR("Confirm to Purge"), PSTR("Cancel to Resume")); // Lines fit the Info page
     if (current_screenID == DGUS_SCREEN_CONFIRM)
       forceCompleteUpdate();
     else {
