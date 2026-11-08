@@ -937,7 +937,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
-  uint16_t MarlinSettings::working_crc;
+  uint16_t MarlinSettings::working_crc, MarlinSettings::last_crc_value;
 
   EEPROM_Error MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
@@ -1959,6 +1959,8 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(build_hash);
       #endif
       EEPROM_WRITE(final_crc);
+
+      last_crc_value = final_crc;
 
       // Report storage size
       DEBUG_ECHO_MSG("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
@@ -3187,6 +3189,7 @@ void MarlinSettings::postprocess() {
         break;
       }
       else if (!validating) {
+        last_crc_value = working_crc;
         DEBUG_ECHO_START();
         DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, C(')'));
         TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));

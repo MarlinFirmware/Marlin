@@ -46,6 +46,9 @@
 #include "../../../../module/motion.h"
 #include "../../../../module/temperature.h"
 #include "../../../../module/printcounter.h"
+#if HAS_FAN
+  #include "../../../../module/fans.h"
+#endif
 #if ENABLED(HOST_ACTION_COMMANDS)
   #include "../../../../feature/host_actions.h"
 #endif
@@ -65,7 +68,7 @@
   #define PARK_RETRACT_FEEDRATE 60
 #endif
 
-bool PauseParkHandler::working, PauseParkHandler::parked, PauseParkHandler::retracted, PauseParkHandler::modes_saved;
+bool PauseParkHandler::working, PauseParkHandler::parked, PauseParkHandler::retracted, PauseParkHandler::modes_saved, PauseParkHandler::fans_paused;
 float PauseParkHandler::saved_x, PauseParkHandler::saved_y, PauseParkHandler::saved_z, PauseParkHandler::saved_e;
 celsius_t PauseParkHandler::saved_temp;
 relative_t PauseParkHandler::saved_axis_relative;
@@ -86,11 +89,27 @@ void PauseParkHandler::leaveMoveModes() {
   motion.feedrate_mm_s = saved_feedrate;
 }
 
+// Like Marlin's pause, turn the print-cooling fans off while paused, if ADVANCED_PAUSE_FANS_PAUSE is enabled
+void PauseParkHandler::pauseFans() {
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    Fan::all_pause();
+    fans_paused = true;
+  #endif
+}
+
+void PauseParkHandler::resumeFans() {
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    if (fans_paused) Fan::all_resume();
+    fans_paused = false;
+  #endif
+}
+
 void PauseParkHandler::reset() {
   if (working) {
     screen.runWhenQueueDone(nullptr);
     if (modes_saved) leaveMoveModes();
   }
+  resumeFans();
   working = parked = retracted = false;
 }
 
@@ -131,6 +150,7 @@ void PauseParkHandler::onPaused() {
   saved_e = ExtUI::getAxisPosition_mm(ExtUI::E0);
   saved_temp = ExtUI::getTargetTemp_celsius(ExtUI::E0);
 
+  pauseFans();
   enterMoveModes();
 
   // Retract (unless the nozzle is too cold) and park with G27
@@ -205,6 +225,7 @@ void PauseParkHandler::onResumed() {
   leaveMoveModes();
   parked = retracted = false;
   working = false;
+  resumeFans();
   screen.gotoScreen(DGUS_SCREEN_PRINT_RUNNING); // Also when the host resumed
   ExtUI::resumePrint();
 }
