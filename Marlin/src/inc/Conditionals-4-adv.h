@@ -398,6 +398,22 @@
     #endif
   #endif
 
+  // Define the tuning mode only when every driver on the axis uses that StallGuard version.
+  #if AXIS_HAS_STALLGUARD2(X) && !AXIS_HAS_STALLGUARD4(X) \
+      && (!HAS_X2_STEPPER || (AXIS_HAS_STALLGUARD2(X2) && !AXIS_HAS_STALLGUARD4(X2)))
+    #define X_HAS_SG2 1
+  #endif
+  #if AXIS_HAS_STALLGUARD4(X) && (!HAS_X2_STEPPER || AXIS_HAS_STALLGUARD4(X2))
+    #define X_HAS_SG4 1
+  #endif
+  #if AXIS_HAS_STALLGUARD2(Y) && !AXIS_HAS_STALLGUARD4(Y) \
+      && (!HAS_Y2_STEPPER || (AXIS_HAS_STALLGUARD2(Y2) && !AXIS_HAS_STALLGUARD4(Y2)))
+    #define Y_HAS_SG2 1
+  #endif
+  #if AXIS_HAS_STALLGUARD4(Y) && (!HAS_Y2_STEPPER || AXIS_HAS_STALLGUARD4(Y2))
+    #define Y_HAS_SG4 1
+  #endif
+
   #if Z_IS_TRINAMIC
     #if defined(Z_STALL_SENSITIVITY) && AXIS_HAS_STALLGUARD(Z)
       #define Z_SENSORLESS 1

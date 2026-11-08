@@ -57,82 +57,32 @@ void StallGuardTuning::tune_axis(const AxisEnum axis) {
         stepperX.rms_current(current);
         stepperY.rms_current(current);
 
+        tmc_enable_stallguard(stepperX);
+        tmc_enable_stallguard(stepperY);
         stallguard_type = tmc_stallguard_version(stepperX);
-
-        // Test if one stepper driver has both SG2 and SG4
-        // Remember that stallguard_type is already set to stepperX version
-        // Set the SG2-SG4 capable driver to the stallguard version of the other stepper driver 
-
-        #if X_HAS_SG2_SG4 && !Y_HAS_SG2_SG4
-            stallguard_type = tmc_stallguard_version(stepperY);
-            tmc_enable_stallguard(stepperX, stallguard_type);
-            tmc_enable_stallguard(stepperY);
-
-        #elif !X_HAS_SG2_SG4 && Y_HAS_SG2_SG4
-            tmc_enable_stallguard(stepperX);
-            tmc_enable_stallguard(stepperY, stallguard_type);
-
-        #else        
-            tmc_enable_stallguard(stepperX);
-            tmc_enable_stallguard(stepperY);
-        #endif
     
     #else
         if (axis == X_AXIS) {
             current = max(400, X_CURRENT / 2);
             stepperX.rms_current(current);
 
-            stallguard_type = tmc_stallguard_version(stepperX);
-            
-            // Enbable stallguard mode on the driver(s)
-            // Test if one stepper driver has both SG2 and SG4 in case of 2 stepper drivers
-            // Remember that stallguard_type is already set to stepperX version 
-                
             #if X2_SENSORLESS
                 stepperX2.rms_current(current);
-
-                #if X_HAS_SG2_SG4 && !X2_HAS_SG2_SG4
-                    stallguard_type = tmc_stallguard_version(stepperX2);
-                    tmc_enable_stallguard(stepperX, stallguard_type);
-                    tmc_enable_stallguard(stepperX2);
-
-                #elif !X_HAS_SG2_SG4 && X2_HAS_SG2_SG4
-                    tmc_enable_stallguard(stepperX);
-                    tmc_enable_stallguard(stepperX2, stallguard_type);
-
-                #else        
-                    tmc_enable_stallguard(stepperX);
-                    tmc_enable_stallguard(stepperX2);
-                #endif
-            #else
-                tmc_enable_stallguard(stepperX);
+                tmc_enable_stallguard(stepperX2);
             #endif
+            tmc_enable_stallguard(stepperX);
+            stallguard_type = tmc_stallguard_version(stepperX);
         } else {
             current = max(400, Y_CURRENT / 2);
             stepperY.rms_current(current);
 
-            stallguard_type = tmc_stallguard_version(stepperY);
-            
             #if Y2_SENSORLESS
                 // Set stepper current and set the tuning value
                 stepperY2.rms_current(current);
-
-                #if Y_HAS_SG2_SG4 && !Y2_HAS_SG2_SG4
-                    stallguard_type = tmc_stallguard_version(stepperY2);
-                    tmc_enable_stallguard(stepperY, stallguard_type);
-                    tmc_enable_stallguard(stepperY2);
-
-                #elif !Y_HAS_SG2_SG4 && Y2_HAS_SG2_SG4
-                    tmc_enable_stallguard(stepperY);
-                    tmc_enable_stallguard(stepperY2, stallguard_type);
-
-                #else        
-                    tmc_enable_stallguard(stepperY);
-                    tmc_enable_stallguard(stepperY2);
-                #endif
-            #else
-                tmc_enable_stallguard(stepperY);
+                tmc_enable_stallguard(stepperY2);
             #endif
+            tmc_enable_stallguard(stepperY);
+            stallguard_type = tmc_stallguard_version(stepperY);
         }
     #endif
 

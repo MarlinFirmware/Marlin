@@ -466,19 +466,17 @@ void test_tmc_connection(LOGICAL_AXIS_DECL_LC(const bool, true));
 
   #if ENABLED(STALLGUARD_TUNING)
 
-  uint8_t tmc_stallguard_version(TMC2130Stepper);
-  uint16_t tmc_sg_result(TMC2130Stepper &st);
+    uint8_t tmc_stallguard_version(TMC2130Stepper);
+    uint16_t tmc_sg_result(TMC2130Stepper &st);
 
-  uint8_t tmc_stallguard_version(TMC2209Stepper);
-  uint16_t tmc_sg_result(TMC2209Stepper &st);
+    uint8_t tmc_stallguard_version(TMC2209Stepper);
+    uint16_t tmc_sg_result(TMC2209Stepper &st);
 
+    uint8_t tmc_stallguard_version(TMC2240Stepper &st);
+    uint16_t tmc_sg_result(TMC2240Stepper &st);
 
-  uint8_t tmc_stallguard_version(TMC2240Stepper &st);
-  uint16_t tmc_sg_result(TMC2240Stepper &st);
-
-
-  uint8_t tmc_stallguard_version(TMC2660Stepper);
-  uint16_t tmc_sg_result(TMC2660Stepper &st);
+    uint8_t tmc_stallguard_version(TMC2660Stepper);
+    uint16_t tmc_sg_result(TMC2660Stepper &st);
 
   #endif
 
