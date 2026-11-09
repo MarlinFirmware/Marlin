@@ -474,6 +474,10 @@ void menu_mmu2_pause() {
     TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload();
     ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced this menu
   });
+  ACTION_ITEM(MSG_MMU2_EJECT_FILAMENT, []{
+    if (pause_slot < EXTRUDERS) _mmu2_eject_filament(pause_slot);
+    else ui.goto_screen(menu_mmu2_eject_filament);
+  });
   ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{
     if (pause_slot < EXTRUDERS) _mmu2_pause_load(pause_slot); else ui.goto_screen(menu_mmu2_pause_load);
   });
