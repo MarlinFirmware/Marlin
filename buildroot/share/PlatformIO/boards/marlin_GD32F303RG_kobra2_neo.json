@@ -1,0 +1,47 @@
+{
+  "build": {
+    "core": "gd32",
+    "cpu": "cortex-m4",
+    "offset": "0x9000",
+    "extra_flags": "-DGD32F303RG -DGD32F303RGT6 -DGD32F303RE -DARDUINO_ARCH_MFL",
+    "f_cpu": "120000000L",
+    "hwids": [
+      [
+        "0x1EAF",
+        "0x0003"
+      ],
+      [
+        "0x1EAF",
+        "0x0004"
+      ]
+    ],
+    "mcu": "gd32f303rgt6",
+    "variant": "MARLIN_GD32F303RG",
+    "variants_dir": "buildroot/share/PlatformIO/variants"
+  },
+  "debug": {
+    "openocd_extra_pre_target_args": [
+      "-c",
+      "set CPUTAPID 0x2BA01477"
+    ],
+    "svd_path": "GD32F30x_HD.svd"
+  },
+  "frameworks": [
+    "arduino"
+  ],
+  "name": "Anycubic Kobra 2 Neo / TriGorilla Gen V4.0.1 (GD32F303RGT6, 96k RAM, 1M Flash)",
+  "upload": {
+    "disable_flushing": false,
+    "maximum_ram_size": 98304,
+    "maximum_size": 1048576,
+    "protocol": "",
+    "protocols": [
+      ""
+    ],
+    "require_upload_port": true,
+    "use_1200bps_touch": false,
+    "wait_for_upload_port": false
+  },
+  "url": "https://www.gigadevice.com/product/mcu/main-stream-mcus/gd32f30x-series/gd32f303",
+  "vendor": "GigaDevice"
+}

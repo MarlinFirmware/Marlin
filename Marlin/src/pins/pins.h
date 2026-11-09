@@ -974,6 +974,19 @@
   #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
 #elif MB(CREALITY_V427_GD32_MFL)
   #include "gd32f3/pins_CREALITY_V427_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
+#elif MB(TRIGORILLA_V401_GD32_MFL)
+  #include "gd32f3/pins_TRIGORILLA_V401_GD32_MFL.h" // GD32F303RG                           env:GD32F303RG_kobra2_neo_mfl
+
+//
+// AT32 ARM Cortex-M4
+//
+
+#elif MB(WANHAO_0327001)
+  #include "at32f4/pins_WANHAO_0327001.h"           // AT32F403                             env:WANHAO_0327001
+#elif MB(EASYTHREED_ET4000_PLUS)
+  #include "at32f4/pins_EASYTHREED_ET4000_PLUS.h"   // AT32F403                             env:EASYTHREED_ET4000_PLUS
+#elif MB(EASYTHREED_K7_REVB_AT32F407)
+  #include "at32f4/pins_EASYTHREED_K7_REVB_AT32F407.h" // AT32F407                          env:EASYTHREED_K7_REVB_AT32F407
 
 //
 // Raspberry Pi RP2040

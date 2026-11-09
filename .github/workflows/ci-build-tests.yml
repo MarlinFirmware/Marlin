@@ -177,8 +177,13 @@ jobs:
         - HC32F460E_kobra_go
         - HC32F460E_kobra_neo
 
+        # AT32
+        - WANHAO_0327001
+        - EASYTHREED_ET4000_PLUS
+
         # GD32F3
         - GD32F303RE_creality_mfl
+        - GD32F303RG_kobra2_neo_mfl
 
         # GD32F1
         - GD32F103RC_aquila_mfl

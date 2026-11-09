@@ -1039,7 +1039,7 @@ namespace LanguageNarrow_sk {
 
 namespace LanguageWide_sk {
   using namespace LanguageNarrow_sk;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Zahriať ") PREHEAT_1_LABEL _UxGT(" nastavenie"); // Preheat (PREHEAT_1_LABEL) Settings

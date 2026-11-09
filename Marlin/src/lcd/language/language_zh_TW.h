@@ -1033,7 +1033,7 @@ namespace LanguageNarrow_zh_TW {
 
 namespace LanguageWide_zh_TW {
   using namespace LanguageNarrow_zh_TW;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴");         // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 噴嘴 ~");       // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("預熱 ") PREHEAT_1_LABEL _UxGT(" 設定");         // Preheat (PREHEAT_1_LABEL) Settings

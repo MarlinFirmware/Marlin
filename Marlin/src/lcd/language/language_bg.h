@@ -1032,7 +1032,7 @@ namespace LanguageNarrow_bg {
 
 namespace LanguageWide_bg {
   using namespace LanguageNarrow_bg;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Дюза ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Подгряване ") PREHEAT_1_LABEL _UxGT(" Настройки"); // Preheat (PREHEAT_1_LABEL) Settings

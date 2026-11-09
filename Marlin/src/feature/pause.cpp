@@ -275,8 +275,12 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
 
   #else
 
+    // "Purge More" repeats the purge. Without a requested length (e.g., the MMU has already
+    // loaded the filament) it would repeat nothing, so use the default length.
+    bool purge_more = false;
     do {
-      if (purge_length > 0) {
+      const float purge_len = (purge_length > 0 || !purge_more) ? purge_length : float(ADVANCED_PAUSE_PURGE_LENGTH);
+      if (purge_len > 0) {
         // "Wait for filament purge"
         if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
@@ -286,7 +290,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
         #endif
 
         // Extrude filament to get into hotend
-        motion.unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+        motion.unscaled_e_move(purge_len, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt()); // Initiate another host prompt.
@@ -321,7 +325,8 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
+      purge_more = TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE);
+    } while (purge_more);
 
   #endif
 

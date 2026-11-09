@@ -352,7 +352,7 @@ class LangFile:
         out += [ '}', '',
                  f'namespace LanguageWide_{self.code} {{',
                  f'  using namespace LanguageNarrow_{self.code};',
-                  '  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2' ]
+                  '  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2' ]
         emit('wide')
         out += [ '  #endif', '}', '',
                  f'namespace LanguageTall_{self.code} {{',
