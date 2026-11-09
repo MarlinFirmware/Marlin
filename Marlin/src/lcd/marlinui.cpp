@@ -36,6 +36,10 @@
   #include "../feature/password/password.h"
 #endif
 
+#if ALL(HAS_DISPLAY, HAS_MEDIA, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h" // for paused_for_filament_change
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
 
