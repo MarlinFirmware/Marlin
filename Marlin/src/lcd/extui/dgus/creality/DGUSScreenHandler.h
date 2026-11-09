@@ -110,6 +110,7 @@ public:
   static void handleDevelopmentTestButton(DGUS_VP_Variable &var, void *val_ptr);
 
   // Status messages use a static field for short messages and a scrolling field for long ones
+  static char prevStatus[96];
   static void setStatusMessage(const char *msg, const bool forceScrolling=false);
   static void setStatusMessage_P(PGM_P const msg);
   static void setStatusMessage(FSTR_P const fmsg) { setStatusMessage_P(FTOP(fmsg)); }

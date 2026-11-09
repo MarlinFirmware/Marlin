@@ -246,7 +246,12 @@ void DGUSScreenHandlerCreality::handleDevelopmentTestButton(DGUS_VP_Variable &va
 // Status message
 //
 
+// The last message that wasn't the core "Settings Stored" one, so that a save which changed
+// nothing can put it back (e.g., "Restored default settings...")
+char DGUSScreenHandlerCreality::prevStatus[96];
+
 void DGUSScreenHandlerCreality::setStatusMessage(const char *msg, const bool forceScrolling/*=false*/) {
+  if (strcmp_P(msg, GET_TEXT(MSG_SETTINGS_STORED))) strlcpy(prevStatus, msg, sizeof(prevStatus));
   const bool needs_scrolling = forceScrolling || strlen(msg) > M117_STATIC_DISPLAY_LEN;
 
   DGUS_VP_Variable ramcopy;
@@ -265,6 +270,7 @@ void DGUSScreenHandlerCreality::setStatusMessage(const char *msg, const bool for
 }
 
 void DGUSScreenHandlerCreality::setStatusMessage_P(PGM_P const msg) {
+  if (msg && strcmp_P(GET_TEXT(MSG_SETTINGS_STORED), msg)) strlcpy_P(prevStatus, msg, sizeof(prevStatus));
   const bool needs_scrolling = msg && strlen_P(msg) > M117_STATIC_DISPLAY_LEN;
 
   DGUS_VP_Variable ramcopy;
@@ -543,7 +549,7 @@ void DGUSScreenHandlerCreality::onSettingsSaved(const bool success) {
   #if ENABLED(EEPROM_SETTINGS)
     const uint16_t crc = settings.last_crc();
     if (savedCrcKnown && crc == savedCrc) {       // Nothing changed
-      setStatusMessage(F(""));                    // Remove the core "Settings Stored" message
+      setStatusMessage(prevStatus);               // Replace the core "Settings Stored" message
       return;
     }
     savedCrc = crc; savedCrcKnown = true;

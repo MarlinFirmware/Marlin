@@ -173,8 +173,8 @@ void MeshValidationHandler::onQueueDone() {
   ExtUI::setFeedrate_mm_s(prev_feedrate);
 
   if (pattern_started && !is_cancelling) {
-    // Disable steppers
-    ExtUI::injectCommands(F("M84"));
+    // G26 leaves the nozzle just above the last stroke, so park (if possible) and disable steppers
+    ExtUI::injectCommands(F(TERN_(NOZZLE_PARK_FEATURE, "G27\n") "M84"));
     screen.setStatusMessage(F("Mesh validation pattern printed"));
   }
   else {
