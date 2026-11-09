@@ -53,7 +53,7 @@ public:
     const float ldiff = distance + 0.5f * one_over_accel * (sq(initial_speed) + sq(final_speed));
 
     if ((FTM_MINIMUM_CRUISE_RATIO) > 0 && TERN1(RESONANCE_TEST, !rtg.isActive())) {
-      const float min_cruise_dist = distance * FTM_MINIMUM_CRUISE_RATIO,
+      const float min_cruise_dist = distance * (FTM_MINIMUM_CRUISE_RATIO),
                   max_nominal_from_ratio = (distance - min_cruise_dist) * acceleration
                                            + 0.5f * (sq(initial_speed) + sq(final_speed));
       float ratio_limited_speed = SQRT(max_nominal_from_ratio);
