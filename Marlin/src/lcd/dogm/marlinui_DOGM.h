@@ -27,8 +27,13 @@
 
 #include "../../inc/MarlinConfigPre.h"
 
-#include <U8glib-HAL.h>
-#include "u8g/HAL_LCD_class_defines.h"
+#if HAS_MARLINUI_U8G2
+  #include <U8g2lib.h>
+  #include "u8g2/HAL_LCD_class_defines.h"
+#else
+  #include <U8glib-HAL.h>
+  #include "u8g/HAL_LCD_class_defines.h"
+#endif
 
 //#define ALTERNATIVE_LCD
 
@@ -64,7 +69,14 @@
   // RepRap Discount Full Graphics Smart Controller
   // and other variant LCDs using ST7920
 
-  #if !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+  #if HAS_MARLINUI_U8G2
+    #define U8G_CLASS U8G2_ST7920_128X64_HAL                    // Full frame buffer
+    #if !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
+      #define U8G_PARAM LCD_PINS_RS                             // HW SPI (Shared with SD card)
+    #else
+      #define U8G_PARAM LCD_PINS_D4, LCD_PINS_EN, LCD_PINS_RS   // SW SPI
+    #endif
+  #elif !HAS_MEDIA && (LCD_PINS_D4 == SD_SCK_PIN) && (LCD_PINS_EN == SD_MOSI_PIN)
     #define U8G_CLASS U8GLIB_ST7920_128X64_4X_HAL               // 2 stripes, HW SPI (Shared with SD card. Non-standard LCD adapter on AVR.)
     #define U8G_PARAM LCD_PINS_RS
   #else
@@ -271,8 +283,15 @@
 #endif
 
 // For selective rendering within a Y range
-#define PAGE_OVER(ya)         ((ya) <= u8g.getU8g()->current_page.y1) // Does the current page follow a region top?
-#define PAGE_UNDER(yb)        ((yb) >= u8g.getU8g()->current_page.y0) // Does the current page precede a region bottom?
-#define PAGE_CONTAINS(ya, yb) ((yb) >= u8g.getU8g()->current_page.y0 && (ya) <= u8g.getU8g()->current_page.y1) // Do two vertical regions overlap?
+#if HAS_MARLINUI_U8G2
+  #define PAGE_Y0 uint8_t(u8g.getU8g()->tile_curr_row * 8)
+  #define PAGE_Y1 uint8_t(PAGE_Y0 + u8g.getU8g()->tile_buf_height * 8 - 1)
+#else
+  #define PAGE_Y0 (u8g.getU8g()->current_page.y0)
+  #define PAGE_Y1 (u8g.getU8g()->current_page.y1)
+#endif
+#define PAGE_OVER(ya)         ((ya) <= PAGE_Y1) // Does the current page follow a region top?
+#define PAGE_UNDER(yb)        ((yb) >= PAGE_Y0) // Does the current page precede a region bottom?
+#define PAGE_CONTAINS(ya, yb) ((yb) >= PAGE_Y0 && (ya) <= PAGE_Y1) // Do two vertical regions overlap?
 
 extern U8G_CLASS u8g;

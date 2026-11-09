@@ -347,6 +347,17 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif
 
 /**
+ * U8g2lib compatibility
+ */
+#if ENABLED(USE_U8G2_LIB)
+  #if !HAS_MARLINUI_U8GLIB
+    #error "USE_U8G2_LIB requires a DOGM graphical display."
+  #elif !IS_U8GLIB_ST7920
+    #error "USE_U8G2_LIB currently supports only ST7920 displays."
+  #endif
+#endif
+
+/**
  * Progress Bar
  */
 #if ENABLED(LCD_PROGRESS_BAR)

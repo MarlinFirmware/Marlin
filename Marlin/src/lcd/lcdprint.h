@@ -46,9 +46,15 @@
 
 #elif HAS_MARLINUI_U8GLIB
 
-  #include "dogm/u8g_fontutf8.h"
-  typedef u8g_uint_t lcd_uint_t;
-  typedef u8g_int_t lcd_int_t;
+  #if HAS_MARLINUI_U8G2
+    #include "dogm/u8g2_fontutf8.h"
+    typedef u8g2_uint_t lcd_uint_t;
+    typedef u8g2_int_t lcd_int_t;
+  #else
+    #include "dogm/u8g_fontutf8.h"
+    typedef u8g_uint_t lcd_uint_t;
+    typedef u8g_int_t lcd_int_t;
+  #endif
 
   // Only Western languages support big / small fonts
   #if DISABLED(DISPLAY_CHARSET_ISO10646_1)
@@ -56,14 +62,14 @@
     #undef USE_SMALL_INFOFONT
   #endif
 
-  #define MENU_FONT_NAME    ISO10646_1_5x7
+  #define MENU_FONT_NAME    TERN(HAS_MARLINUI_U8G2, ISO10646_1_5x7_u8g2, ISO10646_1_5x7)
   #define MENU_FONT_WIDTH    6
   #define MENU_FONT_ASCENT  10
   #define MENU_FONT_DESCENT  2
   #define MENU_FONT_HEIGHT  (MENU_FONT_ASCENT + MENU_FONT_DESCENT)
 
   #if ENABLED(USE_BIG_EDIT_FONT)
-    #define EDIT_FONT_NAME    u8g_font_9x18
+    #define EDIT_FONT_NAME    TERN(HAS_MARLINUI_U8G2, u8g2_font_9x18_tf, u8g_font_9x18)
     #define EDIT_FONT_WIDTH    9
     #define EDIT_FONT_ASCENT  10
     #define EDIT_FONT_DESCENT  3
@@ -77,7 +83,11 @@
 
   // Get the Ascent, Descent, and total Height for the Info Screen font
   #if ENABLED(USE_SMALL_INFOFONT)
-    extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
+    #if HAS_MARLINUI_U8G2
+      extern const uint8_t u8g2_font_6x9_marlin[];
+    #else
+      extern const u8g_fntpgm_uint8_t u8g_font_6x9[];
+    #endif
     #define INFO_FONT_ASCENT 7
   #else
     #define INFO_FONT_ASCENT 8
