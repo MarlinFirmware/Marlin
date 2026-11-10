@@ -43,6 +43,10 @@
 #include "../../inc/MarlinConfig.h"
 
 #include "../../lcd/marlinui.h"
+#if ENABLED(MMU_MENUS)
+  #include "../../lcd/menu/menu_mmu2.h" // for menu_mmu2_pause
+#endif
+
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
@@ -850,6 +854,14 @@ namespace MMU3 {
         if (mmuLastErrorSource() == MMU3::ErrorSourceMMU)
           // Do not send a button to the MMU unless the MMU is in error state
           button(buttons_to_uint8t(btn));
+
+        #if ENABLED(MMU_MENUS)
+          // After eject go back to the pause screen
+          if (lastErrorCode == ErrorCode::FILAMENT_EJECTED && return_to_pause_after_eject) { // #28813
+            ui.goto_screen(menu_mmu2_pause);
+            return_to_pause_after_eject = false;
+          }
+        #endif
 
         // A quick hack: for specific error codes move the E-motor every time.
         // Not sure if we can rely on the fsensor.
