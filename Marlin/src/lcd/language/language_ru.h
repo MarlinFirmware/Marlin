@@ -195,6 +195,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Данные платы");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Термисторы");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Экструдеры");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Версия прошивки MMU");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Скорость,БОД");                             // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Протокол");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Подсветка корпуса");                        // Case Light
@@ -524,6 +525,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("Драйвера TMC");                             // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Ток двигателей");                           // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Гибридный режим");                          // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Гибр. порог парк.");                        // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Чувствительность");                         // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Режим драйвера");                           // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("Тихий режим вкл");                          // StealthChop
@@ -681,6 +683,7 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("НЕ УДАЛОСЬ ОХЛАДИТЬ");                      // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Ожидайте...");                              // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Нагреваю...");                              // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Прогрев");                                  // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Нагрев зонда...");                          // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Охлаждение зонда...");                      // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Охлаждение лазера...");                     // Laser Cooling...
@@ -824,6 +827,9 @@ namespace LanguageNarrow_ru {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE включено");                             // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Квадратичный");                            // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Линейный");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Константа");                               // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("График Т сопла");                           // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("График Т стола");                           // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM инициализ.");                        // EEPROM Initialized
@@ -1032,7 +1038,7 @@ namespace LanguageNarrow_ru {
 
 namespace LanguageWide_ru {
   using namespace LanguageNarrow_ru;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло");  // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Нагрев ") PREHEAT_1_LABEL _UxGT(" сопло ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Настройки нагрева ") PREHEAT_1_LABEL;       // Preheat (PREHEAT_1_LABEL) Settings

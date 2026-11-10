@@ -497,6 +497,8 @@
 #define BOARD_MKS_NEPTUNE_3                 5261  // Elegoo Neptune 3
 #define BOARD_MKS_E3D_V2                    5262  // Elegoo Neptune 3 Pro / Plus / Max (STM32F401RC)
 #define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
+#define BOARD_LDO_LEVIATHAN_V1_2            5264  // LDO Leviathan v1.2 (STM32F446ZE)
+#define BOARD_CREALITY_V24S1_200            5265  // Creality v2.4.S1_200 (STM32F401RC) CR-FDM-v2.4.S1_200 as found in the Sermoon V1 / V1 Pro
 
 //
 // Other ARM Cortex-M4
@@ -514,7 +516,7 @@
 #define BOARD_BTT_SKR_V3_0                  6004  // BigTreeTech SKR V3.0 (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_SKR_V3_0_EZ               6005  // BigTreeTech SKR V3.0 EZ (STM32H743VI / STM32H723VG)
 #define BOARD_BTT_OCTOPUS_MAX_EZ_V1_0       6006  // BigTreeTech Octopus Max EZ V1.0 (STM32H723ZE)
-#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE)
+#define BOARD_BTT_OCTOPUS_PRO_V1_0_1        6007  // BigTreeTech Octopus Pro v1.0.1 (STM32H723ZE / STM32F446ZE)
 #define BOARD_BTT_OCTOPUS_PRO_V1_1          6008  // BigTreeTech Octopus Pro v1.1 (STM32H723ZE)
 #define BOARD_BTT_MANTA_M8P_V2_0            6009  // BigTreeTech Manta M8P V2.0 (STM32H723ZE)
 #define BOARD_BTT_KRAKEN_V1_0               6010  // BigTreeTech Kraken v1.0 (STM32H723ZG)
@@ -527,6 +529,7 @@
 #define BOARD_FYSETC_SPIDER_KING_V1_1_H723  6017  // FYSETC Spider King v1.1 (STM32H723ZG)
 #define BOARD_BTT_SCYLLA_V1_0               6018  // BigTreeTech Scylla V1.0 (STM32H723VG)
 #define BOARD_FYSETC_SPIDER_V3_H723         6019  // FYSETC Spider V3.0 H7 (STM32H723VG)
+#define BOARD_LDO_LEVIATHAN_V1_3            6020  // LDO Leviathan v1.3 (STM32H743ZI)
 
 //
 // Espressif ESP32 WiFi
@@ -583,6 +586,15 @@
 
 #define BOARD_CREALITY_V422_GD32_MFL  7400  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
 #define BOARD_CREALITY_V427_GD32_MFL  7401  // Creality V4.2.7 MFL (GD32F303RE) ... STM32 Variant Above!
+#define BOARD_TRIGORILLA_V401_GD32_MFL 7402  // Anycubic TriGorilla Gen V4.0.1 - Kobra 2 Neo (GD32F303RG) ... STM32 Variant Above!
+
+//
+// AT32 ARM Cortex-M4
+//
+
+#define BOARD_WANHAO_0327001          7500  // Wanhao 0327001 v2.0 (AT32F403ARGT7)
+#define BOARD_EASYTHREED_ET4000_PLUS  7501  // EasyThreed K7 ET4000+ (AT32F403ARCT7)
+#define BOARD_EASYTHREED_K7_REVB_AT32F407 7502  // EasyThreed K7 Rev. B ET4000+ (AT32F407RCT7)
 
 //
 // Raspberry Pi

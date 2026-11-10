@@ -65,6 +65,9 @@
 #ifndef CUSTOM_MENU_MAIN_TITLE
   #define CUSTOM_MENU_MAIN_TITLE ""
 #endif
+#if HAS_PRUSA_MMU3
+  #include "../../feature/mmu3/mmu3_supported_version.h"  // MMU_VERSION
+#endif
 #ifndef MMU_VERSION
   #define MMU_VERSION ""
 #endif
@@ -225,6 +228,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruders");
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU Firmware Version");
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocol");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
@@ -266,6 +270,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
+  LSTR MSG_MKS_WIFI                       = _UxGT("WiFi Module");
+  LSTR MSG_MKS_WIFI_SSID                  = _UxGT("Network");
+  LSTR MSG_MKS_WIFI_IP                    = _UxGT("IP");
+  LSTR MSG_MKS_WIFI_CONNECTED             = _UxGT("WiFi: Connected");
+  LSTR MSG_MKS_WIFI_CONNECTING            = _UxGT("WiFi: Connecting");
+  LSTR MSG_MKS_WIFI_BUSY                  = _UxGT("WiFi: Transferring");
+  LSTR MSG_MKS_WIFI_OFFLINE               = _UxGT("WiFi: Not configured");
+  LSTR MSG_MKS_WIFI_EXCEPTION             = _UxGT("WiFi: Error");
+  LSTR MSG_MKS_WIFI_MODE_STA              = _UxGT("Mode: Station");
+  LSTR MSG_MKS_WIFI_MODE_AP               = _UxGT("Mode: Access point");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
@@ -502,6 +516,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
+  LSTR MSG_RUNOUT_TRIGGERED               = _UxGT("Runout triggered");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");
@@ -862,6 +877,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");
@@ -1084,7 +1102,7 @@ namespace LanguageNarrow_en {
 
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend");
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings");

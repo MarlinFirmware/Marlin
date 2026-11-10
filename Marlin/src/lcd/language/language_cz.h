@@ -201,6 +201,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info o desce");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistory");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudéry");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Verze firmwaru MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Rychlost");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Osvětlení");                                // Case Light
@@ -530,6 +531,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC budiče");                               // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Proud budičů");                             // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybridní práh");                            // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Hybridní práh domů");                       // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Domů bez senzorů");                         // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Režim kroků");                              // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -690,6 +692,7 @@ namespace LanguageNarrow_cz {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Chyba chlazení");                           // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Čekejte prosím...");                        // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Předehřívání...");                          // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Prohřátí");                                 // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Zahřívání sondy...");                       // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Chlazení sondy...");                        // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Chlazení laseru...");                       // Laser Cooling...
@@ -830,6 +833,9 @@ namespace LanguageNarrow_cz {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Tau pro posun");                            // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Tau pro posun *");                          // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE zapnuto");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Kvadratický");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineární");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konstantní");                              // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Graf teploty trysky");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Graf teploty podl.");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializ.");                        // EEPROM Initialized
@@ -1032,7 +1038,7 @@ namespace LanguageNarrow_cz {
 
 namespace LanguageWide_cz {
   using namespace LanguageNarrow_cz;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Zahřát ") PREHEAT_1_LABEL _UxGT(" nastavení"); // Preheat (PREHEAT_1_LABEL) Settings

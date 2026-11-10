@@ -196,6 +196,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Txartelaren Info.");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistoreak");                             // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusoreak");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU firm. bertsioa");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baudioak");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoloa");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kabina Argia");                             // Case Light
@@ -525,6 +526,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC driverrak");                            // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver korrontea");                         // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrido atalasea");                         // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Hasiera hibrido at.");                      // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sentsore gabe hasi.");                      // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Urrats modua");                             // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -685,6 +687,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Hozteak huts egin");                        // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Itxaron mesedez...");                       // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Berotzen...");                              // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Egonkortze termikoa");                      // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Zunda berotzen...");                        // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Zunda hozten...");                          // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Laserra hozten...");                        // Laser Cooling...
@@ -825,6 +828,9 @@ namespace LanguageNarrow_eu {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE gaituta");                              // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Koadratikoa");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineala");                                 // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konstantea");                              // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend tenp. graf.");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Ohe tenp. grafikoa");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM hasieratuta");                       // EEPROM Initialized
@@ -1027,7 +1033,7 @@ namespace LanguageNarrow_eu {
 
 namespace LanguageWide_eu {
   using namespace LanguageNarrow_eu;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" ezarpenak"); // Preheat (PREHEAT_1_LABEL) Settings

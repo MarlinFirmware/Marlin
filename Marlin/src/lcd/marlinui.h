@@ -43,8 +43,8 @@
   #include "../module/printcounter.h"
 #endif
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../feature/pause.h"
+#if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
+  #include "../feature/pause.h" //  for types
 #endif
 
 #if ENABLED(DWIN_CREALITY_LCD)
@@ -249,6 +249,8 @@ public:
   #if HAS_MULTI_LANGUAGE
     static uint8_t language;
     static void set_language(const uint8_t lang);
+  #else
+    static constexpr uint8_t language = 0;
   #endif
 
   #if HAS_MARLINUI_U8GLIB

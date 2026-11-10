@@ -53,6 +53,9 @@
 #if ENABLED(FT_MOTION)
   #include "module/ft_motion.h"
 #endif
+#if ENABLED(RESONANCE_TEST)
+  #include "feature/resonance/resonance_generator.h"
+#endif
 
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
@@ -73,15 +76,25 @@
   #include <lvgl.h>
 #endif
 
+#if ENABLED(MKS_WIFI_MODULE)
+  #include "feature/mks_wifi/wifi_module.h"
+#endif
+
 #if HAS_DWIN_E3V2
   #include "lcd/dwin/common/encoder.h"
   #if ENABLED(DWIN_CREALITY_LCD)
     #include "lcd/dwin/creality/dwin.h"
   #elif ENABLED(DWIN_CREALITY_LCD_JYERSUI)
     #include "lcd/dwin/jyersui/dwin.h"
+  #elif ENABLED(DWIN_LCD_PROUI)
+    #include "lcd/extui/ui_api.h"
   #endif
 #elif ENABLED(SOVOL_SV06_RTS)
   #include "lcd/sovol_rts/sovol_rts.h"
+#endif
+
+#if ENABLED(CREALITY_RTS)
+  #include "lcd/rts/lcd_rts.h"
 #endif
 
 #if HAS_ETHERNET
@@ -305,7 +318,7 @@ PGMSTR(M112_KILL_STR, "M112 Shutdown");
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_start();
-    if (ms) ms += millis(); // expire time
+    if (ms) ms = next_millis(ms + millis()); // expire time
     while (wait_for_user && !(ms && ELAPSED(millis(), ms)))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     user_resume();
@@ -361,13 +374,13 @@ bool Marlin::printJobOngoing() { return print_job_timer.isRunning() || card.isSt
 /**
  * Printing is active when a job is underway but not paused
  */
-bool Marlin::printingIsActive() { return !did_pause_print && printJobOngoing(); }
+bool Marlin::printingIsActive() { return !paused_for_filament_change && printJobOngoing(); }
 
 /**
  * Printing is paused according to SD or host indicators
  */
 bool Marlin::printingIsPaused() {
-  return did_pause_print || print_job_timer.isPaused() || card.isPaused();
+  return paused_for_filament_change || print_job_timer.isPaused() || card.isPaused();
 }
 
 void Marlin::startOrResumeJob() {
@@ -403,7 +416,9 @@ void Marlin::startOrResumeJob() {
     TERN_(POWER_LOSS_RECOVERY, recovery.purge());
 
     #ifdef EVENT_GCODE_SD_ABORT
-      queue.inject(F(EVENT_GCODE_SD_ABORT));
+      queue.enqueue_now(F(EVENT_GCODE_SD_ABORT));
+      motion.report_position();
+      TERN_(CREALITY_RTS, RTS_UpdatePosition());
     #endif
 
     TERN_(PASSWORD_AFTER_SD_PRINT_ABORT, password.lock_machine());
@@ -440,15 +455,18 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
   // Prevent steppers timing-out
   const bool do_reset_timeout = no_stepper_sleep
-                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, did_pause_print);
+                               || TERN0(PAUSE_PARK_NO_STEPPER_TIMEOUT, paused_for_filament_change);
 
-  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout
-  if (do_reset_timeout) gcode.reset_stepper_timeout(ms);
+  // Reset both the M18/M84 activity timeout and the M85 max 'kill' timeout.
+  // Resonance blocks bypass the planner queue, so keep the stepper timeout
+  // (and M85 max-inactive kill) from firing while a test is running.
+  if (do_reset_timeout || TERN0(RESONANCE_TEST, rtg.isActive()))
+    gcode.reset_stepper_timeout(ms);
 
   if (gcode.stepper_max_timed_out(ms)) {
     SERIAL_ERROR_START();
     SERIAL_ECHOLN(F(STR_KILL_PRE), F(STR_KILL_INACTIVE_TIME), parser.command_ptr);
-    kill();
+    TERN(CREALITY_RTS, RTS_StepperTimeout(), kill());
   }
 
   const bool has_blocks = planner.has_blocks_queued();  // Any moves in the planner?
@@ -460,7 +478,8 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
 
       static bool already_shutdown_steppers; // = false
 
-      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout()) {
+      // CREALITY_RTS: Don't time out the steppers while a job is printing or paused
+      if (!has_blocks && !do_reset_timeout && gcode.stepper_inactive_timeout() && TERN1(CREALITY_RTS, !card.isPrinting() && !card.isPaused())) {
         if (!already_shutdown_steppers) {
           already_shutdown_steppers = true;
 
@@ -844,7 +863,11 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   #endif
 
   // Handle SD Card insert / remove
-  TERN_(HAS_MEDIA, card.manage_media());
+  #if HAS_MEDIA
+    // Avoid the problem of leveling and returning to zero, plugging and unplugging the card will affect the probe and report error 203
+    if (TERN1(CREALITY_RTS, !hmiFlag.home_flag && !hmiFlag.G29_flag))
+      card.manage_media();
+  #endif
 
   // Announce Host Keepalive state (if any)
   TERN_(HOST_KEEPALIVE_FEATURE, gcode.host_keepalive());
@@ -867,7 +890,7 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   TERN_(FT_MOTION, ftMotion.loop());
 
   // Handle UI input / draw events
-  #if ENABLED(SOVOL_SV06_RTS)
+  #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
     RTS_Update();
   #else
     ui.update();
@@ -908,8 +931,31 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
   // Handle Joystick jogging
   TERN_(POLL_JOG, joystick.inject_jog_moves());
 
+  #if ENABLED(MENU_RESET_WIFI)
+    static millis_t wifi_record_ms = 0;
+    if (rts_wifi_state == PRESSED) {
+      rts_wifi_state = RECORDTIME;
+      wifi_record_ms = millis() + 7000UL;
+    }
+    else if (rts_wifi_state == RECORDTIME) {
+      if (wifi_record_ms && ELAPSED(millis(), wifi_record_ms)) {
+        OUT_WRITE(RESET_WIFI_PIN, HIGH);
+        rts_wifi_state = INITIAL;
+        SERIAL_ECHOPGM("wifi is reset");
+        wifi_record_ms = 0;
+      }
+    }
+  #endif
+
   // Update the LVGL interface
   TERN_(HAS_TFT_LVGL_UI, LV_TASK_HANDLER());
+
+  // Pull G-code and file data from the MKS WiFi module.
+  // With the LVGL UI these are driven by LV_TASK_HANDLER / printer_state_polling.
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    get_wifi_commands();
+    wifi_looping();
+  #endif
 
   IDLE_DONE:
   TERN_(MARLIN_DEV_MODE, idle_depth--);
@@ -969,6 +1015,9 @@ void Marlin::minkill(const bool steppers_off/*=false*/) {
   TERN_(PSU_CONTROL, powerManager.power_off());
 
   TERN_(HAS_SUICIDE, suicide());
+
+  // The ESP32 Interrupt Watchdog resets the chip unless interrupts run on this core
+  TERN_(ARDUINO_ARCH_ESP32, sei());
 
   #if ANY(HAS_KILL, SOFT_RESET_ON_KILL)
 
@@ -1200,8 +1249,8 @@ void setup() {
   millis_t serial_connect_timeout = millis() + 1000UL;
   while (!MYSERIAL1.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
 
-  #if ENABLED(SOVOL_SV06_RTS)
-    LCD_SERIAL.begin(BAUDRATE);
+  #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
+    LCD_SERIAL.begin(TERN(CREALITY_RTS, LCD_BAUDRATE, BAUDRATE));
     serial_connect_timeout = millis() + 1000UL;
     while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
   #endif
@@ -1329,13 +1378,13 @@ void setup() {
 
   // Identify myself as Marlin x.x.x
   SERIAL_ECHOLNPGM("Marlin " SHORT_BUILD_VERSION);
-  #ifdef STRING_DISTRIBUTION_DATE
+  #if defined(STRING_DISTRIBUTION_DATE) && (DISABLED(CREALITY_RTS) || defined(STRING_CONFIG_H_AUTHOR))
     SERIAL_ECHO_MSG(
       " Last Updated: " STRING_DISTRIBUTION_DATE
       " | Author: " STRING_CONFIG_H_AUTHOR
     );
   #endif
-  SERIAL_ECHO_MSG(" Compiled: " __DATE__);
+  SERIAL_ECHO_MSG(" Compiled: " __DATE__ " " __TIME__);
   SERIAL_ECHO_MSG(STR_FREE_MEMORY, hal.freeMemory(), STR_PLANNER_BUFFER_BYTES, sizeof(block_t) * (BLOCK_BUFFER_SIZE));
 
   // Some HAL need precise delay adjustment
@@ -1669,7 +1718,9 @@ void setup() {
 
   #if ENABLED(DWIN_CREALITY_LCD)
     SETUP_RUN(dwinInitScreen());
-  #elif ENABLED(SOVOL_SV06_RTS)
+  #elif ENABLED(DWIN_LCD_PROUI)
+    SETUP_RUN(ExtUI::onStartup());    // ProUI MarlinUI::init_lcd only does the handshake
+  #elif ANY(SOVOL_SV06_RTS, CREALITY_RTS)
     SETUP_RUN(rts.init());
   #endif
 
@@ -1690,6 +1741,15 @@ void setup() {
       if (!card.isMounted()) SETUP_RUN(card.mount()); // Mount SD to load graphics and fonts
     #endif
     SETUP_RUN(tft_lvgl_init());
+  #endif
+
+  // Without the LVGL UI nothing else starts the WiFi module
+  #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
+    SETUP_RUN(mks_esp_wifi_init());
+    #if HAS_MEDIA
+      if (!card.isMounted()) SETUP_RUN(card.mount());  // Mount SD to look for ESP firmware
+      SETUP_RUN(mks_wifi_firmware_update());
+    #endif
   #endif
 
   #if ALL(HAS_WIRED_LCD, SHOW_BOOTSCREEN)

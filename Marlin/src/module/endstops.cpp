@@ -33,6 +33,8 @@
 
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sovol_rts/sovol_rts.h"
+#elif ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
 #endif
 
 #if ENABLED(FT_MOTION)
@@ -254,6 +256,7 @@ void Endstops::enable(const bool onoff) {
       hit_on_purpose();
     else {
       TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
+      TERN_(CREALITY_RTS, RTS_Error(Error_202));
       marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }
@@ -323,22 +326,13 @@ void Endstops::event_handler() {
       if (TERN0(HAS_##A##_MIN_STATE, TEST(hit_state, ES_ENUM(A,MIN))) || TERN0(HAS_##A##_MAX_STATE, TEST(hit_state, ES_ENUM(A,MAX)))) \
         _ENDSTOP_HIT_ECHO(A,C)
 
-    #define ENDSTOP_HIT_TEST_X() _ENDSTOP_HIT_TEST(X,'X')
-    #define ENDSTOP_HIT_TEST_Y() _ENDSTOP_HIT_TEST(Y,'Y')
-    #define ENDSTOP_HIT_TEST_Z() _ENDSTOP_HIT_TEST(Z,'Z')
-    #define ENDSTOP_HIT_TEST_I() _ENDSTOP_HIT_TEST(I,'I')
-    #define ENDSTOP_HIT_TEST_J() _ENDSTOP_HIT_TEST(J,'J')
-    #define ENDSTOP_HIT_TEST_K() _ENDSTOP_HIT_TEST(K,'K')
-    #define ENDSTOP_HIT_TEST_U() _ENDSTOP_HIT_TEST(U,'U')
-    #define ENDSTOP_HIT_TEST_V() _ENDSTOP_HIT_TEST(V,'V')
-    #define ENDSTOP_HIT_TEST_W() _ENDSTOP_HIT_TEST(W,'W')
-
     SERIAL_ECHO_START();
     SERIAL_ECHOPGM(STR_ENDSTOPS_HIT);
+
     NUM_AXIS_CODE(
-       ENDSTOP_HIT_TEST_X(),
-       ENDSTOP_HIT_TEST_Y(),
-       ENDSTOP_HIT_TEST_Z(),
+      _ENDSTOP_HIT_TEST(X,'X'),
+      _ENDSTOP_HIT_TEST(Y,'Y'),
+      _ENDSTOP_HIT_TEST(Z,'Z'),
       _ENDSTOP_HIT_TEST(I,'I'),
       _ENDSTOP_HIT_TEST(J,'J'),
       _ENDSTOP_HIT_TEST(K,'K'),

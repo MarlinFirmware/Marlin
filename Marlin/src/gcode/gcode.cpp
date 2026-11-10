@@ -563,6 +563,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+        case 72: M72(); break;                                    // M72: Set Creality Cloud job name
+      #endif
+
       #if ENABLED(SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
@@ -573,6 +577,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(PRINTCOUNTER)
         case 78: M78(); break;                                    // M78: Show print statistics
+      #endif
+
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+        case 79: M79(); break;                                    // M79: Creality Cloud print status
       #endif
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -764,6 +772,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if HAS_EXTRUDERS
         case 221: M221(); break;                                  // M221: Set Flow Percentage
+      #endif
+
+      #if ENABLED(CREALITY_RTS)
+        case 224: M224(); break;                                  // M224: LED On
+        case 225: M225(); break;                                  // M225: LED Off
       #endif
 
       #if ENABLED(DIRECT_PIN_CONTROL)
@@ -973,6 +986,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 575: M575(); break;                                  // M575: Set serial baudrate
       #endif
 
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
+      #endif
+
       #if ENABLED(NONLINEAR_EXTRUSION)
         case 592: M592(); break;                                  // M592: Nonlinear Extrusion control
       #endif
@@ -1133,6 +1150,14 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
 
+      #if ENABLED(MENU_RESET_WIFI)
+        case 194: M194(); break;                                  // M194: Reset WiFi
+      #endif
+
+      #if ENABLED(CREALITY_WIFI)
+        case 930: M930(); break;                                  // M930: Support Creality WIFI Box
+      #endif
+
       case 999: M999(); break;                                    // M999: Restart after being Stopped
 
       #if ENABLED(POWER_LOSS_RECOVERY)
@@ -1154,6 +1179,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(UBL_MESH_WIZARD)
         case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
+      #endif
+
+      #if ENABLED(CREALITY_RTS)
+        case 2900: M2900(); break;                                // M2900: Report Bed Leveling Grid and test result
       #endif
 
       #if ENABLED(MAX7219_GCODE)
@@ -1260,6 +1289,10 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
 
+  #if ENABLED(CREALITY_RTS)
+    extern int change_page_indx;
+  #endif
+
   /**
    * Output a "busy" message at regular intervals
    * while the machine is not accepting commands.
@@ -1277,7 +1310,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_position_moving());
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          if (TERN1(CREALITY_RTS, change_page_indx == 7)) SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:

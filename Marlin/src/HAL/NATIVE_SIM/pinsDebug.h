@@ -23,39 +23,34 @@
 
 /**
  * Pins Debugging for x86_64
- *
- *   - NUMBER_PINS_TOTAL
- *   - MULTI_NAME_PAD
- *   - getPinByIndex(index)
- *   - printPinNameByIndex(index)
- *   - getPinIsDigitalByIndex(index)
- *   - digitalPinToAnalogIndex(pin)
- *   - getValidPinMode(pin)
- *   - isValidPin(pin)
- *   - isAnalogPin(pin)
- *   - digitalRead_mod(pin)
- *   - pwm_status(pin)
- *   - printPinPWM(pin)
- *   - printPinPort(pin)
- *   - printPinNumber(pin)
- *   - printPinAnalog(pin)
+ * See PinsDebugBase in pins/pinsDebug.h for the hooks.
  */
 
-#define NUMBER_PINS_TOTAL NUM_DIGITAL_PINS
-#define isValidPin(P) (P >= 0 && P < pin_t(NUMBER_PINS_TOTAL))
-#define isAnalogPin(P) (digitalPinToAnalogIndex(P) >= 0)
-#define digitalRead_mod(P)  digitalRead(P)
-#define getPinByIndex(x) pin_array[x].pin
-#define printPinNameByIndex(x) do{ sprintf_P(buffer, PSTR("%-" STRINGIFY(MAX_NAME_LENGTH) "s"), pin_array[x].name); SERIAL_ECHO(buffer); }while(0)
-#define printPinNumber(P) do{ sprintf_P(buffer, PSTR("%3d "), P); SERIAL_ECHO(buffer); }while(0)
-#define printPinAnalog(P) do{ sprintf_P(buffer, PSTR(" (A%2d)  "), digitalPinToAnalogIndex(P)); SERIAL_ECHO(buffer); }while(0)
-#define MULTI_NAME_PAD 16 // space needed to be pretty if not first name assigned to a pin
+struct PinsDebug : PinsDebugBase<PinsDebug> {
+  static constexpr uint16_t count = NUM_DIGITAL_PINS;
+  static constexpr uint8_t name_pad = 16;   // space needed to be pretty if not first name assigned to a pin
 
-// Active ADC function/mode/code values for PINSEL registers
-int8_t ADC_pin_mode(const pin_t);
-int8_t get_pin_mode(const pin_t);
-bool getValidPinMode(const pin_t);
-bool getPinIsDigitalByIndex(const pin_t);
-void printPinPort(const pin_t);
-void printPinPWM(const pin_t);
-bool pwm_status(const pin_t);
+  static bool is_valid(const pin_t pin) { return pin >= 0 && pin < pin_t(count); }
+
+  static int16_t analog_index(const pin_t pin) { return digitalPinToAnalogIndex(pin); }
+  static bool is_analog(const pin_t pin) { return analog_index(pin) >= 0; }
+
+  static int read_digital(const pin_t pin) { return digitalRead(pin); }
+
+  // Active ADC function/mode/code values for PINSEL registers
+  static int8_t adc_pin_mode(const pin_t) { return -1; }
+  static int8_t pin_mode(const pin_t pin) { return is_valid(pin) ? 0 : -1; }
+
+  // Input/output state
+  static bool is_output(const pin_t pin) {
+    const int8_t mode = pin_mode(pin);
+    if (mode == -1 || mode == adc_pin_mode(pin)) return false; // Invalid pin or active analog pin
+    return Gpio::getDir(pin) == OUTPUT;
+  }
+
+  // The pin and index are the same on this platform
+  static bool is_digital_at(const uint16_t index) {
+    const pin_t pin = pin_t(index);
+    return !is_analog(pin) || pin_mode(pin) != adc_pin_mode(pin);
+  }
+};

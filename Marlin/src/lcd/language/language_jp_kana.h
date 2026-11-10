@@ -195,6 +195,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("セイギョケイジョウホウ");                              // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("サーミスター");                                   // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("エクストルーダースウ");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU ファームバージョン");                            // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("ボーレート");                                    // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("プロトコル");                                    // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("キョウタイナイショウメイ");                             // Case Light
@@ -524,6 +525,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMCドライバー");                                 // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("ドライバーデンリュウ");                               // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("ハイブリッドシキイチ");                               // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("ゲンテンハイブリッドシキイチ");                           // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("センサーレスフッキ");                                // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("ステッピングモード");                                // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -684,6 +686,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("レイキャクシッパイ");                                // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("オマチクダサイ");                                  // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("ヨネツチュウ");                                   // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("ヒートソーク");                                   // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("プローブカネツチュウ");                               // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("プローブレイキャク");                                // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("レーザーレイキャク");                                // Laser Cooling...
@@ -824,6 +827,9 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("アドバンス Tau");                                // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("アドバンス Tau *");                              // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE ユウコウ");                                 // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-ニジ");                                      // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-センケイ");                                    // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-イッテイ");                                    // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("ノズルオンドグラフ");                                // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("ベッドオンドグラフ");                                // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROMショキカズミ");                             // EEPROM Initialized
@@ -1026,7 +1032,7 @@ namespace LanguageNarrow_jp_kana {
 
 namespace LanguageWide_jp_kana {
   using namespace LanguageNarrow_jp_kana;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" ヨネツ ノズル");                 // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" ヨネツ ノズル ~");               // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" ヨネツ セッテイ");                // Preheat (PREHEAT_1_LABEL) Settings

@@ -82,8 +82,10 @@ jobs:
         - SAMD21_minitronics20
 
         # ESP32
-        - esp32
+        - esp32_idf3
+        - esp32_idf4
         - mks_tinybee
+        - mks_dlc32_v2_1
 
         # Teensy 2
         #- at90usb1286_cdc
@@ -114,6 +116,7 @@ jobs:
         - STM32F103RE_btt
         - STM32F103RE_btt_USB
         - STM32F103RE_creality
+        - STM32F103VE_GTM32
         - STM32F103VE_longer
         #- mks_robin_mini
         #- mks_robin_nano_v1_3_f4_usbmod
@@ -131,10 +134,12 @@ jobs:
         - LERDGEK
         - LERDGEX
         - mks_e3d_v2
+        - mks_robin_nano_v3
         - mks_robin_pro2
         - Opulo_Lumen_REV3
         - rumba32
         - STM32F401RC_creality
+        - STM32F401RE_creality
         - STM32F407VE_black
         - I3DBEEZ9_V1
         - PRUSA_BUDDY
@@ -172,8 +177,13 @@ jobs:
         - HC32F460E_kobra_go
         - HC32F460E_kobra_neo
 
+        # AT32
+        - WANHAO_0327001
+        - EASYTHREED_ET4000_PLUS
+
         # GD32F3
         - GD32F303RE_creality_mfl
+        - GD32F303RG_kobra2_neo_mfl
 
         # GD32F1
         - GD32F103RC_aquila_mfl
@@ -188,7 +198,7 @@ jobs:
       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
     - name: Select Python 3.9
-      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+      uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
       with:
         python-version: '3.9'
         architecture: 'x64'

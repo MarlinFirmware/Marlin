@@ -195,6 +195,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Styrkortsinfo");                            // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistorer");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderare");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU-firmwareversion");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Datahastighet");                            // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoll");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kapslingsljus");                            // Case Light
@@ -524,6 +525,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC-Drivare");                              // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Strömdrivare");                             // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Tröskelvärde hybrid");                      // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Tröskel hybr. hem");                        // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Givarfri hemkörning");                      // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stegningsläge");                            // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("Smyghack");                                 // StealthChop
@@ -684,6 +686,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Kylning misslyckad");                       // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Vänta...");                                 // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Förvärmer...");                             // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Värmestabilisering");                       // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Värmer munstycke...");                      // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Kyler munstycke...");                       // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Kyler laser...");                           // Laser Cooling...
@@ -825,6 +828,9 @@ namespace LanguageNarrow_sv {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE aktiverad");                            // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Kvadratisk");                              // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Linjär");                                  // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Konstant");                                // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Munstycke temp.graf");                      // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bädd temp.graf");                           // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM initierat");                         // EEPROM Initialized
@@ -1027,7 +1033,7 @@ namespace LanguageNarrow_sv {
 
 namespace LanguageWide_sv {
   using namespace LanguageNarrow_sv;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" munstycke"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" munstycke ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" inställn."); // Preheat (PREHEAT_1_LABEL) Settings

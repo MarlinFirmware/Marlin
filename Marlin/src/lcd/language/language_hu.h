@@ -198,6 +198,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Alaplap infó");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termisztorok");                             // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Adagolók");                                 // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU firmware verzió");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Átviteli sebesség");                        // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Munkalámpa");                               // Case Light
@@ -527,6 +528,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC meghajtók");                            // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Meghajtó áram");                            // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hibrid küszöbérték");                       // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Origó hibrid küszöb");                      // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Motoros kezdőpont");                        // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Léptető mód");                              // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -687,6 +689,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Hűtés sikertelen");                         // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Kérlek várj...");                           // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Előmelegítés...");                          // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Átmelegítés");                              // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Szonda fűtése...");                         // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Szonda hűtése...");                         // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Lézer hűtés...");                           // Laser Cooling...
@@ -830,6 +833,9 @@ namespace LanguageNarrow_hu {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");                              // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");                            // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE bekapcsolva");                          // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Négyzetes");                               // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineáris");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Állandó");                                 // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Fej hőfok grafikon");                       // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Ágy hőfok grafikon");                       // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM inicializálva");                     // EEPROM Initialized
@@ -1032,7 +1038,7 @@ namespace LanguageNarrow_hu {
 
 namespace LanguageWide_hu {
   using namespace LanguageNarrow_hu;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" Fej");     // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" Fej ~");   // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" beállítások"); // Preheat (PREHEAT_1_LABEL) Settings

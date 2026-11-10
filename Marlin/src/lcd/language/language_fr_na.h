@@ -195,6 +195,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Infos carte");                              // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistances");                            // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrudeurs");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Version firmw. MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Bauds");                                    // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocole");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Lumiere caisson");                          // Case Light
@@ -523,6 +524,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("Drivers TMC");                              // TMC Drivers
   LSTR MSG_TMC_CURRENT                    = _UxGT("Courant driver");                           // Driver Current
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Seuil hybride");                            // Hybrid Threshold
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Seuil hybr. origine");                      // Homing Hybrid Thrs
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Home sans capteur");                        // Sensorless Homing
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Mode pas a pas");                           // Stepping Mode
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");                              // StealthChop
@@ -683,6 +685,7 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Echec refroid.");                           // Cooling Failed
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Patientez...");                             // Please wait...
   LSTR MSG_PREHEATING                     = _UxGT("Prechauffage...");                          // Preheating...
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Stabilis. thermique");                      // Heat Soak
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe en chauffe...");                      // Probe Heating...
   LSTR MSG_PROBE_COOLING                  = _UxGT("Refroid. Probe...");                        // Probe Cooling...
   LSTR MSG_LASER_COOLING                  = _UxGT("Refroid. laser...");                        // Laser Cooling...
@@ -826,6 +829,9 @@ namespace LanguageNarrow_fr_na {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Avance Tau");                               // Advance Tau
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Avance Tau *");                             // Advance Tau *
   LSTR MSG_NLE_ON                         = _UxGT("NLE active");                               // NLE enabled
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratique");                             // -Quadratic
+  LSTR MSG_NLE_B                          = _UxGT("-Lineaire");                                // -Linear
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");                                // -Constant
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Graphe temp. buse");                        // Hotend Temp Graph
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Graphe temp. lit");                         // Bed Temp Graph
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM initialisee");                       // EEPROM Initialized
@@ -1028,7 +1034,7 @@ namespace LanguageNarrow_fr_na {
 
 namespace LanguageWide_fr_na {
   using namespace LanguageNarrow_fr_na;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Prechauffage ") PREHEAT_1_LABEL _UxGT(" buse"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Prechauffage ") PREHEAT_1_LABEL _UxGT(" buse ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Conf. prechauffage ") PREHEAT_1_LABEL;      // Preheat (PREHEAT_1_LABEL) Settings

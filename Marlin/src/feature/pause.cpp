@@ -68,6 +68,10 @@
 
 #include "../lcd/marlinui.h"
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 #if HAS_SOUND
   #include "../libs/buzzer.h"
 #endif
@@ -159,11 +163,13 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
 
   if (wait) return thermalManager.wait_for_hotend(motion.extruder);
 
-  // Allow interruption by Emergency Parser M108
-  marlin.wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
-  while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(motion.extruder) - thermalManager.degTargetHotend(motion.extruder)) > (TEMP_WINDOW))
-    marlin.idle();
-  marlin.heatup_done();
+  #if DISABLED(CREALITY_RTS)
+    // Allow interruption by Emergency Parser M108
+    marlin.wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
+    while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(motion.extruder) - thermalManager.degTargetHotend(motion.extruder)) > (TEMP_WINDOW))
+      marlin.idle();
+    marlin.heatup_done();
+  #endif
 
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     // A user can cancel wait-for-heating with M108
@@ -269,8 +275,12 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
 
   #else
 
+    // "Purge More" repeats the purge. Without a requested length (e.g., the MMU has already
+    // loaded the filament) it would repeat nothing, so use the default length.
+    bool purge_more = false;
     do {
-      if (purge_length > 0) {
+      const float purge_len = (purge_length > 0 || !purge_more) ? purge_length : float(ADVANCED_PAUSE_PURGE_LENGTH);
+      if (purge_len > 0) {
         // "Wait for filament purge"
         if (show_lcd) ui.pause_show_message(PAUSE_MESSAGE_PURGE);
 
@@ -280,7 +290,7 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
         #endif
 
         // Extrude filament to get into hotend
-        motion.unscaled_e_move(purge_length, ADVANCED_PAUSE_PURGE_FEEDRATE);
+        motion.unscaled_e_move(purge_len, ADVANCED_PAUSE_PURGE_FEEDRATE);
       }
 
       TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt()); // Initiate another host prompt.
@@ -291,17 +301,32 @@ bool load_filament(const float slow_load_length/*=0*/, const float fast_load_len
           KEEPALIVE_STATE(PAUSED_FOR_USER);
           marlin.user_resume();
           pause_menu_response = PAUSE_RESPONSE_WAIT_FOR;
-          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI)
+          #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI)
             ui.pause_show_message(PAUSE_MESSAGE_OPTION); // MarlinUI and MKS UI also set PAUSE_RESPONSE_WAIT_FOR
           #else
             TERN_(SOVOL_SV06_RTS, rts.gotoPage(ID_PurgeMore_L, ID_PurgeMore_D));
           #endif
-          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) marlin.idle_no_sleep();
+          #if HAS_FILAMENT_SENSOR
+            bool ran_out = runout.filament_ran_out;
+          #endif
+          while (pause_menu_response == PAUSE_RESPONSE_WAIT_FOR) {
+            marlin.idle_no_sleep();
+            #if HAS_FILAMENT_SENSOR
+              // A runout can be detected after the prompt (e.g., a motion sensor at the end of
+              // the purge) or cleared from the menu. Update the prompt and menu to match.
+              if (runout.filament_ran_out != ran_out) {
+                ran_out = !ran_out;
+                TERN_(HOST_PROMPT_SUPPORT, hostui.filament_load_prompt());
+                ui.refresh();
+              }
+            #endif
+          }
         }
       #endif
 
       // Keep looping if "Purge More" was selected
-    } while (TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE));
+      purge_more = TERN0(M600_PURGE_MORE_RESUMABLE, pause_menu_response == PAUSE_RESPONSE_EXTRUDE_MORE);
+    } while (purge_more);
 
   #endif
 
@@ -406,13 +431,13 @@ bool unload_filament(const float unload_length, const bool show_lcd/*=false*/,
  *
  * Return 'true' if pause was completed, 'false' for abort
  */
-uint8_t did_pause_print = 0;
+uint8_t paused_for_filament_change = 0;
 
 bool pause_print(const float retract, const xyz_pos_t &park_point, const bool show_lcd/*=false*/, const float unload_length/*=0*/ DXC_ARGS) {
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
-  if (did_pause_print) return false; // already paused
+  if (paused_for_filament_change) return false; // already paused
 
   #if ENABLED(HOST_ACTION_COMMANDS)
     #ifdef ACTION_ON_PAUSED
@@ -423,16 +448,17 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   #endif
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Pause"), FPSTR(DISMISS_STR)));
+  TERN_(CREALITY_RTS, RTS_PausedPrint());
 
   // Indicate that the printer is paused
-  ++did_pause_print;
+  ++paused_for_filament_change;
 
   // Pause the print job and timer
   #if HAS_MEDIA
     const bool was_sd_printing = card.isStillPrinting();
     if (was_sd_printing) {
       card.pauseSDPrint();
-      ++did_pause_print; // Indicate SD pause also
+      ++paused_for_filament_change; // Indicate SD pause also
     }
   #endif
 
@@ -471,9 +497,29 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
     TERN_(AUTO_BED_LEVELING_UBL, set_bed_leveling_enabled(leveling_was_enabled)); // restore leveling
   }
 
-  // If axes don't need to home then the nozzle can park
-  if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
-  if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
+  #if ENABLED(CREALITY_RTS)
+
+    while (planner.movesplanned() < 2 && motion.destination != motion.position)
+      marlin.idle();
+
+    queue.clear();
+    delay(20);
+    if (!planner.has_blocks_queued()) {
+      if (motion.axis_is_trusted(X_AXIS) && motion.axis_is_trusted(Y_AXIS)) {
+        //if (!axes_need_homing())
+        nozzle.park(0, park_point);
+      }
+    }
+
+  #else
+
+    // If axes don't need to home then the nozzle can park
+    if (do_park) nozzle.park(0, park_point); // Park the nozzle by doing a Minimum Z Raise followed by an XY Move
+    if (!do_park) LCD_MESSAGE(MSG_PARK_FAILED);
+
+  #endif
+
+  TERN_(DWIN_LCD_PROUI, if (!do_park) ui.set_status(GET_TEXT_F(MSG_PARK_FAILED)));
 
   #if ENABLED(DUAL_X_CARRIAGE)
     const int8_t saved_ext        = motion.extruder;
@@ -481,14 +527,18 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
     motion.set_extruder_duplication(false, DXC_ext);
   #endif
 
-  // Unload the filament, if specified
-  if (unload_length)
-    unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
+  #if DISABLED(CREALITY_RTS)
+    // Unload the filament, if specified
+    if (unload_length)
+      unload_filament(unload_length, show_lcd, PAUSE_MODE_CHANGE_FILAMENT);
+  #endif
 
   TERN_(DUAL_X_CARRIAGE, motion.set_extruder_duplication(saved_ext_dup_mode, saved_ext));
 
   // Disable the Extruder for manual change
   disable_active_extruder();
+
+  TERN_(CREALITY_RTS, RTS_ReheatHotend(170));
 
   return true;
 }
@@ -623,6 +673,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       nozzle_timed_out = false;
       first_impatient_beep(max_beep_count);
     }
+    TERN_(CREALITY_RTS, marlin.wait_for_user = false);
     marlin.idle_no_sleep();
   }
   TERN_(DUAL_X_CARRIAGE, motion.set_extruder_duplication(saved_ext_dup_mode, saved_ext));
@@ -679,7 +730,7 @@ void resume_print(
   );
   //*/
 
-  if (!did_pause_print) return;
+  if (!paused_for_filament_change) return;
 
   // Re-enable the heaters if they timed out
   bool nozzle_timed_out = pause_for_user;
@@ -708,13 +759,17 @@ void resume_print(
   motion.unscaled_e_move(-(PAUSE_PARK_RETRACT_LENGTH), feedRate_t(PAUSE_PARK_RETRACT_FEEDRATE));
 
   if (!motion.axes_should_home()) {
-    // Move XY back to saved position
-    motion.destination.set(resume_position.x, resume_position.y, motion.position.z, motion.position.e);
-    motion.prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
+    #if ENABLED(CREALITY_RTS)
+      motion.destination.set(resume_position.x, resume_position.y, resume_position.z, motion.position.e);
+    #else
+      // Move XY back to saved position
+      motion.destination.set(resume_position.x, resume_position.y, motion.position.z, motion.position.e);
+      motion.prepare_internal_move_to_destination(NOZZLE_PARK_XY_FEEDRATE);
 
-    // Move Z back to saved position
-    motion.destination.z = resume_position.z;
-    motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+      // Move Z back to saved position
+      motion.destination.z = resume_position.z;
+      motion.prepare_internal_move_to_destination(NOZZLE_PARK_Z_FEEDRATE);
+    #endif
   }
 
   #if ENABLED(AUTO_BED_LEVELING_UBL)
@@ -760,7 +815,7 @@ void resume_print(
     hostui.resume();
   #endif
 
-  --did_pause_print;
+  --paused_for_filament_change;
 
   TERN_(HOST_PROMPT_SUPPORT, hostui.prompt_open(PROMPT_INFO, F("Resuming"), FPSTR(DISMISS_STR)));
 
@@ -768,8 +823,8 @@ void resume_print(
   if (print_job_timer.isPaused()) print_job_timer.start();
 
   #if HAS_MEDIA
-    if (did_pause_print) {
-      --did_pause_print;
+    if (paused_for_filament_change) {
+      --paused_for_filament_change;
       card.startOrResumeFilePrinting();
       // Write PLR now to update the z axis value
       TERN_(POWER_LOSS_RECOVERY, if (recovery.enabled) recovery.save(true));

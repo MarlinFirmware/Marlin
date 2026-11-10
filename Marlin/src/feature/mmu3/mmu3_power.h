@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_power.h
+ * mmu3_power.h
  */
 
 namespace MMU3 {

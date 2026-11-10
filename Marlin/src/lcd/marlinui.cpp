@@ -36,8 +36,17 @@
   #include "../feature/password/password.h"
 #endif
 
+#if ALL(HAS_DISPLAY, HAS_MEDIA, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h" // for paused_for_filament_change
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  extern bool gx_full_redraw;
+  extern xyze_feedrate_t gx_manual_feedrate_mm_m;
+#endif
 MarlinUI ui;
 
 #if HAS_DISPLAY
@@ -101,11 +110,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_MULTI_LANGUAGE
+
+  #if ENABLED(CREALITY_RTS)
+    #include "rts/lcd_rts.h"
+  #endif
+
   uint8_t MarlinUI::language; // Initialized by settings.load
   void MarlinUI::set_language(const uint8_t lang) {
     if (lang < NUM_LANGUAGES) {
       language = lang;
       TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
+      TERN_(CREALITY_RTS, rts.updateLanguageDisplay());
       return_to_status();
       refresh();
     }
@@ -235,7 +250,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   millis_t MarlinUI::backlight_off_ms = 0;
 
   void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = backlight_timeout_minutes ? millis() + MIN_TO_MS(backlight_timeout_minutes) : 0;
+    backlight_off_ms = backlight_timeout_minutes ? next_millis(millis() + MIN_TO_MS(backlight_timeout_minutes)) : 0;
     #ifdef NEOPIXEL_BKGD_INDEX_FIRST
       neo.reset_background_color();
       neo.show();
@@ -255,7 +270,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   millis_t MarlinUI::screen_timeout_ms = 0;
   void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_ms = sleep_timeout_minutes ? millis() + MIN_TO_MS(sleep_timeout_minutes) : 0;
+    screen_timeout_ms = sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(sleep_timeout_minutes)) : 0;
     wake_display();
   }
 
@@ -681,7 +696,7 @@ void MarlinUI::init() {
           else {
             // Defer message expiration before bar appears
             // and during any pause (not just SD)
-            expire_status_ms += LCD_UPDATE_INTERVAL;
+            expire_status_ms = next_millis(expire_status_ms + LCD_UPDATE_INTERVAL);
           }
         }
 
@@ -701,7 +716,9 @@ void MarlinUI::init() {
 
     if (did_expire) reset_status();
 
-    #if HAS_MARLINUI_MENU
+    #if ENABLED(NOVIN3DP_GALAXY_UI)
+      use_click();      // The galaxy home screen has its own buttons; a stray click must not open Marlin's main menu
+    #elif HAS_MARLINUI_MENU
       if (use_click()) {
         #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
           pause_filament_display();
@@ -865,7 +882,7 @@ void MarlinUI::init() {
       // Add a manual move to the queue?
       if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
 
-      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? manual_feedrate_mm_s[axis] : PLANNER_XY_FEEDRATE_MM_S;
+      const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? TERN(NOVIN3DP_GALAXY_UI, MMM_TO_MMS(gx_manual_feedrate_mm_m[axis]), manual_feedrate_mm_s[axis]) : PLANNER_XY_FEEDRATE_MM_S;
 
       /**
        * For a rotational axis apply the "inch" to "mm" conversion factor. This mimics behaviour of the G-code G1
@@ -1196,7 +1213,13 @@ void MarlinUI::init() {
       // Then we want to use only 50% of the time
       const uint16_t bbr2 = buffer_runtime() >> 1;
 
-      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time)) {
+      // The galaxy UI draws a cleared screen in one go: never leave it blank while the planner is short
+      if ((should_draw() || drawing_screen) && (!bbr2 || bbr2 > max_display_update_time || TERN0(NOVIN3DP_GALAXY_UI, gx_full_redraw))) {
+
+        // Only time the Status Screen draw if it was already current. A menu action may
+        // block for a long time (e.g., MMU load) then return to the Status Screen, and
+        // that time must not count or the screen will stop updating while printing.
+        const bool time_status_draw = on_status_screen();
 
         // Change state of drawing flag between screen updates
         if (!drawing_screen) switch (lcdDrawUpdate) {
@@ -1241,7 +1264,7 @@ void MarlinUI::init() {
             // If still drawing and there's another page, update max-time and return now.
             // The nextPage will already be set up on the next call.
             if (drawing_screen && (drawing_screen = u8g.nextPage())) {
-              if (on_status_screen())
+              if (time_status_draw && on_status_screen())
                 NOLESS(max_display_update_time, millis() - ms);
               return;
             }
@@ -1261,7 +1284,7 @@ void MarlinUI::init() {
 
         // Keeping track of the longest time for an individual LCD update.
         // Used to do screen throttling when the planner starts to fill up.
-        if (on_status_screen())
+        if (time_status_draw && on_status_screen())
           NOLESS(max_display_update_time, millis() - ms);
       }
 
@@ -1745,7 +1768,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     set_status_reset_fn();
 
-    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL);
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : next_millis(millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL));
 
     #if HAS_WIRED_LCD
 
@@ -1756,7 +1779,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       #if HAS_BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
-          expire_status_ms = persist ? 0 : ms + PROGRESS_MSG_EXPIRE;
+          expire_status_ms = persist ? 0 : next_millis(ms + PROGRESS_MSG_EXPIRE);
         #endif
       #endif
 
@@ -1823,8 +1846,13 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
   void MarlinUI::abort_print() {
     #if HAS_MEDIA
+      // Aborting a paused SD print parked in M125: don't let resume_print() move back and restart the closed file
+      const bool parked_sd_print = TERN0(ADVANCED_PAUSE_FEATURE, marlin.printingIsPaused());
+      #if ENABLED(ADVANCED_PAUSE_FEATURE)
+        if (parked_sd_print) paused_for_filament_change = 0;
+      #endif
       marlin.end_waiting();
-      if (card.isStillPrinting())
+      if (card.isStillPrinting() || parked_sd_print)
         card.abortFilePrintSoon();
       else if (card.isMounted())
         card.closefile();
