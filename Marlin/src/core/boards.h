@@ -586,6 +586,15 @@
 
 #define BOARD_CREALITY_V422_GD32_MFL  7400  // Creality V4.2.2 MFL (GD32F303RE) ... STM32 Variant Above!
 #define BOARD_CREALITY_V427_GD32_MFL  7401  // Creality V4.2.7 MFL (GD32F303RE) ... STM32 Variant Above!
+#define BOARD_TRIGORILLA_V401_GD32_MFL 7402  // Anycubic TriGorilla Gen V4.0.1 - Kobra 2 Neo (GD32F303RG) ... STM32 Variant Above!
+
+//
+// AT32 ARM Cortex-M4
+//
+
+#define BOARD_WANHAO_0327001          7500  // Wanhao 0327001 v2.0 (AT32F403ARGT7)
+#define BOARD_EASYTHREED_ET4000_PLUS  7501  // EasyThreed K7 ET4000+ (AT32F403ARCT7)
+#define BOARD_EASYTHREED_K7_REVB_AT32F407 7502  // EasyThreed K7 Rev. B ET4000+ (AT32F407RCT7)
 
 //
 // Raspberry Pi

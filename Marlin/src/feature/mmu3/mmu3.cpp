@@ -277,9 +277,8 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& marlin.printJobOngoing()
+        && marlin.printingIsActive() // A job is running and not paused. Don't trigger while paused or from the pause itself.
         && parser.codenum != 600
-        && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
         && e_active()
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
