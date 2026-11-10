@@ -171,12 +171,16 @@ void menu_mmu2_load_to_nozzle() {
 // Eject Filament
 //
 
-void _mmu2_eject_filament(uint8_t index) {
+void menu_mmu2_pause();
+
+void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (TERN(HAS_PRUSA_MMU3, mmu3, mmu2).eject_filament(index, true))
+  if (TERN(HAS_PRUSA_MMU3, mmu3, mmu2).eject_filament(index, true)) {
     ui.reset_status();
+    if (return_to_pause) ui.goto_screen(menu_mmu2_pause);
+  }
 }
 
 void _mmu2_cut_filament(uint8_t index) {
@@ -194,7 +198,9 @@ void action_mmu2_unload_filament() {
 void menu_mmu2_eject_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_eject_filament(MenuItemBase::itemIndex); });
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{
+    _mmu2_eject_filament(MenuItemBase::itemIndex, false);
+  });
   END_MENU();
 }
 
@@ -475,7 +481,7 @@ void menu_mmu2_pause() {
     ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced this menu
   });
   ACTION_ITEM(MSG_MMU2_EJECT_FILAMENT, []{
-    if (pause_slot < EXTRUDERS) _mmu2_eject_filament(pause_slot);
+    if (pause_slot < EXTRUDERS) _mmu2_eject_filament(pause_slot, true);
     else ui.goto_screen(menu_mmu2_eject_filament);
   });
   ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{
