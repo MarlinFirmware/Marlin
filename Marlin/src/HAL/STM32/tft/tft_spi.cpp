@@ -201,7 +201,9 @@ uint32_t TFT_SPI::getID() {
 uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
   #if PIN_EXISTS(TFT_MISO)
-    uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    #if DISABLED(DEBUG_TFT_IO)
+      const uint32_t baudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    #endif
     SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
 
     dataTransferBegin(DATASIZE_8BIT);
@@ -236,7 +238,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
 
     dataTransferEnd();
     #if DISABLED(DEBUG_TFT_IO)
-      SPIx.Init.BaudRatePrescaler = BaudRatePrescaler;
+      SPIx.Init.BaudRatePrescaler = baudRatePrescaler;
     #endif
   #endif
 
