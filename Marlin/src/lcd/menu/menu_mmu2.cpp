@@ -469,6 +469,7 @@ static void menu_mmu2_pause_load_to_nozzle() {
 }
 
 void menu_mmu2_pause() {
+  ui.defer_status_screen(); // A return_to_status() (error screen, Eject) clears the flag set by mmu2_M600()
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
