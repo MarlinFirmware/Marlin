@@ -3291,13 +3291,15 @@ void MarlinSettings::postprocess() {
     }
 
     // Otherwise reset settings to default "factory settings"
-    reset();
 
-    // Options to overwrite the EEPROM on error
     #if ANY(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
+      // Overwrite the EEPROM data on error
       (void)init_eeprom();
       LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
       SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
+    #else
+      // The user can write settings to EEPROM later
+      reset();
     #endif
 
     return false;
