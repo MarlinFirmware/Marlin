@@ -2362,23 +2362,23 @@ void RTS::handleData() {
 
     #if ENABLED(PIDTEMP)
 
-    case NozzlePTempEnterKey: {
-      const float nozzle_ptemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_ptemp * 100, NOZZLE_TEMP_P_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Kp(nozzle_ptemp);
-    } break;
+      case NozzlePTempEnterKey: {
+        const float nozzle_ptemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_ptemp * 100, NOZZLE_TEMP_P_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Kp(nozzle_ptemp);
+      } break;
 
-    case NozzleITempEnterKey: {
-      const float nozzle_itemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_itemp * 100, NOZZLE_TEMP_I_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Ki(nozzle_itemp);
-    } break;
+      case NozzleITempEnterKey: {
+        const float nozzle_itemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_itemp * 100, NOZZLE_TEMP_I_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Ki(nozzle_itemp);
+      } break;
 
-    case NozzleDTempEnterKey: {
-      const float nozzle_dtemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_dtemp * 100, NOZZLE_TEMP_D_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Kd(nozzle_dtemp);
-    } break;
+      case NozzleDTempEnterKey: {
+        const float nozzle_dtemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_dtemp * 100, NOZZLE_TEMP_D_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Kd(nozzle_dtemp);
+      } break;
 
     #else // No hotend PID to edit: show 0
 
@@ -2394,23 +2394,23 @@ void RTS::handleData() {
 
     #if ENABLED(PIDTEMPBED)
 
-    case HotbedPTempEnterKey: {
-      const float hotbed_ptemp = (float)recdat.data[0] / 100;
-      sendData(hotbed_ptemp * 100, HOTBED_TEMP_P_DATA_VP);
-      thermalManager.temp_bed.pid.set_Kp(hotbed_ptemp);
-    } break;
+      case HotbedPTempEnterKey: {
+        const float hotbed_ptemp = (float)recdat.data[0] / 100;
+        sendData(hotbed_ptemp * 100, HOTBED_TEMP_P_DATA_VP);
+        thermalManager.temp_bed.pid.set_Kp(hotbed_ptemp);
+      } break;
 
-    case HotbedITempEnterKey: {
-      const float hotbed_itemp = (float)recdat.data[0] / 100;
-      sendData(hotbed_itemp * 100, HOTBED_TEMP_I_DATA_VP);
-      thermalManager.temp_bed.pid.set_Ki(hotbed_itemp);
-    } break;
+      case HotbedITempEnterKey: {
+        const float hotbed_itemp = (float)recdat.data[0] / 100;
+        sendData(hotbed_itemp * 100, HOTBED_TEMP_I_DATA_VP);
+        thermalManager.temp_bed.pid.set_Ki(hotbed_itemp);
+      } break;
 
-    case HotbedDTempEnterKey: {
-      const float hotbed_dtemp = (float)recdat.data[0] / 10;
-      sendData(hotbed_dtemp * 10, HOTBED_TEMP_D_DATA_VP);
-      thermalManager.temp_bed.pid.set_Kd(hotbed_dtemp);
-    } break;
+      case HotbedDTempEnterKey: {
+        const float hotbed_dtemp = (float)recdat.data[0] / 10;
+        sendData(hotbed_dtemp * 10, HOTBED_TEMP_D_DATA_VP);
+        thermalManager.temp_bed.pid.set_Kd(hotbed_dtemp);
+      } break;
 
     #else // No bed PID to edit: show 0
 
