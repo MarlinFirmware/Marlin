@@ -267,6 +267,8 @@
       printerButtonOperation = Buttons::NoButton;
     }
 
+    void set_return_to_pause_after_eject(bool value) { return_to_pause_after_eject = value; }
+
     static uint8_t cutter_mode;   // mode 0:disabled | 1:enabled | 2:always (EXPERIMENTAL)
     static int cutter_mode_addr;  // EEPROM addr for cutter enabled setting
     static uint8_t stealth_mode;  // stealth mode
@@ -411,6 +413,7 @@
     Buttons lastButton = Buttons::NoButton;
     uint16_t lastReadRegisterValue = 0;
     Buttons printerButtonOperation = Buttons::NoButton;
+    bool return_to_pause_after_eject = false;
 
     StepStatus logicStepLastStatus;
 
