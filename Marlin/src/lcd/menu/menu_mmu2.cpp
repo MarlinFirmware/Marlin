@@ -171,12 +171,8 @@ void menu_mmu2_load_to_nozzle() {
 // Eject Filament
 //
 
-void menu_mmu2_pause();
-
 void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
-  #if HAS_PRUSA_MMU3
-    mmu3.set_return_to_pause_after_eject(return_to_pause);
-  #endif
+  TERN_(HAS_PRUSA_MMU3, mmu3.set_return_to_pause_after_eject(return_to_pause));
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
@@ -184,9 +180,7 @@ void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
     ui.reset_status();
     if (return_to_pause) {
       ui.goto_screen(menu_mmu2_pause);
-      #if HAS_PRUSA_MMU3
-        mmu3.set_return_to_pause_after_eject(false);
-      #endif
+      TERN_(HAS_PRUSA_MMU3, mmu3.set_return_to_pause_after_eject(false));
     }
   }
 }
@@ -439,16 +433,12 @@ void menu_mmu2_choose_filament() {
 }
 
 //
-// MMU2 Filament Runout
+// MMU2 / MMU3 Filament Runout
 //
 // Load and Load to Nozzle use the slot that was in use when the menu opened, so a runout
 // is recovered with the same slot. If that slot is not known they ask for one, because the
 // tool in use is unknown after an Unload and a slot taken from it would be invalid for the MMU.
 //
-
-void menu_mmu2_pause();
-static void menu_mmu2_pause_load();
-static void menu_mmu2_pause_load_to_nozzle();
 
 static uint8_t pause_slot = 0xFF; // Slot in use when the Filament Change menu opened
 
