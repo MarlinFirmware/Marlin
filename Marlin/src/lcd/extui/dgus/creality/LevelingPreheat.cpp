@@ -34,6 +34,7 @@
 
 LevelingPreheat::State LevelingPreheat::state = LevelingPreheat::IDLE;
 FSTR_P LevelingPreheat::commands;
+bool LevelingPreheat::use_popup;
 millis_t LevelingPreheat::soak_end_ms, LevelingPreheat::next_message_ms;
 
 static bool atTemperature() {
@@ -44,8 +45,17 @@ static bool atTemperature() {
   return hotend_ok && bed_ok;
 }
 
-void LevelingPreheat::startThen(FSTR_P const cmds) {
+// Show a message on the screen's message field, or on the wait page
+void LevelingPreheat::message(const char * const text) {
+  if (use_popup)
+    screen.showPreheatPage(text);
+  else
+    screen.setStatusMessage(text);
+}
+
+void LevelingPreheat::startThen(FSTR_P const cmds, const bool popup/*=false*/) {
   commands = cmds;
+  use_popup = popup;
 
   // Raise the targets, never lower them (as Marlin's preheat does)
   if (thermalManager.leveling_temp.hotend > ExtUI::getTargetTemp_celsius(ExtUI::E0))
@@ -59,9 +69,27 @@ void LevelingPreheat::startThen(FSTR_P const cmds) {
     return;
   }
 
+  // Lift the nozzle off the bed so it can be cleaned while the bed heats up
+  if (ExtUI::isAxisPositionKnown(ExtUI::Z) && ExtUI::getAxisPosition_mm(ExtUI::Z) < 10)
+    ExtUI::setAxisPosition_mm(10, ExtUI::Z, 10);
+
   state = HEATING;
   next_message_ms = 0;
-  screen.setStatusMessage(F("Heating before leveling..."));
+  message("Heating...");
+}
+
+// Heated and soaked: go back to the calling screen and run the commands
+void LevelingPreheat::finish() {
+  state = IDLE;
+  if (use_popup) screen.gotoScreen(DGUS_SCREEN_ZOFFSET_LEVEL);
+  ExtUI::injectCommands(commands);
+}
+
+bool LevelingPreheat::handleCancel() {
+  if (state == IDLE || !use_popup || screen.getCurrentScreen() != DGUS_SCREEN_CONFIRM) return false;
+  cancel();
+  screen.gotoScreen(DGUS_SCREEN_ZOFFSET_LEVEL);
+  return true;
 }
 
 void LevelingPreheat::loop() {
@@ -76,24 +104,20 @@ void LevelingPreheat::loop() {
       soak_end_ms = ms + SEC_TO_MS(LEVELING_HEAT_SOAK_TIME);
       next_message_ms = 0;
     #else
-      state = IDLE;
-      ExtUI::injectCommands(commands);
+      finish();
       return;
     #endif
   }
 
   #ifdef LEVELING_HEAT_SOAK_TIME
-    if (ELAPSED(ms, soak_end_ms)) {
-      state = IDLE;
-      screen.setStatusMessage(F("Heat soak done"));
-      ExtUI::injectCommands(commands);
-    }
+    if (ELAPSED(ms, soak_end_ms))
+      finish();
     else if (ELAPSED(ms, next_message_ms)) {
       next_message_ms = ms + 1000UL;
       const uint16_t secs = uint16_t((soak_end_ms - ms + 999UL) / 1000UL);
       MString<32> msg;
       msg.setf(F("Heat soak %u:%02u"), secs / 60, secs % 60);
-      screen.setStatusMessage(msg);
+      message(msg);
     }
   #endif
 }

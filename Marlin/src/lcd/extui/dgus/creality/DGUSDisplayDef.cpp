@@ -39,6 +39,7 @@
 #include "AxisSettingsHandler.h"
 #include "FilamentLoadUnloadHandler.h"
 #include "MeshValidationHandler.h"
+#include "LevelingPreheat.h"
 
 #include "../../../../module/temperature.h"
 #include "../../../../module/motion.h"
@@ -676,6 +677,10 @@ const struct DGUS_VP_Variable ListOfVP[] PROGMEM = {
     #if HAS_HEATED_BED
       VPHELPER(VP_TOGGLE_PROBE_PREHEAT_BED_TEMP, &thermalManager.leveling_temp.bed, screen.handleLevelingTemp, screen.sendWordValueToDisplay),
     #endif
+  #endif
+
+  #if CREALITY_LEVEL_PREHEAT
+    VPHELPER(VP_LevelPreheatConfirm, nullptr, nullptr, nullptr),
   #endif
 
   #if M600_PURGE_MORE_RESUMABLE

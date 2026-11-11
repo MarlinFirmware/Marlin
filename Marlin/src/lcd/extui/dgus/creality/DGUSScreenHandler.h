@@ -82,6 +82,9 @@ public:
   // Called when settings were saved. Only say so if the settings changed.
   static void onSettingsSaved(const bool success);
 
+  // Show the Confirm page as a wait page for the leveling preheat (Cancel stops the wait)
+  static void showPreheatPage(const char * const line2);
+
   // After the settings are loaded, their CRC is what a save is compared against
   static void onSettingsLoaded(const bool success) {
     if (success) { savedCrc = settings.last_crc(); savedCrcKnown = true; }
