@@ -73,7 +73,6 @@
   #define MKSW_PRINT_STATE        uiCfg.print_state
   #define MKSW_COMMAND_SEND       uiCfg.command_send
   #define MKSW_CONFIG_WIFI        uiCfg.configWifi
-  #define MKSW_TOTAL_SEND         uiCfg.totalSend
   #define MKSW_CLOUD_HOSTURL      uiCfg.cloud_hostUrl
   #define MKSW_CLOUD_PORT         uiCfg.cloud_port
   #define MKSW_WIFI_TYPE          gCfgItems.wifi_type
@@ -136,7 +135,6 @@
   typedef struct {
     uint8_t  print_state;
     bool     command_send, configWifi;
-    uint32_t totalSend;
     uint8_t  cloud_hostUrl[96];
     uint16_t cloud_port;
     uint8_t  wifi_type, fileSysType;
@@ -150,7 +148,6 @@
   #define MKSW_PRINT_STATE        mksWifi.print_state
   #define MKSW_COMMAND_SEND       mksWifi.command_send
   #define MKSW_CONFIG_WIFI        mksWifi.configWifi
-  #define MKSW_TOTAL_SEND         mksWifi.totalSend
   #define MKSW_CLOUD_HOSTURL      mksWifi.cloud_hostUrl
   #define MKSW_CLOUD_PORT         mksWifi.cloud_port
   #define MKSW_WIFI_TYPE          mksWifi.wifi_type

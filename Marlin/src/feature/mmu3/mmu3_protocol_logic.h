@@ -75,6 +75,7 @@ namespace MMU3 {
   /*inline*/ constexpr uint32_t linkLayerTimeout = 2000;                  //!< Default link layer communication timeout
   /*inline*/ constexpr uint32_t dataLayerTimeout = linkLayerTimeout * 3;  //!< Data layer communication timeout
   /*inline*/ constexpr uint32_t heartBeatPeriod = linkLayerTimeout / 2;   //!< Period of heart beat messages (Q0)
+  /*inline*/ constexpr uint32_t commandRejectedTimeout = 30000;           //!< Give up resending a rejected command after this long
 
   static_assert(heartBeatPeriod < linkLayerTimeout && linkLayerTimeout < dataLayerTimeout, "Incorrect ordering of timeouts");
 
@@ -373,6 +374,8 @@ namespace MMU3 {
 
     uint8_t retryAttempts;
     bool inAutoRetry;
+
+    millis_t rejectedSinceMs = 0; //!< When the current run of rejected commands began (0 = none)
 
     friend class MMU3;
   };

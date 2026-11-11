@@ -1042,7 +1042,7 @@ namespace LanguageNarrow_it {
 
 namespace LanguageWide_it {
   using namespace LanguageNarrow_it;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" conf."); // Preheat (PREHEAT_1_LABEL) Settings

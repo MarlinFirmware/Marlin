@@ -114,13 +114,11 @@
  * M43  - Display pin status, watch pins for changes, watch endstops & toggle LED, Z servo probe test, toggle pins (Requires PINS_DEBUGGING)
  * M48  - Measure Z Probe repeatability: M48 P<points> X<pos> Y<pos> V<level> E<engage> L<legs> S<chizoid>. (Requires Z_MIN_PROBE_REPEATABILITY_TEST)
  *
- * M72  - Set the Creality Cloud job name. (Requires DGUS_LCD_UI SERMOON_V1)
  * M73  - Set the progress percentage. (Requires SET_PROGRESS_MANUALLY)
  * M75  - Start the print job timer.
  * M76  - Pause the print job timer.
  * M77  - Stop the print job timer.
  * M78  - Show statistical information about the print jobs. (Requires PRINTCOUNTER)
- * M79  - Creality Cloud WiFi board print status. (Requires DGUS_LCD_UI SERMOON_V1)
  *
  * M80  - Turn on Power Supply. (Requires PSU_CONTROL)
  * M81  - Turn off Power Supply. (Requires PSU_CONTROL)
@@ -286,6 +284,17 @@
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  *
+ *** DGUS_LCD_UI SERMOON_V1 / CREALITY_RTS ***
+ * M72   - Set Cloud Print filename. (Requires DGUS_LCD_UI SERMOON_V1 or CREALITY_RTS)
+ * M79   - Cloud Print. S0:connect; S1:start; S2:pause; S3:resume; S4:stop; S5:complete (Requires DGUS_LCD_UI SERMOON_V1)
+ * M79   - Creality Cloud WiFi board print status. (Requires CREALITY_RTS)
+ * M224  - LED On (Requires CREALITY_RTS)
+ * M225  - LED Off (Requires CREALITY_RTS)
+ * M2900 - Report Bed Leveling Grid and test result (Requires CREALITY_RTS)
+ *
+ * M194 - Wi-Fi Reset (Requires MENU_RESET_WIFI)
+ * M930 - Wi-Fi ON/OFF status (Requires CREALITY_WIFI)
+ *
  *** PRUSA_MMU3 ***
  * M704 - Preload to MMU
  * M705 - Eject filament
@@ -347,6 +356,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * M7422 - Dump the Creality v4.2.x bootloader info page. (Requires CREALITY_BOOTLOADER_INFO_DUMP)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -733,7 +743,7 @@ private:
     static void M48();
   #endif
 
-  #if DGUS_LCD_UI_SERMOON_V1
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
     static void M72();
   #endif
 
@@ -749,7 +759,7 @@ private:
     static void M78();
   #endif
 
-  #if DGUS_LCD_UI_SERMOON_V1
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
     static void M79();
   #endif
 
@@ -901,6 +911,10 @@ private:
     #endif
   #endif
 
+  #if ENABLED(MENU_RESET_WIFI)
+    static void M194();
+  #endif
+
   #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
@@ -959,6 +973,11 @@ private:
 
   #if HAS_EXTRUDERS
     static void M221();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M224();
+    static void M225();
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)
@@ -1330,6 +1349,10 @@ private:
     static void M928();
   #endif
 
+  #if ENABLED(CREALITY_WIFI)
+    static void M930();
+  #endif
+
   #if ENABLED(OTA_FIRMWARE_UPDATE)
     static void M936();
   #endif
@@ -1345,6 +1368,10 @@ private:
   #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
+  #endif
+
+  #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+    static void M7422();
   #endif
 
   #if ENABLED(PLATFORM_M997_SUPPORT)
@@ -1378,6 +1405,10 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M2900();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)

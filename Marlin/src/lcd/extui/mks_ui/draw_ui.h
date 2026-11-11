@@ -242,7 +242,6 @@ typedef struct UI_Config_Struct {
   uint16_t moveSpeed;
   uint16_t cloud_port;
   uint16_t moveSpeed_bak;
-  uint32_t totalSend;
   uint32_t filament_loading_time,
            filament_unloading_time,
            filament_loading_time_cnt,

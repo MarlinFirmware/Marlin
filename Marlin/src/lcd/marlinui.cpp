@@ -36,6 +36,10 @@
   #include "../feature/password/password.h"
 #endif
 
+#if ALL(HAS_DISPLAY, HAS_MEDIA, ADVANCED_PAUSE_FEATURE)
+  #include "../feature/pause.h" // for paused_for_filament_change
+#endif
+
 // All displays share the MarlinUI class
 #include "marlinui.h"
 
@@ -106,11 +110,17 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 #endif
 
 #if HAS_MULTI_LANGUAGE
+
+  #if ENABLED(CREALITY_RTS)
+    #include "rts/lcd_rts.h"
+  #endif
+
   uint8_t MarlinUI::language; // Initialized by settings.load
   void MarlinUI::set_language(const uint8_t lang) {
     if (lang < NUM_LANGUAGES) {
       language = lang;
       TERN_(HAS_MARLINUI_U8GLIB, update_language_font());
+      TERN_(CREALITY_RTS, rts.updateLanguageDisplay());
       return_to_status();
       refresh();
     }

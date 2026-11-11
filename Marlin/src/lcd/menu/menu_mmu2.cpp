@@ -171,12 +171,18 @@ void menu_mmu2_load_to_nozzle() {
 // Eject Filament
 //
 
-void _mmu2_eject_filament(uint8_t index) {
+void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
+  TERN_(HAS_PRUSA_MMU3, mmu3.set_return_to_pause_after_eject(return_to_pause));
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_EJECTING_FILAMENT), int(index + 1));
-  if (TERN(HAS_PRUSA_MMU3, mmu3, mmu2).eject_filament(index, true))
+  if (TERN(HAS_PRUSA_MMU3, mmu3, mmu2).eject_filament(index, true)) {
     ui.reset_status();
+    if (return_to_pause) {
+      ui.goto_screen(menu_mmu2_pause);
+      TERN_(HAS_PRUSA_MMU3, mmu3.set_return_to_pause_after_eject(false));
+    }
+  }
 }
 
 void _mmu2_cut_filament(uint8_t index) {
@@ -194,7 +200,9 @@ void action_mmu2_unload_filament() {
 void menu_mmu2_eject_filament() {
   START_MENU();
   BACK_ITEM(MSG_MMU2_MENU);
-  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_eject_filament(MenuItemBase::itemIndex); });
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{
+    _mmu2_eject_filament(MenuItemBase::itemIndex, false);
+  });
   END_MENU();
 }
 
@@ -425,25 +433,61 @@ void menu_mmu2_choose_filament() {
 }
 
 //
-// MMU2 Filament Runout
+// MMU2 / MMU3 Filament Runout
+//
+// Load and Load to Nozzle use the slot that was in use when the menu opened, so a runout
+// is recovered with the same slot. If that slot is not known they ask for one, because the
+// tool in use is unknown after an Unload and a slot taken from it would be invalid for the MMU.
 //
 
+static uint8_t pause_slot = 0xFF; // Slot in use when the Filament Change menu opened
+
+static void _mmu2_pause_load(const uint8_t slot) {
+  pause_slot = slot;
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_feeder(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void _mmu2_pause_load_to_nozzle(const uint8_t slot) {
+  pause_slot = slot;
+  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(slot);
+  ui.goto_screen(menu_mmu2_pause);
+}
+
+static void menu_mmu2_pause_load() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load(MenuItemBase::itemIndex); });
+  END_MENU();
+}
+
+static void menu_mmu2_pause_load_to_nozzle() {
+  START_MENU();
+  BACK_ITEM(MSG_FILAMENT_CHANGE_HEADER);
+  EXTRUDER_LOOP() ACTION_ITEM_N(e, MSG_MMU2_FILAMENT_N, []{ _mmu2_pause_load_to_nozzle(MenuItemBase::itemIndex); });
+  END_MENU();
+}
+
 void menu_mmu2_pause() {
-  feeder_index = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool();
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
-  #if HAS_PRUSA_MMU3
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu3.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu3.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu3.load_to_nozzle(feeder_index); });
-  #else
-    ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ mmu2.unload(); });
-    ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT,   []{ mmu2.load_to_feeder(feeder_index); });
-    ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE,  []{ mmu2.load_to_nozzle(feeder_index); });
-  #endif
+  ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{
+    TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload();
+    ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced this menu
+  });
+  ACTION_ITEM(MSG_MMU2_EJECT_FILAMENT, []{
+    if (pause_slot < EXTRUDERS) _mmu2_eject_filament(pause_slot, true);
+    else ui.goto_screen(menu_mmu2_eject_filament);
+  });
+  ACTION_ITEM(MSG_MMU2_LOAD_FILAMENT, []{
+    if (pause_slot < EXTRUDERS) _mmu2_pause_load(pause_slot); else ui.goto_screen(menu_mmu2_pause_load);
+  });
+  ACTION_ITEM(MSG_MMU2_LOAD_TO_NOZZLE, []{
+    if (pause_slot < EXTRUDERS) _mmu2_pause_load_to_nozzle(pause_slot); else ui.goto_screen(menu_mmu2_pause_load_to_nozzle);
+  });
   END_MENU();
 }
 
@@ -459,6 +503,7 @@ void mmu2_M600(const bool automatic/*=false*/) {
   #else
     UNUSED(automatic);
   #endif
+  pause_slot = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool(); // Unknown (255) if no tool is selected
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
   wait_for_mmu_menu = true;
