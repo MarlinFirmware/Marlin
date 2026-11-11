@@ -87,13 +87,14 @@ constexpr float default_max_acceleration[] = DEFAULT_MAX_ACCELERATION;
 constexpr float default_max_jerk[] = { DEFAULT_XJERK, DEFAULT_YJERK, DEFAULT_ZJERK, DEFAULT_EJERK };
 constexpr float default_axis_steps_per_unit[] = DEFAULT_AXIS_STEPS_PER_UNIT;
 
-float default_nozzle_ptemp = DEFAULT_KP,
-      default_nozzle_itemp = DEFAULT_KI,
-      default_nozzle_dtemp = DEFAULT_KD;
+// The screen's PID fields only apply to PID heating. With MPCTEMP or bang-bang they read 0.
+float default_nozzle_ptemp = TERN0(PIDTEMP, DEFAULT_KP),
+      default_nozzle_itemp = TERN0(PIDTEMP, DEFAULT_KI),
+      default_nozzle_dtemp = TERN0(PIDTEMP, DEFAULT_KD);
 
-float default_hotbed_ptemp = DEFAULT_BED_KP,
-      default_hotbed_itemp = DEFAULT_BED_KI,
-      default_hotbed_dtemp = DEFAULT_BED_KD;
+float default_hotbed_ptemp = TERN0(PIDTEMPBED, DEFAULT_BED_KP),
+      default_hotbed_itemp = TERN0(PIDTEMPBED, DEFAULT_BED_KI),
+      default_hotbed_dtemp = TERN0(PIDTEMPBED, DEFAULT_BED_KD);
 
 int startprogress = 0;
 CRec CardRecbuf;
@@ -465,12 +466,12 @@ void RTS::init() {
   sendData(planner.settings.axis_steps_per_mm[2] * 10, MAX_STEPSMM_ZAXIS_DATA_VP);
   sendData(planner.settings.axis_steps_per_mm[3] * 10, MAX_STEPSMM_EAXIS_DATA_VP);
 
-  sendData(thermalManager.temp_hotend[0].pid.p() * 100, NOZZLE_TEMP_P_DATA_VP);
-  sendData(thermalManager.temp_hotend[0].pid.i() * 100, NOZZLE_TEMP_I_DATA_VP);
-  sendData(thermalManager.temp_hotend[0].pid.d() * 100, NOZZLE_TEMP_D_DATA_VP);
-  sendData(thermalManager.temp_bed.pid.p() * 100, HOTBED_TEMP_P_DATA_VP);
-  sendData(thermalManager.temp_bed.pid.i() * 100, HOTBED_TEMP_I_DATA_VP);
-  sendData(thermalManager.temp_bed.pid.d() * 10, HOTBED_TEMP_D_DATA_VP);
+  sendData(TERN0(PIDTEMP, thermalManager.temp_hotend[0].pid.p() * 100), NOZZLE_TEMP_P_DATA_VP);
+  sendData(TERN0(PIDTEMP, thermalManager.temp_hotend[0].pid.i() * 100), NOZZLE_TEMP_I_DATA_VP);
+  sendData(TERN0(PIDTEMP, thermalManager.temp_hotend[0].pid.d() * 100), NOZZLE_TEMP_D_DATA_VP);
+  sendData(TERN0(PIDTEMPBED, thermalManager.temp_bed.pid.p() * 100), HOTBED_TEMP_P_DATA_VP);
+  sendData(TERN0(PIDTEMPBED, thermalManager.temp_bed.pid.i() * 100), HOTBED_TEMP_I_DATA_VP);
+  sendData(TERN0(PIDTEMPBED, thermalManager.temp_bed.pid.d() * 10), HOTBED_TEMP_D_DATA_VP);
 
   /***************transmit Fan speed to screen*****************/
   // turn off fans
@@ -2359,41 +2360,69 @@ void RTS::handleData() {
       planner.settings.axis_steps_per_mm[E_AXIS] = stepsmm_eaxis;
     } break;
 
-    case NozzlePTempEnterKey: {
-      const float nozzle_ptemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_ptemp * 100, NOZZLE_TEMP_P_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Kp(nozzle_ptemp);
-    } break;
+    #if ENABLED(PIDTEMP)
 
-    case NozzleITempEnterKey: {
-      const float nozzle_itemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_itemp * 100, NOZZLE_TEMP_I_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Ki(nozzle_itemp);
-    } break;
+      case NozzlePTempEnterKey: {
+        const float nozzle_ptemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_ptemp * 100, NOZZLE_TEMP_P_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Kp(nozzle_ptemp);
+      } break;
 
-    case NozzleDTempEnterKey: {
-      const float nozzle_dtemp = (float)recdat.data[0] / 100;
-      sendData(nozzle_dtemp * 100, NOZZLE_TEMP_D_DATA_VP);
-      thermalManager.temp_hotend[0].pid.set_Kd(nozzle_dtemp);
-    } break;
+      case NozzleITempEnterKey: {
+        const float nozzle_itemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_itemp * 100, NOZZLE_TEMP_I_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Ki(nozzle_itemp);
+      } break;
 
-    case HotbedPTempEnterKey: {
-      const float hotbed_ptemp = (float)recdat.data[0] / 100;
-      sendData(hotbed_ptemp * 100, HOTBED_TEMP_P_DATA_VP);
-      thermalManager.temp_bed.pid.set_Kp(hotbed_ptemp);
-    } break;
+      case NozzleDTempEnterKey: {
+        const float nozzle_dtemp = (float)recdat.data[0] / 100;
+        sendData(nozzle_dtemp * 100, NOZZLE_TEMP_D_DATA_VP);
+        thermalManager.temp_hotend[0].pid.set_Kd(nozzle_dtemp);
+      } break;
 
-    case HotbedITempEnterKey: {
-      const float hotbed_itemp = (float)recdat.data[0] / 100;
-      sendData(hotbed_itemp * 100, HOTBED_TEMP_I_DATA_VP);
-      thermalManager.temp_bed.pid.set_Ki(hotbed_itemp);
-    } break;
+    #else // No hotend PID to edit: show 0
 
-    case HotbedDTempEnterKey: {
-      const float hotbed_dtemp = (float)recdat.data[0] / 10;
-      sendData(hotbed_dtemp * 10, HOTBED_TEMP_D_DATA_VP);
-      thermalManager.temp_bed.pid.set_Kd(hotbed_dtemp);
-    } break;
+      case NozzlePTempEnterKey:
+      case NozzleITempEnterKey:
+      case NozzleDTempEnterKey:
+        sendData(0, NOZZLE_TEMP_P_DATA_VP);
+        sendData(0, NOZZLE_TEMP_I_DATA_VP);
+        sendData(0, NOZZLE_TEMP_D_DATA_VP);
+        break;
+
+    #endif
+
+    #if ENABLED(PIDTEMPBED)
+
+      case HotbedPTempEnterKey: {
+        const float hotbed_ptemp = (float)recdat.data[0] / 100;
+        sendData(hotbed_ptemp * 100, HOTBED_TEMP_P_DATA_VP);
+        thermalManager.temp_bed.pid.set_Kp(hotbed_ptemp);
+      } break;
+
+      case HotbedITempEnterKey: {
+        const float hotbed_itemp = (float)recdat.data[0] / 100;
+        sendData(hotbed_itemp * 100, HOTBED_TEMP_I_DATA_VP);
+        thermalManager.temp_bed.pid.set_Ki(hotbed_itemp);
+      } break;
+
+      case HotbedDTempEnterKey: {
+        const float hotbed_dtemp = (float)recdat.data[0] / 10;
+        sendData(hotbed_dtemp * 10, HOTBED_TEMP_D_DATA_VP);
+        thermalManager.temp_bed.pid.set_Kd(hotbed_dtemp);
+      } break;
+
+    #else // No bed PID to edit: show 0
+
+      case HotbedPTempEnterKey:
+      case HotbedITempEnterKey:
+      case HotbedDTempEnterKey:
+        sendData(0, HOTBED_TEMP_P_DATA_VP);
+        sendData(0, HOTBED_TEMP_I_DATA_VP);
+        sendData(0, HOTBED_TEMP_D_DATA_VP);
+        break;
+
+    #endif
 
     case SelectFileKey:
       if (sdDetected()) {
