@@ -1314,20 +1314,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       default:
         strcat_P((char *)cmd_line, PSTR("\n"));
 
-        if (espGcodeFifo.wait_tick > 5) {
-          uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
-          if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
+        uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
+        if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
 
-          if (left >= strlen((const char *)cmd_line)) {
-            for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
-              espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-              espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-            }
-            if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
-              send_ok_to_wifi();
-            else
-              need_ok_later = true;
+        if (left >= strlen((const char *)cmd_line)) {
+          for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
+            espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+            espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
           }
+          if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
+            send_ok_to_wifi();
+          else
+            need_ok_later = true;
         }
         break;
     }
@@ -1336,20 +1334,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     // Add another linefeed to the command, terminate with null
     strcat_P((char *)cmd_line, PSTR("\n"));
 
-    if (espGcodeFifo.wait_tick > 5) {
-      uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
-      if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
+    uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
+    if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
 
-      if (left_g >= strlen((char * const)cmd_line)) {
-        for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
-          espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-          espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-        }
-        if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
-          send_ok_to_wifi();
-        else
-          need_ok_later = true;
+    if (left_g >= strlen((char * const)cmd_line)) {
+      for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
+        espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+        espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
       }
+      if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
+        send_ok_to_wifi();
+      else
+        need_ok_later = true;
     }
   }
 }
