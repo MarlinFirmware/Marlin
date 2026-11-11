@@ -101,7 +101,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
         case 1:
           #if CREALITY_LEVEL_PREHEAT
             if (LevelingPreheat::isActive()) break;
-            LevelingPreheat::startThen(F("G28\nG0 Z0")); // Home on a heated, soaked bed
+            LevelingPreheat::startThen(F("G28\nG0 Z0"), true); // Home on a heated, soaked bed
           #else
             ExtUI::injectCommands(F("G28\nG0 Z0"));
           #endif

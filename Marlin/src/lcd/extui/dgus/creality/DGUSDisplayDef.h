@@ -139,6 +139,7 @@ constexpr uint16_t VP_CONFIRMED = 0x219E;     // OK on confirm screen.
 
 constexpr uint16_t VP_SD_FileSelectConfirm = 0x2024;    // (This is a virtual VP and emulated by the Confirm Screen when a file has been confirmed)
 constexpr uint16_t VP_SD_AbortPrintConfirmed = 0x2028;  // Abort print confirmation (virtual, will be injected by the confirm dialog)
+constexpr uint16_t VP_LevelPreheatConfirm = 0x202C;     // Leveling preheat page (virtual; Confirm does nothing, Cancel stops)
 constexpr uint16_t VP_PurgeMoreConfirm = 0x202A;        // Purge More confirmation (virtual, injected by the confirm dialog)
 
 // Controls for movement (we can't use the incremental / decremental feature of the display at this feature works only with 16 bit values

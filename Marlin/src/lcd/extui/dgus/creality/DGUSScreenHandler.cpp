@@ -545,6 +545,15 @@ void DGUSScreenHandlerCreality::onFactoryReset() {
   }
 #endif
 
+void DGUSScreenHandlerCreality::showPreheatPage(const char * const line2) {
+  sendInfoScreen_P(PSTR("Heating before leveling"), line2, PSTR("Cancel to stop"), nullptr, true, false, true, true);
+  confirmVP = VP_LevelPreheatConfirm;
+  if (current_screenID == DGUS_SCREEN_CONFIRM)
+    forceCompleteUpdate();
+  else
+    gotoScreen(DGUS_SCREEN_CONFIRM);
+}
+
 void DGUSScreenHandlerCreality::onSettingsSaved(const bool success) {
   if (!success) { setStatusMessage(F("Failed to save settings")); return; }
   #if ENABLED(EEPROM_SETTINGS)
@@ -879,6 +888,10 @@ void DGUSScreenHandler::screenChangeHook(DGUS_VP_Variable &var, void *val_ptr) {
   const DGUS_ScreenID target = (DGUS_ScreenID)tmp[1];
 
   DEBUG_ECHOLNPGM("Current screen:", current_screenID, " Cancel target:", target);
+
+  #if CREALITY_LEVEL_PREHEAT
+    if (LevelingPreheat::handleCancel()) return;
+  #endif
 
   #if M600_PURGE_MORE_RESUMABLE
     if (screen.handlePurgeMoreCancel()) return;
