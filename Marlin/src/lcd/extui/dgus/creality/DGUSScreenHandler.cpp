@@ -35,6 +35,7 @@
 
 #include "../../../../MarlinCore.h"
 #include "../../../../module/temperature.h"
+#include "LevelingPreheat.h"
 #include "../../../../module/motion.h"
 #include "../../../../module/settings.h"
 #include "../../../../gcode/queue.h"
@@ -1195,6 +1196,8 @@ bool DGUSScreenHandlerCreality::loop() {
     queueDoneFunc = nullptr;
     func();
   }
+
+  TERN_(CREALITY_LEVEL_PREHEAT, LevelingPreheat::loop());
 
   #if M600_PURGE_MORE_RESUMABLE
     // Purge once the nozzle is hot again

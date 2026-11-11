@@ -29,6 +29,7 @@
 #include "PageHandlers.h"
 #include "FilamentLoadUnloadHandler.h"
 #include "PauseParkHandler.h"
+#include "LevelingPreheat.h"
 
 #include "../../../../module/temperature.h"
 #include "../../../../module/settings.h"
@@ -98,10 +99,18 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
     case VP_BUTTON_BEDLEVELKEY:
       switch (buttonValue) {
         case 1:
-          ExtUI::injectCommands(F("G28\nG0 Z0"));
+          #if CREALITY_LEVEL_PREHEAT
+            if (LevelingPreheat::isActive()) break;
+            LevelingPreheat::startThen(F("G28\nG0 Z0")); // Home on a heated, soaked bed
+          #else
+            ExtUI::injectCommands(F("G28\nG0 Z0"));
+          #endif
           break;
 
         case 2 ... 3: {
+          #if CREALITY_LEVEL_PREHEAT
+            if (LevelingPreheat::isActive()) break;
+          #endif
           // Increase / Decrease Z-offset
           const int16_t steps = ExtUI::mmToWholeSteps(0.01f, ExtUI::axis_t::Z);
           ExtUI::smartAdjustAxis_steps(buttonValue == 2 ? steps : -steps, ExtUI::axis_t::Z, true);
@@ -113,6 +122,7 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
     case VP_BUTTON_PREPAREENTERKEY:
       if (buttonValue == 9) {
+        TERN_(CREALITY_LEVEL_PREHEAT, LevelingPreheat::cancel());
         #if DISABLED(HOTEND_IDLE_TIMEOUT)
           thermalManager.disable_all_heaters();
         #endif
@@ -130,7 +140,11 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 
     case VP_BUTTON_MAINENTERKEY:
       // Go to leveling screen
-      ExtUI::injectCommands(F("G28\nG29"));
+      #if CREALITY_LEVEL_PREHEAT
+        LevelingPreheat::startThen(F("G28\nG29")); // Home and probe on a heated, soaked bed
+      #else
+        ExtUI::injectCommands(F("G28\nG29"));
+      #endif
       TERN_(HAS_MESH, screen.resetMeshValues());
       dgus.writeVariable(VP_MESH_SCREEN_MESSAGE_ICON, MESH_SCREEN_MESSAGE_ICON_LEVELING);
       screen.gotoScreen(DGUS_SCREEN_LEVELING);
@@ -141,7 +155,11 @@ void LevelingModeHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
 void LevelingHandler(DGUS_VP_Variable &var, unsigned short buttonValue) {
   switch (var.VP) {
     case VP_BUTTON_BEDLEVELKEY:
-      if (!screen.hasCurrentSynchronousOperation())
+      if (TERN0(CREALITY_LEVEL_PREHEAT, LevelingPreheat::isActive())) {
+        TERN_(CREALITY_LEVEL_PREHEAT, LevelingPreheat::cancel());
+        screen.popToOldScreen();
+      }
+      else if (!screen.hasCurrentSynchronousOperation())
         screen.popToOldScreen();
       else
         screen.setStatusMessage(F("Wait for leveling completion..."));
