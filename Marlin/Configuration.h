@@ -2036,6 +2036,10 @@
 
 #if ANY(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+  //#define SOFT_ENDSTOPS_REPORT_CLAMP  // Report on serial when software endstops shorten a G-code move
+  #if ENABLED(SOFT_ENDSTOPS_REPORT_CLAMP)
+    //#define SOFT_ENDSTOPS_REPORT_CLAMP_STATUS  // Also show it on the LCD status line
+  #endif
 #endif
 
 /**
