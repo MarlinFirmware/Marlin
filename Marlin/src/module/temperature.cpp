@@ -5119,7 +5119,7 @@ void Temperature::isr() {
           print_heater_states(motion.extruder);
           const millis_t remaining = soak_end - now;
           const long rem_sec = long((remaining + 800UL) / 1000UL); // Show "0" for the last 0.2 seconds
-          SERIAL_ECHOLNPGM(" W:", rem_sec)
+          SERIAL_ECHOLNPGM(" W:", rem_sec);
           #if HAS_STATUS_MESSAGE
             ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), rem_sec);
           #endif
