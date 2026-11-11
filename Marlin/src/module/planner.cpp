@@ -3057,6 +3057,30 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
 
 } // buffer_line()
 
+#if HAS_EXTRUDERS
+
+  bool Planner::buffer_e_move(const float de_mm, const feedRate_t fr_mm_s, const uint8_t extruder/*=motion.extruder*/) {
+
+    // Target the planner's end position in machine space (steps to mm), changing only E.
+    // 'position.e' is in steps of the last extruder, which may differ from 'extruder'.
+    abce_pos_t target;
+    LOOP_NUM_AXES(i) target[i] = position[i] * mm_per_step[i];
+    target.e = position.e * mm_per_step[E_AXIS_N(TERN(DISTINCT_E_FACTORS, last_extruder, extruder))] + de_mm;
+
+    #if HAS_DIST_MM_ARG
+      xyze_float_t cart_dist_mm = {};
+      cart_dist_mm.e = de_mm;
+    #endif
+
+    if (!buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), fr_mm_s, extruder)) return false;
+
+    // Keep the cartesian E in step with the queued move
+    TERN_(IS_KINEMATIC, position_cart.e += de_mm);
+    return true;
+  }
+
+#endif // HAS_EXTRUDERS
+
 #if ENABLED(DIRECT_STEPPING)
 
   void Planner::buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps) {
