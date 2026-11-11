@@ -34,6 +34,7 @@
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
   #define MARLIN_EEPROM_SIZE              0x800U  // 2K (24C16)
+  #define EEPROM_EXCL_ZONE                916,926 // Creality bootloader EEPROM exclusion zone
 #elif ENABLED(EEPROM_SETTINGS)
   #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
