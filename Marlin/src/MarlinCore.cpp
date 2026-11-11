@@ -57,6 +57,10 @@
   #include "feature/resonance/resonance_generator.h"
 #endif
 
+#if ENABLED(STALLGUARD_TUNING)
+  #include "feature/stallguard/stallguard_tuning.h"
+#endif
+
 #include "gcode/gcode.h"
 #include "gcode/parser.h"
 #include "gcode/queue.h"
@@ -888,6 +892,11 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Manage Fixed-time Motion Control
   TERN_(FT_MOTION, ftMotion.loop());
+
+  // Sampling if stallguard tuning is active
+  #if ENABLED(STALLGUARD_TUNING)
+    stallguard_tuner.sampling();
+  #endif
 
   // Handle UI input / draw events
   #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
