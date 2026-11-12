@@ -534,6 +534,7 @@ class Planner {
     #if HAS_EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
+      static float e_step_remainder[EXTRUDERS];     // (steps) Fraction of a step left over from scaling E by e_factor, carried to the next block
     #endif
 
     #if HAS_VOLUMETRIC_EXTRUSION
