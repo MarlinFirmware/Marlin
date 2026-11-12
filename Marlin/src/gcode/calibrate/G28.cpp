@@ -233,6 +233,8 @@
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
+ *  P         Precise Z homing: after Z homes, probe once more at the current XY using the
+ *            bed-leveling probe settings (MULTIPLE_PROBING, etc.) and correct Z. (Requires a bed probe)
  *  H         Hold the current X/Y position when executing a home Z, or if
  *            multiple axes are homed, the position when Z home is executed.
  *            When using a probe for Z Home, positions close to the edge may
@@ -540,22 +542,28 @@ void GcodeSuite::G28() {
       }
     #endif // DUAL_X_CARRIAGE
 
-    #if HAS_BED_PROBE
-      // Perform precise homing using the same probing procedure as bed leveling
-      if (parser.seen_test('P')) {
-          xy_pos_t xyPos = { current_position.x, current_position.y };
-          float probedZHeight = probe.probe_at_point(xyPos, PROBE_PT_RAISE, 0, false);
-          DEBUG_ECHOLNPGM("Probed ZHeight (correction amount): ", probedZHeight);
-
-          current_position.z -= probedZHeight;
-          sync_plan_position();
-      }
-    #endif
-
     endstops.not_homing();
 
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
+
+    /**
+     * P: Precise Z homing. Re-probe at the current XY with the bed-leveling probe
+     * (MULTIPLE_PROBING, EXTRA_PROBING, PROBING_HEATERS_OFF, etc. all apply) and
+     * correct the Z position by the measured error. Only done when Z was homed.
+     */
+    #if HAS_BED_PROBE && HAS_Z_AXIS
+      if (doZ && parser.seen_test('P')) {
+        probe.use_probing_tool();
+        const float z_err = probe.probe_at_point(motion.position.x, motion.position.y, PROBE_PT_RAISE, 0, false);
+        probe.use_probing_tool(false);
+        if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("G28 P Z correction: ", z_err);
+        if (!isnan(z_err)) {
+          motion.position.z -= z_err;
+          motion.sync_plan_position();
+        }
+      }
+    #endif
 
     // Move to a height where we can use the full xy-area
     TERN_(DELTA_HOME_TO_SAFE_ZONE, motion.blocking_move_z(delta_clip_start_height));
