@@ -1949,7 +1949,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
           // 2 * LCD_HEIGHT to scroll to bottom of next page. (LCD_HEIGHT would only go 1 item down.)
           encoderDiff = epps * (menuIndex - menuTopIndex + 2 * (LCD_HEIGHT)) * ydir;
         else
-          encoderDiff = epps * (row - encoderPosition + menuTopIndex);
+          encoderDiff = epps * (row + menuTopIndex) - encoderPosition;
       }
       else if (!on_status_screen())
         encoderDiff = epps * xdir;
