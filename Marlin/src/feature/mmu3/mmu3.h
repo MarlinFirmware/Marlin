@@ -321,7 +321,7 @@
     StepStatus logicStep(bool reportErrors);
 
     void filament_ramming();
-    void execute_extruder_sequence(const E_Step *sequence, uint8_t steps);
+    void execute_extruder_sequence(const E_Step *sequence, uint8_t steps, const float first_step_adjustment=0);
     void execute_load_to_nozzle_sequence();
 
     // Reports an error into attached ExtUIs

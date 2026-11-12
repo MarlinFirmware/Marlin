@@ -1055,12 +1055,13 @@ namespace MMU3 {
     execute_extruder_sequence(ramming_sequence, sizeof(ramming_sequence) / sizeof(E_Step));
   }
 
-  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps) {
+  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps, const float first_step_adjustment/*=0*/) {
     planner_synchronize();
 
     const E_Step *step = sequence;
     for (uint8_t i = steps; i > 0; --i) {
-      extruder_move(pgm_read_float(&(step->extrude)), pgm_read_float(&(step->feedRate)));
+      const float extrude = pgm_read_float(&(step->extrude)) - (i == steps ? first_step_adjustment : 0);
+      extruder_move(extrude, pgm_read_float(&(step->feedRate)));
       step++;
     }
     planner_synchronize(); // it looks like it's better to sync the moves at the end - smoother move (if the sequence is not too long).
@@ -1070,9 +1071,8 @@ namespace MMU3 {
 
   void MMU3::execute_load_to_nozzle_sequence() {
     planner_synchronize();
-    // Compensate for configurable Extra Loading Distance
-    planner_set_current_position_E(planner_get_current_position_E() - (logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION));
-    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]));
+    const float extra_load_offset = logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION;
+    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]), extra_load_offset);
   }
 
   void MMU3::reportError(ErrorCode ec, ErrorSource res) {
