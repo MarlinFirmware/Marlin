@@ -4903,9 +4903,6 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
  */
 #if ENABLED(FT_MOTION)
   static_assert(FTM_BUFFER_SIZE >= 4 && (FTM_BUFFER_SIZE & (FTM_BUFFER_SIZE - 1u)) == 0, "FTM_BUFFER_SIZE must be a power of two (128, 256, 512, ...).");
-  #if ENABLED(MIXING_EXTRUDER)
-    #error "FT_MOTION does not currently support MIXING_EXTRUDER."
-  #endif
   #if !HAS_X_AXIS
     static_assert(FTM_DEFAULT_SHAPER_X == ftMotionShaper_NONE, "Without any linear axes FTM_DEFAULT_SHAPER_X must be ftMotionShaper_NONE.");
   #endif

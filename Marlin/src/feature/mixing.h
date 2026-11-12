@@ -114,7 +114,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) b_color[i] = color[selected_vtool][i];
   }
 
-  FORCE_INLINE static void stepper_setup(mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
+  FORCE_INLINE static void stepper_setup(const mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
