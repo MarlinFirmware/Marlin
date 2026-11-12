@@ -33,7 +33,7 @@
  * therefore the error codes have been extracted to one place.
  *
  * Please note the errors are intentionally coded as "negative" values (highest bit set),
- * becase they are a complement to reporting the state of the high-level state machines -
+ * because they are a complement to reporting the state of the high-level state machines -
  * positive values are considered as normal progress, negative values are errors.
  *
  * Please note, that multiple TMC errors can occur at once, thus they are defined as a bitmask of the higher byte.

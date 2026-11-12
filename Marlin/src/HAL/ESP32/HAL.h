@@ -37,11 +37,11 @@
 #include "i2s.h"
 
 #if ENABLED(WIFISUPPORT)
-  #include "WebSocketSerial.h"
+  #include "wifi/WebSocketSerial.h"
 #endif
 
 #if ENABLED(ESP3D_WIFISUPPORT)
-  #include "esp3dlib.h"
+  #include <esp3dlib.h>
 #endif
 
 #include "FlushableHardwareSerial.h"
@@ -50,9 +50,19 @@
 // Defines
 // ------------------------
 
-#define MYSERIAL1 flushableSerial
+#if HAS_BLUETOOTH_SERIAL
+  #include "BluetoothSerialPort.h"
+#endif
 
-#if ENABLED(ESP3D_WIFISUPPORT)
+#if SERIAL_PORT == -2
+  #define MYSERIAL1 btSerial
+#else
+  #define MYSERIAL1 flushableSerial
+#endif
+
+#if SERIAL_PORT_2 == -2
+  #define MYSERIAL2 btSerial
+#elif ENABLED(ESP3D_WIFISUPPORT)
   typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
   #define MYSERIAL2 MSerial0
@@ -60,14 +70,27 @@
   #define MYSERIAL2 webSocketSerial
 #endif
 
+#if SERIAL_PORT_2 == 2
+  #define MYSERIAL2 flushableSerial2
+#endif
+
+#if SERIAL_PORT_3 == -2
+  #define MYSERIAL3 btSerial
+#endif
+
+#if LCD_SERIAL_PORT == 2
+  #define LCD_SERIAL flushableSerial2
+  #define SERIAL_GET_TX_BUFFER_FREE() LCD_SERIAL.availableForWrite()
+#endif
+
 #define CRITICAL_SECTION_START() portENTER_CRITICAL(&hal.spinlock)
 #define CRITICAL_SECTION_END()   portEXIT_CRITICAL(&hal.spinlock)
 
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
-#define PWM_FREQUENCY  1000u   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
-#define PWM_RESOLUTION   10u   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM  15u   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
-#define MAX_PWM_IOPIN    33u   // hardware pwm pins < 34
+#define PWM_FREQUENCY  1000U   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
+#define PWM_RESOLUTION   10U   // Default PWM bit resolution
+#define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
+#define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
 #ifndef MAX_EXPANDER_BITS
   #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
@@ -76,7 +99,6 @@
 // Types
 // ------------------------
 
-typedef double isr_float_t;   // FPU ops are used for single-precision, so use double for ISRs.
 typedef int16_t pin_t;
 
 typedef struct pwm_pin {
@@ -98,6 +120,10 @@ typedef Servo hal_servo_t;
 void tone(const pin_t _pin, const unsigned int frequency, const unsigned long duration=0);
 void noTone(const pin_t _pin);
 int8_t get_pwm_channel(const pin_t pin, const uint32_t freq, const uint16_t res);
+// Start a hardware serial port used by TMC drivers
+void tmc_hw_serial_begin(HardwareSerial &serial, const uint32_t baud);
+#define TMC_HW_SERIAL_BEGIN(S, B) tmc_hw_serial_begin(S, B)
+
 void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_FREQUENCY, const uint16_t res=8);
 
 //
@@ -165,8 +191,6 @@ int freeMemory();
 
 #pragma GCC diagnostic pop
 
-void _delay_ms(const int ms);
-
 // ------------------------
 // MarlinHAL Class
 // ------------------------
@@ -194,9 +218,9 @@ public:
   static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
   static void isr_off() { portENTER_CRITICAL(&spinlock); }
 
-  static void delay_ms(const int ms) { _delay_ms(ms); }
+  static void delay_ms(const int ms) { delay(ms); }
 
-  // Tasks, called from idle()
+  // Tasks, called from marlin.idle()
   static void idletask();
 
   // Reset

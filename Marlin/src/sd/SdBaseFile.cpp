@@ -39,7 +39,6 @@
 
 #include "SdBaseFile.h"
 
-#include "../MarlinCore.h"
 SdBaseFile *SdBaseFile::cwd_ = 0;   // Pointer to Current Working Directory
 
 // callback function for date/time
@@ -255,10 +254,12 @@ bool SdBaseFile::exists(const char *name) {
  * If no data is read, fgets() returns zero for EOF or -1 if an error occurred.
  */
 int16_t SdBaseFile::fgets(char *str, int16_t num, char *delim) {
+  if (!str || num <= 1) return -1; // Ensure space for at least '\0'
+
   char ch;
   int16_t n = 0;
   int16_t r = -1;
-  while ((n + 1) < num && (r = read(&ch, 1)) == 1) {
+  while (n < num - 1 && (r = read(&ch, 1)) == 1) {
     // delete CR
     if (ch == '\r') continue;
     str[n++] = ch;
@@ -269,10 +270,7 @@ int16_t SdBaseFile::fgets(char *str, int16_t num, char *delim) {
       if (strchr(delim, ch)) break;
     }
   }
-  if (r < 0) {
-    // read error
-    return -1;
-  }
+  if (r < 0) return -1; // read error
   str[n] = '\0';
   return n;
 }
@@ -342,7 +340,9 @@ int8_t SdBaseFile::lsPrintNext(const uint8_t flags, const uint8_t indent) {
   uint8_t w = 0;
 
   while (1) {
-    if (read(&dir, sizeof(dir)) != sizeof(dir)) return 0;
+    const int16_t r = read(&dir, sizeof(dir));
+    if (r < 0) return -1;
+    if (r != sizeof(dir)) return 0;
     if (dir.name[0] == DIR_NAME_FREE) return 0;
 
     // skip deleted entry and entries for . and  ..
@@ -444,7 +444,7 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, const bool pFlag/*=
   SdBaseFile * const start = parent;
 
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-    uint8_t dlname[LONG_FILENAME_LENGTH];
+    uint8_t dlname[LONG_FILENAME_BYTES];
   #endif
 
   if (!parent || isOpen()) return false;
@@ -474,7 +474,7 @@ bool SdBaseFile::mkdir(SdBaseFile *parent, const char *path, const bool pFlag/*=
 }
 
 bool SdBaseFile::mkdir(SdBaseFile * const parent, const uint8_t dname[11]
-  OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+  OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_BYTES])
 ) {
   if (ENABLED(SDCARD_READONLY)) return false;
 
@@ -600,7 +600,7 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const char *path, const uint8_
   SdBaseFile *parent = dirFile, *sub = &dir1;
 
   #if ENABLED(LONG_FILENAME_WRITE_SUPPORT)
-    uint8_t dlname[LONG_FILENAME_LENGTH];
+    uint8_t dlname[LONG_FILENAME_BYTES];
   #endif
 
   if (!dirFile || isOpen()) return false;
@@ -627,7 +627,7 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const char *path, const uint8_
 
 // open with filename in dname and long filename in dlname
 bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
-    OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+    OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_BYTES])
   , const uint8_t oflag
 ) {
   bool emptyFound = false, fileFound = false;
@@ -643,7 +643,7 @@ bool SdBaseFile::open(SdBaseFile * const dirFile, const uint8_t dname[11]
             emptyIndex = 0,
             reqEntriesNum = useLFN ? getLFNEntriesNum((char*)dlname) + 1 : 1,
             lfnNameLength = useLFN ? strlen((char*)dlname) : 0,
-            lfnName[LONG_FILENAME_LENGTH],
+            lfnName[LONG_FILENAME_BYTES],
             lfnSequenceNumber = 0,
             lfnChecksum = 0;
   #endif
@@ -1058,7 +1058,7 @@ bool SdBaseFile::openNext(SdBaseFile *dirFile, const uint8_t oflag) {
     uint8_t c;
 
     while (*lfnpath && *lfnpath != '/') {
-      if (ilfn == LONG_FILENAME_LENGTH - 1) return false;                 // Name too long
+      if (ilfn == LONG_FILENAME_BYTES - 1) return false;                  // Name too long
       c = *lfnpath++;                                                     // Get char and advance
       // Fail for illegal characters
       PGM_P p = PSTR("|<>^+=?/[];:,*\"\\");
@@ -1277,7 +1277,8 @@ int SdBaseFile::peek() {
   filepos_t pos;
   getpos(&pos);
   int c = read();
-  if (c >= 0) setpos(&pos);
+  if (c < 0) return -1;
+  setpos(&pos);
   return c;
 }
 
@@ -1346,8 +1347,10 @@ bool SdBaseFile::printName() {
  * If an error occurs or end of file is reached -1 is returned.
  */
 int16_t SdBaseFile::read() {
-  uint8_t b;
-  return read(&b, 1) == 1 ? b : -1;
+  uint8_t b = 0;
+  const int16_t r = read(&b, 1);
+  if (r != 1) return -1;
+  return static_cast<int16_t>(b);
 }
 
 /**
@@ -1532,7 +1535,7 @@ int8_t SdBaseFile::readDir(dir_t * const dir, char * const longFilename) {
     int16_t n;
     // Reset n to the start of the long name
     n = 0;
-    for (uint16_t idx = 0; idx < (LONG_FILENAME_LENGTH); idx += 2) {  // idx is fixed since FAT LFN always contains UTF-16LE encoding
+    for (uint16_t idx = 0; idx < (LONG_FILENAME_BYTES); idx += 2) {   // idx is fixed since FAT LFN always contains UTF-16LE encoding
       const uint16_t utf16_ch = longFilename[idx] | (longFilename[idx + 1] << 8);
       if (0xD800 == (utf16_ch & 0xF800))                              // Surrogate pair - encode as '_'
         longFilename[n++] = '_';

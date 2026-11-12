@@ -37,6 +37,8 @@ public:
     static void access_menu_password();
     static void authentication_done();
     static void media_gatekeeper();
+    static void media_gatekeeper_sd();
+    static void media_gatekeeper_usb();
 
     private:
     static void authenticate_user(const screenFunc_t, const screenFunc_t);

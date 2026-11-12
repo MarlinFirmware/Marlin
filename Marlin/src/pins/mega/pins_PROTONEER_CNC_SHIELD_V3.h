@@ -23,7 +23,7 @@
 
 /**
  * Protoneer v3.00 pin assignments
- * Schematic: https://i0.wp.com/blog.protoneer.co.nz/wp-content/uploads/2013/07/Arduino-CNC-Shield-Scematics-V3.XX_.jpg
+ * Schematic: https://hexmix.ru/wp-content/uploads/2019/03/Arduino-CNC-Shield-V3.XX_.pdf
  * ATmega2560
  *
  * This CNC shield has an UNO pinout and fits all Arduino-compatibles.

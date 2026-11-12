@@ -29,19 +29,31 @@
 
 #define MENU_ITEM_ICON_X            5
 #define MENU_ITEM_ICON_Y            5
-#define MENU_ITEM_ICON_SPACE        (5 + 32 + 5)
-
-#define MENU_ITEM_HEIGHT            43
+#if ENABLED(NOVIN3DP_GALAXY_UI)       // Galaxy UI uses the compact 14px layout
+  #define MENU_ITEM_ICON_SPACE      40
+  #define MENU_ITEM_HEIGHT          40
+#else
+  #define MENU_ITEM_ICON_SPACE      (5 + 32 + 5)
+  #define MENU_ITEM_HEIGHT          43
+#endif
 #define MENU_LINE_HEIGHT            (MENU_ITEM_HEIGHT + 2)
 #define MENU_TOP_LINE_Y             4
 
 #if TFT_FONT == NOTOSANS || TFT_FONT == HELVETICA
-  #define FONT_SIZE                 19
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    #define FONT_SIZE               14
+  #else
+    #define FONT_SIZE               19
+  #endif
 #elif TFT_FONT == UNIFONT
   #define FONT_SIZE                 20
 #endif
 
-#define FONT_LINE_HEIGHT            34
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+  #define FONT_LINE_HEIGHT          25
+#else
+  #define FONT_LINE_HEIGHT          34
+#endif
 
 // ---------------------------------------------------------------------------------
 
@@ -124,14 +136,14 @@
 #if !defined(MAX_ITEMS) && !defined(ITEM_X) && !defined(ITEM_Y)
   #define MAX_ITEMS                 5
   #define ITEM_X(N)                 (TFT_WIDTH / _MIN(ITEMS_COUNT, MAX_ITEMS) - TEMP_FAN_CONTROL_W) / 2 + (TFT_WIDTH * N / _MIN(ITEMS_COUNT, MAX_ITEMS))
-  #define ITEM_Y                    4
+  #define ITEM_Y                    2
 #endif
 
 #if !defined(COORDINATES_W) && !defined(COORDINATES_H) && !defined(COORDINATES_X) && !defined(COORDINATES_Y)
   #define COORDINATES_W             TFT_WIDTH - 8
   #define COORDINATES_H             FONT_LINE_HEIGHT
   #define COORDINATES_X             4
-  #define COORDINATES_Y             132
+  #define COORDINATES_Y             130
 #endif
 
 #if ENABLED(LCD_SHOW_E_TOTAL)
@@ -169,7 +181,7 @@
   #define FEEDRATE_W                120
   #define FEEDRATE_H                32
   #define FEEDRATE_X                96
-  #define FEEDRATE_Y                180
+  #define FEEDRATE_Y                178
 #endif
 #if !defined(FEEDRATE_ICON_X) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_ICON_Y) && !defined(FEEDRATE_TEXT_Y)
   #define FEEDRATE_ICON_X           0
@@ -182,7 +194,7 @@
   #define FLOWRATE_W                120
   #define FLOWRATE_H                32
   #define FLOWRATE_X                284
-  #define FLOWRATE_Y                180
+  #define FLOWRATE_Y                178
 #endif
 #if !defined(FLOWRATE_ICON_X) && !defined(FLOWRATE_ICON_Y) && !defined(FLOWRATE_TEXT_X) && !defined(FLOWRATE_TEXT_Y)
   #define FLOWRATE_ICON_X           0
@@ -193,11 +205,11 @@
 
 #if !defined(MENU_ICON_X) && !defined(MENU_ICON_Y)
   #define MENU_ICON_X               404
-  #define MENU_ICON_Y               180
+  #define MENU_ICON_Y               178
 #endif
 #if !defined(SDCARD_ICON_X) && !defined(SDCARD_ICON_Y)
   #define SDCARD_ICON_X             12
-  #define SDCARD_ICON_Y             180
+  #define SDCARD_ICON_Y             178
 #endif
 
 #if !defined(ELAPSED_TIME_W) && !defined(ELAPSED_TIME_H) && !defined(ELAPSED_TIME_X) && !defined(ELAPSED_TIME_Y)
@@ -210,7 +222,7 @@
   #endif
 
   #define ELAPSED_TIME_H            29
-  #define ELAPSED_TIME_Y            224
+  #define ELAPSED_TIME_Y            222
 #endif
 
 #if !defined(REMAINING_TIME_W) && !defined(REMAINING_TIME_H) && !defined(REMAINING_TIME_X) && !defined(REMAINING_TIME_Y)
@@ -223,7 +235,7 @@
   #endif
 
   #define REMAINING_TIME_H          29
-  #define REMAINING_TIME_Y          224
+  #define REMAINING_TIME_Y          222
 #endif
 
 #if !defined(ELAPSED_TIME_IMAGE_X) && !defined(ELAPSED_TIME_IMAGE_Y) && !defined(ELAPSED_TIME_TEXT_X) && !defined(ELAPSED_TIME_TEXT_Y)
@@ -244,19 +256,19 @@
   #define PROGRESS_BAR_W            TFT_WIDTH - 8
   #define PROGRESS_BAR_H            12
   #define PROGRESS_BAR_X            4
-  #define PROGRESS_BAR_Y            262
+  #define PROGRESS_BAR_Y            260
 #endif
 
 #if !defined(STATUS_MESSAGE_W) && !defined(STATUS_MESSAGE_H) && !defined(STATUS_MESSAGE_X) && !defined(STATUS_MESSAGE_Y)
   #define STATUS_MESSAGE_W          TFT_WIDTH
-  #define STATUS_MESSAGE_H          FONT_LINE_HEIGHT
+  #define STATUS_MESSAGE_H          36
   #define STATUS_MESSAGE_X          0
-  #define STATUS_MESSAGE_Y          280
+  #define STATUS_MESSAGE_Y          278
 #endif
 
 #if !defined(STATUS_MESSAGE_TEXT_X) && !defined(STATUS_MESSAGE_TEXT_Y)
   #define STATUS_MESSAGE_TEXT_X     tft_string.center(STATUS_MESSAGE_W)
-  #define STATUS_MESSAGE_TEXT_Y     VCENTER
+  #define STATUS_MESSAGE_TEXT_Y     tft_string.vcenter(STATUS_MESSAGE_H)
 #endif
 
 // MenuEditItemBase::draw_edit_screen()
@@ -267,10 +279,10 @@
 
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   #if !defined(UBL_X_LABEL_X) && !defined(UBL_X_TEXT_X) && !defined(UBL_Y_LABEL_X) && !defined(UBL_Y_TEXT_X)
-    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 120)
-    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 - 16) - tft_string.width()
-    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 + 16)
-    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 120) - tft_string.width()
+    #define UBL_X_LABEL_X           (TFT_WIDTH / 2 - 136)
+    #define UBL_X_TEXT_X            (TFT_WIDTH / 2 -  24) - tft_string.width()
+    #define UBL_Y_LABEL_X           (TFT_WIDTH / 2 +  24)
+    #define UBL_Y_TEXT_X            (TFT_WIDTH / 2 + 136) - tft_string.width()
   #endif
 
   // MarlinUI::ubl_plot()

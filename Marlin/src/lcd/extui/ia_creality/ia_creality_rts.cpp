@@ -99,7 +99,12 @@ void RTS::onStartup() {
   sendData(StartSoundSet, SoundAddr);
   delay_ms(400); // Delay to allow screen to configure
 
-  onStatusChanged(MACHINE_NAME " Ready");
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    const MString<32> ready(marlin.machine_name, " Ready");
+    onStatusChanged(ready);
+  #else
+    onStatusChanged(F(MACHINE_NAME " Ready"));
+  #endif
 
   sendData(100, FeedrateDisplay);
 
@@ -349,17 +354,19 @@ void RTS::onIdle() {
   rts.sendData(getZOffset_mm() * 100, ProbeOffset_Z);
   rts.sendData(uint16_t(getFlow_percent(E0)), Flowrate);
 
-  if (nozzleTempStatus[0] || nozzleTempStatus[2]) { // statuse of loadfilament and unloadfinement when temperature is less than
-    uint16_t IconTemp = getActualTemp_celsius(getActiveTool()) * 100 / getTargetTemp_celsius(getActiveTool());
-    NOMORE(IconTemp, 100U);
+  if (nozzleTempStatus[0] || nozzleTempStatus[2]) { // statuses of loadfilament and unloadfilament when temperature is less than target
+    const celsius_t t = getTargetTemp_celsius(getActiveTool()),
+                    c = getActualTemp_celsius(getActiveTool());
+    const bool noheat = c >= t;
+    const uint16_t IconTemp = uint16_t(noheat ? 100 : c * 100 / t);
     rts.sendData(IconTemp, HeatPercentIcon);
-    if (getActualTemp_celsius(getActiveTool()) > EXTRUDE_MINTEMP && nozzleTempStatus[0] != 0) {
+    if (c > (EXTRUDE_MINTEMP) && nozzleTempStatus[0] != 0) {
       nozzleTempStatus[0] = 0;
       rts.sendData(10 * changeMaterialBuf[0], FilamentUnit1);
       rts.sendData(10 * changeMaterialBuf[1], FilamentUnit2);
       rts.sendData(ExchangePageBase + 65, ExchangepageAddr);
     }
-    else if (getActualTemp_celsius(getActiveTool()) >= getTargetTemp_celsius(getActiveTool()) && nozzleTempStatus[2]) {
+    else if (noheat && nozzleTempStatus[2]) {
       nozzleTempStatus[2] = 0;
       tpShowStatus = true;
       rts.sendData(4, ExchFlmntIcon);
@@ -388,7 +395,7 @@ void RTS::onIdle() {
     rts.sendData(0, FilesMaxPage);
   }
 
-  if (rts.recdat.addr != DisplayZaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
+  if (rts.recdat.addr != DisplayXaxis && rts.recdat.addr != DisplayYaxis && rts.recdat.addr != DisplayZaxis) {
     rts.sendData(10 * getAxisPosition_mm(axis_t(X)), DisplayXaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Y)), DisplayYaxis);
     rts.sendData(10 * getAxisPosition_mm(axis_t(Z)), DisplayZaxis);
@@ -508,7 +515,7 @@ void RTS::sendData() {
       delay_us(1);
     }
 
-    memset(&snddat, 0, sizeof(snddat));
+    OBJZERO(snddat);
     ZERO(databuf);
     snddat.head[0] = FHONE;
     snddat.head[1] = FHTWO;
@@ -549,7 +556,7 @@ void RTS::sendData(const char c, const uint32_t addr, const uint8_t cmd/*=VarAdd
   sendData();
 }
 
-void RTS::sendData(const_float_t f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
+void RTS::sendData(const float f, const uint32_t addr, const uint8_t cmd/*=VarAddr_W*/) {
   int16_t n = f;
   if (cmd == VarAddr_W) {
     snddat.data[0] = n;
@@ -621,7 +628,7 @@ void RTS::sendData(const unsigned long n, uint32_t addr, uint8_t cmd/*=VarAddr_W
 void RTS::handleData() {
   int16_t Checkkey = -1;
   if (waitway > 0) { // for waiting
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -679,7 +686,7 @@ void RTS::handleData() {
   }
 
   if (Checkkey < 0) {
-    memset(&recdat, 0, sizeof(recdat));
+    OBJZERO(recdat);
     recdat.head[0] = FHONE;
     recdat.head[1] = FHTWO;
     return;
@@ -1074,7 +1081,7 @@ void RTS::handleData() {
         tpShowStatus = false;
         ZERO(changeMaterialBuf);
         changeMaterialBuf[1] = changeMaterialBuf[0] = 10;
-        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of current_position.e in them.
+        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of motion.position.e in them.
         sendData(10 * changeMaterialBuf[1], FilamentUnit2);
         sendData(getActualTemp_celsius(H0), NozzleTemp);
         sendData(getTargetTemp_celsius(H0), NozzlePreheat);
@@ -1162,35 +1169,35 @@ void RTS::handleData() {
 
         #if ENABLED(LCD_BED_TRAMMING)
           case 6:   // Bed Tramming,  Centre 1
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_CENTER, axis_t(X));
             setAxisPosition_mm(Y_CENTER, axis_t(Y));
             waitway = 6;
             break;
 
           case 7:   // Bed Tramming, Front Left 2
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 8:   // Bed Tramming, Front Right 3
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MIN_BED + lfrb[1], axis_t(Y));
             waitway = 6;
             break;
 
           case 9:   // Bed Tramming, Back Right 4
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MAX_BED - lfrb[2], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
             break;
 
           case 10:   // Bed Tramming, Back Left 5
-            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(current_position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
+            if (BED_TRAMMING_Z_HOP) setAxisPosition_mm(motion.position.z + (BED_TRAMMING_Z_HOP), axis_t(Z));
             setAxisPosition_mm(X_MIN_BED + lfrb[0], axis_t(X));
             setAxisPosition_mm(Y_MAX_BED - lfrb[3], axis_t(Y));
             waitway = 6;
@@ -1252,7 +1259,7 @@ void RTS::handleData() {
           setTouchScreenConfiguration();
           break;
         case 21:
-          dwin_settings.display_standby ^= true;
+          FLIP(dwin_settings.display_standby);
           setTouchScreenConfiguration();
           break;
         case 22:
@@ -1371,7 +1378,7 @@ void RTS::handleData() {
           case 0xF0: // not to cancel heating
             break;
         }
-        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of current_position.e in them.
+        sendData(10 * changeMaterialBuf[0], FilamentUnit1); // It's changeMaterialBuf for show, instead of motion.position.e in them.
         sendData(10 * changeMaterialBuf[1], FilamentUnit2);
       }
       else if (recdat.addr == FilamentUnit1) {
@@ -1408,6 +1415,7 @@ void RTS::handleData() {
           break;
 
         case 4:
+          // BLTouch Reset
           injectCommands(F("M999\nM280P0S160"));
           break;
 
@@ -1435,7 +1443,7 @@ void RTS::handleData() {
           // pause_resume_selected = true;
         }
         else {
-          #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+          #if HAS_FILAMENT_SENSOR
             bool runouton = false;
             if (getFilamentRunoutState()) {
               #if NUM_RUNOUT_SENSORS > 1
@@ -1634,7 +1642,7 @@ void RTS::handleData() {
     default: break;
   }
 
-  memset(&recdat, 0, sizeof(recdat));
+  OBJZERO(recdat);
   recdat.head[0] = FHONE;
   recdat.head[1] = FHTWO;
 }

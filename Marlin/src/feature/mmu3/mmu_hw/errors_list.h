@@ -28,7 +28,7 @@
 /**
  * Extracted from Prusa-Error-Codes repo
  * Subject to automation and optimization
- * BEWARE - This file should only be included by mmu2_error_converter.cpp!
+ * BEWARE - This file should only be included by mmu3_error_converter.cpp!
  */
 #include "inttypes.h"
 #include "../../../core/language.h"
@@ -37,7 +37,6 @@
   #include <avr/pgmspace.h>
 #endif
 #include "buttons.h"
-#include "../strlen_cx.h"
 #include "../ultralcd.h"
 
 namespace MMU3 {
@@ -114,7 +113,7 @@ typedef enum : uint16_t {
 } err_num_t;
 
 // Avr gcc has serious trouble understanding static data structures in PROGMEM
-// and inadvertedly falls back to copying the whole structure into RAM (which is obviously unwanted).
+// and inadvertently falls back to copying the whole structure into RAM (which is obviously unwanted).
 // But since this file ought to be generated in the future from yaml prescription,
 // it really makes no difference if there are "nice" data structures or plain arrays.
 static const constexpr err_num_t errorCodes[] PROGMEM = {

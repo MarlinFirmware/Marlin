@@ -32,7 +32,7 @@
  * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
  * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
@@ -85,7 +85,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  31  // SCL pin of I2C header || CS Pin for SD Card support
+#define SD_SS_PIN                             31  // SCL pin of I2C header || CS Pin for SD Card support
 #define PS_ON_PIN                             19
 
 #ifndef CASE_LIGHT_PIN

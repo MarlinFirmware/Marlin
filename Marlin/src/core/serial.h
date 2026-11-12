@@ -50,11 +50,7 @@ extern uint8_t marlin_debug_flags;
 // Serial redirection
 //
 // Step 1: Find out what the first serial leaf is
-#if HAS_MULTI_SERIAL && defined(SERIAL_CATCHALL)
-  #define _SERIAL_LEAF_1 MYSERIAL
-#else
-  #define _SERIAL_LEAF_1 MYSERIAL1
-#endif
+#define _SERIAL_LEAF_1 MYSERIAL1
 
 // Hook Meatpack if it's enabled on the first leaf
 #if ENABLED(MEATPACK_ON_SERIAL_PORT_1)
@@ -71,10 +67,7 @@ extern uint8_t marlin_debug_flags;
   #define _PORT_REDIRECT(n,p) REMEMBER(n,multiSerial.portMask,p)
   #define _PORT_RESTORE(n)    RESTORE(n)
   #define SERIAL_ASSERT(P)    if (multiSerial.portMask!=(P)) { debugger(); }
-  // If we have a catchall, use that directly
-  #ifdef SERIAL_CATCHALL
-    #define _SERIAL_LEAF_2 SERIAL_CATCHALL
-  #elif HAS_ETHERNET
+  #if HAS_ETHERNET
     typedef ConditionalSerial<decltype(MYSERIAL2)> SerialLeafT2;  // We need to create an instance here
     extern SerialLeafT2 msSerial2;
     #define _SERIAL_LEAF_2 msSerial2
@@ -143,6 +136,7 @@ template <typename T> void SERIAL_ECHOLN(T x) { SERIAL_IMPL.println(x); }
 
 // Wrapper for ECHO commands to interpret a char
 void SERIAL_ECHO(serial_char_t x);
+void SERIAL_ECHOLN(serial_char_t x);
 #define AS_DIGIT(n) C('0' + (n))
 
 // Print an integer with a numeric base such as PrintBase::Hex
@@ -185,7 +179,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 //                   all the odd loose string elements as PROGMEM strings.
 //
 
-// Print up to 20 pairs of values. Odd elements must be literal strings.
+// Print pairs of values. Odd elements must be literal strings.
 #define __SEP_N(N,V...)           _SEP_##N(V)
 #define _SEP_N(N,V...)            __SEP_N(N,V)
 #define _SEP_N_REF()              _SEP_N
@@ -194,7 +188,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SEP_3(s,v,V...)          _SEP_2(s,v); DEFER2(_SEP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM(V...)      do{ EVAL(_SEP_N(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values followed by newline. Odd elements must be literal strings.
+// Print pairs of values followed by newline. Odd elements must be literal strings.
 #define __SELP_N(N,V...)          _SELP_##N(V)
 #define _SELP_N(N,V...)           __SELP_N(N,V)
 #define _SELP_N_REF()             _SELP_N
@@ -203,7 +197,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SELP_3(s,v,V...)         _SEP_2(s,v); DEFER2(_SELP_N_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOLNPGM(V...)    do{ EVAL(_SELP_N(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values. Odd elements must be PSTR pointers.
+// Print pairs of values. Odd elements must be PSTR pointers.
 #define __SEP_N_P(N,V...)         _SEP_##N##_P(V)
 #define _SEP_N_P(N,V...)          __SEP_N_P(N,V)
 #define _SEP_N_P_REF()            _SEP_N_P
@@ -212,7 +206,7 @@ void SERIAL_ECHOLN(T arg1, Args ... args) { SERIAL_ECHO(arg1); SERIAL_ECHO(args 
 #define _SEP_3_P(p,v,V...)        _SEP_2_P(p,v); DEFER2(_SEP_N_P_REF)()(TWO_ARGS(V),V);
 #define SERIAL_ECHOPGM_P(V...)    do{ EVAL(_SEP_N_P(TWO_ARGS(V),V)); }while(0)
 
-// Print up to 20 pairs of values followed by newline. Odd elements must be PSTR pointers.
+// Print pairs of values followed by newline. Odd elements must be PSTR pointers.
 #define __SELP_N_P(N,V...)        _SELP_##N##_P(V)
 #define _SELP_N_P(N,V...)         __SELP_N_P(N,V)
 #define _SELP_N_P_REF()           _SELP_N_P
@@ -233,19 +227,20 @@ void serial_ternary(FSTR_P const pre, const bool onoff, FSTR_P const on, FSTR_P 
 // Print up to 255 spaces
 void SERIAL_ECHO_SP(uint8_t count);
 
-void serialprint_onoff(const bool onoff);
-void serialprintln_onoff(const bool onoff);
-void serialprint_truefalse(const bool tf);
-void serial_offset(const_float_t v, const uint8_t sp=0); // For v==0 draw space (sp==1) or plus (sp==2)
+inline FSTR_P const ON_OFF(const bool onoff) { return onoff ? F("ON") : F("OFF"); }
+inline FSTR_P const TRUE_FALSE(const bool tf) { return tf ? F("true") : F("false"); }
+
+// For v==0 draw space (sp==1) or plus (sp==2)
+void serial_offset(const float v, const uint8_t sp=0, const uint8_t prec=SERIAL_FLOAT_PRECISION);
 
 void print_bin(const uint16_t val);
 
-void print_xyz(NUM_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_xyz(NUM_AXIS_ARGS_(const float) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyz(const xyz_pos_t &xyz, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
   print_xyz(NUM_AXIS_ELEM_(xyz) prefix, suffix);
 }
 
-void print_xyze(LOGICAL_AXIS_ARGS_(const_float_t) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
+void print_xyze(LOGICAL_AXIS_ARGS_(const float) FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr);
 inline void print_xyze(const xyze_pos_t &xyze, FSTR_P const prefix=nullptr, FSTR_P const suffix=nullptr) {
   print_xyze(LOGICAL_AXIS_ELEM_LC_(xyze) prefix, suffix);
 }

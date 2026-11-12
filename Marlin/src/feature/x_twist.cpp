@@ -53,7 +53,7 @@ void XATC::print_points() {
   SERIAL_EOL();
 }
 
-float lerp(const_float_t t, const_float_t a, const_float_t b) { return a + t * (b - a); }
+float lerp(const float t, const float a, const float b) { return a + t * (b - a); }
 
 float XATC::compensation(const xy_pos_t &raw) {
   if (!enabled) return 0;

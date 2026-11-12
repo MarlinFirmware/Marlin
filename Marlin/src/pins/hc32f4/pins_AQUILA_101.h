@@ -37,6 +37,8 @@
   #define DEFAULT_MACHINE_NAME "Aquila"
 #endif
 
+#define BOARD_LCD_SERIAL_PORT               1
+
 //
 // Onboard crystal oscillator
 //
@@ -59,15 +61,14 @@
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM
   //#define SDCARD_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
   #define IIC_EEPROM_SDA                    PA11
   #define IIC_EEPROM_SCL                    PA12
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800 // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U // 2K
 #endif
 
 //
@@ -134,7 +135,7 @@
 #define SD_DETECT_PIN                       PA10
 #define SDCARD_CONNECTION ONBOARD
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE // This board's SD card is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 /**
  *        ------
@@ -157,7 +158,7 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP1_01_PIN
   #endif
 
@@ -219,10 +220,6 @@
 // Host
 #define BOARD_USART2_TX_PIN                 PA9
 #define BOARD_USART2_RX_PIN                 PA15
-
-// Unused / Debug
-#define BOARD_USART3_TX_PIN                 PE5
-#define BOARD_USART3_RX_PIN                 PE4
 
 // Onboard LED (HIGH = off, LOW = on)
 #ifndef LED_BUILTIN

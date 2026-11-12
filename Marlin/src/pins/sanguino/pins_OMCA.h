@@ -56,7 +56,7 @@
  * Requires this Arduino IDE extension for Boards Manager:
  * https://github.com/Lauszus/Sanguino
  *
- * Follow the installation instructions at https://learn.sparkfun.com/pages/CustomBoardsArduino
+ * Follow the installation instructions at https://learn.sparkfun.com/tutorials/installing-board-definitions-in-the-arduino-ide
  * Just use this JSON URL instead of Sparkfun's:
  * https://raw.githubusercontent.com/Lauszus/Sanguino/master/package_lauszus_sanguino_index.json
  *
@@ -123,7 +123,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  11
+#define SD_SS_PIN                             11
 
 #define I2C_SCL_PIN                           16
 #define I2C_SDA_PIN                           17

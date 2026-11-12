@@ -66,7 +66,7 @@ bool MaxVelocityScreen::onTouchHeld(uint8_t tag) {
     #if DISTINCT_E
       case  8: UI_DECREMENT(AxisMaxFeedrate_mm_s, E0); break;
       case  9: UI_INCREMENT(AxisMaxFeedrate_mm_s, E0); break;
-      #if DISTINCT_E > 1
+      #if ENABLED(DISTINCT_E_FACTORS)
         case 10: UI_DECREMENT(AxisMaxFeedrate_mm_s, E1); break;
         case 11: UI_INCREMENT(AxisMaxFeedrate_mm_s, E1); break;
         #if DISTINCT_E > 2

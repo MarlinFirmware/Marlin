@@ -27,11 +27,19 @@
 #include "../gcode.h"
 #include "../../sd/cardreader.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 /**
- * M23: Open a file
+ * M23: Select File
  *
- * The path is relative to the root directory
+ * Select a file on mounted media for printing or processing.
+ * Follow with M24 to run the selected file.
+ *
+ * Parameters:
+ *   <filename>  The filename of the file to open
+ *   (The path is relative to the root directory)
  */
 void GcodeSuite::M23() {
   // Simplify3D includes the size, so zero out all spaces (#7227)
@@ -39,6 +47,7 @@ void GcodeSuite::M23() {
   card.openFileRead(parser.string_arg);
 
   TERN_(SET_PROGRESS_PERCENT, ui.set_progress(0));
+  TERN_(CREALITY_RTS, RTS_OpenFileCloud());
 }
 
 #endif // HAS_MEDIA

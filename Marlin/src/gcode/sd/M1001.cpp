@@ -43,7 +43,6 @@
 #endif
 
 #if HAS_LEDS_OFF_FLAG
-  #include "../../MarlinCore.h" // for wait_for_user_response()
   #include "../../feature/leds/printer_event_leds.h"
 #endif
 
@@ -100,7 +99,7 @@ void GcodeSuite::M1001() {
       printerEventLEDs.onPrintCompleted();
       TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_PRINT_DONE)));
       TERN_(HOST_PROMPT_SUPPORT, hostui.continue_prompt(GET_TEXT_F(MSG_PRINT_DONE)));
-      TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(SEC_TO_MS(TERN(HAS_MARLINUI_MENU, PE_LEDS_COMPLETED_TIME, 30))));
+      TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response(SEC_TO_MS(TERN(HAS_MARLINUI_MENU, PE_LEDS_COMPLETED_TIME, 30))));
       printerEventLEDs.onResumeAfterWait();
     }
   #endif

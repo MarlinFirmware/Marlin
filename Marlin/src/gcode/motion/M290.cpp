@@ -29,25 +29,21 @@
 #include "../../module/probe.h"
 #include "../../module/planner.h"
 
-#if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-  #include "../../core/serial.h"
-#endif
-
 #if ENABLED(MESH_BED_LEVELING)
   #include "../../feature/bedlevel/bedlevel.h"
 #endif
 
 #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
 
-  FORCE_INLINE void mod_probe_offset(const_float_t offs) {
-    if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, active_extruder == 0)) {
+  FORCE_INLINE void mod_probe_offset(const float offs) {
+    if (TERN1(BABYSTEP_HOTEND_Z_OFFSET, motion.extruder == 0)) {
       probe.offset.z += offs;
       SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     }
     else {
       #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
-        hotend_offset[active_extruder].z -= offs;
-        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", hotend_offset[active_extruder].z);
+        motion.active_hotend_offset().z -= offs;
+        SERIAL_ECHO_MSG(STR_PROBE_OFFSET STR_Z ": ", motion.active_hotend_offset().z);
       #endif
     }
   }
@@ -88,34 +84,34 @@ void GcodeSuite::M290() {
   #endif
 
   if (!parser.seen(STR_AXES_MAIN) || parser.seen('R')) {
-    SERIAL_ECHO_START();
-
     #if ENABLED(BABYSTEP_ZPROBE_OFFSET)
-      SERIAL_ECHOLNPGM(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
+      SERIAL_ECHO_MSG(STR_PROBE_OFFSET " " STR_Z, probe.offset.z);
     #endif
 
     #if ENABLED(BABYSTEP_HOTEND_Z_OFFSET)
     {
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
-        PSTR("Hotend "), active_extruder
+        PSTR("Hotend "), motion.extruder
         #if ENABLED(BABYSTEP_XY)
-          , PSTR("Offset X"), hotend_offset[active_extruder].x
-          , SP_Y_STR, hotend_offset[active_extruder].y
+          , PSTR("Offset X"), motion.active_hotend_offset().x
+          , SP_Y_STR, motion.active_hotend_offset().y
           , SP_Z_STR
         #else
           , PSTR("Offset Z")
         #endif
-        , hotend_offset[active_extruder].z
+        , motion.active_hotend_offset().z
       );
     }
     #endif
 
     #if ENABLED(MESH_BED_LEVELING)
-      SERIAL_ECHOLNPGM("MBL Adjust Z", bedlevel.z_offset);
+      SERIAL_ECHO_MSG("MBL Adjust Z", bedlevel.z_offset);
     #endif
 
     #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
     {
+      SERIAL_ECHO_START();
       SERIAL_ECHOLNPGM_P(
         #if ENABLED(BABYSTEP_XY)
             PSTR("Babystep X"), babystep.axis_total[X_AXIS]

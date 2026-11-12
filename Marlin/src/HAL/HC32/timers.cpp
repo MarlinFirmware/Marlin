@@ -35,19 +35,19 @@ Timer0 temp_timer(&TIMER02A_config, &Temp_Handler);
  */
 Timer0 step_timer(&TIMER02B_config, &Step_Handler);
 
-void HAL_timer_start(const timer_channel_t timer_num, const uint32_t frequency) {
-  if (timer_num == TEMP_TIMER_NUM) {
+void HAL_timer_start(const timer_channel_t timer_ch, const uint32_t frequency) {
+  if (timer_ch == MF_TIMER_TEMP) {
     CORE_DEBUG_PRINTF("HAL_timer_start: temp timer, f=%ld\n", long(frequency));
-    timer_num->start(frequency, TEMP_TIMER_PRESCALE);
-    timer_num->setCallbackPriority(TEMP_TIMER_PRIORITY);
+    timer_ch->start(frequency, TEMP_TIMER_PRESCALE);
+    timer_ch->setCallbackPriority(TEMP_TIMER_PRIORITY);
   }
-  else if (timer_num == STEP_TIMER_NUM) {
+  else if (timer_ch == MF_TIMER_STEP) {
     CORE_DEBUG_PRINTF("HAL_timer_start: step timer, f=%ld\n", long(frequency));
-    timer_num->start(frequency, STEPPER_TIMER_PRESCALE);
-    timer_num->setCallbackPriority(STEP_TIMER_PRIORITY);
+    timer_ch->start(frequency, STEPPER_TIMER_PRESCALE);
+    timer_ch->setCallbackPriority(STEP_TIMER_PRIORITY);
   }
   else {
-    CORE_ASSERT_FAIL("HAL_timer_start: invalid timer_num")
+    CORE_ASSERT_FAIL("HAL_timer_start: invalid timer_ch")
   }
 }
 

@@ -40,60 +40,25 @@
 // Remove irrelevant Configuration.h settings
 //
 
-// Clean up unused temperature sensors and sub-options
-
-#if !TEMP_SENSOR_0
-  #undef TEMP_SENSOR_0
+#if !HAS_HOTEND
+  #undef PREHEAT_1_TEMP_HOTEND
+  #undef PREHEAT_2_TEMP_HOTEND
 #endif
-#if !TEMP_SENSOR_1
-  #undef TEMP_SENSOR_1
-#endif
-#if !TEMP_SENSOR_2
-  #undef TEMP_SENSOR_2
-#endif
-#if !TEMP_SENSOR_3
-  #undef TEMP_SENSOR_3
-#endif
-#if !TEMP_SENSOR_4
-  #undef TEMP_SENSOR_4
-#endif
-#if !TEMP_SENSOR_5
-  #undef TEMP_SENSOR_5
-#endif
-#if !TEMP_SENSOR_6
-  #undef TEMP_SENSOR_6
-#endif
-#if !TEMP_SENSOR_7
-  #undef TEMP_SENSOR_7
-#endif
-
 #if !TEMP_SENSOR_BED
-  #undef TEMP_SENSOR_BED
   #undef THERMAL_PROTECTION_BED
   #undef MAX_BED_POWER
+  #undef PREHEAT_1_TEMP_BED
+  #undef PREHEAT_2_TEMP_BED
 #endif
 #if !TEMP_SENSOR_CHAMBER
-  #undef TEMP_SENSOR_CHAMBER
   #undef THERMAL_PROTECTION_CHAMBER
-  #undef CHAMBER_AUTO_FAN_PIN
   #undef MAX_CHAMBER_POWER
+  #undef PREHEAT_1_TEMP_CHAMBER
+  #undef PREHEAT_2_TEMP_CHAMBER
 #endif
 #if !TEMP_SENSOR_COOLER
   #undef TEMP_SENSOR_COOLER
   #undef THERMAL_PROTECTION_COOLER
-  #undef COOLER_AUTO_FAN_PIN
-#endif
-#if !TEMP_SENSOR_PROBE
-  #undef TEMP_SENSOR_PROBE
-#endif
-#if !TEMP_SENSOR_REDUNDANT
-  #undef TEMP_SENSOR_REDUNDANT
-#endif
-#if !TEMP_SENSOR_BOARD
-  #undef TEMP_SENSOR_BOARD
-#endif
-#if !TEMP_SENSOR_SOC
-  #undef TEMP_SENSOR_SOC
 #endif
 #if !SOFT_PWM_SCALE
   #undef SOFT_PWM_SCALE
@@ -104,9 +69,6 @@
  */
 #if DISABLED(SINGLENOZZLE)
   #undef SINGLENOZZLE_STANDBY_TEMP
-#endif
-#if !ALL(HAS_FAN, SINGLENOZZLE)
-  #undef SINGLENOZZLE_STANDBY_FAN
 #endif
 
 // No inactive extruders with SWITCHING_NOZZLE or Průša MMU1 or just 1 E stepper exists
@@ -133,7 +95,10 @@
 #ifdef Z_PROBE_SERVO_NR
   #define HAS_Z_SERVO_PROBE 1
 #endif
-#if ANY(HAS_Z_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
+#ifdef MAG_MOUNTED_PROBE_SERVO_NR
+  #define HAS_MAG_MOUNTED_SERVO_PROBE 1
+#endif
+#if ANY(HAS_Z_SERVO_PROBE, HAS_MAG_MOUNTED_SERVO_PROBE, SWITCHING_EXTRUDER, SWITCHING_NOZZLE)
   #define HAS_SERVO_ANGLES 1
 #endif
 #if !HAS_SERVO_ANGLES
@@ -417,12 +382,6 @@
   #else
     #define HAS_REAL_BED_PROBE 1
   #endif
-  #if HAS_REAL_BED_PROBE && NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
-    #define NEED_Z_MIN_PROBE_PIN 1
-  #endif
-  #if Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
-    #define HOMING_Z_WITH_PROBE 1
-  #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1
   #endif
@@ -431,6 +390,14 @@
   #endif
   #ifndef Z_PROBE_ERROR_TOLERANCE
     #define Z_PROBE_ERROR_TOLERANCE Z_CLEARANCE_MULTI_PROBE
+  #endif
+  #if ENABLED(DWIN_LCD_PROUI) && DISABLED(BD_SENSOR)
+    #ifndef MULTIPLE_PROBING
+      #define MULTIPLE_PROBING 2
+    #endif
+    #ifdef EXTRA_PROBING
+      #undef EXTRA_PROBING // Not used with MULTIPLE_PROBING
+    #endif
   #endif
   #if MULTIPLE_PROBING > 1
     #if EXTRA_PROBING > 0
@@ -442,17 +409,16 @@
 #else
   // Clear probe pin settings when no probe is selected
   #undef Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+  #undef Z_MIN_PROBE_ENDSTOP_HIT_STATE
   #undef USE_PROBE_FOR_Z_HOMING
+  #undef PROBE_Z0_BEFORE_G29
   #undef Z_MIN_PROBE_REPEATABILITY_TEST
-  #undef HOMING_Z_WITH_PROBE
   #undef Z_CLEARANCE_MULTI_PROBE
   #undef Z_PROBE_ERROR_TOLERANCE
   #undef Z_AFTER_PROBING
   #undef Z_PROBE_LOW_POINT
   #undef MULTIPLE_PROBING
   #undef EXTRA_PROBING
-  #undef PROBE_OFFSET_ZMIN
-  #undef PROBE_OFFSET_ZMAX
   #undef PAUSE_BEFORE_DEPLOY_STOW
   #undef PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED
   #undef PROBING_HEATERS_OFF
@@ -466,6 +432,21 @@
   #undef PROBING_NOZZLE_TEMP
   #undef PROBING_BED_TEMP
   #undef NOZZLE_TO_PROBE_OFFSET
+#endif
+
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #ifndef PROBING_NOZZLE_TEMP
+    #define PROBING_NOZZLE_TEMP 0
+  #endif
+  #ifndef LEVELING_NOZZLE_TEMP
+    #define LEVELING_NOZZLE_TEMP PROBING_NOZZLE_TEMP
+  #endif
+  #ifndef PROBING_BED_TEMP
+    #define PROBING_BED_TEMP 0
+  #endif
+  #ifndef LEVELING_BED_TEMP
+    #define LEVELING_BED_TEMP PROBING_BED_TEMP
+  #endif
 #endif
 
 #if ENABLED(BELTPRINTER) && !defined(HOME_Y_BEFORE_X)
@@ -490,6 +471,10 @@
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
   #define ABL_USES_GRID 1
+  #define HAS_VARIABLE_XY_PROBE_FEEDRATE 1
+  #ifndef XY_PROBE_MIN_FEEDRATE_MM_M
+    #define XY_PROBE_MIN_FEEDRATE_MM_M 60 // (mm/min) Minimum permitted speed for 'G29 S<feedrate>'
+  #endif
 #endif
 #if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_3POINT)
   #define HAS_ABL_NOT_UBL 1
@@ -516,9 +501,15 @@
   #undef RESTORE_LEVELING_AFTER_G28
   #undef ENABLE_LEVELING_AFTER_G28
   #undef G29_RETRY_AND_RECOVER
+  #undef PREHEAT_BEFORE_LEVELING
+  #undef LEVELING_NOZZLE_TEMP
+  #undef LEVELING_BED_TEMP
 #endif
 #if !HAS_LEVELING || ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)
   #undef PROBE_MANUALLY
+#endif
+#if ENABLED(PREHEAT_BEFORE_LEVELING) && ANY(DWIN_LCD_PROUI, ELEGOO_NEPTUNE_3_TFT)
+  #define HAS_LEVELING_TEMP_EDIT 1
 #endif
 #if ANY(HAS_BED_PROBE, PROBE_MANUALLY, MESH_BED_LEVELING)
   #define PROBE_SELECTED 1
@@ -526,6 +517,12 @@
 
 #if !HAS_MESH
   #undef MESH_INSET
+#endif
+#if ALL(DWIN_LCD_PROUI, HAS_MESH)
+  #define HAS_PROUI_MESH_EDIT 1
+  #ifndef MESH_INSET
+    #define MESH_INSET 10
+  #endif
 #endif
 
 #if NONE(PROBE_SELECTED, AUTO_BED_LEVELING_UBL)
@@ -543,11 +540,6 @@
 
 #if !(ANY(HAS_BED_PROBE, HAS_LEVELING) || ALL(AUTO_BED_LEVELING_UBL, HAS_MARLINUI_MENU))
   #undef Z_CLEARANCE_DEPLOY_PROBE
-#endif
-
-#if !(ANY(HAS_BED_PROBE, BACKLASH_GCODE) || (ENABLED(EXTENSIBLE_UI) && ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL)))
-  #undef Z_PROBE_FEEDRATE_FAST
-  #undef Z_PROBE_FEEDRATE_SLOW
 #endif
 
 /**
@@ -614,6 +606,15 @@
 #if ANY(COREYZ, COREZY)
   #define CORE_IS_YZ 1
 #endif
+#if ANY(CORE_IS_XY, CORE_IS_XZ, MARKFORGED_XY)
+  #define HAS_REAL_X 1
+#endif
+#if ANY(CORE_IS_XY, CORE_IS_YZ, MARKFORGED_YX)
+  #define HAS_REAL_Y 1
+#endif
+#if CORE_IS_XZ || CORE_IS_YZ
+  #define HAS_REAL_Z 1
+#endif
 #if CORE_IS_XY || CORE_IS_XZ || CORE_IS_YZ
   #define IS_CORE 1
   #if CORE_IS_XY
@@ -637,15 +638,15 @@
   #define NORMAL_AXIS Z_AXIS
 #endif
 
-#if ANY(MORGAN_SCARA, MP_SCARA, AXEL_TPARA)
-  #define IS_SCARA 1
-  #define IS_KINEMATIC 1
-#elif ANY(DELTA, POLARGRAPH, POLAR)
-  #define IS_KINEMATIC 1
+#if ANY(SCARA, AXEL_TPARA)
+  #define IS_SCARA 1              // Linear Motion derives from SCARA kinematics
+#endif
+#if ANY(IS_SCARA, DELTA, POLARGRAPH, POLAR)
+  #define IS_KINEMATIC 1          // Linear Motion derives from kinematic conversion and segmentation
 #else
-  #define IS_CARTESIAN 1
+  #define IS_CARTESIAN 1          // Linear Motion requires no segmentation
   #if !IS_CORE
-    #define IS_FULL_CARTESIAN 1
+    #define IS_FULL_CARTESIAN 1   // Linear Motion is simple steps-per-mm from top to bottom
   #endif
 #endif
 
@@ -666,8 +667,4 @@
 
 #if ANY(PID_DEBUG, PID_BED_DEBUG, PID_CHAMBER_DEBUG)
   #define HAS_PID_DEBUG 1
-#endif
-
-#if ALL(SPI_FLASH, HAS_MEDIA, MARLIN_DEV_MODE)
-  #define SPI_FLASH_BACKUP 1
 #endif

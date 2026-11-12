@@ -37,14 +37,11 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
-  #define EEPROM_PAGE_SIZE      (0x800UL) // 2K
-  #define EEPROM_START_ADDRESS  (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
+  #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
+  #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
 #endif
 
 //
@@ -111,15 +108,16 @@
 
 //
 // Default pins for TMC software SPI
+// SPI1 level-shifted to the driver sockets and shared with the onboard SD card
 //
 #ifndef TMC_SPI_MOSI
-  #define TMC_SPI_MOSI                      PB15
+  #define TMC_SPI_MOSI                      PA7
 #endif
 #ifndef TMC_SPI_MISO
-  #define TMC_SPI_MISO                      PB14
+  #define TMC_SPI_MISO                      PA6
 #endif
 #ifndef TMC_SPI_SCK
-  #define TMC_SPI_SCK                       PB13
+  #define TMC_SPI_SCK                       PA5
 #endif
 
 #if HAS_TMC_UART
@@ -180,17 +178,25 @@
 #define EXP2_08_PIN                         -1
 
 //
-// Onboard SD card
+// SD Card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
 #if SD_CONNECTION_IS(LCD)
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SS_PIN                         SDSS
+  #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
   #define SD_MISO_PIN                EXP2_01_PIN
   #define SD_MOSI_PIN                EXP2_06_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #elif SD_CONNECTION_IS(ONBOARD)
+  #define SD_DETECT_PIN                     -1    // J52 leaves DET unwired
   #define SD_SCK_PIN                        PA5
   #define SD_MISO_PIN                       PA6
   #define SD_MOSI_PIN                       PA7
@@ -229,8 +235,15 @@
 
     #define DOGLCD_A0                EXP1_07_PIN
     #define DOGLCD_CS                EXP1_06_PIN
+    #define DOGLCD_SCK               EXP2_02_PIN
+    #define DOGLCD_MOSI              EXP2_06_PIN
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
+
+    #define LCD_FORCE_SOFT_SPI                  // Panel has its own pins on EXP2
+    #if SD_CONNECTION_IS(LCD)
+      #define FORCE_SOFT_SPI                    // SD shares EXP2 here
+    #endif
 
   #else
 
@@ -245,10 +258,14 @@
     #if ENABLED(FYSETC_MINI_12864)
       #define DOGLCD_CS              EXP1_03_PIN
       #define DOGLCD_A0              EXP1_04_PIN
+      #define DOGLCD_SCK             EXP2_02_PIN
+      #define DOGLCD_MOSI            EXP2_06_PIN
       //#define LCD_BACKLIGHT_PIN           -1
 
-      #define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
-                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+      #define LCD_FORCE_SOFT_SPI                  // Panel has its own pins on EXP2
+      #if SD_CONNECTION_IS(LCD)
+        #define FORCE_SOFT_SPI                    // SD shares EXP2 here
+      #endif
 
       #define LCD_RESET_PIN          EXP1_05_PIN  // Must be high or open for LCD to operate normally.
       #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
@@ -283,15 +300,9 @@
 
 // Alter timing for graphical display
 #if IS_U8GLIB_ST7920
-  #ifndef BOARD_ST7920_DELAY_1
-    #define BOARD_ST7920_DELAY_1             120
-  #endif
-  #ifndef BOARD_ST7920_DELAY_2
-    #define BOARD_ST7920_DELAY_2              80
-  #endif
-  #ifndef BOARD_ST7920_DELAY_3
-    #define BOARD_ST7920_DELAY_3             580
-  #endif
+  #define BOARD_ST7920_DELAY_1               120
+  #define BOARD_ST7920_DELAY_2                80
+  #define BOARD_ST7920_DELAY_3               580
 #endif
 
 //

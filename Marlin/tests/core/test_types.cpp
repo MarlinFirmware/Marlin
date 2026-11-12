@@ -22,6 +22,7 @@
 
 #include "../test/unit_tests.h"
 #include "src/core/types.h"
+#include "src/core/millis_t.h"
 
 MARLIN_TEST(types, XYval_const_as_bools) {
   const XYval<int> xy_const_true = {1, 2};
@@ -638,6 +639,35 @@ MARLIN_TEST(types, MString2) {
   TEST_ASSERT_TRUE(TSS(repchr_t('-', 100)).length() == 20);
 }
 
+MARLIN_TEST(types, MString_utrunc) {
+  // "abジュ" is 8 bytes: 'a', 'b', then two 3-byte glyphs
+  #define AB_JU "ab\xE3\x82\xB8\xE3\x83\xA5"
+
+  // A copy cut short inside a glyph drops the partial glyph
+  MString<6> cut;
+  cut.set(AB_JU);
+  TEST_ASSERT_EQUAL(6, cut.length());
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &cut.utrunc());
+
+  // A complete string is unchanged
+  MString<20> str;
+  TEST_ASSERT_EQUAL_STRING(AB_JU, &str.set(AB_JU).utrunc());
+
+  // Truncate to a byte count on a glyph boundary
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &str.set(AB_JU).utrunc(7));
+  TEST_ASSERT_EQUAL_STRING("ab\xE3\x82\xB8", &str.set(AB_JU).utrunc(5));
+  TEST_ASSERT_EQUAL_STRING("ab", &str.set(AB_JU).utrunc(4));
+  TEST_ASSERT_EQUAL_STRING("abc", &str.set("abcdef").utrunc(3));
+
+  // 2- and 4-byte glyphs
+  MString<2> two;
+  TEST_ASSERT_EQUAL_STRING("x", &two.set("x\xC3\xA9").utrunc());    // "xé"
+  MString<4> four;
+  TEST_ASSERT_EQUAL_STRING("x", &four.set("x\xF0\x9F\x98\x80").utrunc()); // "x😀"
+
+  #undef AB_JU
+}
+
 MARLIN_TEST(types, SString) {
   // Hello World!-123456------   < spaces!33
   // ^ eol! ... 1234.50*2345.602 = 2895645.67
@@ -655,4 +685,12 @@ MARLIN_TEST(types, SString) {
   str.append(" ... ", 1234.5f, '*', p_float_t(2345.602, 3), F(" = "), 1234.5 * 2345.602);
 
   TEST_ASSERT_TRUE(strcmp_P(str, PSTR("Hello World!-123456------   < spaces!33\n^ eol! ... 1234.50*2345.602 = 2895645.67")) == 0);
+}
+
+MARLIN_TEST(types, PENDING) {
+  TEST_ASSERT_TRUE(PENDING(0x0000FFFF, 0x00010000));         // <= ~24.4 days
+  TEST_ASSERT_TRUE(ELAPSED(0x0090000A, 0x00900000));         // <= ~24.4 days
+  TEST_ASSERT_FALSE(PENDING(0x00000000, 0x80000000));        //  > ~24.4 days
+  TEST_ASSERT_TRUE(PENDING(0x00000000, 0, 0x80000000));      // <= ~48.8 days
+  TEST_ASSERT_TRUE(PENDING(0x80000000, 0x7FFFFFF0, 0x0020)); // <= ~48.8 days
 }

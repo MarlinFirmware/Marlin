@@ -67,18 +67,10 @@ Joystick joystick;
 #if ENABLED(JOYSTICK_DEBUG)
   void Joystick::report() {
     SERIAL_ECHOPGM("Joystick");
-    #if HAS_JOY_ADC_X
-      SERIAL_ECHOPGM_P(SP_X_STR, JOY_X(x.getraw()));
-    #endif
-    #if HAS_JOY_ADC_Y
-      SERIAL_ECHOPGM_P(SP_Y_STR, JOY_Y(y.getraw()));
-    #endif
-    #if HAS_JOY_ADC_Z
-      SERIAL_ECHOPGM_P(SP_Z_STR, JOY_Z(z.getraw()));
-    #endif
-    #if HAS_JOY_ADC_EN
-      SERIAL_ECHO_TERNARY(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
-    #endif
+    TERF(HAS_JOY_ADC_X, SERIAL_ECHOPGM_P)(SP_X_STR, JOY_X(x.getraw()));
+    TERF(HAS_JOY_ADC_Y, SERIAL_ECHOPGM_P)(SP_Y_STR, JOY_Y(y.getraw()));
+    TERF(HAS_JOY_ADC_Z, SERIAL_ECHOPGM_P)(SP_Z_STR, JOY_Z(z.getraw()));
+    TERF(HAS_JOY_ADC_EN, SERIAL_ECHO_TERNARY)(READ(JOY_EN_PIN), " EN=", "HIGH (dis", "LOW (en", "abled)");
     SERIAL_EOL();
   }
 #endif
@@ -127,7 +119,7 @@ Joystick joystick;
     if (injecting_now) return;
 
     #if ENABLED(NO_MOTION_BEFORE_HOMING)
-      if (TERN0(HAS_JOY_ADC_X, axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, axis_should_home(Z_AXIS)))
+      if (TERN0(HAS_JOY_ADC_X, motion.axis_should_home(X_AXIS)) || TERN0(HAS_JOY_ADC_Y, motion.axis_should_home(Y_AXIS)) || TERN0(HAS_JOY_ADC_Z, motion.axis_should_home(Z_AXIS)))
         return;
     #endif
 
@@ -169,12 +161,12 @@ Joystick joystick;
     }
 
     if (!UNEAR_ZERO(hypot2)) {
-      current_position += move_dist;
-      apply_motion_limits(current_position);
+      motion.position += move_dist;
+      motion.apply_limits(motion.position);
       const float length = sqrt(hypot2);
       PlannerHints hints(length);
       injecting_now = true;
-      planner.buffer_line(current_position, length / seg_time, active_extruder, hints);
+      planner.buffer_line(motion.position, length / seg_time, motion.extruder, hints);
       injecting_now = false;
     }
   }

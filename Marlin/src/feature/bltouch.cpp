@@ -48,7 +48,7 @@ bool BLTouch::command(const BLTCommand cmd, const millis_t &ms) {
   // The previous write should've already delayed to detect the alarm.
   if (cmd != current) {
     servo[Z_PROBE_SERVO_NR].move(cmd);
-    safe_delay(_MAX(ms, (uint32_t)BLTOUCH_DELAY)); // BLTOUCH_DELAY is also the *minimum* delay
+    safe_delay(_MAX(ms, uint32_t(BLTOUCH_DELAY)));  // BLTOUCH_DELAY is also the *minimum* delay
   }
   return triggered();
 }
@@ -71,11 +71,9 @@ void BLTouch::init(const bool set_voltage/*=false*/) {
 
   #else
 
-    #ifdef DEBUG_OUT
-      if (DEBUGGING(LEVELING))
-        DEBUG_ECHOLN( F("BLTouch Mode: "), bltouch.od_5v_mode ? F("5V") : F("OD"),
-                      F(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")"));
-    #endif
+    if (DEBUGGING(LEVELING))
+      DEBUG_ECHOLN( F("BLTouch Mode: "), bltouch.od_5v_mode ? F("5V") : F("OD"),
+                    F(" (Default " TERN(BLTOUCH_SET_5V_MODE, "5V", "OD") ")"));
 
     const bool should_set = od_5v_mode != ENABLED(BLTOUCH_SET_5V_MODE);
 

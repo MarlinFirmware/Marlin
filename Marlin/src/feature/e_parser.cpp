@@ -33,6 +33,9 @@
 // Static data members
 bool EmergencyParser::killed_by_M112, // = false
      EmergencyParser::quickstop_by_M410,
+     #if ENABLED(RESONANCE_TEST)
+       EmergencyParser::rt_stop_by_M496, // = false
+     #endif
      #if HAS_MEDIA
        EmergencyParser::sd_abort_by_M524,
      #endif
@@ -41,23 +44,22 @@ bool EmergencyParser::killed_by_M112, // = false
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"
   uint8_t EmergencyParser::M876_reason; // = 0
+  volatile uint8_t EmergencyParser::M876_handled; // = 0
 #endif
 
 // Global instance
 EmergencyParser emergency_parser;
-
-// External references
-extern bool wait_for_user, wait_for_heatup;
 
 #if ENABLED(EP_BABYSTEPPING)
   #include "babystep.h"
 #endif
 
 #if ENABLED(REALTIME_REPORTING_COMMANDS)
-  // From motion.h, which cannot be included here
-  void report_current_position_moving();
-  void quickpause_stepper();
-  void quickresume_stepper();
+  #include "../module/motion.h"
+#endif
+
+#if ENABLED(SOFT_FEED_HOLD)
+  bool realtime_ramping_pause_flag = false;
 #endif
 
 void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
@@ -147,8 +149,21 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
 
     case EP_M10: state = (c == '8') ? EP_M108 : EP_IGNORE; break;
     case EP_M11: state = (c == '2') ? EP_M112 : EP_IGNORE; break;
-    case EP_M4:  state = (c == '1') ? EP_M41  : EP_IGNORE; break;
+    case EP_M4:
+      switch (c) {
+        case '1' :state = EP_M41;    break;
+        #if ENABLED(RESONANCE_TEST)
+          case '9': state = EP_M49;  break;
+        #endif
+        default: state  = EP_IGNORE;
+      }
+      break;
+
     case EP_M41: state = (c == '0') ? EP_M410 : EP_IGNORE; break;
+
+    #if ENABLED(RESONANCE_TEST)
+      case EP_M49: state = (c == '6') ? EP_M496 : EP_IGNORE; break;
+    #endif
 
     #if HAS_MEDIA
       case EP_M5:  state = (c == '2') ? EP_M52  : EP_IGNORE; break;
@@ -192,9 +207,12 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
     default:
       if (ISEOL(c)) {
         if (enabled) switch (state) {
-          case EP_M108: wait_for_user = wait_for_heatup = false; break;
+          case EP_M108: marlin.end_waiting(); break;
           case EP_M112: killed_by_M112 = true; break;
           case EP_M410: quickstop_by_M410 = true; break;
+          #if ENABLED(RESONANCE_TEST)
+            case EP_M496: rt_stop_by_M496 = true; break;
+          #endif
           #if ENABLED(EP_BABYSTEPPING)
             case EP_M293: babystep.ep_babysteps++; break;
             case EP_M294: babystep.ep_babysteps--; break;
@@ -203,12 +221,12 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
             case EP_M524: sd_abort_by_M524 = true; break;
           #endif
           #if ENABLED(HOST_PROMPT_SUPPORT)
-            case EP_M876SN: hostui.handle_response(M876_reason); break;
+            case EP_M876SN: hostui.handle_response(M876_reason); ++M876_handled; break;
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
-            case EP_GRBL_STATUS: report_current_position_moving(); break;
-            case EP_GRBL_PAUSE: quickpause_stepper(); break;
-            case EP_GRBL_RESUME: quickresume_stepper(); break;
+            case EP_GRBL_STATUS: motion.report_position_moving(); break;
+            case EP_GRBL_PAUSE:  TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = true,  motion.quickpause_stepper()); break;
+            case EP_GRBL_RESUME: TERN(SOFT_FEED_HOLD, realtime_ramping_pause_flag = false, motion.quickresume_stepper()); break;
           #endif
           #if ENABLED(SOFT_RESET_VIA_SERIAL)
             case EP_KILL: hal.reboot(); break;

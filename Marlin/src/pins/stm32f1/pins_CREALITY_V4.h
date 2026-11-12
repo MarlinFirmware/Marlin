@@ -40,6 +40,10 @@
 
 #define BOARD_NO_NATIVE_USB
 
+#ifndef BOARD_LCD_SERIAL_PORT
+  #define BOARD_LCD_SERIAL_PORT               3
+#endif
+
 //
 // Release PB4 (Y_ENABLE_PIN) from JTAG NRST role
 //
@@ -53,7 +57,6 @@
 #if NO_EEPROM_SELECTED
   #define IIC_BL24CXX_EEPROM                      // EEPROM on I2C-0
   //#define SDCARD_EEPROM_EMULATION
-  #undef NO_EEPROM_SELECTED
 #endif
 
 #if ENABLED(IIC_BL24CXX_EEPROM)
@@ -63,16 +66,16 @@
   #ifndef IIC_EEPROM_SCL
     #define IIC_EEPROM_SCL                  PA12
   #endif
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K (24C16)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K (24C16)
 #elif ENABLED(SDCARD_EEPROM_EMULATION)
-  #define MARLIN_EEPROM_SIZE               0x800  // 2K
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
 // Servos
 //
 #ifndef SERVO0_PIN
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define SERVO0_PIN                      PB0   // BLTouch OUT
   #else
     #define SERVO0_PIN                      PC6
@@ -171,7 +174,7 @@
 #define SD_DETECT_PIN                       PC7
 #define SDCARD_CONNECTION ONBOARD
 #define ONBOARD_SDIO
-#define NO_SD_HOST_DRIVE                          // This board's SD is only seen by the printer
+#define BOARD_NO_HOST_DRIVE                       // SD is only seen by the printer
 
 /**    Debug port
  *       -----
@@ -257,7 +260,7 @@
   #define BTN_EN1                    EXP3_03_PIN
   #define BTN_EN2                    EXP3_05_PIN
 
-  #ifndef HAS_PIN_27_BOARD
+  #if DISABLED(USE_PIN_27_BOARD)
     #define BEEPER_PIN               EXP3_01_PIN
   #endif
 
@@ -326,13 +329,26 @@
 // Changing these will not change the pin they are on.
 
 // Hardware UART pins
-#define UART1_TX_PIN                        PA9   // default uses CH340 RX
-#define UART1_RX_PIN                        PA10  // default uses CH340 TX
-#define UART2_TX_PIN                        PA2   // default uses HEATER_BED_PIN
-#define UART2_RX_PIN                        PA3   // not connected
-#define UART3_TX_PIN                        PB10  // default uses LCD connector
-#define UART3_RX_PIN                        PB11  // default uses LCD connector
-#define UART4_TX_PIN                        PC10  // default uses sdcard SDIO_D2
-#define UART4_RX_PIN                        PC11  // default uses sdcard SDIO_D3
-#define UART5_TX_PIN                        PC12  // default uses sdcard SDIO_CK
-#define UART5_RX_PIN                        PD2   // default uses sdcard SDIO_CMD
+#ifdef ARDUINO_ARCH_MFL                           // GD32 MFL UARTs start from 0
+  #define UART0_TX_PIN                      PA9   // default uses CH340 RX
+  #define UART0_RX_PIN                      PA10  // default uses CH340 TX
+  #define UART1_TX_PIN                      PA2   // default uses HEATER_BED_PIN
+  #define UART1_RX_PIN                      PA3   // not connected
+  #define UART2_TX_PIN                      PB10  // default uses LCD connector
+  #define UART2_RX_PIN                      PB11  // default uses LCD connector
+  #define UART3_TX_PIN                      PC10  // default uses sdcard SDIO_D2
+  #define UART3_RX_PIN                      PC11  // default uses sdcard SDIO_D3
+  #define UART4_TX_PIN                      PC12  // default uses sdcard SDIO_CK
+  #define UART4_RX_PIN                      PD2   // default uses sdcard SDIO_CMD
+#else
+  #define UART1_TX_PIN                      PA9   // default uses CH340 RX
+  #define UART1_RX_PIN                      PA10  // default uses CH340 TX
+  #define UART2_TX_PIN                      PA2   // default uses HEATER_BED_PIN
+  #define UART2_RX_PIN                      PA3   // not connected
+  #define UART3_TX_PIN                      PB10  // default uses LCD connector
+  #define UART3_RX_PIN                      PB11  // default uses LCD connector
+  #define UART4_TX_PIN                      PC10  // default uses sdcard SDIO_D2
+  #define UART4_RX_PIN                      PC11  // default uses sdcard SDIO_D3
+  #define UART5_TX_PIN                      PC12  // default uses sdcard SDIO_CK
+  #define UART5_RX_PIN                      PD2   // default uses sdcard SDIO_CMD
+#endif

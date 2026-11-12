@@ -40,8 +40,8 @@
  *  M260 B<byte-2 value in base 10>
  *  M260 B<byte-3 value in base 10>
  *
- *  M260 S1 ; Send the buffered data and reset the buffer
- *  M260 R1 ; Reset the buffer without sending data
+ *  M260 S ; Send the buffered data and reset the buffer
+ *  M260 R ; Reset the buffer without sending data
  */
 void GcodeSuite::M260() {
   // Set the target address
@@ -51,10 +51,10 @@ void GcodeSuite::M260() {
   if (parser.seenval('B')) i2c.addbyte(parser.value_byte());
 
   // Flush the buffer to the bus
-  if (parser.seen('S')) i2c.send();
+  if (parser.seen_test('S')) i2c.send();
 
   // Reset and rewind the buffer
-  else if (parser.seen('R')) i2c.reset();
+  else if (parser.seen_test('R')) i2c.reset();
 }
 
 /**

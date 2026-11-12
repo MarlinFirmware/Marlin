@@ -389,7 +389,7 @@ class CommandProcessor : public CLCD::CommandFifo {
       return *this;
     }
 
-    FORCEDINLINE CommandProcessor& icon(int16_t x, int16_t y, int16_t w, int16_t h, const FTDI::bitmap_info_t& info, const float scale = 1) {
+    FORCEDINLINE CommandProcessor& icon(int16_t x, int16_t y, int16_t w, int16_t h, const FTDI::bitmap_info_t& info, const float scale=1) {
       using namespace FTDI;
       cmd(BEGIN(BITMAPS));
       if (scale != 1) {

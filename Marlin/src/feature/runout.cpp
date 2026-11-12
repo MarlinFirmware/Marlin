@@ -30,10 +30,14 @@
 
 #include "runout.h"
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 FilamentMonitor runout;
 
 bool FilamentMonitorBase::enabled = true,
-     FilamentMonitorBase::filament_ran_out;  // = false
+     FilamentMonitorBase::filament_ran_out; // = false
 
 #if ENABLED(HOST_ACTION_COMMANDS)
   bool FilamentMonitorBase::host_handling; // = false
@@ -50,6 +54,10 @@ bool FilamentMonitorBase::enabled = true,
   countdown_t RunoutResponseDelayed::mm_countdown;
   #if ENABLED(FILAMENT_MOTION_SENSOR)
     uint8_t FilamentSensorEncoder::motion_detected;
+  #endif
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    bool RunoutResponseDelayed::ignore_motion = false;
+    float RunoutResponseDelayed::motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
   #endif
 #else
   int8_t RunoutResponseDebounced::runout_count[NUM_RUNOUT_SENSORS]; // = 0
@@ -71,8 +79,11 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
+  if (TERN0(CREALITY_RTS, hmiFlag.G29_flag || hmiFlag.home_flag)) return;
 
-  if (did_pause_print) return;  // Action already in progress. Purge triggered repeated runout.
+  runout.init_for_restart(false); // Reset and disable
+
+  if (paused_for_filament_change) return;  // Action already in progress. Purge triggered repeated runout.
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
     if (migration.in_progress) {
@@ -97,6 +108,8 @@ void event_filament_runout(const uint8_t extruder) {
   #endif
 
   const bool run_runout_script = !runout.host_handling;
+
+  TERN_(CREALITY_RTS, RTS_FilamentRanOut());
 
   #if ENABLED(HOST_ACTION_COMMANDS)
 

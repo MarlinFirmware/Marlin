@@ -25,7 +25,6 @@
 
 #if HAS_FANCHECK
 
-#include "../MarlinCore.h"
 #include "../lcd/marlinui.h"
 
 #if ENABLED(AUTO_REPORT_FANS)
@@ -67,14 +66,18 @@ class FanCheck {
     static void compute_speed(uint16_t elapsedTime);
     static void print_fan_states();
     #if HAS_PWMFANCHECK
-      static void toggle_measuring() { measuring = !measuring; }
+      static void toggle_measuring() { FLIP(measuring); }
       static bool is_measuring() { return measuring; }
     #endif
 
     static void check_deferred_error() {
       if (error == TachoError::DETECTED) {
         error = TachoError::REPORTED;
-        TERN(PARK_HEAD_ON_PAUSE, queue.inject(F("M125")), kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT)));
+        #if ENABLED(PARK_HEAD_ON_PAUSE)
+          queue.inject(F("M125"));
+        #else
+          marlin.kill(GET_TEXT_F(MSG_FAN_SPEED_FAULT));
+        #endif
       }
     }
 

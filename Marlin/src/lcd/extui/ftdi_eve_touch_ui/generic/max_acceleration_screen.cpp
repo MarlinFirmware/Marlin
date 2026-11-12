@@ -39,7 +39,7 @@ void MaxAccelerationScreen::onRedraw(draw_mode_t what) {
   w.color(z_axis)  .adjuster( 6, GET_TEXT_F(MSG_AMAX_Z),  getAxisMaxAcceleration_mm_s2(Z) );
   #if DISTINCT_E == 1
     w.color(e_axis).adjuster( 8, GET_TEXT_F(MSG_AMAX_E), getAxisMaxAcceleration_mm_s2(E0) );
-  #elif DISTINCT_E > 1
+  #elif ENABLED(DISTINCT_E_FACTORS)
     w.heading(GET_TEXT_F(MSG_AMAX_E));
     w.color(e_axis).adjuster( 8, F(STR_E0), getAxisMaxAcceleration_mm_s2(E0) );
     w.color(e_axis).adjuster(10, F(STR_E1), getAxisMaxAcceleration_mm_s2(E1) );
@@ -64,7 +64,7 @@ bool MaxAccelerationScreen::onTouchHeld(uint8_t tag) {
     case  7: UI_INCREMENT(AxisMaxAcceleration_mm_s2, Z ); break;
     case  8: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E0); break;
     case  9: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E0); break;
-    #if DISTINCT_E > 1
+    #if ENABLED(DISTINCT_E_FACTORS)
       case 10: UI_DECREMENT(AxisMaxAcceleration_mm_s2, E1); break;
       case 11: UI_INCREMENT(AxisMaxAcceleration_mm_s2, E1); break;
       #if DISTINCT_E > 2

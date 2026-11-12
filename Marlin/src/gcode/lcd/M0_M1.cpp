@@ -29,7 +29,6 @@
 #include "../gcode.h"
 
 #include "../../module/planner.h" // for synchronize()
-#include "../../MarlinCore.h"     // for wait_for_user_response()
 
 #if HAS_MARLINUI_MENU
   #include "../../lcd/marlinui.h"
@@ -37,6 +36,9 @@
   #include "../../lcd/extui/ui_api.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "../../feature/host_actions.h"
 #endif
@@ -46,6 +48,9 @@
  * M1: Conditional stop   - Wait for user button press on LCD
  */
 void GcodeSuite::M0_M1() {
+
+  TERN_(CREALITY_RTS, RTS_CommandPause());
+
   millis_t ms = 0;
   if (parser.seenval('P')) ms = parser.value_millis();              // Milliseconds to wait
   if (parser.seenval('S')) ms = parser.value_millis_from_seconds(); // Seconds to wait
@@ -93,7 +98,7 @@ void GcodeSuite::M0_M1() {
       hostui.continue_prompt(parser.codenum ? F("M1 Stop") : F("M0 Stop"));
   #endif
 
-  TERN_(HAS_RESUME_CONTINUE, wait_for_user_response(ms));
+  TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response(ms));
 
   TERN_(HAS_MARLINUI_MENU, ui.reset_status());
 }

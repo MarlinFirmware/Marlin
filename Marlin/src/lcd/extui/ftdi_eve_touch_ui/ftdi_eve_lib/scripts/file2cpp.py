@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Written By Marcio Teixeira 2021 - SynDaver Labs, Inc.
 #
@@ -16,10 +16,7 @@
 # location: <https://www.gnu.org/licenses/>.
 
 from __future__ import print_function
-import argparse
-import textwrap
-import os
-import zlib
+import argparse, textwrap, os, zlib
 
 def deflate(data):
   return zlib.compress(data)

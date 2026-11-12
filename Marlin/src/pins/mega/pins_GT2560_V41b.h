@@ -25,7 +25,7 @@
  * Geeetech GT2560 V4.1b Pins
  * Schematic: https://www.geeetech.com/download.html?spm=a2g0s.imconversation.0.0.22d23e5fXlQBWv&download_id=45
  * ATmega2560
-*/
+ */
 
 #define ALLOW_MEGA1280
 #include "env_validate.h"
@@ -55,7 +55,7 @@
  *    ---                 ---                 ---                 ---
  *     J3                  J4                  J5                  J6
  *
-*/
+ */
 
 #ifndef X_STOP_PIN
   #ifndef X_MIN_PIN
@@ -185,7 +185,7 @@
 // Misc. Functions
 //
 #define SD_DETECT_PIN                         38
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13  // Use 6 (case light) for external LED. 13 is internal (yellow) LED.
 #define PS_ON_PIN                             12
 
@@ -222,7 +222,7 @@
 //#define H2_11_PIN                        RESET
 #define H2_12_PIN                             18  // BEEP
 
-#define LCM_RS                                20  // Pin named and connected to 10k pull-up resistor but unused
+#define LCM_RS                                20  // Named, unused pin connected to 10k pull-up
 
 #if ENABLED(YHCB2004)
   #define YHCB2004_SS_PIN              H2_04_PIN
@@ -243,5 +243,5 @@
   #define BEEPER_PIN                   H2_12_PIN
 #elif HAS_WIRED_LCD
   #error "GT2560 V4.1b requires an adapter for common LCDs."
-  /*  Cannot use because V4.1b board has not LCD_PINS_RS wired to display connector */
+  // Can't use because V4.1b board has no LCD_PINS_RS wired to display connector
 #endif

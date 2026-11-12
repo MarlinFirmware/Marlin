@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_reporting.cpp
+ * mmu3_reporting.cpp
  */
 
 #include "../../inc/MarlinConfig.h"
@@ -213,7 +213,7 @@ namespace MMU3 {
 
   void EndReport(CommandInProgress /*cip*/, ProgressCode /*ec*/) {
     // clear the status msg line - let the printed filename get visible again
-    if (!printJobOngoing()) ui.reset_status();
+    if (!marlin.printJobOngoing()) ui.reset_status();
     //custom_message_type = CustomMsg::Status;
   }
 
@@ -353,17 +353,18 @@ namespace MMU3 {
       // Render the choices
       //if (two_choices) {
       //  lcd_show_choices_prompt_P(
-      //   LCD_LEFT_BUTTON_CHOICE,
-      //   PrusaErrorButtonTitle(button_op_middle),
-      //   GET_TEXT(MSG_BTN_MORE),
-      //   18, nullptr
+      //    LCD_LEFT_BUTTON_CHOICE,
+      //    PrusaErrorButtonTitle(button_op_middle),
+      //    GET_TEXT(MSG_BTN_MORE),
+      //    18, nullptr
       //  );
       //}
       //else {
-      //  lcd_show_choices_prompt_P(LCD_MIDDLE_BUTTON_CHOICE,
-      //   PrusaErrorButtonTitle(button_op_middle),
-      //   PrusaErrorButtonTitle(button_op_right),
-      //   9, GET_TEXT(MSG_BTN_MORE)
+      //  lcd_show_choices_prompt_P(
+      //    LCD_MIDDLE_BUTTON_CHOICE,
+      //    PrusaErrorButtonTitle(button_op_middle),
+      //    PrusaErrorButtonTitle(button_op_right),
+      //    9, GET_TEXT(MSG_BTN_MORE)
       //  );
       //}
 
@@ -449,7 +450,7 @@ namespace MMU3 {
 
     const uint8_t ei = PrusaErrorCodeIndex((ErrorCode)ec);
 
-    // This should be the equivelent of the switch..case above...
+    // This should be the equivalent of the switch..case above...
     if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::RENDER_ERROR_SCREEN) {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       #if HAS_WIRED_LCD
@@ -526,7 +527,7 @@ namespace MMU3 {
     #if HAS_WIRED_LCD
       // Set the cursor position each time in case some other
       // part of the firmware changes the cursor position
-      lcd_insert_char_into_status(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
+      lcd_replace_status_char(col, sensorState ? LCD_STR_SOLID_BLOCK[0] : '-');
       if (ui.lcdDrawUpdate == LCDViewAction::LCDVIEW_NONE)
         ui.draw_status_message(false);
     #endif
@@ -535,7 +536,7 @@ namespace MMU3 {
   void TryLoadUnloadReporter::Progress(bool sensorState) {
     // Always round up, you can only have 'whole' pixels. (floor is also an option)
     dpixel1 = ceil((stepper_get_machine_position_E_mm() - planner_get_current_position_E()) * pixel_per_mm);
-    if (dpixel1 - dpixel0) {
+    if (dpixel1 != dpixel0) {
       dpixel0 = dpixel1;
       if (lcd_cursor_col > (LCD_WIDTH - 1)) lcd_cursor_col = LCD_WIDTH - 1;
       Render(lcd_cursor_col++, sensorState);
@@ -543,15 +544,15 @@ namespace MMU3 {
   }
 
   void TryLoadUnloadReporter::DumpToSerial() {
-    char buf[LCD_WIDTH + 1];
-    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf));
+    char buf[LCD_WIDTH + 1] = {};
+    TERN_(HAS_WIRED_LCD, ui.status_message.copyto(buf, LCD_WIDTH));
     for (uint8_t i = 0; i < sizeof(buf); i++) {
       // 0xFF is -1 when converting from unsigned to signed char
       // If the number is negative, that means filament is present
       buf[i] = (buf[i] < 0) ? '1' : '0';
     }
     buf[LCD_WIDTH] = 0;
-    MMU2_ECHO_MSGLN(buf);
+    TERN_(MMU_DEBUG, MMU2_ECHO_MSGLN(buf));
   }
 
   void IncrementLoadFails() {
@@ -593,7 +594,9 @@ namespace MMU3 {
 
   void fullScreenMsgRestoringTemperature() {
     #if HAS_WIRED_LCD
-      lcd_display_message_fullscreen(F("MMU Retry: Restoring temperature..."));
+      // Show the status screen (with live temperatures) so the error menu can't be clicked again
+      ui.return_to_status();
+      ui.set_status(F("MMU Retry: Heating..."), true);
     #endif
   }
 

@@ -57,8 +57,10 @@
 // fr         French
 // fr_na      French without accents (DWIN T5UID1 touchscreen)
 // gl         Galician
+// hg         Hinglish (Hindi in Latin script)
 // hr         Croatian
 // hu         Hungarian
+// id         Indonesian (Bahasa)
 // it         Italian
 // jp_kana    Japanese
 // ko_KR      Korean (South Korea)
@@ -88,6 +90,7 @@
   #undef  MACHINE_NAME
   #define MACHINE_NAME DEFAULT_MACHINE_NAME
 #endif
+#define MACHINE_NAME_SUBST TERN(CONFIGURABLE_MACHINE_NAME, "$", MACHINE_NAME)
 
 #define MARLIN_WEBSITE_URL "marlinfw.org"
 
@@ -183,6 +186,9 @@
 #define STR_SD_NOT_PRINTING                 "Not SD printing"
 #define STR_SD_ERR_WRITE_TO_FILE            "error writing to file"
 #define STR_SD_ERR_READ                     "SD read error"
+#define STR_SD_ERR_TOO_MANY_READ_ERRORS     "SD error overage"
+#define STR_SD_ERR_CARD_REMOVED             "SD card gone"
+#define STR_PRINT_ABORTED                   ", print aborted"
 #define STR_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define STR_ENDSTOPS_HIT                    "endstops hit: "
@@ -209,6 +215,8 @@
 #define STR_KILL_BUTTON                     "KILL button/pin"
 
 // temperature.cpp strings
+#define STR_WAIT_FOR_HOTEND                 "Wait for hotend heating..."
+#define STR_WAIT_FOR_BED                    "Wait for bed heating..."
 #define STR_PID_AUTOTUNE                    "PID Autotune"
 #define STR_PID_AUTOTUNE_START              " start"
 #define STR_PID_BAD_HEATER_ID               " failed! Bad heater id"
@@ -229,14 +237,18 @@
 #define STR_PID_DEBUG_INPUT                 ": Input "
 #define STR_PID_DEBUG_OUTPUT                " Output "
 #define STR_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+
+// MPCTEMP strings
 #define STR_MPC_AUTOTUNE_START              "MPC Autotune start for " STR_E
 #define STR_MPC_AUTOTUNE_INTERRUPTED        "MPC Autotune interrupted!"
 #define STR_MPC_AUTOTUNE_FINISHED           "MPC Autotune finished! Put the constants below into Configuration.h"
+#define STR_MPC_AUTOTUNE_FAILED             "MPC Autotune failed! Constants unchanged."
 #define STR_MPC_COOLING_TO_AMBIENT          "Cooling to ambient"
 #define STR_MPC_HEATING_PAST_200            "Heating to over 200C"
 #define STR_MPC_MEASURING_AMBIENT           "Measuring ambient heatloss at "
 #define STR_MPC_TEMPERATURE_ERROR           "Temperature error"
 
+// Temperature Sensors
 #define STR_HEATER_BED                      "bed"
 #define STR_HEATER_CHAMBER                  "chamber"
 #define STR_COOLER                          "cooler"
@@ -246,6 +258,7 @@
 #define STR_REDUNDANT                       "redundant "
 #define STR_LASER_TEMP                      "laser temperature"
 
+// Misc. Errors, Thermal Runaway
 #define STR_STOPPED_HEATER                  ", system stopped! Heater_ID: "
 #define STR_DETECTED_TEMP_B                 " (temp: "
 #define STR_DETECTED_TEMP_E                 ")"
@@ -268,6 +281,7 @@
 #define STR_DEBUG_COMMUNICATION             "COMMUNICATION"
 #define STR_DEBUG_DETAIL                    "DETAIL"
 
+// Password Security
 #define STR_PRINTER_LOCKED                  "Printer locked! (Unlock with M511 or LCD)"
 #define STR_WRONG_PASSWORD                  "Incorrect Password"
 #define STR_PASSWORD_TOO_LONG               "Password too long"
@@ -295,6 +309,7 @@
 #define STR_TOOL_CHANGING                   "Tool-changing"
 #define STR_HOTEND_OFFSETS                  "Hotend offsets"
 #define STR_SERVO_ANGLES                    "Servo Angles"
+#define STR_AUTOTEMP                        "Auto Temp Control"
 #define STR_HOTEND_PID                      "Hotend PID"
 #define STR_BED_PID                         "Bed PID"
 #define STR_CHAMBER_PID                     "Chamber PID"
@@ -311,8 +326,9 @@
 #define STR_FILAMENT_RUNOUT_SENSOR          "Filament runout sensor"
 #define STR_DRIVER_STEPPING_MODE            "Driver stepping mode"
 #define STR_STEPPER_DRIVER_CURRENT          "Stepper driver current"
+#define STR_HOMING_CURRENT                  "Homing Current (mA)"
 #define STR_HYBRID_THRESHOLD                "Hybrid Threshold"
-#define STR_STALLGUARD_THRESHOLD            "StallGuard threshold"
+#define STR_STALLGUARD_THRESHOLD            "StallGuard Threshold"
 #define STR_HOME_OFFSET                     "Home offset"
 #define STR_SOFT_ENDSTOPS                   "Soft endstops"
 #define STR_MATERIAL_HEATUP                 "Material heatup parameters"
@@ -356,6 +372,21 @@
 #define STR_Z2 STR_C "2"
 #define STR_Z3 STR_C "3"
 #define STR_Z4 STR_C "4"
+#if ANY(HAS_REAL_X, IS_SCARA, DELTA)
+  #define STEPPER_A_NAME 'A'
+#else
+  #define STEPPER_A_NAME 'X'
+#endif
+#if ANY(HAS_REAL_Y, IS_SCARA, DELTA, POLAR)
+  #define STEPPER_B_NAME 'B'
+#else
+  #define STEPPER_B_NAME 'Y'
+#endif
+#if ANY(HAS_REAL_Z, DELTA)
+  #define STEPPER_C_NAME 'C'
+#else
+  #define STEPPER_C_NAME 'Z'
+#endif
 
 //
 // Endstop Names used by Endstops::report_states

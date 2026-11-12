@@ -73,7 +73,7 @@
 //
 // Temperature Sensors
 //
-#if TEMP_SENSOR_0 == -1
+#if TEMP_SENSOR_0_IS_AD595
   #define TEMP_0_PIN                           8  // Analog Input
 #else
   #define TEMP_0_PIN                          13  // Analog Input
@@ -95,7 +95,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  53
+#define SD_SS_PIN                             53
 #define LED_PIN                               13
 #define PS_ON_PIN                             12
 

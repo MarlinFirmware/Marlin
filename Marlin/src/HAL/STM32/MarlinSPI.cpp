@@ -39,15 +39,19 @@ static void spi_init(spi_t *obj, uint32_t speed, spi_mode_e mode, uint8_t msb, u
 
 void MarlinSPI::setClockDivider(uint8_t _div) {
   _speed = spi_getClkFreq(&_spi);// / _div;
-  _clockDivider = _div;
+  if (_clockDivider != _div) {
+    _clockDivider = _div;
+    _mustInit = true;
+  }
 }
 
 void MarlinSPI::begin(void) {
-  //TODO: only call spi_init if any parameter changed!!
+  if (!_mustInit) return;
   spi_init(&_spi, _speed, _dataMode, _bitOrder, _dataSize);
+  _mustInit = false;
 }
 
-void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc) {
+void MarlinSPI::setupDma(SPI_HandleTypeDef &_spiHandle, DMA_HandleTypeDef &_dmaHandle, uint32_t direction, bool minc/*=false*/) {
   _dmaHandle.Init.Direction = direction;
   _dmaHandle.Init.PeriphInc = DMA_PINC_DISABLE;
   _dmaHandle.Init.Mode = DMA_NORMAL;
@@ -156,6 +160,10 @@ uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16
     HAL_DMA_DeInit(&_dmaRx);
   }
 
+  // Disable the DMA requests. On STM32F1 a DMA channel serves several peripherals
+  // (e.g., SPI2_TX and USART1_RX on DMA1 Channel 5) and an idle SPI keeps requesting.
+  CLEAR_BIT(_spi.handle.Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
+
   return 1;
 }
 
@@ -168,6 +176,7 @@ uint8_t MarlinSPI::dmaSend(const void * transmitBuf, uint16_t length, bool minc)
   HAL_DMA_Abort(&_dmaTx);
   // DeInit objects
   HAL_DMA_DeInit(&_dmaTx);
+  CLEAR_BIT(_spi.handle.Instance->CR2, SPI_CR2_TXDMAEN); // Disable Tx DMA Request (see dmaTransfer)
   return 1;
 }
 

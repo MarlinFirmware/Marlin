@@ -44,19 +44,18 @@
 //
 // EEPROM
 //
-#if NO_EEPROM_SELECTED
-  #ifdef ARDUINO_ARCH_STM32
-    #define FLASH_EEPROM_EMULATION
-  #else
-    #define SDCARD_EEPROM_EMULATION
-  #endif
+#if NO_EEPROM_SELECTED && !defined(ARDUINO_ARCH_STM32)
+  #define SDCARD_EEPROM_EMULATION
 #endif
 
-#if ENABLED(FLASH_EEPROM_EMULATION)
-  #define EEPROM_PAGE_SIZE     (0x800U) // 2K
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
-  #define MARLIN_EEPROM_SIZE (EEPROM_PAGE_SIZE)
+  #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
+
+#define BOARD_LCD_SERIAL_PORT               2
 
 //
 // Servos
@@ -225,14 +224,13 @@
   #define SD_SCK_PIN                        PC12
   #define SD_MISO_PIN                       PC8
   #define SD_MOSI_PIN                       PD2
-  #define SD_SS_PIN                         -1
   #define ONBOARD_SD_CS_PIN                 PC11
-  #define SDSS                              PD2
+  #define SD_SS_PIN                         PD2
   #define SD_DETECT_PIN                     -1
 #endif
 
 //
-// Trinamic TMC2208/2209 UART
+// Trinamic TMC2208/TMC2209 UART
 //
 #if HAS_TMC_UART
   /**

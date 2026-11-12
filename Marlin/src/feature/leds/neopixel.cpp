@@ -103,7 +103,7 @@ void Marlin_NeoPixel::init() {
     safe_delay(500);
     set_color_startup(adaneo1.Color(0, 0, 255, 0));  // blue
     safe_delay(500);
-    #if HAS_WHITE_LED
+    #if HAS_WHITE_NEOPIXEL_1
       set_color_startup(adaneo1.Color(0, 0, 0, 255));  // white
       safe_delay(500);
     #endif
@@ -158,7 +158,7 @@ void Marlin_NeoPixel::init() {
       safe_delay(500);
       set_color_startup(adaneo.Color(0, 0, 255, 0));  // blue
       safe_delay(500);
-      #if HAS_WHITE_LED2
+      #if HAS_WHITE_NEOPIXEL_2
         set_color_startup(adaneo.Color(0, 0, 0, 255));  // white
         safe_delay(500);
       #endif

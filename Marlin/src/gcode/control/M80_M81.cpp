@@ -38,8 +38,12 @@
   #include "../../feature/powerloss.h"
 #endif
 
-#if HAS_SUICIDE
+#if ANY(HAS_SUICIDE, CONFIGURABLE_MACHINE_NAME)
   #include "../../MarlinCore.h"
+#endif
+
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
 #endif
 
 #if ENABLED(PSU_CONTROL)
@@ -84,15 +88,18 @@ void GcodeSuite::M81() {
   print_job_timer.stop();
 
   #if ALL(HAS_FAN, PROBING_FANS_OFF)
-    thermalManager.fans_paused = false;
-    ZERO(thermalManager.saved_fan_speed);
+    Fan::power_off();
   #endif
 
   TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
 
   safe_delay(1000); // Wait 1 second before switching off
 
-  LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
+  #if ENABLED(CONFIGURABLE_MACHINE_NAME)
+    ui.set_status(&MString<30>(&marlin.machine_name, ' ', F(STR_OFF), '.'));
+  #else
+    LCD_MESSAGE_F(MACHINE_NAME " " STR_OFF ".");
+  #endif
 
   bool delayed_power_off = false;
 
@@ -121,6 +128,8 @@ void GcodeSuite::M81() {
   #if ENABLED(PSU_CONTROL)
     powerManager.power_off_soon();
   #elif HAS_SUICIDE
-    suicide();
+    marlin.suicide();
   #endif
+
+  //OUT_WRITE(SHUTDOWN_PIN, LOW); delay(2000);
 }

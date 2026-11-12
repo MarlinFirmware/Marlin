@@ -71,20 +71,18 @@
   #define E0_DIAG_PIN                         78  // PB23
   #define E1_DIAG_PIN                         25  // PD0
 
+  #define X_STOP_PIN                  X_DIAG_PIN
   #if X_HOME_TO_MIN
-    #define X_MIN_PIN                 X_DIAG_PIN
-    #define X_MAX_PIN                         32
+    #define X_OTHR_PIN                        32  // PD10 MAX ES1
   #else
-    #define X_MIN_PIN                         14
-    #define X_MAX_PIN                 X_DIAG_PIN
+    #define X_OTHR_PIN                        14  // PD4 MIN ES1
   #endif
 
+  #define Y_STOP_PIN                  Y_DIAG_PIN
   #if Y_HOME_TO_MIN
-    #define Y_MIN_PIN                 Y_DIAG_PIN
-    #define Y_MAX_PIN                         15
+    #define Y_OTHR_PIN                        15  // PD5 MAX ES2
   #else
-    #define Y_MIN_PIN                         29
-    #define Y_MAX_PIN                 Y_DIAG_PIN
+    #define Y_OTHR_PIN                        29  // PD6 MIN ES2
   #endif
 
 #else
@@ -103,7 +101,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     32
+  #define Z_MIN_PROBE_PIN                     32  // PD10 MAX ES1
 #endif
 
 //
@@ -193,7 +191,7 @@
 #define SD_SCK_PIN                            76  // D76 PA27
 #define SD_MISO_PIN                           74  // D74 PA25
 #define SD_MOSI_PIN                           75  // D75 PA26
-#define SDSS                                  87  // D87 PA29
+#define SD_SS_PIN                             87  // D87 PA29
 
 // Unused Digital GPIO J20 Pins
 #define GPIO_PB1_J20_5                        94  // D94 PB1 (Header J20 5)
@@ -253,9 +251,9 @@
   #define BTN_ENC                             16  // D16 PA13_TXD1 // the click
 #endif
 
-#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, USB_FLASH_DRIVE_SUPPORT)
+#if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE, HAS_USB_FLASH_DRIVE)
   #define SD_DETECT_PIN                        2  // D2  PB25_TIOA0
-  #if ENABLED(USB_FLASH_DRIVE_SUPPORT)
+  #if HAS_USB_FLASH_DRIVE
     #define DISABLE_DUE_SD_MMC
   #endif
 #endif

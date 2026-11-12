@@ -127,7 +127,7 @@ uint8_t swSpiTransfer_mode_3(uint8_t b, const uint8_t spi_speed, const pin_t sck
 static uint8_t SPI_speed = 0;
 
 static uint8_t swSpiInit(const uint8_t spi_speed, const uint8_t clk_pin, const uint8_t mosi_pin) {
-    return spi_speed;
+  return spi_speed;
 }
 
 static void u8g_sw_spi_shift_out(uint8_t dataPin, uint8_t clockPin, uint8_t val) {

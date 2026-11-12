@@ -35,13 +35,26 @@
 #include "../../lcd/marlinui.h"
 
 /**
- * M141: Set chamber temperature
+ * M141: Set chamber target temperature and return immediately
+ *
+ * Parameters
+ *  S<target> : Target temperature in current units
+ *
+ * With HAS_PREHEAT (material presets are defined)
+ *  I<preset> : Material Preset index
  */
 void GcodeSuite::M141() {
   if (DEBUGGING(DRYRUN)) return;
+  // Accept 'I' if temperature presets are defined
+  #if HAS_PREHEAT
+    if (parser.seenval('I')) {
+      const uint8_t index = parser.value_byte();
+      thermalManager.setTargetChamber(ui.material_preset[_MIN(index, PREHEAT_COUNT - 1)].chamber_temp);
+      return;
+    }
+  #endif
   if (parser.seenval('S')) {
     thermalManager.setTargetChamber(parser.value_celsius());
-
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
       /**
        * Stop the timer at the end of print. Hotend, bed target, and chamber

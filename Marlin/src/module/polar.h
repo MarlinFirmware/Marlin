@@ -30,7 +30,7 @@
 extern float segments_per_second;
 
 float absoluteAngle(float a);
-void forward_kinematics(const_float_t r, const_float_t theta);
+void forward_kinematics(const float r, const float theta);
 
 void inverse_kinematics(const xyz_pos_t &raw);
 void polar_report_positions();

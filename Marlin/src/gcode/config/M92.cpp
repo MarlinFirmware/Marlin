@@ -57,7 +57,7 @@ void GcodeSuite::M92() {
         planner.settings.axis_steps_per_mm[i] = parser.value_per_axis_units((AxisEnum)i);
       else {
         #if HAS_EXTRUDERS
-          const float value = parser.value_per_axis_units((AxisEnum)(E_AXIS_N(target_extruder)));
+          const float value = parser.value_per_axis_units(AxisEnum(E_AXIS_N(target_extruder)));
           if (value < 20) {
             float factor = planner.settings.axis_steps_per_mm[E_AXIS_N(target_extruder)] / value; // increase e constants if M92 E14 is given for netfab.
             #if ALL(CLASSIC_JERK, HAS_CLASSIC_E_JERK)
@@ -101,7 +101,7 @@ void GcodeSuite::M92_report(const bool forReplay/*=true*/, const int8_t e/*=-1*/
   report_heading_etc(forReplay, F(STR_STEPS_PER_UNIT));
   #if NUM_AXES
     #define PRINT_EOL
-    SERIAL_ECHOPGM_P(LIST_N(DOUBLE(NUM_AXES),
+    SERIAL_ECHOPGM_P(NUM_AXIS_PAIRED_LIST(
       PSTR("  M92 X"), LINEAR_UNIT(planner.settings.axis_steps_per_mm[X_AXIS]),
       SP_Y_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Y_AXIS]),
       SP_Z_STR, LINEAR_UNIT(planner.settings.axis_steps_per_mm[Z_AXIS]),

@@ -22,6 +22,13 @@
 #pragma once
 
 /**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef PA0
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h and/or 'buildroot/share/PlatformIO/variants/*/variant.h' to define the pins."
+#endif
+
+/**
  * Test STM32-specific configuration values for errors at compile-time.
  */
 //#if ENABLED(SPINDLE_LASER_USE_PWM) && !(SPINDLE_LASER_PWM_PIN == 4 || SPINDLE_LASER_PWM_PIN == 6 || SPINDLE_LASER_PWM_PIN == 11)
@@ -36,8 +43,8 @@
   #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
 #endif
 
-#if !defined(STM32F4xx) && ENABLED(FLASH_EEPROM_LEVELING)
-  #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4 hardware."
+#if NONE(STM32F4xx, STM32H7xx) && ENABLED(FLASH_EEPROM_LEVELING)
+  #error "FLASH_EEPROM_LEVELING is currently only supported on STM32F4/H7 hardware." // IRON
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)
@@ -58,7 +65,7 @@
  * Check for common serial pin conflicts
  */
 #define _CHECK_SERIAL_PIN(N) (( \
-    BTN_EN1 == N || BTN_EN2 == N ||DOGLCD_CS == N || HEATER_BED_PIN == N || FAN0_PIN == N || \
+    BTN_EN1 == N || BTN_EN2 == N || DOGLCD_CS == N || HEATER_BED_PIN == N || FAN0_PIN == N || \
     SDIO_D2_PIN == N || SDIO_D3_PIN == N || SDIO_CK_PIN == N || SDIO_CMD_PIN == N || \
     Y_STEP_PIN == N || Y_ENABLE_PIN == N || E0_ENABLE_PIN == N || POWER_LOSS_PIN == N \
   ))

@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2.cpp
+ * mmu3.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"
@@ -38,13 +38,17 @@
 #include "mmu3_progress_converter.h"
 #include "mmu3_reporting.h"
 
-#include "strlen_cx.h"
 #include "SpoolJoin.h"
 
 #include "../../inc/MarlinConfig.h"
 
 #include "../../lcd/marlinui.h"
+#if ENABLED(MMU_MENUS)
+  #include "../../lcd/menu/menu_mmu2.h" // for menu_mmu2_pause
+#endif
+
 #include "../../module/planner.h"
+#include "../../module/temperature.h"
 #include "../../module/motion.h"
 #include "../../gcode/parser.h"
 #include "../../gcode/queue.h"
@@ -96,6 +100,9 @@ namespace MMU3 {
     , tool_change_extruder(MMU2_NO_TOOL)
     , resume_position()
     , resume_hotend_temp(0)
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      , error_temps_saved(false)
+    #endif
     , logicStepLastStatus(StepStatus::Finished)
     , _state(xState::Stopped)
     , mmu_print_saved(SavedState::None)
@@ -255,7 +262,7 @@ namespace MMU3 {
       uint8_t block_index = planner.block_buffer_tail;
       while (block_index != planner.block_buffer_head) {
         block = &planner.block_buffer[block_index];
-        if (block->steps[E_AXIS] != 0) e_active++;
+        if (block->steps.e != 0) e_active++;
         block_index = (block_index + 1) & (BLOCK_BUFFER_SIZE - 1);
       }
     }
@@ -274,9 +281,8 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& printJobOngoing()
+        && marlin.printingIsActive() // A job is running and not paused. Don't trigger while paused or from the pause itself.
         && parser.codenum != 600
-        && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
         && e_active()
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
@@ -294,12 +300,12 @@ namespace MMU3 {
           runout.filament_ran_out = false; // trying to disable the purge more / continue message
           runout.enabled = false;
         #endif
-        queue.enqueue_now(F("M600A")); // Save print and run M600 A (automatic) command
+        queue.inject(F("M600A")); // Save print and run M600 A (automatic) command
       }
       else {
         marlin_stop_and_save_print_to_ram();
-        resume_print();
-        queue.enqueue_now(F("M600")); // Save print and run M600 command
+        resume_print(0, 0, 0, 0, 0, false); // Restore the state only. No load, purge, or "Purge More / Continue" prompt.
+        queue.inject(F("M600")); // Save print and run M600 command
       }
     }
   }
@@ -331,7 +337,7 @@ namespace MMU3 {
       // check, that Retry is actually allowed on that operation
       if (ButtonAvailable(ec) != Buttons::NoButton) {
         logic.SetInAutoRetry(true);
-        SERIAL_ECHOLN_P("RetryButtonPressed");
+        TERN_(MMU_DEBUG, SERIAL_ECHOLN_P("RetryButtonPressed"));
         // We don't decrement until the button is acknowledged by the MMU.
         // --retryAttempts; // "used" one retry attempt
         return true;
@@ -363,12 +369,12 @@ namespace MMU3 {
      * in the slope's sign or check the last machine position.
      *              y(x)
      *              ▲
-     *              │     ^◄────────── tryload_length + current_position
+     *              │     ^◄────────── tryload_length + motion.position
      *   machine    │    / \
-     *   position   │   /   \◄────────── stepper_position_mm + current_position
+     *   position   │   /   \◄────────── stepper_position_mm + motion.position
      *    (mm)      │  /     \
      *              │ /       \
-     *              │/         \◄───────current_position
+     *              │/         \◄───────motion.position
      *              └──────────────► x
      *              0           19
      *                 pixel #
@@ -456,7 +462,7 @@ namespace MMU3 {
     if (slot != extruder) {
       if (
         //findaDetectsFilament()
-        //!IS_SD_PRINTING() && !usb_timer.running()
+        //!card.isStillPrinting() && !usb_timer.running()
         !marlin_printingIsActive()
       ) {
         // If Tcodes are used manually through the serial
@@ -522,8 +528,10 @@ namespace MMU3 {
 
   void MMU3::setCurrentTool(uint8_t ex) {
     extruder = ex;
-    MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
-    SERIAL_ECHOLN((int)ex);
+    #if ENABLED(MMU_DEBUG)
+      MMU2_ECHO_MSGRPGM(PSTR("MMU2tool="));
+      SERIAL_ECHOLN((int)ex);
+    #endif
   }
 
   bool MMU3::set_filament_type(uint8_t /*slot*/, uint8_t /*type*/) {
@@ -696,6 +704,16 @@ namespace MMU3 {
   }
 
   void MMU3::saveHotendTemp(bool turn_off_nozzle) {
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      // Remember the targets from before the error. Hotend Idle Timeout may lower them
+      // while the error screen waits, and they must be restored when the user retries.
+      if (!error_temps_saved) {
+        error_temps_saved = true;
+        error_hotend_target = thermal_degTargetHotend();
+        TERN_(HAS_HEATED_BED, error_bed_target = thermalManager.degTargetBed());
+      }
+    #endif
+
     if (mmu_print_saved & SavedState::Cooldown) return;
 
     if (turn_off_nozzle && !(mmu_print_saved & SavedState::CooldownPending)) {
@@ -729,6 +747,28 @@ namespace MMU3 {
     }
   }
 
+  // True while reheatHotend is waiting. The wait keeps the MMU loop running, which
+  // would otherwise act on a second click on the error screen before the hotend is hot.
+  static bool reheating = false;
+
+  void MMU3::reheatHotend(const int16_t temp) {
+    LogEchoEvent(F("Resuming Temp"));
+    // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
+    SERIAL_ECHOLN(temp);
+    reheating = true;
+    thermal_setTargetHotend(temp);
+    fullScreenMsgRestoringTemperature();
+    waitForHotendTargetTemp(100, [] {
+      marlin_manage_inactivity(true);
+      mmu3.mmu_loop_inner(false);
+    });
+    reheating = false;
+    ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
+    LogEchoEvent(F("Hotend temperature reached"));
+    TERN_(HAS_WIRED_LCD, ui.reset_status());
+    ScreenClear();
+  }
+
   void MMU3::resumeHotendTemp() {
     if ((mmu_print_saved & SavedState::CooldownPending)) {
       // Clear the "pending" flag if we haven't cooled yet.
@@ -736,23 +776,24 @@ namespace MMU3 {
       LogEchoEvent(F("Cooldown flag cleared"));
     }
     if ((mmu_print_saved & SavedState::Cooldown) && resume_hotend_temp) {
-      LogEchoEvent(F("Resuming Temp"));
-      // @@TODO MMU2_ECHO_MSGRPGM(PSTR("Restoring hotend temperature "));
-      SERIAL_ECHOLN(resume_hotend_temp);
       mmu_print_saved &= ~(SavedState::Cooldown);
-      thermal_setTargetHotend(resume_hotend_temp);
-      fullScreenMsgRestoringTemperature();
-      // @todo better report the event and let the GUI do its work somewhere else
-      ReportErrorHookSensorLineRender();
-      waitForHotendTargetTemp(100, [] {
-        marlin_manage_inactivity(true);
-        mmu3.mmu_loop_inner(false);
-        ReportErrorHookDynamicRender();
-      });
-      ScreenUpdateEnable(); // temporary hack to stop this locking the printer...
-      LogEchoEvent(F("Hotend temperature reached"));
-      ScreenClear();
+      reheatHotend(resume_hotend_temp);
     }
+
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      if (error_temps_saved) {
+        error_temps_saved = false;
+        // Hotend Idle Timeout lowered the targets while waiting for the user? Raise them again.
+        #if HAS_HEATED_BED
+          if (thermalManager.degTargetBed() < error_bed_target) {
+            LogEchoEvent(F("Resuming Bed Temp"));
+            thermalManager.setTargetBed(error_bed_target);
+          }
+        #endif
+        if (error_hotend_target && thermal_degTargetHotend() < error_hotend_target)
+          reheatHotend(error_hotend_target);
+      }
+    #endif
   }
 
   void MMU3::resumeUnpark() {
@@ -760,10 +801,10 @@ namespace MMU3 {
       LogEchoEvent(F("Resuming XYZ"));
 
       // Move XY to starting position, then Z
-      motion_do_blocking_move_to_xy(resume_position.x, resume_position.x, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
+      motion_blocking_move_xy(resume_position.x, resume_position.y, feedRate_t(NOZZLE_PARK_XY_FEEDRATE));
 
       // Move Z_AXIS to saved position
-      motion_do_blocking_move_to_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
+      motion_blocking_move_z(resume_position.z, feedRate_t(NOZZLE_PARK_Z_FEEDRATE));
 
       // From this point forward, power panic should not use
       // the partial backup in RAM since the extruder is no
@@ -775,6 +816,13 @@ namespace MMU3 {
   }
 
   void MMU3::checkUserInput() {
+    if (reheating) {
+      // Ignore clicks until the hotend is ready, so a retry can't start with a cold nozzle
+      SetButtonResponse(ButtonOperations::NoOperation);
+      lastButton = Buttons::NoButton;
+      return;
+    }
+
     auto btn = ButtonPressed(lastErrorCode);
 
     // Was a button pressed on the MMU itself instead of the LCD?
@@ -797,13 +845,23 @@ namespace MMU3 {
       case Buttons::Left:
       case Buttons::Middle:
       case Buttons::Right:
-        SERIAL_ECHOPGM("checkUserInput-btnLMR ");
-        SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #if ENABLED(MMU_DEBUG)
+          SERIAL_ECHOPGM("checkUserInput-btnLMR ");
+          SERIAL_ECHOLN((int)buttons_to_uint8t(btn));
+        #endif
         resumeHotendTemp(); // Recover the hotend temp before we attempt to do anything else...
 
         if (mmuLastErrorSource() == MMU3::ErrorSourceMMU)
           // Do not send a button to the MMU unless the MMU is in error state
           button(buttons_to_uint8t(btn));
+
+        #if ENABLED(MMU_MENUS)
+          // After eject go back to the pause screen
+          if (lastErrorCode == ErrorCode::FILAMENT_EJECTED && return_to_pause_after_eject) { // #28813
+            ui.goto_screen(menu_mmu2_pause);
+            return_to_pause_after_eject = false;
+          }
+        #endif
 
         // A quick hack: for specific error codes move the E-motor every time.
         // Not sure if we can rely on the fsensor.
@@ -824,7 +882,7 @@ namespace MMU3 {
         break;
       case Buttons::ResetMMU:
         reset(ResetPin); // Cannot do power cycle on the MK3
-        // ... but mmu2_power.cpp knows this and triggers a soft-reset instead.
+        // ... but mmu3_power.cpp knows this and triggers a soft-reset instead.
         break;
       case Buttons::DisableMMU:
         stop();
@@ -857,7 +915,7 @@ namespace MMU3 {
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
       // So in this case we should decide if the operation is:
-      // - still running -> wait normally in idle()
+      // - still running -> wait normally in marlin.idle()
       // - failed -> then do the safety moves on the printer like before
       // - finished ok -> proceed with reading other commands
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status
@@ -867,7 +925,7 @@ namespace MMU3 {
           nozzle_timer.start();
           LogEchoEvent(F("Cooling Timeout started"));
         }
-        else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000ul)) { // mins->msec.
+        else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000UL)) { // mins->msec.
           mmu_print_saved &= ~(SavedState::CooldownPending);
           mmu_print_saved |= SavedState::Cooldown;
           thermal_setTargetHotend(0);
@@ -997,12 +1055,13 @@ namespace MMU3 {
     execute_extruder_sequence(ramming_sequence, sizeof(ramming_sequence) / sizeof(E_Step));
   }
 
-  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps) {
+  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps, const float first_step_adjustment/*=0*/) {
     planner_synchronize();
 
     const E_Step *step = sequence;
     for (uint8_t i = steps; i > 0; --i) {
-      extruder_move(pgm_read_float(&(step->extrude)), pgm_read_float(&(step->feedRate)));
+      const float extrude = pgm_read_float(&(step->extrude)) - (i == steps ? first_step_adjustment : 0);
+      extruder_move(extrude, pgm_read_float(&(step->feedRate)));
       step++;
     }
     planner_synchronize(); // it looks like it's better to sync the moves at the end - smoother move (if the sequence is not too long).
@@ -1012,9 +1071,8 @@ namespace MMU3 {
 
   void MMU3::execute_load_to_nozzle_sequence() {
     planner_synchronize();
-    // Compensate for configurable Extra Loading Distance
-    planner_set_current_position_E(planner_get_current_position_E() - (logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION));
-    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]));
+    const float extra_load_offset = logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION;
+    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]), extra_load_offset);
   }
 
   void MMU3::reportError(ErrorCode ec, ErrorSource res) {
@@ -1162,12 +1220,14 @@ namespace MMU3 {
               //
               // Instead of doing a very long extrude as in PrusaFirmware,
               // Marlin's own MMU2s code has a better approach to this by spinning
-              // the extruder indefinitelly...
+              // the extruder indefinitely...
               //
               // this ensures that while the MMU is pushing the filament,
               // the extruder will keep rotating, preventing the filament to hit
               // the extruder gears...
-              while (planner.movesplanned() < 3) {
+              // (Skip this if the hotend is too cold to extrude, as the planner drops
+              //  those moves and the queue would never fill.)
+              while (planner.movesplanned() < 3 && !thermalManager.tooColdToExtrude(0)) {
                 extruder_move(extrude_distance, pulley_slow_feedrate, false);
               }
               break;

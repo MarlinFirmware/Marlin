@@ -92,7 +92,7 @@
   #define MICROSTEP32 HIGH,HIGH,LOW
 #endif
 
-//#define MOTOR_FAULT_PIN                     22  // PB26 , motor X-Y-Z-E0 motor FAULT
+//#define MOTOR_FAULT_PIN                     22  // PB26, motor X-Y-Z-E0 motor FAULT
 
 //
 // Temperature Sensors
@@ -121,7 +121,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                  77  // PA28
+#define SD_SS_PIN                             77  // PA28
 #define SD_DETECT_PIN                         87  // PA29
 #define LED_RED_PIN                           40  // PC8
 #define LED_GREEN_PIN                         41  // PC9

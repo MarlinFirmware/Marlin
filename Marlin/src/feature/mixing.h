@@ -62,7 +62,8 @@ static_assert(NR_MIXING_VIRTUAL_TOOLS <= MAX_VTOOLS, "MIXING_VIRTUAL_TOOLS must 
 #if ENABLED(GRADIENT_MIX)
 
   typedef struct {
-    bool enabled;                         // This gradient is enabled
+    bool enabled;                         // This gradient is in effect (allowed, and the V-tools and the Z range make a gradient)
+    bool allowed;                         // M166 S / LCD switch. Off keeps the gradient settings but never applies them.
     mixer_comp_t color[MIXING_STEPPERS];  // The current gradient color
     float start_z, end_z;                 // Region for gradient
     int8_t start_vtool, end_vtool;        // Start and end virtual tools
@@ -114,7 +115,7 @@ class Mixer {
     MIXER_STEPPER_LOOP(i) b_color[i] = color[selected_vtool][i];
   }
 
-  FORCE_INLINE static void stepper_setup(mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
+  FORCE_INLINE static void stepper_setup(const mixer_comp_t (&b_color)[MIXING_STEPPERS]) {
     MIXER_STEPPER_LOOP(i) s_color[i] = b_color[i];
   }
 
@@ -174,9 +175,9 @@ class Mixer {
     static float prev_z;
 
     // Update the current mix from the gradient for a given Z
-    static void update_gradient_for_z(const_float_t z);
+    static void update_gradient_for_z(const float z);
     static void update_gradient_for_planner_z();
-    static void gradient_control(const_float_t z) {
+    static void gradient_control(const float z) {
       if (gradient.enabled) {
         if (z >= gradient.end_z)
           T(gradient.end_vtool);
@@ -205,7 +206,7 @@ class Mixer {
       #else
         constexpr bool is_grd = true;
       #endif
-      gradient.enabled = is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
+      gradient.enabled = gradient.allowed && is_grd && gradient.start_vtool != gradient.end_vtool && gradient.start_z < gradient.end_z;
       if (gradient.enabled) {
         mixer_perc_t mix_bak[MIXING_STEPPERS];
         COPY(mix_bak, mix);

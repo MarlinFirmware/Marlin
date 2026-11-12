@@ -6,7 +6,9 @@ set -e
 FN="platformio.ini"
 
 if [[ $1 == "-n" ]]; then
-  awk '/default_src_filter/ { sub("default_src_filter", "org_src_filter"); print "default_src_filter = +<src/*>"; } 1' $FN > $FN~ && mv $FN~ $FN
+  if ! grep -q "org_src_filter" "$FN"; then
+    awk '/default_src_filter/ { sub("default_src_filter", "org_src_filter"); print "default_src_filter = +<src/*>"; } 1' $FN > $FN~ && mv $FN~ $FN
+  fi
 else
   git checkout $FN 2>/dev/null
 fi

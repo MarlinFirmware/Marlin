@@ -32,7 +32,7 @@
 #define ES_ENUM(A,M) _ES_ENUM(A,M)
 
 #define _ES_ITEM(N) , N
-#define ES_ITEM(K,N) TERN(K,_ES_ITEM,_IF_1_ELSE)(N)
+#define ES_ITEM(K,N) TERN(K,_ES_ITEM,OMIT)(N)
 
 #define _ESN_ITEM(K,A,M) ES_ITEM(K,ES_ENUM(A,M))
 #define ES_MINMAX(A) ES_ITEM(HAS_##A##_MIN_STATE, ES_ENUM(A,MIN)) ES_ITEM(HAS_##A##_MAX_STATE, ES_ENUM(A,MAX))
@@ -173,6 +173,11 @@ class Endstops {
     static void init();
 
     /**
+     * Saved settings initialization
+     */
+    static void factory_reset();
+
+    /**
      * Are endstops or the Z min probe or the CALIBRATION probe set to abort the move?
      */
     FORCE_INLINE static bool abort_enabled() {
@@ -216,6 +221,11 @@ class Endstops {
       ;
     }
 
+    /**
+     * Get a particular endstop state
+     */
+    FORCE_INLINE static bool state(const EndstopEnum es) { return TEST(state(), es); }
+
     static bool probe_switch_activated() {
       return (true
         #if ENABLED(PROBE_ACTIVATION_SWITCH)
@@ -241,7 +251,7 @@ class Endstops {
     static void enable(const bool onoff=true);
 
     // Disable / Enable endstops based on ENSTOPS_ONLY_FOR_HOMING and global enable
-    static void not_homing();
+    static void not_homing() { enabled = enabled_globally; }
 
     #if ENABLED(VALIDATE_HOMING_ENDSTOPS)
       // If the last move failed to trigger an endstop, call kill
@@ -303,3 +313,11 @@ class TemporaryGlobalEndstopsState {
     }
     ~TemporaryGlobalEndstopsState() { endstops.enable_globally(saved); }
 };
+
+#if ENABLED(G38_PROBE_TARGET)
+  typedef struct ProbeTarget {
+    uint8_t type;     // Flag to tell the ISR the type of G38 in progress; 0 for NONE.
+    bool triggered;   // Flag from the ISR to indicate the endstop changed
+  } probe_target_t;
+  extern probe_target_t G38_move;
+#endif

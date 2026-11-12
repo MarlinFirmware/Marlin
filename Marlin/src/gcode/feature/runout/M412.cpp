@@ -35,32 +35,44 @@
  *  S<bool>   : Reset and enable/disable the runout sensor
  *  H<bool>   : Enable/disable host handling of filament runout
  *  D<linear> : Extra distance to continue after runout is triggered
+ *
+ * With FILAMENT_SWITCH_AND_MOTION:
+ *  L<linear> : Missing motion length to consider a jam. L0 disables jam detection.
  */
 void GcodeSuite::M412() {
   if (parser.seen("RS"
     TERN_(HAS_FILAMENT_RUNOUT_DISTANCE, "D")
     TERN_(HOST_ACTION_COMMANDS, "H")
+    TERN_(FILAMENT_SWITCH_AND_MOTION, "L")
   )) {
     #if ENABLED(HOST_ACTION_COMMANDS)
       if (parser.seen('H')) runout.host_handling = parser.value_bool();
     #endif
     const bool seenR = parser.seen_test('R'), seenS = parser.seen('S');
-    if (seenR || seenS) runout.reset();
     if (seenS) runout.enabled = parser.value_bool();
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       if (parser.seenval('D')) runout.set_runout_distance(parser.value_linear_units());
     #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      const bool seenL = parser.seenval('L');
+      if (seenL) runout.set_motion_distance(parser.value_linear_units());
+    #else
+      constexpr bool seenL = false;
+    #endif
+    // Reset after the new distances are set, so the countdowns start from them
+    if (seenR || seenS || seenL) runout.reset();
   }
   else {
     SERIAL_ECHO_START();
-    SERIAL_ECHOPGM("Filament runout ");
-    serialprint_onoff(runout.enabled);
+    SERIAL_ECHOPGM("Filament runout ", ON_OFF(runout.enabled));
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       SERIAL_ECHOPGM(" ; Distance ", runout.runout_distance(), "mm");
     #endif
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      SERIAL_ECHOPGM(" ; Motion distance ", runout.motion_distance(), "mm");
+    #endif
     #if ENABLED(HOST_ACTION_COMMANDS)
-      SERIAL_ECHOPGM(" ; Host handling ");
-      serialprint_onoff(runout.host_handling);
+      SERIAL_ECHOPGM(" ; Host handling ", ON_OFF(runout.host_handling));
     #endif
     SERIAL_EOL();
   }
@@ -70,14 +82,16 @@ void GcodeSuite::M412_report(const bool forReplay/*=true*/) {
   TERN_(MARLIN_SMALL_BUILD, return);
 
   report_heading_etc(forReplay, F(STR_FILAMENT_RUNOUT_SENSOR));
-  SERIAL_ECHOPGM(
+  SERIAL_ECHOLNPGM(
     "  M412 S", runout.enabled
     #if HAS_FILAMENT_RUNOUT_DISTANCE
       , " D", LINEAR_UNIT(runout.runout_distance())
     #endif
-    , " ; Sensor "
+    #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+      , " L", LINEAR_UNIT(runout.motion_distance())
+    #endif
+    , " ; Sensor ", ON_OFF(runout.enabled)
   );
-  serialprintln_onoff(runout.enabled);
 }
 
 #endif // HAS_FILAMENT_SENSOR

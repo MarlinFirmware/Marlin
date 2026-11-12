@@ -60,16 +60,16 @@ void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
   bool result;
   switch (timer_num) {
     case 0:
-      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_0, us, HAL_timer_repeating_0_callback, NULL, &HAL_timer_0);
+      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_0, us, HAL_timer_repeating_0_callback, nullptr, &HAL_timer_0);
       break;
     case 1:
-      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_1, us, HAL_timer_repeating_1_callback, NULL, &HAL_timer_1);
+      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_1, us, HAL_timer_repeating_1_callback, nullptr, &HAL_timer_1);
       break;
     case 2:
-      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_2, us, HAL_timer_repeating_2_callback, NULL, &HAL_timer_2);
+      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_2, us, HAL_timer_repeating_2_callback, nullptr, &HAL_timer_2);
       break;
     case 3:
-      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_3, us, HAL_timer_repeating_3_callback, NULL, &HAL_timer_3);
+      result = alarm_pool_add_repeating_timer_us(HAL_timer_pool_3, us, HAL_timer_repeating_3_callback, nullptr, &HAL_timer_3);
       break;
   }
   UNUSED(result);

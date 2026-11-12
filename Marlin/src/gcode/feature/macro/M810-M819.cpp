@@ -28,10 +28,8 @@
 #include "../../queue.h"
 #include "../../parser.h"
 
-char gcode_macros[GCODE_MACROS_SLOTS][GCODE_MACROS_SLOT_SIZE + 1] = {{ 0 }};
-
 /**
- * M810_819: Set/execute a G-code macro.
+ * M810 - M819: Set/execute a G-code macro.
  *
  * Usage:
  *   M810 <command>|...   Set Macro 0 to the given commands, separated by the pipe character
@@ -48,7 +46,7 @@ void GcodeSuite::M810_819() {
     if (len > GCODE_MACROS_SLOT_SIZE)
       SERIAL_ERROR_MSG("Macro too long.");
     else {
-      char c, *s = parser.string_arg, *d = gcode_macros[index];
+      char c, *s = parser.string_arg, *d = gcode.macros[index];
       do {
         c = *s++;
         *d++ = c == '|' ? '\n' : c;
@@ -57,9 +55,13 @@ void GcodeSuite::M810_819() {
   }
   else {
     // Execute a macro
-    char * const cmd = gcode_macros[index];
+    char * const cmd = gcode.macros[index];
     if (strlen(cmd)) process_subcommands_now(cmd);
   }
+}
+
+void GcodeSuite::M810_819_report(const bool forReplay/*=true*/) {
+  M820(forReplay);
 }
 
 #endif // GCODE_MACROS

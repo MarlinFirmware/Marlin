@@ -52,7 +52,7 @@ void DGUS_SDCardHandler::Reset() {
     currentSeekPos++;
   }
 
-  #ifdef DEBUG_DGUSLCD
+  #if ENABLED(DEBUG_DGUSLCD)
     DEBUG_ECHOPGM("Reset() :", fileCount);
     DEBUG_CHAR('/');
     DEBUG_ECHOLN(currentSeekPos);
@@ -60,18 +60,18 @@ void DGUS_SDCardHandler::Reset() {
 }
 
 void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page) {
-  setFilename(file_t::FILE_1, NULL);
-  setFilename(file_t::FILE_2, NULL);
-  setFilename(file_t::FILE_3, NULL);
-  setFilename(file_t::FILE_4, NULL);
-  setFilename(file_t::FILE_5, NULL);
+  setFilename(file_t::FILE_1, nullptr);
+  setFilename(file_t::FILE_2, nullptr);
+  setFilename(file_t::FILE_3, nullptr);
+  setFilename(file_t::FILE_4, nullptr);
+  setFilename(file_t::FILE_5, nullptr);
 
   uint8_t pageIndex = DGUS_PAGE_TO_INDEX(page);
   uint16_t currentFilePos = 0;
   uint16_t currentSeekPos = 0;
   uint16_t entriesCount = fileList.count();
 
-  #ifdef DEBUG_DGUSLCD
+  #if ENABLED(DEBUG_DGUSLCD)
     DEBUG_ECHOLNPGM("onPageLoad(): seek page ", pageIndex);
   #endif
   while (currentFilePos < pageIndex * DGUS_E3S1PRO_BASIC_SDCARD_FILES_PER_PAGE
@@ -83,7 +83,7 @@ void DGUS_SDCardHandler::onPageLoad(DGUS_SDCardHandler::page_t page) {
       currentFilePos++;
   }
 
-  #ifdef DEBUG_DGUSLCD
+  #if ENABLED(DEBUG_DGUSLCD)
     DEBUG_ECHOPGM("onPageLoad() :", currentFilePos);
     DEBUG_CHAR('/');
     DEBUG_ECHOLN(currentSeekPos - 1);

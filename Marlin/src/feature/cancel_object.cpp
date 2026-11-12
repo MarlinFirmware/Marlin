@@ -72,7 +72,7 @@ void CancelObject::report() {
   SERIAL_ECHO_START();
   SERIAL_ECHOPGM("Canceled:");
   for (int i = 0; i < state.object_count; i++)
-    if (TEST(state.canceled, i)) { SERIAL_CHAR(' '); SERIAL_ECHO(i); }
+    if (TEST(state.canceled, i)) SERIAL_ECHO(C(' '), i);
   SERIAL_EOL();
 }
 

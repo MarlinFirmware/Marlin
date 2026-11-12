@@ -30,7 +30,16 @@
 #include "../../libs/numtostr.h"
 
 /**
- * M73: Set percentage complete (for display on LCD)
+ * M73: Set Print Progress
+ *
+ * Set next interaction countdown, current print progress
+ * percentage, and/or remaining time for display on the LCD.
+ *
+ * Parameters:
+ *   None        Report current values
+ *   C<minutes>  Set next interaction countdown
+ *   P<percent>  Set current print progress percentage (0-100)
+ *   R<minutes>  Set remaining time
  *
  * Example:
  *   M73 P25.63 ; Set progress to 25.63%
@@ -62,7 +71,7 @@ void GcodeSuite::M73() {
   #endif
 
   #if ENABLED(M73_REPORT)
-    if (TERN1(M73_REPORT_SD_ONLY, IS_SD_PRINTING())) {
+    if (TERN1(M73_REPORT_SD_ONLY, card.isStillPrinting())) {
       SERIAL_ECHO_START();
       SERIAL_ECHOPGM(" M73");
       #if ENABLED(SET_PROGRESS_PERCENT)

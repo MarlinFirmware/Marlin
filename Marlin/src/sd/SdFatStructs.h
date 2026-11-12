@@ -32,7 +32,9 @@
 
 #include <stdint.h>
 
-#define PACKED __attribute__((__packed__))
+#ifndef PACKED
+  #define PACKED __attribute__((__packed__))
+#endif
 
 /**
  * mostly from Microsoft document fatgen103.doc

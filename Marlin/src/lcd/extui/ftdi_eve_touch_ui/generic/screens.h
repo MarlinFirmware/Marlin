@@ -75,13 +75,13 @@ enum {
   #if ENABLED(CASE_LIGHT_ENABLE)
     CASE_LIGHT_SCREEN_CACHE,
   #endif
-  #if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+  #if HAS_LIN_ADVANCE_K || HAS_FILAMENT_SENSOR
     FILAMENT_MENU_CACHE,
   #endif
-  #if ENABLED(LIN_ADVANCE)
+  #if HAS_LIN_ADVANCE_K
     LINEAR_ADVANCE_SCREEN_CACHE,
   #endif
-  #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+  #if HAS_FILAMENT_SENSOR
     FILAMENT_RUNOUT_SCREEN_CACHE,
   #endif
   #if HAS_MEDIA
@@ -126,6 +126,9 @@ enum {
 #include "save_settings_dialog_box.h"
 #include "confirm_start_print_dialog_box.h"
 #include "confirm_abort_print_dialog_box.h"
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "power_loss_resume_dialog_box.h"
+#endif
 #include "confirm_user_request_alert_box.h"
 #include "filament_prompt_box.h"
 #include "touch_calibration_screen.h"
@@ -197,15 +200,15 @@ enum {
   #include "case_light_screen.h"
 #endif
 
-#if ANY(LIN_ADVANCE, FILAMENT_RUNOUT_SENSOR)
+#if HAS_LIN_ADVANCE_K || HAS_FILAMENT_SENSOR
   #include "filament_menu.h"
 #endif
 
-#if ENABLED(FILAMENT_RUNOUT_SENSOR)
+#if HAS_FILAMENT_SENSOR
   #include "filament_runout_screen.h"
 #endif
 
-#if ENABLED(LIN_ADVANCE)
+#if HAS_LIN_ADVANCE_K
   #include "linear_advance_screen.h"
 #endif
 

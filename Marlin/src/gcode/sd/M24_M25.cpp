@@ -28,6 +28,11 @@
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#include "../../module/temperature.h"
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../feature/pause.h"
@@ -47,10 +52,28 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob
 
+#if DISABLED(PARK_HEAD_ON_PAUSE) && ENABLED(HEATER_IDLE_HANDLER) && PAUSE_PARK_NOZZLE_TIMEOUT
+  #define MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT 1
+#endif
+
 /**
- * M24: Start or Resume SD Print
+ * M24: Start or Resume Media Print
+ *
+ * Parameters:
+ *   With POWER_LOSS_RECOVERY:
+ *     S<pos>   Position in file to resume from
+ *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
+  #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
+    // Re-enable any timed-out heaters
+    HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
+    HOTEND_LOOP() thermalManager.wait_for_hotend(e);
+  #endif
+
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    Fan::all_resume();
+  #endif
 
   #if DGUS_LCD_UI_MKS
     if ((print_job_timer.isPaused() || print_job_timer.isRunning()) && !parser.seen("ST"))
@@ -63,7 +86,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    if (did_pause_print) {
+    if (paused_for_filament_change) {
       resume_print(); // will call print_job_timer.start()
       return;
     }
@@ -71,7 +94,7 @@ void GcodeSuite::M24() {
 
   if (card.isFileOpen()) {
     card.startOrResumeFilePrinting(); // SD card will now be read for commands
-    startOrResumeJob();               // Start (or resume) the print job timer
+    marlin.startOrResumeJob();        // Start (or resume) the print job timer
     TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
   }
 
@@ -83,14 +106,16 @@ void GcodeSuite::M24() {
   #endif
 
   ui.reset_status();
+
+  TERN_(CREALITY_RTS, RTS_PrintStartedSD());
 }
 
 /**
- * M25: Pause SD Print
+ * M25: Pause Media Print
  *
  * With PARK_HEAD_ON_PAUSE:
- *   Invoke M125 to store the current position and move to the park
- *   position. M24 will move the head back before resuming the print.
+ *   Invoke 'M125' to store the current position and move to the park
+ *   position. 'M24' will move the head back before resuming the print.
  */
 void GcodeSuite::M25() {
 
@@ -101,7 +126,7 @@ void GcodeSuite::M25() {
   #else
 
     // Set initial pause flag to prevent more commands from landing in the queue while we try to pause
-    if (IS_SD_PRINTING()) card.pauseSDPrint();
+    if (card.isStillPrinting()) card.pauseSDPrint();
 
     #if ENABLED(POWER_LOSS_RECOVERY) && DISABLED(DGUS_LCD_UI_MKS)
       if (recovery.enabled) recovery.save(true);
@@ -118,6 +143,16 @@ void GcodeSuite::M25() {
       #ifdef ACTION_ON_PAUSE
         hostui.pause();
       #endif
+    #endif
+
+    #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+      Fan::all_pause();
+    #endif
+
+    #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
+      // Start the heater idle timers
+      constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
     #endif
 
   #endif

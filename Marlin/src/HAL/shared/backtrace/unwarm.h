@@ -15,7 +15,7 @@
 
 #include "unwinder.h"
 
-/** The maximum number of instructions to interpet in a function.
+/** The maximum number of instructions to interpret in a function.
  * Unwinding will be unconditionally stopped and UNWIND_EXHAUSTED returned
  * if more than this number of instructions are interpreted in a single
  * function without unwinding a stack frame.  This prevents infinite loops

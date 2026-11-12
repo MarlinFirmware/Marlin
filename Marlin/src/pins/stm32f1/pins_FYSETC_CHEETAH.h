@@ -33,9 +33,9 @@
 #define RESET_STEPPERS_ON_MEDIA_INSERT
 #define DISABLE_JTAG
 
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
   #define FLASH_EEPROM_EMULATION
-  #define EEPROM_PAGE_SIZE     (0x800U)           // 2K
+  #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
@@ -119,7 +119,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                                PA4
+#define SD_SS_PIN                           PA4
 #define SD_DETECT_PIN                       PC3
 
 #ifndef RGB_LED_R_PIN
@@ -166,7 +166,7 @@
     #define DOGLCD_SCK               EXP1_06_PIN
     #define DOGLCD_MOSI              EXP1_08_PIN
 
-    #if ANY(FYSETC_MINI_12864, U8GLIB_ST7920)
+    #if ANY(FYSETC_MINI_12864, IS_U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270

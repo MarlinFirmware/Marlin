@@ -60,15 +60,32 @@ public:
   static void initDisplay();
 
   // Variable access.
+  static void writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
   static void writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
-  static void writeVariablePGM(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
   static void writeVariable(uint16_t adr, int16_t value);
   static void writeVariable(uint16_t adr, uint16_t value);
   static void writeVariable(uint16_t adr, uint8_t value);
   static void writeVariable(uint16_t adr, int8_t value);
   static void writeVariable(uint16_t adr, long value);
 
-  // Utility functions for bridging ui_api and dbus
+  // Western PROGMEM string constant
+  static void writeStringVar_P(uint16_t adr, PGM_P const pstr, uint8_t vallen=32) {
+    writeVariable_P(adr, (const void *)pstr, vallen, true);
+  }
+  // Western F-string constant
+  static void writeVariable(uint16_t adr, FSTR_P const fstr, uint8_t vallen=32) {
+    writeStringVar_P(adr, FTOP(fstr), vallen);
+  }
+  // Western string constant
+  static void writeStringVar(uint16_t adr, const char * const cstr, uint8_t vallen=32) {
+    writeVariable(adr, (const void *)cstr, vallen, true);
+  }
+  // Chinese string constant
+  static void writeStringVar(uint16_t adr, const uint16_t * const zhstr, uint8_t vallen=16) {
+    writeVariable(adr, (const void *)zhstr, vallen, true);
+  }
+
+  // Utility functions for bridging ui_api and dgus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
   static void setVariable(DGUS_VP_Variable &var) {
     writeVariable(var.VP, (WireType)Getter(selector));

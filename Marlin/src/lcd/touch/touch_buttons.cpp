@@ -59,7 +59,7 @@ TouchButtons touchBt;
 void TouchButtons::init() {
   touchIO.init();
   #if HAS_DISPLAY_SLEEP
-    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
   #endif
 }
 
@@ -150,7 +150,7 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
+    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
   }
 
   bool MarlinUI::display_is_asleep() {

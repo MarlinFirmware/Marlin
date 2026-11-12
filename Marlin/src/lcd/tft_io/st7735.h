@@ -101,8 +101,8 @@
 #define ST7735_NVFCTR1            0xD9 // EEPROM Control Status
 #define ST7735_NVFCTR2            0xDE // EEPROM Read Command
 #define ST7735_NVFCTR3            0xDF // EEPROM Write Command
-#define ST7735_GMCTRP1            0xE0 // Gamma (‘+’polarity) Correction Characteristics Setting
-#define ST7735_GMCTRN1            0xE1 // GMCTRN1 (E1h): Gamma ‘-’polarity Correction Characteristics Setting
+#define ST7735_GMCTRP1            0xE0 // Gamma ('+'polarity) Correction Characteristics Setting
+#define ST7735_GMCTRN1            0xE1 // GMCTRN1 (E1h): Gamma '-'polarity Correction Characteristics Setting
 #define ST7735_EXTCTRL            0xF0 // Extension Command Control
 #define ST7735_VCOM4L             0xFF // Vcom 4 Level Control
 

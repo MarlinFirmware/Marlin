@@ -83,19 +83,15 @@
 #include "../../../inc/MarlinConfigPre.h"
 
 #if ENABLED(MKS_WIFI_MODULE)
-  #include "wifiSerial.h"
-  #include "wifi_module.h"
-  #include "wifi_upload.h"
+  #include "../../../feature/mks_wifi/wifiSerial.h"
+  #include "../../../feature/mks_wifi/wifi_module.h"
+  #include "../../../feature/mks_wifi/wifi_upload.h"
   #include "draw_wifi_settings.h"
   #include "draw_wifi.h"
   #include "draw_wifi_list.h"
   #include "draw_wifi_tips.h"
   #include "draw_cloud_bind.h"
 #endif
-
-#define ESP_WIFI          0x02
-#define AP_MODEL          0x01
-#define STA_MODEL         0x02
 
 #define FILE_SYS_USB      0
 #define FILE_SYS_SD       1
@@ -113,21 +109,21 @@
 
   #define titleHeight        36   // TFT_screen.title_high
   #define INTERVAL_H          2   // TFT_screen.gap_h // 2
-  #define INTERVAL_V          2   // TFT_screen.gap_v // 2
-  #define BTN_X_PIXEL       117   // TFT_screen.btn_x_pixel
-  #define BTN_Y_PIXEL       140   // TFT_screen.btn_y_pixel
+  #define INTERVAL_W          2   // TFT_screen.gap_v // 2
+  #define BTN_SIZE_X        117   // TFT_screen.btn_x_pixel
+  #define BTN_SIZE_Y        140   // TFT_screen.btn_y_pixel
 
   #define SIMPLE_FIRST_PAGE_GRAP   30
 
   #define BUTTON_TEXT_Y_OFFSET    -20
 
-  #define TITLE_XPOS          3    // TFT_screen.title_xpos
-  #define TITLE_YPOS          5    // TFT_screen.title_ypos
+  #define TITLE_POS_X         3    // TFT_screen.title_xpos
+  #define TITLE_POS_Y         5    // TFT_screen.title_ypos
 
   #define FILE_BTN_CNT        6
 
-  #define OTHER_BTN_XPIEL   117
-  #define OTHER_BTN_YPIEL    92
+  #define OTHER_BTN_SIZE_X  117
+  #define OTHER_BTN_SIZE_Y   92
 
   #define FILE_PRE_PIC_X_OFFSET 8
   #define FILE_PRE_PIC_Y_OFFSET 0
@@ -194,7 +190,7 @@ typedef struct {
   bool      from_flash_pic;
   bool      finish_power_off;
   bool      pause_reprint;
-  uint8_t   wifi_mode_sel;
+  uint8_t   wifi_mode_sel;    // Unused. Superseded by mks_wifi.mode; kept so the SPI flash layout is unchanged
   uint8_t   fileSysType;
   uint8_t   wifi_type;
   bool      cloud_enable,
@@ -205,7 +201,7 @@ typedef struct {
             filamentchange_unload_length,
             filamentchange_unload_speed;
   celsius_t filament_limit_temp;
-  float     pausePosX, pausePosY, pausePosZ;
+  xyz_pos_t pausePos;
   uint32_t  curFilesize;
 } CFG_ITMES;
 
@@ -226,8 +222,6 @@ typedef struct UI_Config_Struct {
           filament_unloading_completed:1,
           filament_loading_time_flg:1,
           filament_unloading_time_flg:1;
-  uint8_t wifi_name[32];
-  uint8_t wifi_key[64];
   uint8_t cloud_hostUrl[96];
   // Extruder Steps distances (mm)
   uint8_t extruStep;
@@ -248,17 +242,13 @@ typedef struct UI_Config_Struct {
   uint16_t moveSpeed;
   uint16_t cloud_port;
   uint16_t moveSpeed_bak;
-  uint32_t totalSend;
   uint32_t filament_loading_time,
            filament_unloading_time,
            filament_loading_time_cnt,
            filament_unloading_time_cnt;
   float move_dist;
   celsius_t hotendTargetTempBak;
-  float current_x_position_bak,
-        current_y_position_bak,
-        current_z_position_bak,
-        current_e_position_bak;
+  xyze_pos_t current_position_bak;
 } UI_CFG;
 
 typedef enum {
@@ -461,14 +451,13 @@ void update_gcode_command(int addr, uint8_t *s);
 void get_gcode_command(int addr, uint8_t *d);
 void lv_serial_capt_hook(void *, uint8_t);
 void lv_eom_hook(void *);
-#if HAS_GCODE_PREVIEW
+#if MKS_GCODE_PREVIEW
   void disp_pre_gcode(int xpos_pixel, int ypos_pixel);
 #endif
 void GUI_RefreshPage();
 void clear_cur_ui();
 void draw_return_ui();
 void goto_previous_ui();
-void sd_detection();
 void gCfg_to_spiFlah();
 void print_time_count();
 

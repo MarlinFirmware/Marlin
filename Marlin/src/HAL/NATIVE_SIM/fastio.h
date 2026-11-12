@@ -28,8 +28,10 @@
 #include "../shared/Marduino.h"
 #include <pinmapping.h>
 
-#define SET_DIR_INPUT(IO)     Gpio::setDir(IO, 1)
-#define SET_DIR_OUTPUT(IO)    Gpio::setDir(IO, 0)
+#define NO_COMPILE_TIME_PWM
+
+#define SET_DIR_INPUT(IO)     Gpio::setDir(IO, INPUT)
+#define SET_DIR_OUTPUT(IO)    Gpio::setDir(IO, OUTPUT)
 
 #define SET_MODE(IO, mode)    Gpio::setMode(IO, mode)
 

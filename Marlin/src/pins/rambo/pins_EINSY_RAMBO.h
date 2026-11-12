@@ -40,7 +40,9 @@
   #error "For EinsyRambo you must set all *_DRIVER_TYPE to TMC2130 in Configuration.h."
 #endif
 
-// TMC2130 Diag Pins (currently just for reference)
+//
+// Trinamic TMC2130 distinct DIAG pins
+//
 #define X_DIAG_PIN                            64
 #define Y_DIAG_PIN                            69
 #define Z_DIAG_PIN                            68
@@ -55,23 +57,23 @@
 // SERVO0_PIN and Z_MIN_PIN configuration for BLTOUCH sensor when combined with SENSORLESS_HOMING.
 //
 
-#if DISABLED(SENSORLESS_HOMING)
-
-  #define X_STOP_PIN                          12
-  #define Y_STOP_PIN                          11
-  #define Z_STOP_PIN                          10
-
-#else
+#if ENABLED(SENSORLESS_HOMING)
 
   #define X_STOP_PIN                  X_DIAG_PIN
   #define Y_STOP_PIN                  Y_DIAG_PIN
 
   #if ENABLED(BLTOUCH)
+    #define SERVO0_PIN                        10  // PROBE-S
     #define Z_STOP_PIN                        11  // Y-MIN
-    #define SERVO0_PIN                        10  // Z-MIN
   #else
-    #define Z_STOP_PIN                        10
+    #define Z_STOP_PIN                        10  // PROBE-S
   #endif
+
+#else
+
+  #define X_STOP_PIN                          12  // X-MIN
+  #define Y_STOP_PIN                          11  // Y-MIN
+  #define Z_STOP_PIN                          10  // PROBE-S
 
 #endif
 
@@ -79,7 +81,7 @@
 // Z Probe (when not Z_MIN_PIN)
 //
 #ifndef Z_MIN_PROBE_PIN
-  #define Z_MIN_PROBE_PIN                     10
+  #define Z_MIN_PROBE_PIN                     10  // PROBE-S
 #endif
 
 //
@@ -178,7 +180,7 @@
 //
 // Misc. Functions
 //
-#define SDSS                         EXP2_04_PIN
+#define SD_SS_PIN                    EXP2_04_PIN
 #define LED_PIN                               13
 
 #ifndef CASE_LIGHT_PIN

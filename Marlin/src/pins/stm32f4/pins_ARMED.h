@@ -37,9 +37,9 @@
 #define BOARD_INFO_NAME      "Arm'ed"
 #define DEFAULT_MACHINE_NAME BOARD_INFO_NAME
 
-#if NO_EEPROM_SELECTED
+#if SHALL_USE_EEPROM(I2C_EEPROM)
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
 #endif
 
 //
@@ -135,7 +135,7 @@
 //
 // Misc functions
 //
-#define SDSS                                PE7
+#define SD_SS_PIN                           PE7
 #define LED_PIN                             PB7   // Heart beat
 #define PS_ON_PIN                           PA10
 #define KILL_PIN                            PA8
@@ -149,7 +149,7 @@
 
 #if ENABLED(FYSETC_MINI_12864)
   //
-  // See https://wiki.fysetc.com/Mini12864_Panel/
+  // See https://wiki.fysetc.com/docs/Mini12864Panel
   //
   #define DOGLCD_A0                         PE9
   #define DOGLCD_CS                         PE8

@@ -35,8 +35,16 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if DGUS_LCD_UI_SERMOON_V1
+  #include "../../lcd/extui/sermoon_v1/sermoon_v1_rts.h"
+#endif
+
 #if !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
   #include "../../libs/hex_print.h"
+#endif
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
 #endif
 
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
@@ -46,17 +54,22 @@
     #if ENABLED(MINIMAL_CAP_LINES)
       if (ena) SERIAL_ECHOLNPGM("Cap:", name, ":1");
     #else
-      SERIAL_ECHOPGM("Cap:", name);
-      SERIAL_CHAR(':', '0' + ena);
-      SERIAL_EOL();
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
     #endif
   }
+  #if ENABLED(CREALITY_RTS)
+    inline void cap_line_uchar(FSTR_P const name, const uint8_t ena) {
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
+    }
+  #endif
 #endif
 
 /**
- * M115: Capabilities string and extended capabilities report
- *       If a capability is not reported, hosts should assume
- *       the capability is not present.
+ * M115: Firmware Info
+ *
+ * Capabilities string and extended capabilities report.
+ * If a capability is not reported, hosts should assume
+ * the capability is not present.
  *
  * NOTE: Always make sure to add new capabilities to the RepRap Wiki
  *       at https://reprap.org/wiki/Firmware_Capabilities_Protocol
@@ -83,7 +96,7 @@ void GcodeSuite::M115() {
     " MACHINE_TYPE:" MACHINE_NAME
     " KINEMATICS:" MACHINE_KINEMATICS
     " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS)
-    #if NUM_AXES != XYZ
+    #if NUM_AXES != 3
       " AXIS_COUNT:" STRINGIFY(NUM_AXES)
     #endif
     #if defined(MACHINE_UUID) || ENABLED(HAS_STM32_UID)
@@ -109,7 +122,7 @@ void GcodeSuite::M115() {
       SERIAL_ECHO(F("CEDE2A2F-"));
       for (uint8_t i = 1; i <= 6; i++) {
         print_hex_word(UID[(i % 2) ? i : i - 2]);       // 1111-0000-3333-222255554444
-        if (i <= 3) SERIAL_ECHO(C('-'));
+        if (i <= 3) SERIAL_CHAR('-');
       }
     #endif
   #endif
@@ -133,11 +146,16 @@ void GcodeSuite::M115() {
     // BINARY_FILE_TRANSFER (M28 B1)
     cap_line(F("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
 
+    #if ENABLED(CREALITY_RTS)
+      // Creality New Cloud Print Information
+      cap_line_uchar(F("IS_PLR"), g_cloudPLRStatusValue); // Send status to continue print after power failure
+    #endif
+
     // EEPROM (M500, M501)
     cap_line(F("EEPROM"), ENABLED(EEPROM_SETTINGS));
 
     // Volumetric Extrusion (M200)
-    cap_line(F("VOLUMETRIC"), DISABLED(NO_VOLUMETRICS));
+    cap_line(F("VOLUMETRIC"), ENABLED(HAS_VOLUMETRIC_EXTRUSION));
 
     // AUTOREPORT_POS (M154)
     cap_line(F("AUTOREPORT_POS"), ENABLED(AUTO_REPORT_POSITION));
@@ -155,7 +173,7 @@ void GcodeSuite::M115() {
     cap_line(F("AUTOLEVEL"), ENABLED(HAS_AUTOLEVEL));
 
     // RUNOUT (M412, M600)
-    cap_line(F("RUNOUT"), ENABLED(FILAMENT_RUNOUT_SENSOR));
+    cap_line(F("RUNOUT"), ENABLED(HAS_FILAMENT_SENSOR));
 
     // Z_PROBE (G30)
     cap_line(F("Z_PROBE"), ENABLED(HAS_BED_PROBE));
@@ -194,7 +212,7 @@ void GcodeSuite::M115() {
 
     // MULTI_VOLUME (M21 S/M21 U)
     #if HAS_MEDIA
-      cap_line(F("MULTI_VOLUME"), ENABLED(MULTI_VOLUME));
+      cap_line(F("MULTI_VOLUME"), ENABLED(HAS_MULTI_VOLUME));
     #endif
 
     // REPEAT (M808)
@@ -245,6 +263,16 @@ void GcodeSuite::M115() {
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
+    // Creality Cloud WiFi board
+    #if DGUS_LCD_UI_SERMOON_V1
+      // switched on the Sermoon V1 screen, power-loss popup shown, enclosure LED
+      cap_line(F("WIFI"), RTS::settings.wifi_led);
+      cap_line(F("IS_PLR"), RTS::recoveryPrompt());
+      cap_line(F("LED_STAT"), TERN0(CASE_LIGHT_ENABLE, caselight.on));
+    #elif ALL(CREALITY_RTS, HAS_MEDIA)
+      cap_line(F("WIFI"), wifi_enable_flag);
+    #endif
+
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
       constexpr xyz_pos_t bmin{0},
@@ -252,8 +280,8 @@ void GcodeSuite::M115() {
                           dmin = NUM_AXIS_ARRAY(X_MIN_POS,  Y_MIN_POS,  Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
                           dmax = NUM_AXIS_ARRAY(X_MAX_POS,  Y_MAX_POS,  Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
       xyz_pos_t cmin = bmin, cmax = bmax;
-      apply_motion_limits(cmin);
-      apply_motion_limits(cmax);
+      motion.apply_limits(cmin);
+      motion.apply_limits(cmax);
       const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
                       wmin = cmin.asLogical(), wmax = cmax.asLogical();
 
@@ -261,13 +289,13 @@ void GcodeSuite::M115() {
         "area:{"
           "full:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmin.x, ",y:", lmin.y, ",z:", lmin.z,
                 ",i:", lmin.i, ",j:", lmin.j, ",k:", lmin.k,
                 ",u:", lmin.u, ",v:", lmin.v, ",w:", lmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", lmax.x, ",y:", lmax.y, ",z:", lmax.z,
                 ",i:", lmax.i, ",j:", lmax.j, ",k:", lmax.k,
                 ",u:", lmax.u, ",v:", lmax.v, ",w:", lmax.w
@@ -278,13 +306,13 @@ void GcodeSuite::M115() {
       SERIAL_ECHOLNPGM(
           "work:{"
             "min:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmin.x, ",y:", wmin.y, ",z:", wmin.z,
                 ",i:", wmin.i, ",j:", wmin.j, ",k:", wmin.k,
                 ",u:", wmin.u, ",v:", wmin.v, ",w:", wmin.w
               ),
             "},max:{"
-              LIST_N(DOUBLE(NUM_AXES),
+              NUM_AXIS_PAIRED_LIST(
                  "x:", wmax.x, ",y:", wmax.y, ",z:", wmax.z,
                 ",i:", wmax.i, ",j:", wmax.j, ",k:", wmax.k,
                 ",u:", wmax.u, ",v:", wmax.v, ",w:", wmax.w

@@ -31,11 +31,13 @@
 #define STEP_TIMER 10
 
 // Use one of these or SDCard-based Emulation will be used
-//#define SRAM_EEPROM_EMULATION                   // Use BackSRAM-based EEPROM emulation
-//#define FLASH_EEPROM_EMULATION                  // Use Flash-based EEPROM emulation
-#if ANY(NO_EEPROM_SELECTED, I2C_EEPROM)
+#if NO_EEPROM_SELECTED
   #define I2C_EEPROM
-  #define MARLIN_EEPROM_SIZE              0x1000  // 4K
+  //#define SRAM_EEPROM_EMULATION                 // Use BackSRAM-based EEPROM emulation
+  //#define FLASH_EEPROM_EMULATION                // Use Flash-based EEPROM emulation
+#endif
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE             0x1000U  // 4K
   #define I2C_SCL_PIN                       PB6
   #define I2C_SDA_PIN                       PB7
 #endif
@@ -146,17 +148,14 @@
 //
 // Misc. Functions
 //
-#if HAS_TFT_LVGL_UI
-  #define MT_DET_1_PIN                      PA4   // MT_DET
-  #define MT_DET_2_PIN                      PE6
-  #define MT_DET_PIN_STATE                  LOW
-#endif
-
 #ifndef FIL_RUNOUT_PIN
-  #define FIL_RUNOUT_PIN                    PA4
+  #define FIL_RUNOUT_PIN                    PA4   // MT_DET_1
 #endif
 #ifndef FIL_RUNOUT2_PIN
-  #define FIL_RUNOUT2_PIN                   PE6
+  #define FIL_RUNOUT2_PIN                   PE6   // MT_DET_2
+#endif
+#ifndef FIL_RUNOUT_STATE
+  #define FIL_RUNOUT_STATE                LOW
 #endif
 
 #ifndef POWER_LOSS_PIN
@@ -172,7 +171,7 @@
 // Power Supply Control
 //
 #if ENABLED(MKS_PWC)
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     #if ENABLED(PSU_CONTROL)
       #error "PSU_CONTROL is incompatible with MKS_PWC plus TFT_LVGL_UI."
     #endif
@@ -194,10 +193,10 @@
 // MKS WiFi Module
 //
 #if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
-  #define MKS_WIFI_MODULE_SERIAL               1  // USART1
   #define MKS_WIFI_MODULE_SPI                  2  // SPI2
 #else
   #define WIFI_SERIAL_PORT                     3  // USART3
@@ -213,16 +212,16 @@
 
 //
 // Onboard SD card
-// Detect pin doesn't work when ONBOARD and NO_SD_HOST_DRIVE disabled
 //
 #if SD_CONNECTION_IS(ONBOARD)
   #define ENABLE_SPI3
-  #define SD_SS_PIN                         -1
-  #define SDSS                              PC9
+  #define SD_SS_PIN                         PC9
   #define SD_SCK_PIN                        PC10
   #define SD_MISO_PIN                       PC11
   #define SD_MOSI_PIN                       PC12
-  #define SD_DETECT_PIN                     PD12
+  #if ENABLED(NO_SD_HOST_DRIVE)
+    #define SD_DETECT_PIN                   PD12  // Detect pin doesn't work with SD Host Drive
+  #endif
 #endif
 
 #define SPI_FLASH
@@ -264,14 +263,22 @@
 #define EXP2_08_PIN                         -1    // RESET
 
 //
+// The EXP2 header is wired to SPI1, whether or not the SD card is on it.
+// Declaring the pins lets a display on this header use hardware SPI.
+//
+#define LCD_HW_SPI_SCK_PIN           EXP2_02_PIN  // PA5
+#define LCD_HW_SPI_MISO_PIN          EXP2_01_PIN  // PA6
+#define LCD_HW_SPI_MOSI_PIN          EXP2_06_PIN  // PA7
+
+//
 // SPI SD Card
 //
 #if SD_CONNECTION_IS(LCD)
   #define ENABLE_SPI1
-  #define SDSS                       EXP2_04_PIN
-  #define SD_SCK_PIN                 EXP2_02_PIN
-  #define SD_MISO_PIN                EXP2_01_PIN
-  #define SD_MOSI_PIN                EXP2_06_PIN
+  #define SD_SS_PIN                  EXP2_04_PIN
+  #define SD_SCK_PIN          LCD_HW_SPI_SCK_PIN
+  #define SD_MISO_PIN        LCD_HW_SPI_MISO_PIN
+  #define SD_MOSI_PIN        LCD_HW_SPI_MOSI_PIN
   #define SD_DETECT_PIN              EXP2_07_PIN
 #endif
 

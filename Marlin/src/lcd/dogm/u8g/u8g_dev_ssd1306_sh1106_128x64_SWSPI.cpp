@@ -64,7 +64,7 @@
 #define PAGE_HEIGHT 8
 
 #define SH1106_PAGE_ADR(N)        (0x20), (N)
-#define SH1106_COL_ADR(N)         (0x10 | ((N) >> 4)), ((N) & 0xFF)
+#define SH1106_COL_ADR(N)         (0x10 | ((N) >> 4)), ((N) & 0xF)
 #define SH1106_COLUMN_RANGE(N,O)  (0x21), (N), (O)
 #define SH1106_PAGE_RANGE(N,O)    (0x22), (N), (O)
 #define SH1106_SCROLL(N)          ((N) ? 0x2F : 0x2E)
@@ -87,7 +87,7 @@
 static const uint8_t u8g_dev_ssd13xx_HAL_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),   // Instruction mode
   U8G_ESC_CS(1),    // Enable chip
-  SH1106_ON(0)      // Display off
+  SH1106_ON(0),     // Display off
   U8G_ESC_CS(0),    // Disable chip
   U8G_ESC_END       // End of sequence
 };
