@@ -77,6 +77,8 @@
     START_MENU();
     BACK_ITEM(MSG_MIXER);
 
+    EDIT_ITEM(bool, MSG_GRADIENT_MIX, &mixer.gradient.allowed, mixer.refresh_gradient);
+
     EDIT_ITEM(int8, MSG_START_VTOOL, &mixer.gradient.start_vtool, 0, MIXING_VIRTUAL_TOOLS - 1, mixer.refresh_gradient);
     EDIT_ITEM(int8, MSG_END_VTOOL, &mixer.gradient.end_vtool, 0, MIXING_VIRTUAL_TOOLS - 1, mixer.refresh_gradient);
 
