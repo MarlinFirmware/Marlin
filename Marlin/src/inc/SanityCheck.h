@@ -1687,6 +1687,20 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "Z_MIN_PROBE_REPEATABILITY_TEST requires a real probe."
   #endif
 
+  /**
+   * G28 P Precise Homing
+   */
+  #if ENABLED(PRECISE_Z_HOMING)
+    #error "PRECISE_Z_HOMING requires a bed probe."
+  #endif
+
+  /**
+   * G35 Assisted Tramming
+   */
+  #if ENABLED(ASSISTED_TRAMMING)
+    #error "ASSISTED_TRAMMING requires a bed probe."
+  #endif
+
 #endif
 
 #if ENABLED(LCD_BED_TRAMMING)
@@ -2910,13 +2924,6 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   #elif I2C_SLAVE_ADDRESS > 127
     #error "I2C_SLAVE_ADDRESS can't be over 127. (Only 7 bits allowed.)"
   #endif
-#endif
-
-/**
- * G35 Assisted Tramming
- */
-#if ENABLED(ASSISTED_TRAMMING) && !HAS_BED_PROBE
-  #error "ASSISTED_TRAMMING requires a bed probe."
 #endif
 
 /**

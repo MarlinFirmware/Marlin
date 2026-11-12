@@ -233,8 +233,9 @@
  *  L<bool>   Force leveling state ON (if possible) or OFF after homing (Requires RESTORE_LEVELING_AFTER_G28 or ENABLE_LEVELING_AFTER_G28)
  *  O         Home only if the position is not known and trusted
  *  R<linear> Raise by n mm/inches before homing
- *  P         Precise Z homing: after Z homes, probe once more at the current XY using the
- *            bed-leveling probe settings (MULTIPLE_PROBING, etc.) and correct Z. (Requires a bed probe)
+ *  P<bool>   Precise Z homing: after Z homes, probe once more at the current XY using the
+ *            bed-leveling probe settings (MULTIPLE_PROBING, etc.) and correct Z.
+ *            Defaults to ON with PRECISE_Z_HOMING. (Requires a bed probe)
  *  H         Hold the current X/Y position when executing a home Z, or if
  *            multiple axes are homed, the position when Z home is executed.
  *            When using a probe for Z Home, positions close to the edge may
@@ -552,8 +553,8 @@ void GcodeSuite::G28() {
      * (MULTIPLE_PROBING, EXTRA_PROBING, PROBING_HEATERS_OFF, etc. all apply) and
      * correct the Z position by the measured error. Only done when Z was homed.
      */
-    #if HAS_BED_PROBE && HAS_Z_AXIS
-      if (doZ && parser.seen_test('P')) {
+    #if ENABLED(PRECISE_Z_HOMING)
+      if (doZ && parser.boolval('P')) {
         probe.use_probing_tool();
         const float z_err = probe.probe_at_point(motion.position.x, motion.position.y, PROBE_PT_RAISE, 0, false);
         probe.use_probing_tool(false);
