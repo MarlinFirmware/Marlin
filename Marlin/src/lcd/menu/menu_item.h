@@ -252,15 +252,15 @@ class MenuItem_bool : public MenuEditItemBase {
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *
- *   encoderTopLine is the top menu line to display
+ *   menuTopIndex is the top menu line to display
  *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
  *   _menuLineNr is the menu item to draw and process
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  */
-#define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
-  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
-  int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
-  UNUSED(_thisItemNr);                                  \
+#define SCREEN_OR_MENU_LOOP(IS_MENU)                  \
+  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);   \
+  int8_t _menuLineNr = menuTopIndex, _thisItemNr = 0; \
+  UNUSED(_thisItemNr);                                \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 
@@ -275,7 +275,7 @@ class MenuItem_bool : public MenuEditItemBase {
 #define START_MENU() SCREEN_OR_MENU_LOOP(true)
 #define NEXT_ITEM() (++_thisItemNr)
 #define MY_LINE() (_menuLineNr == _thisItemNr)
-#define HIGHLIGHTED() (encoderLine == _thisItemNr)
+#define HIGHLIGHTED() (menuIndex == _thisItemNr)
 #define CLICKED() (HIGHLIGHTED() && ui.use_click())
 #define SKIP_ITEM() NEXT_ITEM()
 #define END_SCREEN() } screen_items = _thisItemNr

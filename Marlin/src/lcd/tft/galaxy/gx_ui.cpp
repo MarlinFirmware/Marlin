@@ -38,7 +38,7 @@ void MarlinUI::tft_idle() {
     #endif
     if (draw_menu_navigation) {
       // Bottom bar for Marlin list menus: page up / back / page down
-      const bool up = encoderTopLine > 0, down = encoderTopLine + LCD_HEIGHT < screen_items;
+      const bool up = menuTopIndex > 0, down = menuTopIndex + LCD_HEIGHT < screen_items;
       gx_canvas(0, GX_FOOTER_Y, TFT_WIDTH, TFT_HEIGHT - GX_FOOTER_Y);
       gx_bar(0, 0, TFT_WIDTH, 1, GX_C_LINE);
       const uint16_t bw = 140, by = 4, bh = 38;
@@ -132,7 +132,7 @@ uint16_t menu_item(const uint8_t row, const bool sel) {
   gx_panel(MENU_PANEL_X, 0, MENU_PANEL_W, MENU_ITEM_HEIGHT, sel ? GX_C_ACC : GX_C_LINE);
   #if ENABLED(TOUCH_SCREEN)
     const TouchControlType tct = TERN(SINGLE_TOUCH_NAVIGATION, true, sel) ? MENU_CLICK : MENU_ITEM;
-    touch.add_control(tct, 0, MENU_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, encoderTopLine + row);
+    touch.add_control(tct, 0, MENU_TOP_LINE_Y + row * MENU_LINE_HEIGHT, TFT_WIDTH, MENU_ITEM_HEIGHT, menuTopIndex + row);
   #endif
   return GX_C_BG;
 }
