@@ -50,9 +50,19 @@
 // Defines
 // ------------------------
 
-#define MYSERIAL1 flushableSerial
+#if HAS_BLUETOOTH_SERIAL
+  #include "BluetoothSerialPort.h"
+#endif
 
-#if ENABLED(ESP3D_WIFISUPPORT)
+#if SERIAL_PORT == -2
+  #define MYSERIAL1 btSerial
+#else
+  #define MYSERIAL1 flushableSerial
+#endif
+
+#if SERIAL_PORT_2 == -2
+  #define MYSERIAL2 btSerial
+#elif ENABLED(ESP3D_WIFISUPPORT)
   typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
   extern DefaultSerial1 MSerial0;
   #define MYSERIAL2 MSerial0
@@ -62,6 +72,10 @@
 
 #if SERIAL_PORT_2 == 2
   #define MYSERIAL2 flushableSerial2
+#endif
+
+#if SERIAL_PORT_3 == -2
+  #define MYSERIAL3 btSerial
 #endif
 
 #if LCD_SERIAL_PORT == 2

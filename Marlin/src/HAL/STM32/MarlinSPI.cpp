@@ -160,6 +160,10 @@ uint8_t MarlinSPI::dmaTransfer(const void *transmitBuf, void *receiveBuf, uint16
     HAL_DMA_DeInit(&_dmaRx);
   }
 
+  // Disable the DMA requests. On STM32F1 a DMA channel serves several peripherals
+  // (e.g., SPI2_TX and USART1_RX on DMA1 Channel 5) and an idle SPI keeps requesting.
+  CLEAR_BIT(_spi.handle.Instance->CR2, SPI_CR2_TXDMAEN | SPI_CR2_RXDMAEN);
+
   return 1;
 }
 
@@ -172,6 +176,7 @@ uint8_t MarlinSPI::dmaSend(const void * transmitBuf, uint16_t length, bool minc)
   HAL_DMA_Abort(&_dmaTx);
   // DeInit objects
   HAL_DMA_DeInit(&_dmaTx);
+  CLEAR_BIT(_spi.handle.Instance->CR2, SPI_CR2_TXDMAEN); // Disable Tx DMA Request (see dmaTransfer)
   return 1;
 }
 

@@ -221,15 +221,19 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
   #error "SERIAL_XON_XOFF and SERIAL_STATS_* features not supported on USB-native AVR devices."
 #endif
 
-// Serial DMA is only available for some STM32 MCUs, HC32 and GD32
+// Serial DMA is only available for some STM32 MCUs, HC32, GD32 and AT32
 #if ENABLED(SERIAL_DMA)
-  #if ANY(ARDUINO_ARCH_HC32, ARDUINO_ARCH_MFL)
+  #if ANY(ARDUINO_ARCH_HC32, ARDUINO_ARCH_MFL, ARDUINO_ARCH_AT32)
     // See HAL/.../inc/SanityCheck.h
   #elif DISABLED(HAL_STM32) || NONE(STM32F0xx, STM32F1xx, STM32F2xx, STM32F4xx, STM32F7xx, STM32H7xx)
     #error "SERIAL_DMA is only available for some STM32 MCUs and requires HAL/STM32."
   #elif !defined(HAL_UART_MODULE_ENABLED) || defined(HAL_UART_MODULE_ONLY)
     #error "SERIAL_DMA requires STM32 platform HAL UART (without HAL_UART_MODULE_ONLY)."
   #endif
+#endif
+
+#if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP) && DISABLED(HAL_STM32) && !defined(__STM32F1__) && !defined(ARDUINO_ARCH_MFL)
+  #error "CREALITY_BOOTLOADER_INFO_DUMP requires an STM32F1 or GD32 based Creality v4.2.x board."
 #endif
 
 /**
@@ -1295,6 +1299,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "DELTA requires GRID_MAX_POINTS_X and GRID_MAX_POINTS_Y to be 3 or higher."
     #endif
   #endif
+  static_assert(X_MIN_POS < 0 && Y_MIN_POS < 0 && X_MAX_POS > 0 && Y_MAX_POS > 0,
+    "DELTA requires the bed center at X0 Y0. Set [XY]_MIN_POS to -(PRINTABLE_RADIUS) and [XY]_MAX_POS to PRINTABLE_RADIUS.");
 #endif
 
 /**
@@ -3117,6 +3123,13 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Creality WiFi box options are part of the RTS screen support
+ */
+#if ANY(CREALITY_WIFI, MENU_RESET_WIFI) && DISABLED(CREALITY_RTS)
+  #error "CREALITY_WIFI and MENU_RESET_WIFI require CREALITY_RTS."
+#endif
+
+/**
  * MKS WiFi module. Works with any UI, or none, but it needs its own UART,
  * the ESP control pins, and media to transfer files to.
  */
@@ -3972,6 +3985,13 @@ static_assert(COUNT(sanity_arr_3) >= LOGICAL_AXES,  "DEFAULT_MAX_ACCELERATION re
 static_assert(COUNT(sanity_arr_3) <= DISTINCT_AXES, "DEFAULT_MAX_ACCELERATION has too many elements." _EXTRA_NOTE);
 static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive.");
 
+#if ENABLED(DELTA)
+  #define _XYZ_SAME_TEST(A) (sanity_arr_##A[X_AXIS] == sanity_arr_##A[Y_AXIS] && sanity_arr_##A[X_AXIS] == sanity_arr_##A[Z_AXIS])
+  static_assert(_XYZ_SAME_TEST(2), "DELTA requires the same DEFAULT_MAX_FEEDRATE for X, Y, and Z.");
+  static_assert(_XYZ_SAME_TEST(3), "DELTA requires the same DEFAULT_MAX_ACCELERATION for X, Y, and Z.");
+  #undef _XYZ_SAME_TEST
+#endif
+
 #if MAXIMUM_STEPPER_RATE
   #define _RATE_ASSERT(A) static_assert(sanity_arr_1[_AXIS(A)] * sanity_arr_2[_AXIS(A)] <= MAXIMUM_STEPPER_RATE, \
     "Slow down! DEFAULT_MAX_FEEDRATE[" STRINGIFY(A) "] * DEFAULT_AXIS_STEPS_PER_UNIT[" STRINGIFY(A) "] > MAXIMUM_STEPPER_RATE (" STRINGIFY(MAXIMUM_STEPPER_RATE) ")." \
@@ -4168,6 +4188,8 @@ static_assert(_PLUS_TEST(3), "DEFAULT_MAX_ACCELERATION values must be positive."
   #error "USB_CS_PIN and USB_INTR_PIN (or USE_OTG_USB_HOST) are required for USB_FLASH_DRIVE_SUPPORT."
 #elif ENABLED(USE_OTG_USB_HOST) && DISABLED(HAS_OTG_USB_HOST_SUPPORT)
   #error "The current board does not support USE_OTG_USB_HOST."
+#elif ENABLED(USE_OTG_USB_HOST) && !defined(USBHOST)
+  #error "USE_OTG_USB_HOST requires a '..._usb_flash_drive' PlatformIO environment."
 #endif
 
 #if ENABLED(SD_FIRMWARE_UPDATE) && !defined(__AVR_ATmega2560__)

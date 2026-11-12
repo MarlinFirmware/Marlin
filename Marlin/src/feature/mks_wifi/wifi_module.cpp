@@ -1044,6 +1044,16 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
               card.openFileRead(cur_name);
 
+              // An uploaded file is stored under its sanitized (8.3) name, so a long name
+              // from the host isn't found as given. Try the name the upload would have used.
+              if (!card.isFileOpen() && cur_name && MKSW_WIFI_TYPE == ESP_WIFI) {
+                char dosName[TERN(LONG_FILENAME_WRITE_SUPPORT, LONG_FILENAME_BYTES, FILENAME_LENGTH)];
+                if (sanitizeName(cur_name + 1, dosName)) {
+                  strcpy(cur_name + 1, dosName);
+                  card.openFileRead(cur_name);
+                }
+              }
+
               if (card.isFileOpen())
                 print_to_wifi("File selected\r\n");
               else {
@@ -1149,7 +1159,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       case 27:
         // Report print rate
         if (MKSW_PRINT_STATE == WORKING || MKSW_PRINT_STATE == PAUSED|| MKSW_PRINT_STATE == REPRINTING) {
-          print_rate = MKSW_TOTAL_SEND;
+          print_rate = TERN0(HAS_MEDIA, card.percentDone());
           ZERO(tempBuf);
           sprintf_P(tempBuf, PSTR("M27 %d\r\n"), print_rate);
           print_to_wifi(tempBuf);
@@ -1304,20 +1314,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       default:
         strcat_P((char *)cmd_line, PSTR("\n"));
 
-        if (espGcodeFifo.wait_tick > 5) {
-          uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
-          if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
+        uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
+        if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
 
-          if (left >= strlen((const char *)cmd_line)) {
-            for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
-              espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-              espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-            }
-            if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
-              send_ok_to_wifi();
-            else
-              need_ok_later = true;
+        if (left >= strlen((const char *)cmd_line)) {
+          for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
+            espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+            espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
           }
+          if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
+            send_ok_to_wifi();
+          else
+            need_ok_later = true;
         }
         break;
     }
@@ -1326,20 +1334,18 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     // Add another linefeed to the command, terminate with null
     strcat_P((char *)cmd_line, PSTR("\n"));
 
-    if (espGcodeFifo.wait_tick > 5) {
-      uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
-      if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
+    uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
+    if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
 
-      if (left_g >= strlen((char * const)cmd_line)) {
-        for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
-          espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
-          espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
-        }
-        if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
-          send_ok_to_wifi();
-        else
-          need_ok_later = true;
+    if (left_g >= strlen((char * const)cmd_line)) {
+      for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
+        espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
+        espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
       }
+      if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
+        send_ok_to_wifi();
+      else
+        need_ok_later = true;
     }
   }
 }

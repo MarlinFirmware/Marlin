@@ -60,9 +60,13 @@
 static uint16_t delta(const uint16_t a, const uint16_t b) { return a > b ? a - b : b - a; }
 
 void XPT2046::init() {
-  SET_INPUT(TOUCH_MISO_PIN);
-  SET_OUTPUT(TOUCH_MOSI_PIN);
-  SET_OUTPUT(TOUCH_SCK_PIN);
+  #if DISABLED(TOUCH_BUTTONS_HW_SPI)
+    // With hardware SPI these pins belong to the SPI peripheral. On arduino-esp32 2.x
+    // pinMode() routes a pin back to GPIO, which would cut it off a bus already started.
+    SET_INPUT(TOUCH_MISO_PIN);
+    SET_OUTPUT(TOUCH_MOSI_PIN);
+    SET_OUTPUT(TOUCH_SCK_PIN);
+  #endif
   OUT_WRITE(TOUCH_CS_PIN, HIGH);
 
   #if PIN_EXISTS(TOUCH_INT)
