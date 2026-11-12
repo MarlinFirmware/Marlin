@@ -29,6 +29,9 @@
 
 extern int8_t encoderLine, encoderTopLine, screen_items;
 
+// Static lines are never selected: the selection moves on in the direction of travel (see menu_skip_static)
+void menu_skip_static();
+
 void scroll_screen(const uint8_t limit, const bool is_menu);
 void scroll_screen_end();
 
