@@ -241,30 +241,61 @@
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
-  // Migrated to pins/lcd
+  // LCD pins defined in pins/lcd/CR10_STOCKDISPLAY.h
 
-#if HAS_WIRED_LCD
+#elif HAS_WIRED_LCD
+  #define BEEPER_PIN                 EXP1_01_PIN  // NC
+  #define BTN_ENC                    EXP1_02_PIN
 
   #if IS_TFTGLCD_PANEL
-    // Migrated to pins/lcd
-    #define BEEPER_PIN                      -1
+
+    #undef BEEPER_PIN
+    #undef BTN_ENC
+
+    #if ENABLED(TFTGLCD_PANEL_SPI)
+      #define TFTGLCD_CS             EXP2_03_PIN
+    #endif
+
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #else
 
-    #define BEEPER_PIN               EXP1_01_PIN  // NC
+    #define LCD_PINS_RS              EXP1_04_PIN
 
-    #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP2_03_PIN
     #define BTN_EN2                  EXP2_05_PIN
 
-    #define LCD_PINS_RS              EXP1_04_PIN
     #define LCD_PINS_EN              EXP1_03_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
 
-      // Migrated to pins/lcd
-      #define FORCE_SOFT_SPI
+      #define LCD_BACKLIGHT_PIN             -1
+      #define LCD_RESET_PIN          EXP1_05_PIN
+      #define DOGLCD_A0              EXP1_04_PIN
+      #define DOGLCD_CS              EXP1_03_PIN
+      #define DOGLCD_SCK             EXP2_02_PIN
+      #define DOGLCD_MOSI            EXP2_06_PIN
+
+      #define FORCE_SOFT_SPI                      // SPI MODE3
+
+      #define LED_PIN                EXP1_06_PIN  // red pwm
+      //#define LED_PIN              EXP1_07_PIN  // green
+      //#define LED_PIN              EXP1_08_PIN  // blue
+
+      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      //  #ifndef RGB_LED_R_PIN
+      //    #define RGB_LED_R_PIN    EXP1_06_PIN
+      //  #endif
+      //  #ifndef RGB_LED_G_PIN
+      //    #define RGB_LED_G_PIN    EXP1_07_PIN
+      //  #endif
+      //  #ifndef RGB_LED_B_PIN
+      //    #define RGB_LED_B_PIN    EXP1_08_PIN
+      //  #endif
+      //#elif ENABLED(FYSETC_MINI_12864_2_1)
+      //  #define NEOPIXEL_PIN       EXP1_06_PIN
+      //#endif
+
     #else // !FYSETC_MINI_12864
 
       #define LCD_PINS_D4            EXP1_05_PIN
