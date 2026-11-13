@@ -23,6 +23,6 @@
 
 #if ENABLED(TFTGLCD_PANEL_SPI)
   #ifndef TFTGLCD_CS
-    #define TFTGLCD_CS              EXP2_03_PIN
+    #define TFTGLCD_CS              LCD2_03_PIN
   #endif
 #endif

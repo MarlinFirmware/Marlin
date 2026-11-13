@@ -29,37 +29,37 @@
 #if ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
   #ifndef DOGLCD_CS
-    #define DOGLCD_CS                  EXP1_08_PIN
+    #define DOGLCD_CS                  LCD1_08_PIN
   #endif
   #ifndef DOGLCD_A0
-    #define DOGLCD_A0                  EXP1_07_PIN
+    #define DOGLCD_A0                  LCD1_07_PIN
   #endif
 
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                 EXP1_05_PIN
+    #define BEEPER_PIN                 LCD1_05_PIN
   #endif
   #ifndef LCD_BACKLIGHT_PIN
-    #define LCD_BACKLIGHT_PIN          EXP2_05_PIN
+    #define LCD_BACKLIGHT_PIN          LCD2_05_PIN
   #endif
 
   #ifndef BTN_EN1
-    #define BTN_EN1                    EXP1_02_PIN
+    #define BTN_EN1                    LCD1_02_PIN
   #endif
   #ifndef BTN_EN2
-    #define BTN_EN2                    EXP1_01_PIN
+    #define BTN_EN2                    LCD1_01_PIN
   #endif
   #ifndef BTN_ENC
-    #define BTN_ENC                    EXP2_03_PIN
+    #define BTN_ENC                    LCD2_03_PIN
   #endif
 
   #ifndef LCD_SDSS_PIN
     #define LCD_SDSS_PIN                 SD_SS_PIN
   #endif
   #ifndef SD_DETECT_PIN
-    #define SD_DETECT_PIN              EXP2_07_PIN
+    #define SD_DETECT_PIN              LCD2_07_PIN
   #endif
   #ifndef KILL_PIN
-    #define KILL_PIN                   EXP2_08_PIN
+    #define KILL_PIN                   LCD2_08_PIN
   #endif
 
 #endif

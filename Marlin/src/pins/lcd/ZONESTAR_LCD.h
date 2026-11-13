@@ -33,22 +33,22 @@
 #if ENABLED(ZONESTAR_LCD)
 
   #ifndef LCD_PINS_RS
-    #define LCD_PINS_RS                EXP1_06_PIN
+    #define LCD_PINS_RS                LCD1_06_PIN
   #endif
   #ifndef LCD_PINS_EN
-    #define LCD_PINS_EN                EXP1_02_PIN
+    #define LCD_PINS_EN                LCD1_02_PIN
   #endif
   #ifndef LCD_PINS_D4
-    #define LCD_PINS_D4                EXP1_07_PIN
+    #define LCD_PINS_D4                LCD1_07_PIN
   #endif
   #ifndef LCD_PINS_D5
-    #define LCD_PINS_D5                EXP1_05_PIN
+    #define LCD_PINS_D5                LCD1_05_PIN
   #endif
   #ifndef LCD_PINS_D6
-    #define LCD_PINS_D6                EXP1_03_PIN
+    #define LCD_PINS_D6                LCD1_03_PIN
   #endif
   #ifndef LCD_PINS_D7
-    #define LCD_PINS_D7                EXP1_01_PIN
+    #define LCD_PINS_D7                LCD1_01_PIN
   #endif
 
 #endif
