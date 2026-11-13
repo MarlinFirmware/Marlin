@@ -1973,11 +1973,14 @@ void wifi_looping() {
 /**
  * Configured defaults for the network settings. Called by settings.reset(),
  * so a stored SSID from EEPROM is not overwritten at boot.
+ * Without WIFI_SSID the SSID stays empty, so the module keeps its own network.
  */
 void mks_wifi_reset_settings() {
   OBJZERO(mks_wifi);
-  strcpy_P((char *)mks_wifi.ssid, PSTR(WIFI_AP_NAME));
-  strcpy_P((char *)mks_wifi.key, PSTR(WIFI_KEY_CODE));
+  #ifdef WIFI_SSID
+    strcpy_P((char *)mks_wifi.ssid, PSTR(WIFI_AP_NAME));
+    strcpy_P((char *)mks_wifi.key, PSTR(WIFI_KEY_CODE));
+  #endif
   mks_wifi.mode = TERN(MKS_WIFI_AP_MODE, AP_MODEL, STA_MODEL);
 }
 
