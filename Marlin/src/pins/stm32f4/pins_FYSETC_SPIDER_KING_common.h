@@ -298,13 +298,13 @@
     // (BEEPER, BTN_EN1/2, BTN_ENC, LCD_PINS_RS/EN/D4/D5/D6/D7, LCD_SDSS_PIN)
   #endif // HAS_WIRED_LCD
 
-  // Alter timing for graphical display
-  #if IS_U8GLIB_ST7920
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             640
-  #endif
+#endif
 
+// Alter timing for graphical display
+#if IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1              96
+  #define BOARD_ST7920_DELAY_2              48
+  #define BOARD_ST7920_DELAY_3             640
 #endif
 
 /**
