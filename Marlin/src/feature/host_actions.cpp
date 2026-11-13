@@ -30,6 +30,9 @@
 
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
   #include "pause.h"
+#endif
+
+#if ANY(ADVANCED_PAUSE_FEATURE, EEPROM_SETTINGS)
   #include "../gcode/queue.h"
 #endif
 
@@ -210,6 +213,14 @@ void HostUI::action(FSTR_P const fstr, const bool eol) {
         #endif
         break;
       case PROMPT_INFO:
+        break;
+      case PROMPT_STOP:           // Same as M108
+        marlin.end_waiting();
+        break;
+      case PROMPT_SAVE_SETTINGS:
+        #if ENABLED(EEPROM_SETTINGS)
+          if (response == 0) queue.inject(F("M500"));
+        #endif
         break;
       default: break;
     }
