@@ -118,6 +118,12 @@
   #include <LiquidCrystal_AIP31068_SPI.h>
   #define LCD_CLASS LiquidCrystal_AIP31068_SPI
 
+#elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER_OLED)
+
+  // Winstar WEH002004 (WS0010) character OLED
+  #include "LiquidCrystal_WS0010.h"
+  #define LCD_CLASS LiquidCrystal_WS0010
+
 #else
 
   // Standard directly connected LCD implementations
