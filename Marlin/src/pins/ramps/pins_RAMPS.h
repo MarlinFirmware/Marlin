@@ -620,6 +620,9 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN  // As for other RAMPS panels
+  #endif
 
 #elif HAS_WIRED_LCD
 
@@ -827,6 +830,7 @@
 
     #elif ENABLED(MINIPANEL)
       #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
+      #define BEEPER_PIN                 AUX2_08  // Here, since the generic EXP1_01 fallback below would win
 
     #elif ENABLED(ZONESTAR_LCD)
 
