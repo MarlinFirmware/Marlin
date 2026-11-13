@@ -376,7 +376,7 @@ void Endstops::event_handler() {
       }
 
     #elif ENABLED(ABORT_ON_ENDSTOP)
-      if (planner.abort_on_endstop) {
+      if (planner.abort_on_endstop && TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
         TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
         motion.quickstop_stepper();
         #if HAS_CUTTER
