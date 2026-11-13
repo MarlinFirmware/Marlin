@@ -212,6 +212,11 @@ void mount_file_sys(const uint8_t disk_type) {
     uint8_t i = FILENAME_LENGTH;
     while (i) dosName[--i] = '\0';
 
+    // An 8.3 name keeps up to 8 characters before the dot.
+    // Only a longer name is cut to 6 characters plus "~1".
+    const char * const dot = strchr(longName, '.');
+    const bool tooLong = (dot ? size_t(dot - longName) : strlen(longName)) > 8;
+
     while (*longName) {
       uint8_t c = *longName++;
       if (c == '.') { // For a dot...
@@ -231,7 +236,7 @@ void mount_file_sys(const uint8_t disk_type) {
 
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
 
-      if (i >= 5) {
+      if (tooLong && i >= 6) {
         strcat_P(dosName, PSTR("~1.GCO"));
         return dosName[0] != '\0';
       }
