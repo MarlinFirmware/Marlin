@@ -459,44 +459,92 @@
 
 #endif
 
-// Provide One-to-One mapping by default
+// Provide One-to-One mapping by default (only for EXP pins the board defines)
 
 #define _LCD_SET(N,I) && (LCD##I##_0##N##_PIN == 0)
 
 #if defined(EXP1_01_PIN) REPEAT2_S(1,9,_LCD_SET,1)
-  #define LCD1_01_PIN EXP1_01_PIN
-  #define LCD1_02_PIN EXP1_02_PIN
-  #define LCD1_03_PIN EXP1_03_PIN
-  #define LCD1_04_PIN EXP1_04_PIN
-  #define LCD1_05_PIN EXP1_05_PIN
-  #define LCD1_06_PIN EXP1_06_PIN
-  #define LCD1_07_PIN EXP1_07_PIN
-  #define LCD1_08_PIN EXP1_08_PIN
+  #ifdef EXP1_01_PIN
+    #define LCD1_01_PIN EXP1_01_PIN
+  #endif
+  #ifdef EXP1_02_PIN
+    #define LCD1_02_PIN EXP1_02_PIN
+  #endif
+  #ifdef EXP1_03_PIN
+    #define LCD1_03_PIN EXP1_03_PIN
+  #endif
+  #ifdef EXP1_04_PIN
+    #define LCD1_04_PIN EXP1_04_PIN
+  #endif
+  #ifdef EXP1_05_PIN
+    #define LCD1_05_PIN EXP1_05_PIN
+  #endif
+  #ifdef EXP1_06_PIN
+    #define LCD1_06_PIN EXP1_06_PIN
+  #endif
+  #ifdef EXP1_07_PIN
+    #define LCD1_07_PIN EXP1_07_PIN
+  #endif
+  #ifdef EXP1_08_PIN
+    #define LCD1_08_PIN EXP1_08_PIN
+  #endif
 #endif
 
 #if defined(EXP2_01_PIN) REPEAT2_S(1,9,_LCD_SET,2)
-  #define LCD2_01_PIN EXP2_01_PIN
-  #define LCD2_02_PIN EXP2_02_PIN
-  #define LCD2_03_PIN EXP2_03_PIN
-  #define LCD2_04_PIN EXP2_04_PIN
-  #define LCD2_05_PIN EXP2_05_PIN
-  #define LCD2_06_PIN EXP2_06_PIN
-  #define LCD2_07_PIN EXP2_07_PIN
-  #define LCD2_08_PIN EXP2_08_PIN
+  #ifdef EXP2_01_PIN
+    #define LCD2_01_PIN EXP2_01_PIN
+  #endif
+  #ifdef EXP2_02_PIN
+    #define LCD2_02_PIN EXP2_02_PIN
+  #endif
+  #ifdef EXP2_03_PIN
+    #define LCD2_03_PIN EXP2_03_PIN
+  #endif
+  #ifdef EXP2_04_PIN
+    #define LCD2_04_PIN EXP2_04_PIN
+  #endif
+  #ifdef EXP2_05_PIN
+    #define LCD2_05_PIN EXP2_05_PIN
+  #endif
+  #ifdef EXP2_06_PIN
+    #define LCD2_06_PIN EXP2_06_PIN
+  #endif
+  #ifdef EXP2_07_PIN
+    #define LCD2_07_PIN EXP2_07_PIN
+  #endif
+  #ifdef EXP2_08_PIN
+    #define LCD2_08_PIN EXP2_08_PIN
+  #endif
 #endif
 
 // Define "LCD3" pins if EXP3 is not remapped to LCD1
 // May not be needed if we just always remap "LCD1" to EXP3
 
 #if defined(EXP3_01_PIN) REPEAT2_S(1,9,_LCD_SET,3)
-  #define LCD3_01_PIN EXP3_01_PIN
-  #define LCD3_02_PIN EXP3_02_PIN
-  #define LCD3_03_PIN EXP3_03_PIN
-  #define LCD3_04_PIN EXP3_04_PIN
-  #define LCD3_05_PIN EXP3_05_PIN
-  #define LCD3_06_PIN EXP3_06_PIN
-  #define LCD3_07_PIN EXP3_07_PIN
-  #define LCD3_08_PIN EXP3_08_PIN
+  #ifdef EXP3_01_PIN
+    #define LCD3_01_PIN EXP3_01_PIN
+  #endif
+  #ifdef EXP3_02_PIN
+    #define LCD3_02_PIN EXP3_02_PIN
+  #endif
+  #ifdef EXP3_03_PIN
+    #define LCD3_03_PIN EXP3_03_PIN
+  #endif
+  #ifdef EXP3_04_PIN
+    #define LCD3_04_PIN EXP3_04_PIN
+  #endif
+  #ifdef EXP3_05_PIN
+    #define LCD3_05_PIN EXP3_05_PIN
+  #endif
+  #ifdef EXP3_06_PIN
+    #define LCD3_06_PIN EXP3_06_PIN
+  #endif
+  #ifdef EXP3_07_PIN
+    #define LCD3_07_PIN EXP3_07_PIN
+  #endif
+  #ifdef EXP3_08_PIN
+    #define LCD3_08_PIN EXP3_08_PIN
+  #endif
 #endif
 
 #undef _LCD_SET
