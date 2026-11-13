@@ -129,38 +129,83 @@
 #define EXP1_07_PIN                         PE7
 #define EXP1_08_PIN                         PB1
 
-#if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+#if HAS_WIRED_LCD
 
-  // Migrated to pins/lcd
+  #if ENABLED(CR10_STOCKDISPLAY)
 
-#elif HAS_WIRED_LCD
+    // LCD pins defined in pins/lcd/CR10_STOCKDISPLAY.h
 
-  #if ENABLED(LCD_FOR_MELZI)
+  #elif ENABLED(LCD_FOR_MELZI)
+
+    // NOTE: Kept inline — LCD_FOR_MELZI uses the CR10-style EXP1 wiring here,
+    // but the lcd/ dispatcher would treat it as an RRD_SC (lcd/RRD_SC.h).
+    #define BEEPER_PIN               EXP1_01_PIN
+
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
+
+    #define LCD_PINS_D4              EXP1_06_PIN
+    #define LCD_PINS_RS              EXP1_07_PIN
+    #define LCD_PINS_EN              EXP1_08_PIN
 
     CONTROLLER_WARNING("FLY_RRF_E3_V1", "LCD_FOR_MELZI")
-    // Alter timing for graphical display — LCD_FOR_MELZI default timing is too fast.
-    #define BOARD_ST7920_DELAY_1             200
-    #define BOARD_ST7920_DELAY_2             400
-    #define BOARD_ST7920_DELAY_3            1200
 
-  #endif
+    /** LCD_FOR_MELZI display pinout
+     *
+     *              Fly RRF E3 V1                                 Display Ribbon
+     *                 ------                                         ------
+     * (BEEPER)  PE12 | 1  2 | PE11  (BTN_ENC)                   GND |10  9 | 5V
+     * (BTN_EN1) PE10 | 3  4 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
+     * (BTN_EN2) PE9    5  6 | PE8 (LCD_D4)        (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
+     * (LCD_RS)  PE7  | 7  8 | PB1 (LCD_EN)        (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
+     *           GND  | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
+     *                 ------                                         ------
+     *                  EXP1                                           LCD
+     *
+     * Needs custom cable:
+     *
+     *    Board   Adapter   Display Ribbon (coming from display)
+     *  ----------------------------------
+     *  EXP1-10 ---------- LCD-9   5V
+     *  EXP1-9 ----------- LCD-10  GND
+     *  EXP1-8 ----------- LCD-3   LCD_EN
+     *  EXP1-7 ----------- LCD-1   LCD_RS
+     *  EXP1-6 ----------- LCD-5   LCD_D4
+     *  EXP1-5 ----------- LCD-4   EN2
+     *  EXP1-4 ----------- LCD-7   RESET
+     *  EXP1-3 ----------- LCD-2   EN1
+     *  EXP1-2 ----------- LCD-6   BTN
+     *  EXP1-1 ----------- LCD-8   BEEPER
+     */
 
-#elif ENABLED(ZONESTAR_LCD)                       // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+  #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-  CONTROLLER_WARNING("FLY_RRF_E3_V1", "ZONESTAR_LCD")
+    CONTROLLER_WARNING("FLY_RRF_E3_V1", "ZONESTAR_LCD")
 
-  #define ADC_KEYPAD_PIN                    PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
-  // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
+    #define LCD_PINS_RS              EXP1_06_PIN
+    #define LCD_PINS_EN              EXP1_02_PIN
+    #define LCD_PINS_D4              EXP1_07_PIN
+    #define LCD_PINS_D5              EXP1_05_PIN
+    #define LCD_PINS_D6              EXP1_03_PIN
+    #define LCD_PINS_D7              EXP1_01_PIN
+    #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
-#elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
+  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-  #define DOGLCD_CS                  EXP1_07_PIN
-  #define DOGLCD_A0                  EXP1_06_PIN
-  #define DOGLCD_SCK                 EXP1_01_PIN
-  #define DOGLCD_MOSI                EXP1_08_PIN
+    // NOTE: Kept inline — this board wires these panels entirely to EXP1.
 
-  #define FORCE_SOFT_SPI
-  #define LCD_BACKLIGHT_PIN                 -1
+    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP1_03_PIN
+    #define BTN_EN2                  EXP1_05_PIN
+
+    #define DOGLCD_CS                EXP1_07_PIN
+    #define DOGLCD_A0                EXP1_06_PIN
+    #define DOGLCD_SCK               EXP1_01_PIN
+    #define DOGLCD_MOSI              EXP1_08_PIN
+
+    #define FORCE_SOFT_SPI
+    #define LCD_BACKLIGHT_PIN               -1
 
   #elif IS_TFTGLCD_PANEL
 
@@ -197,7 +242,7 @@
        *   EXP1-1 ----------- EXP1-7   SD_DET
        */
 
-      // NOTE: FLY_RRF_E3_V1 uses EXP1_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
+      // NOTE: Kept inline — TFTGLCD_CS on EXP1_03 (custom cable) instead of the EXP2_03 default.
       #define TFTGLCD_CS             EXP1_03_PIN
 
     #endif
