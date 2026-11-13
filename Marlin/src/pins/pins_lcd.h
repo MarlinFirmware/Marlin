@@ -111,6 +111,13 @@
 #endif
 
 /**
+ * ULTI_CONTROLLER needs a reset pin, even when the board defines its own LCD pins
+ */
+#if !defined(LCD_RESET_PIN) && ENABLED(ULTI_CONTROLLER)
+  #define LCD_RESET_PIN LCD_PINS_D6
+#endif
+
+/**
  * Make sure DOGLCD_SCK and DOGLCD_MOSI are defined.
  */
 #if HAS_MARLINUI_U8GLIB
