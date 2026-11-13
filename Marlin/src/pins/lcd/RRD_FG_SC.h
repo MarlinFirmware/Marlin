@@ -61,10 +61,10 @@
   #define BTN_ENC           LCD1_02_PIN
 #endif
 #ifndef BTN_EN1
-  #define BTN_EN1           LCD2_05_PIN  // EN1/2 should be swapped for default encoder direction CW+
-#endif
+  #define BTN_EN1           LCD2_03_PIN  // The order used by most boards. Boards that wire
+#endif                                   // the encoder the other way define their own.
 #ifndef BTN_EN2
-  #define BTN_EN2           LCD2_03_PIN
+  #define BTN_EN2           LCD2_05_PIN
 #endif
 
 #ifndef LCD_PINS_EN
