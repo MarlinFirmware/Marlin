@@ -84,7 +84,7 @@
   #define LCD2_07_PIN MINI_02 // SD_DETECT
   #define LCD2_08_PIN MINI_18 // KILL
 
-#elif ENABLED(ADAPTER_RAMPS_MKS)
+#elif ENABLED(ADAPTER_RAMPS_MKS) && DISABLED(ADAPTER_RAMPS_DUO_MKS)  // RAMPS_DUO includes RAMPS
 
   /**
    * RAMPS MINIPANEL wiring via the AUX-2 connector.
@@ -463,7 +463,7 @@
 
 #define _LCD_SET(N,I) && (LCD##I##_0##N##_PIN == 0)
 
-#if defined(EXP1_01_PIN) REPEAT2_S(1,9,_LCD_SET,1)
+#if 1 REPEAT2_S(1,9,_LCD_SET,1)  // Unless an adapter already mapped LCD1
   #ifdef EXP1_01_PIN
     #define LCD1_01_PIN EXP1_01_PIN
   #endif
@@ -490,7 +490,7 @@
   #endif
 #endif
 
-#if defined(EXP2_01_PIN) REPEAT2_S(1,9,_LCD_SET,2)
+#if 1 REPEAT2_S(1,9,_LCD_SET,2)  // Unless an adapter already mapped LCD2
   #ifdef EXP2_01_PIN
     #define LCD2_01_PIN EXP2_01_PIN
   #endif
@@ -520,7 +520,7 @@
 // Define "LCD3" pins if EXP3 is not remapped to LCD1
 // May not be needed if we just always remap "LCD1" to EXP3
 
-#if defined(EXP3_01_PIN) REPEAT2_S(1,9,_LCD_SET,3)
+#if 1 REPEAT2_S(1,9,_LCD_SET,3)  // Unless an adapter already mapped LCD3
   #ifdef EXP3_01_PIN
     #define LCD3_01_PIN EXP3_01_PIN
   #endif

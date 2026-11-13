@@ -201,6 +201,8 @@
     #define EXP2_05_PIN                     PD15  // BTN_EN2
     #define EXP2_07_PIN                     PD1   // SD_DETECT
     #define EXP2_08_PIN                     PE0   // KILL
+    #undef KILL_PIN                                 // Replace the board's PD6 default
+    #define KILL_PIN                 EXP2_08_PIN
 
     #define SD_SS_PIN                       PD5   // Board-specific SD CS
 
