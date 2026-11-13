@@ -353,6 +353,8 @@
 
       #define FORCE_SOFT_SPI
       #define LCD_BACKLIGHT_PIN             -1
+      #define LCD_RESET_PIN                 -1    // Panel RESET goes to the board's RST line
+      #define NEOPIXEL_PIN   BOARD_NEOPIXEL_PIN   // Panel DIN goes to the board's Neopixel header
 
     #else
       #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the SKR Mini E3."
