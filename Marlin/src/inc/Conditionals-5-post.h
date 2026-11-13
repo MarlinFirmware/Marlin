@@ -2160,17 +2160,27 @@
   #endif
 #endif
 
-#if HAS_REAL_BED_PROBE
-  #define HAS_Z_PROBE_STATE 1
-  #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
-    #define NEED_Z_MIN_PROBE_PIN 1
-    #if PIN_EXISTS(Z_MIN_PROBE)
-      #define USE_Z_MIN_PROBE 1
-    #endif
+/**
+ * USE_Z_MIN_PROBE
+ *   The probe state is read from Z_MIN_PROBE_PIN, giving it its own Z_MIN_PROBE endstop
+ *   bit. Otherwise Z_MIN_PROBE is an alias of Z_MIN (see endstops.h).
+ */
+#if HAS_Z_PROBE_STATE
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #define PROBE_IS_MIN_ENDSTOP 1
+  #elif PIN_EXISTS(Z_MIN_PROBE)
+    #define USE_Z_MIN_PROBE 1
   #endif
 #endif
 
-#if HAS_BED_PROBE && Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+/**
+ * HOMING_Z_WITH_PROBE
+ *   Z homes toward MIN with the bed probe acting as the Z endstop, either because
+ *   USE_PROBE_FOR_Z_HOMING is enabled or because the probe shares the Z_MIN pin
+ *   (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) so there is no other Z endstop.
+ *   A probe on its own pin does not home Z by itself, and keeps any Z sensorless homing.
+ */
+#if HAS_BED_PROBE && Z_HOME_TO_MIN && ANY(USE_PROBE_FOR_Z_HOMING, PROBE_IS_MIN_ENDSTOP)
   #define HOMING_Z_WITH_PROBE 1
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HAS_TRINAMIC_CONFIG
@@ -2181,6 +2191,8 @@
     #undef Z_SPI_SENSORLESS
   #endif
 #endif
+
+#undef PROBE_IS_MIN_ENDSTOP // not used further
 
 #if PIN_EXISTS(CALIBRATION)
   #define USE_CALIBRATION 1
