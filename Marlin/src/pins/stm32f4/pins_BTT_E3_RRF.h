@@ -250,6 +250,7 @@
 
   #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
+    #define BEEPER_PIN                        -1  // EXP1_01 is DOGLCD_SCK here
     #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN

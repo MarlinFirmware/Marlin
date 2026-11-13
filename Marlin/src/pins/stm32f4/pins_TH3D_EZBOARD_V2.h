@@ -257,6 +257,7 @@
   #define LCD_CONTRAST_MAX                   180
   #define FORCE_SOFT_SPI
   #define LCD_BACKLIGHT_PIN                 -1
+  #define BEEPER_PIN                        -1  // EXP1_01 is DOGLCD_SCK here
 
 #elif HAS_WIRED_LCD
 

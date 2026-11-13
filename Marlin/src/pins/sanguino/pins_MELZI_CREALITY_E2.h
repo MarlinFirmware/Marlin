@@ -63,6 +63,7 @@
   #if HAS_MEDIA
     #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
   #endif
+  #define LCD_PINS_DEFINED
 
 #elif ENABLED(ENDER2_STOCKDISPLAY)
 
