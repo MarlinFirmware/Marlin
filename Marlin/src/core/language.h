@@ -72,6 +72,7 @@
 // ru         Russian
 // sk         Slovak
 // sv         Swedish
+// tlh        Klingon (pIqaD script, TFT_COLOR_UI only)
 // tr         Turkish
 // uk         Ukrainian
 // vi         Vietnamese
