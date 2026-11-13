@@ -52,6 +52,9 @@
   #include <stm32h7xx_hal_dma.h>
   #include <stm32h7xx_hal_gpio.h>
   #include <stm32h7xx_hal_sd.h>
+  // Arduino_Core_STM32 2.6.0 split PinMap_SD into per-signal maps and dropped this
+  // declaration from PeripheralPins.h, but Marlin's variants still define the combined map.
+  extern const PinMap PinMap_SD[];
 #else
   #error "SDIO is only supported with STM32F103xE, STM32F103xG, STM32F4xx, STM32F7xx, and STM32H7xx."
 #endif
