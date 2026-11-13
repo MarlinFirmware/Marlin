@@ -25,63 +25,57 @@
  * pins_lcd.h - Define LCD pins based on the EXP connector / adapter
  */
 
-#if defined(LCD_PINS_EN) || defined(DOGLCD_A0)
+// Controller defaults. All are #ifndef-guarded, so pins defined by the board file win.
 
-  // LCD pins were already defined in the board pins file
+#include "lcd/adapters.h"
 
+#if ENABLED(CR10_STOCKDISPLAY)
+  #include "lcd/CR10_STOCKDISPLAY.h"
+#elif ENABLED(ENDER2_STOCKDISPLAY)
+  #include "lcd/ENDER2_STOCKDISPLAY.h"
+#elif ENABLED(RADDS_DISPLAY)
+  #include "lcd/RADDS_DISPLAY.h"
+#elif ENABLED(MKS_MINI_12864)
+  #include "lcd/MKS_MINI_12864.h"
+#elif ENABLED(MINIPANEL)
+  #include "lcd/MINIPANEL.h"
+#elif ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
+  #include "lcd/ANET_FULL_GRAPHICS_LCD.h"
+#elif ENABLED(FYSETC_MINI_12864)
+  #include "lcd/FYSETC_MINI_12864.h"
+#elif ENABLED(FYSETC_242_OLED_12864)
+  #include "lcd/FYSETC_242_OLED_12864.h"
+#elif ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+  #include "lcd/MKS_12864OLED.h"
+#elif ENABLED(WYH_L12864)
+  #include "lcd/WYH_L12864.h"
+#elif ENABLED(ULTI_CONTROLLER)
+  #include "lcd/ULTI_CONTROLLER.h"
+#elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
+  #include "lcd/REPRAPWORLD_GRAPHICAL_LCD.h"
+#elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
+  #include "lcd/ELB_FULL_GRAPHIC_CONTROLLER.h"
+#elif ENABLED(ZONESTAR_LCD)
+  #include "lcd/ZONESTAR_LCD.h"
+#elif ENABLED(ZONESTAR_12864LCD)
+  #include "lcd/ZONESTAR_12864LCD.h"
+#elif ANY(VIKI2, miniVIKI)
+  #include "lcd/VIKI2.h"
+#elif ENABLED(YHCB2004)
+  // SPI Character LCD used by Geeetech
+#elif IS_RRD_FG_SC
+  #include "lcd/RRD_FG_SC.h"
+#elif IS_RRD_SC
+  #include "lcd/RRD_SC.h"
+#elif IS_TFTGLCD_PANEL
+  #include "lcd/TFTGLCD.h"
+#elif HAS_WIRED_LCD
+  #include "lcd/WIRED.h"
 #else
 
-  #include "lcd/adapters.h"
-
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #include "lcd/CR10_STOCKDISPLAY.h"
-  #elif ENABLED(ENDER2_STOCKDISPLAY)
-    #include "lcd/ENDER2_STOCKDISPLAY.h"
-  #elif ENABLED(RADDS_DISPLAY)
-    #include "lcd/RADDS_DISPLAY.h"
-  #elif ENABLED(MKS_MINI_12864)
-    #include "lcd/MKS_MINI_12864.h"
-  #elif ENABLED(MINIPANEL)
-    #include "lcd/MINIPANEL.h"
-  #elif ANY(ANET_FULL_GRAPHICS_LCD, CTC_A10S_A13)
-    #include "lcd/ANET_FULL_GRAPHICS_LCD.h"
-  #elif ENABLED(FYSETC_MINI_12864)
-    #include "lcd/FYSETC_MINI_12864.h"
-  #elif ENABLED(FYSETC_242_OLED_12864)
-    #include "lcd/FYSETC_242_OLED_12864.h"
-  #elif ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-    #include "lcd/MKS_12864OLED.h"
-  #elif ENABLED(WYH_L12864)
-    #include "lcd/WYH_L12864.h"
-  #elif ENABLED(ULTI_CONTROLLER)
-    #include "lcd/ULTI_CONTROLLER.h"
-  #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #include "lcd/REPRAPWORLD_GRAPHICAL_LCD.h"
-  #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #include "lcd/ELB_FULL_GRAPHIC_CONTROLLER.h"
-  #elif ENABLED(ZONESTAR_LCD)
-    #include "lcd/ZONESTAR_LCD.h"
-  #elif ENABLED(ZONESTAR_12864LCD)
-    #include "lcd/ZONESTAR_12864LCD.h"
-  #elif ANY(VIKI2, miniVIKI)
-    #include "lcd/VIKI2.h"
-  #elif ENABLED(YHCB2004)
-    // SPI Character LCD used by Geeetech
-  #elif IS_RRD_FG_SC
-    #include "lcd/RRD_FG_SC.h"
-  #elif IS_RRD_SC
-    #include "lcd/RRD_SC.h"
-  #elif IS_TFTGLCD_PANEL
-    #include "lcd/TFTGLCD.h"
-  #elif HAS_WIRED_LCD
-    #include "lcd/WIRED.h"
-  #else
-
-    // More displays to come
-    #if HAS_LCD_SELECTED && !LCD_IS_SERIAL_HOST
-      #define LCD_MIGRATION_WARNING
-    #endif
-
+  // More displays to come
+  #if HAS_LCD_SELECTED && !LCD_IS_SERIAL_HOST
+    #define LCD_MIGRATION_WARNING
   #endif
 
 #endif
