@@ -89,15 +89,8 @@
   #endif
 #endif
 
-#if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER) && !defined(BTN_ENC_EN)
-  #define BTN_ENC_EN        LCD1_08_PIN  // Detect the presence of the encoder
-#endif
-
 #ifndef LCD_SDSS_PIN
   #define LCD_SDSS_PIN      LCD2_04_PIN
-#endif
-#ifndef SD_SS_PIN
-  #define SD_SS_PIN         LCD_SDSS_PIN
 #endif
 #ifndef SD_DETECT_PIN
   #define SD_DETECT_PIN     LCD2_07_PIN

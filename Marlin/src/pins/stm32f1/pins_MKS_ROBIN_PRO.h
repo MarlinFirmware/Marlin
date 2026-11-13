@@ -375,6 +375,9 @@
 
   // Migrated to pins/lcd — the standard EXP1_01..08 / EXP2_03/05 slot-order
   // wiring is supplied by lcd/WIRED.h / RRD_SC.h via the de-facto EXP ports.
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN               LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
 #endif // HAS_WIRED_LCD
 
