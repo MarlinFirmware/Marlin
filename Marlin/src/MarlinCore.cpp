@@ -273,6 +273,10 @@
   #include "feature/rs485.h"
 #endif
 
+#if ENABLED(CAN_BUS)
+  #include "HAL/shared/canbus.h"
+#endif
+
 #if ENABLED(SOFT_FEED_HOLD)
   #include "feature/e_parser.h"
 #endif
@@ -888,6 +892,9 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Manage Fixed-time Motion Control
   TERN_(FT_MOTION, ftMotion.loop());
+
+  // Collect CAN frames on HALs without a CAN receive interrupt
+  TERN_(CAN_BUS, CANBus::poll());
 
   // Handle UI input / draw events
   #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
@@ -1782,6 +1789,11 @@ void setup() {
 
   #if HAS_RS485_SERIAL
     SETUP_RUN(rs485_init());
+  #endif
+
+  #if ENABLED(CAN_BUS)
+    SETUP_LOG("CANBus::begin");
+    if (!CANBus::begin(CAN_BITRATE)) SERIAL_ERROR_MSG("CAN bus failed to start.");
   #endif
 
   #if ENABLED(FT_MOTION)

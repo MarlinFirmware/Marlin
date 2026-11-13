@@ -3336,6 +3336,19 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * CAN bus requires a supported HAL and the board's CAN pins
+ */
+#if ENABLED(CAN_BUS)
+  #ifndef HAL_STM32
+    #error "CAN_BUS is currently only supported on STM32 (HAL/STM32)."
+  #elif !PINS_EXIST(CAN_RX, CAN_TX)
+    #error "CAN_BUS requires CAN_RX_PIN and CAN_TX_PIN. Define them in Configuration.h if your board's pins file lacks them."
+  #elif !WITHIN(CAN_BITRATE, 10000, 1000000)
+    #error "CAN_BITRATE must be from 10000 to 1000000 (classic CAN)."
+  #endif
+#endif
+
+/**
  * The MKS WiFi module drives its serial port directly, bypassing MarlinSerial
  */
 #if ENABLED(MKS_WIFI_MODULE)
