@@ -132,6 +132,7 @@
  * Use the board's CAN port (CAN_RX_PIN / CAN_TX_PIN) to talk to CAN devices,
  * such as toolhead boards running Klipper. Classic CAN 2.0 frames only.
  * Requires an STM32 with bxCAN (F1/F2/F4/F7) or FDCAN (G0/G4/H7), and a CAN transceiver.
+ * M960 reports the bus state and lists Klipper / Katapult nodes found on the bus.
  */
 //#define CAN_BUS
 #if ENABLED(CAN_BUS)
