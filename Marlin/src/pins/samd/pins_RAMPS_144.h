@@ -456,6 +456,9 @@
 #elif IS_RRD_SC
 
   // Migrated to pins/lcd
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
   #if ENABLED(BQ_LCD_SMART_CONTROLLER)
     #define LCD_BACKLIGHT_PIN            AUX4_08  // A slightly different adapter from RRD SC?

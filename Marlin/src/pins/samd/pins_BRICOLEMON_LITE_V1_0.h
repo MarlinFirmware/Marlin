@@ -237,6 +237,9 @@
 #elif IS_RRD_SC
 
   // Migrated to pins/lcd
+  #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
   // NOTE: Kept inline — this board's encoder order (upstream wiring)
   #define BTN_EN1                  EXP2_05_PIN
   #define BTN_EN2                  EXP2_03_PIN
