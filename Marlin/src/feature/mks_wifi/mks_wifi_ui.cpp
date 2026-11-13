@@ -35,7 +35,9 @@
 
 mks_wifi_state_t mksWifi;
 
-uint8_t mksWifiDmaBuf[TRANS_RCV_FIFO_BLOCK_NUM * UDISKBUFLEN];
-uint8_t mksWifiFileBuf[513];
+// Word-aligned: mksWifiFileBuf is written to the SD card 512 bytes at a time,
+// and the STM32 SDIO DMA requires a word-aligned memory address.
+alignas(4) uint8_t mksWifiDmaBuf[TRANS_RCV_FIFO_BLOCK_NUM * UDISKBUFLEN];
+alignas(4) uint8_t mksWifiFileBuf[513];
 
 #endif // MKS_WIFI_MODULE && !HAS_TFT_LVGL_UI
