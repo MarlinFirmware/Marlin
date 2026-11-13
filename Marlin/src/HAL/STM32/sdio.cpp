@@ -241,7 +241,9 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     hdma_sdio.Init.MemInc = DMA_MINC_ENABLE;
     hdma_sdio.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
     hdma_sdio.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_sdio.Init.Priority = DMA_PRIORITY_MEDIUM;
+    // Must outrank the FSMC TFT DMA (DMA_PRIORITY_HIGH, see tft/tft_fsmc.cpp), which
+    // shares DMA2 on STM32F4. The SDIO FIFO is tiny and overruns when starved.
+    hdma_sdio.Init.Priority = DMA_PRIORITY_VERY_HIGH;
     __HAL_LINKDMA(&hsd, hdmarx, hdma_sdio);
     __HAL_LINKDMA(&hsd, hdmatx, hdma_sdio);
 
@@ -372,6 +374,12 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
 
     timeout = millis() + SD_TIMEOUT;
     while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) if (ELAPSED(millis(), timeout)) return false;
+
+    // The HAL also sets State=READY when a transfer is aborted on error
+    // (e.g., RX overrun, data CRC fail, data timeout). Without this check a
+    // failed read is reported as success and the caller keeps stale buffer
+    // contents. Report failure so the caller can retry.
+    if (hsd.ErrorCode != HAL_SD_ERROR_NONE) return false;
 
     return true;
   }
