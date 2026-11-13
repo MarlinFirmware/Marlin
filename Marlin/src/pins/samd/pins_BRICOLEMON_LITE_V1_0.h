@@ -237,6 +237,9 @@
 #elif IS_RRD_SC
 
   // Migrated to pins/lcd
+  // NOTE: Kept inline — this board's encoder order (upstream wiring)
+  #define BTN_EN1                  EXP2_05_PIN
+  #define BTN_EN2                  EXP2_03_PIN
 
   #if ENABLED(BQ_LCD_SMART_CONTROLLER)
     //#define LCD_BACKLIGHT_PIN      EXP1_08_PIN  // TO TEST

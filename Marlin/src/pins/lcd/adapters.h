@@ -183,8 +183,8 @@
   /** Common LCD single-to-dual adapter
    *                   ------
    *    LCD1-1 <= SCK | 1  2 | ENC   => LCD1-2
-   *    LCD2-5 <= EN1 | 3  4 | RESET => LCD1-4
-   *    LCD2-3 <= EN2   5  6 | A0    => LCD1-7
+   *    LCD2-3 <= EN1 | 3  4 | RESET => LCD1-4
+   *    LCD2-5 <= EN2   5  6 | A0    => LCD1-7
    *    LCD1-6 <=  CS | 7  8 | MOSI  => LCD2-6
    *              GND | 9 10 | 5V
    *                   ------
@@ -195,8 +195,8 @@
   #define LCD1_07_PIN EXP1_06_PIN  // A0
 
   #define LCD2_02_PIN EXP1_01_PIN  // SCK  - Soft SPI
-  #define LCD2_03_PIN EXP1_05_PIN  // EN2
-  #define LCD2_05_PIN EXP1_03_PIN  // EN1
+  #define LCD2_03_PIN EXP1_03_PIN  // EN1
+  #define LCD2_05_PIN EXP1_05_PIN  // EN2
   #define LCD2_06_PIN EXP1_08_PIN  // MOSI - Soft SPI
 
   #define FORCE_SOFT_SPI
@@ -207,8 +207,8 @@
    * https://www.th3dstudio.com/product/ezboard-creality-dual-lcd-adapter-board/
    *                   ------
    *    LCD1-1 <= SCK | 1  2 | ENC   => LCD1-2
-   *    LCD2-5 <= EN1 | 3  4 | RESET => LCD1-4
-   *    LCD2-3 <= EN2   5  6 | A0    => LCD1-7
+   *    LCD2-3 <= EN1 | 3  4 | RESET => LCD1-4
+   *    LCD2-5 <= EN2   5  6 | A0    => LCD1-7
    *    LCD1-6 <=  CS | 7  8 | MOSI  => LCD2-6
    *              GND | 9 10 | 5V
    *                   ------
@@ -219,8 +219,8 @@
   #define LCD1_07_PIN EXP1_06_PIN  // A0
 
   #define LCD2_02_PIN EXP1_01_PIN  // SCK  - Soft SPI
-  #define LCD2_03_PIN EXP1_05_PIN  // EN2
-  #define LCD2_05_PIN EXP1_03_PIN  // EN1
+  #define LCD2_03_PIN EXP1_03_PIN  // EN1
+  #define LCD2_05_PIN EXP1_05_PIN  // EN2
   #define LCD2_06_PIN EXP1_08_PIN  // MOSI - Soft SPI
 
   #define FORCE_SOFT_SPI
