@@ -2162,8 +2162,7 @@
 
 #if HAS_REAL_BED_PROBE
   #define HAS_Z_PROBE_STATE 1
-  // With SPI sensorless Z homing the Z_MIN pin is free for the probe.
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
+  #if DISABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
     #define NEED_Z_MIN_PROBE_PIN 1
     #if PIN_EXISTS(Z_MIN_PROBE)
       #define USE_Z_MIN_PROBE 1
