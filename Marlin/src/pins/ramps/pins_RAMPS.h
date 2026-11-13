@@ -766,6 +766,8 @@
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
       // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
+      // (BEEPER_PIN here, since this board's generic fallback below would win)
+      #define BEEPER_PIN             EXP1_05_PIN
 
     #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
