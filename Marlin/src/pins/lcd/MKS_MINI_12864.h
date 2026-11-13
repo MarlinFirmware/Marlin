@@ -61,9 +61,15 @@
   #define BEEPER_PIN      LCD1_01_PIN
 #endif
 
-#define BTN_ENC           LCD1_02_PIN
-#define BTN_EN1           LCD2_03_PIN
-#define BTN_EN2           LCD2_05_PIN
+#ifndef BTN_ENC
+  #define BTN_ENC         LCD1_02_PIN
+#endif
+#ifndef BTN_EN1
+  #define BTN_EN1         LCD2_03_PIN
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2         LCD2_05_PIN
+#endif
 
 #ifndef DOGLCD_CS
   #define DOGLCD_CS       LCD1_06_PIN

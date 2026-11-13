@@ -53,13 +53,13 @@
  * Boards with custom wiring should pre-define these in their board pins file.
  */
 #ifndef LCD_PINS_RS
-  #define LCD_PINS_RS EXP2_07_PIN  // CS chip select /SS chip slave select
+  #define LCD_PINS_RS LCD2_07_PIN  // CS chip select /SS chip slave select
 #endif
 #ifndef LCD_PINS_EN
-  #define LCD_PINS_EN EXP2_06_PIN  // SID (MOSI)
+  #define LCD_PINS_EN LCD2_06_PIN  // SID (MOSI)
 #endif
 #ifndef LCD_PINS_D4
-  #define LCD_PINS_D4 EXP2_02_PIN  // SCK (CLK) clock
+  #define LCD_PINS_D4 LCD2_02_PIN  // SCK (CLK) clock
 #endif
 
 #if !(_EXISTS(LCD_PINS_EN) && _EXISTS(LCD_PINS_RS) && _EXISTS(LCD_PINS_D4))

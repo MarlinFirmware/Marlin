@@ -53,12 +53,22 @@
 #ifndef BTN_ENC
   #define BTN_ENC         LCD1_02_PIN
 #endif
-#define BTN_EN1           LCD1_03_PIN
-#define BTN_EN2           LCD1_05_PIN
+#ifndef BTN_EN1
+  #define BTN_EN1         LCD1_03_PIN
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2         LCD1_05_PIN
+#endif
 
-#define LCD_PINS_D4       LCD1_06_PIN // ST9720 CLK
-#define LCD_PINS_RS       LCD1_07_PIN // ST9720 CS
-#define LCD_PINS_EN       LCD1_08_PIN // ST9720 DAT
+#ifndef LCD_PINS_D4
+  #define LCD_PINS_D4     LCD1_06_PIN // ST9720 CLK
+#endif
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS     LCD1_07_PIN // ST9720 CS
+#endif
+#ifndef LCD_PINS_EN
+  #define LCD_PINS_EN     LCD1_08_PIN // ST9720 DAT
+#endif
 
 #ifndef KILL_PIN
   #define KILL_PIN        LCD1_04_PIN

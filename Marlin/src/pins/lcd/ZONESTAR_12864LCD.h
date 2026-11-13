@@ -40,19 +40,19 @@
 
 // Output / control pins
 #ifndef LCD_PINS_RS
-  #define LCD_PINS_RS       EXP1_03_PIN  // ST7920 CS (LCD-4)
+  #define LCD_PINS_RS       LCD1_03_PIN  // ST7920 CS (LCD-4)
 #endif
 #ifndef LCD_PINS_EN
-  #define LCD_PINS_EN       EXP1_06_PIN  // ST7920 DAT (LCD-5)
+  #define LCD_PINS_EN       LCD1_06_PIN  // ST7920 DAT (LCD-5)
 #endif
 #ifndef LCD_PINS_D4
-  #define LCD_PINS_D4       EXP1_04_PIN  // ST7920 CLK (LCD-6)
+  #define LCD_PINS_D4       LCD1_04_PIN  // ST7920 CLK (LCD-6)
 #endif
 
 // Beeper and encoder
 #ifndef BEEPER_PIN
-  #define BEEPER_PIN        EXP1_02_PIN
+  #define BEEPER_PIN        LCD1_02_PIN
 #endif
 #ifndef BTN_ENC
-  #define BTN_ENC           EXP1_07_PIN
+  #define BTN_ENC           LCD1_07_PIN
 #endif
