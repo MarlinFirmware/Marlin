@@ -37,7 +37,10 @@ enum {
   ID_LEVEL_POSITION,
   ID_LEVEL_COMMAND,
   ID_LEVEL_ZOFFSET,
-  ID_Z_OFFSET_WIZARD
+  ID_Z_OFFSET_WIZARD,
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    ID_MESH_ZOFFSET,
+  #endif
 };
 
 static void event_handler(lv_obj_t *obj, lv_event_t event) {
@@ -64,6 +67,11 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
           break;
       #endif
     #endif
+    #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+      case ID_MESH_ZOFFSET:
+        lv_draw_mesh_z_offset_settings();
+        break;
+    #endif
   }
 }
 
@@ -76,6 +84,9 @@ void lv_draw_level_settings() {
     #if ENABLED(PROBE_OFFSET_WIZARD)
       lv_screen_menu_item(scr, machine_menu.LevelingZoffsetTitle, PARA_UI_POS_X, PARA_UI_POS_Y * 4, event_handler, ID_Z_OFFSET_WIZARD, 3);
     #endif
+  #endif
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    lv_screen_menu_item(scr, GET_TEXT(MSG_MESH_Z_OFFSET), PARA_UI_POS_X, PARA_UI_POS_Y * TERN(HAS_BED_PROBE, TERN(PROBE_OFFSET_WIZARD, 5, 4), 3), event_handler, ID_MESH_ZOFFSET, TERN(HAS_BED_PROBE, TERN(PROBE_OFFSET_WIZARD, 4, 3), 2));
   #endif
   lv_big_button_create(scr, "F:/bmp_back70x40.bin", common_menu.text_back, PARA_UI_BACK_POS_X + 10, PARA_UI_BACK_POS_Y, event_handler, ID_LEVEL_RETURN, true);
 }
