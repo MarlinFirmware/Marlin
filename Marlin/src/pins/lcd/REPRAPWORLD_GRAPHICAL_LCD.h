@@ -52,14 +52,27 @@
  *
  * Boards with custom wiring should pre-define these in their board pins file.
  */
-#ifndef LCD_PINS_RS
-  #define LCD_PINS_RS LCD2_07_PIN  // CS chip select /SS chip slave select
-#endif
-#ifndef LCD_PINS_EN
-  #define LCD_PINS_EN LCD2_06_PIN  // SID (MOSI)
-#endif
-#ifndef LCD_PINS_D4
-  #define LCD_PINS_D4 LCD2_02_PIN  // SCK (CLK) clock
+#if _EXISTS(LCD2_02_PIN) && _EXISTS(LCD2_06_PIN) && _EXISTS(LCD2_07_PIN)
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS LCD2_07_PIN  // CS chip select /SS chip slave select
+  #endif
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN LCD2_06_PIN  // SID (MOSI)
+  #endif
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4 LCD2_02_PIN  // SCK (CLK) clock
+  #endif
+#else
+  // No EXP2 on this board. Use the generic EXP1 positions, as boards did before lcd/.
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS LCD1_04_PIN
+  #endif
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN LCD1_03_PIN
+  #endif
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4 LCD1_05_PIN
+  #endif
 #endif
 
 #if !(_EXISTS(LCD_PINS_EN) && _EXISTS(LCD_PINS_RS) && _EXISTS(LCD_PINS_D4))
