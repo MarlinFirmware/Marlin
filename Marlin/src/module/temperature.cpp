@@ -46,6 +46,10 @@
   #include "../feature/controllerfan.h"
 #endif
 
+#if ENABLED(TEMP_STAT_LEDS)
+  #include "../feature/leds/tempstat.h"
+#endif
+
 #if ENABLED(EMERGENCY_PARSER)
   #include "motion.h"
 #endif
@@ -645,6 +649,9 @@ volatile bool Temperature::raw_temps_ready = false;
 
     // Run Controller Fan check (normally handled by manage_inactivity)
     TERN_(USE_CONTROLLER_FAN, controllerFan.update());
+
+    // Update the temperature status LEDs (normally handled by manage_inactivity)
+    TERN_(TEMP_STAT_LEDS, handle_status_leds());
 
     // Run UI update
     #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
