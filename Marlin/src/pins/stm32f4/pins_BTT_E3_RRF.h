@@ -306,18 +306,18 @@
     #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, LCD_FOR_MELZI, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BTT_E3_RRF."
   #endif
 
-  // Alter timing for graphical display
-  #if ENABLED(LCD_FOR_MELZI)                      // LCD_FOR_MELZI default timing is too fast. This works but may be reduced.
-    #define BOARD_ST7920_DELAY_1             200
-    #define BOARD_ST7920_DELAY_2             400
-    #define BOARD_ST7920_DELAY_3            1200
-  #elif IS_U8GLIB_ST7920
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             600
-  #endif
-
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if ENABLED(LCD_FOR_MELZI)                      // LCD_FOR_MELZI default timing is too fast. This works but may be reduced.
+  #define BOARD_ST7920_DELAY_1             200
+  #define BOARD_ST7920_DELAY_2             400
+  #define BOARD_ST7920_DELAY_3            1200
+#elif IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1              96
+  #define BOARD_ST7920_DELAY_2              48
+  #define BOARD_ST7920_DELAY_3             600
+#endif
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 
