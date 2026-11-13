@@ -246,9 +246,11 @@
   #define ADC_KEYPAD_PIN                   P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
   // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
+#elif HAS_WIRED_LCD
+
   #error "Only ZONESTAR_LCD, MKS_MINI_12864, ENDER2_STOCKDISPLAY, and CR10_STOCKDISPLAY are currently supported on the BTT_SKR_E3_TURBO."
 
-#endif
+#endif // HAS_WIRED_LCD
 
 //
 // SD Support
