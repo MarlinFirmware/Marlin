@@ -69,6 +69,9 @@
   // Settings persisted to the MKS SPI flash by the LVGL UI
   #define MKSW_SETTINGS_SAVE()    update_spi_flash()
 
+  // printer_state_polling() moves the print state along
+  #define MKSW_SYNC_PRINT_STATE() NOOP
+
   // State shared with the UI
   #define MKSW_PRINT_STATE        uiCfg.print_state
   #define MKSW_COMMAND_SEND       uiCfg.command_send
@@ -120,6 +123,10 @@
 
   // Nothing to persist: without a UI these settings can't be changed at runtime
   #define MKSW_SETTINGS_SAVE()    NOOP
+
+  // No screens move the print state along, so follow the SD card instead
+  void mks_wifi_sync_print_state();
+  #define MKSW_SYNC_PRINT_STATE() mks_wifi_sync_print_state()
 
   // Print state, mirroring the LVGL 'print_state' values used by the protocol
   enum : uint8_t { IDLE, WORKING, PAUSING, PAUSED, REPRINTING, REPRINTED, RESUMING };

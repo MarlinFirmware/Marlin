@@ -32,10 +32,40 @@
 #if ENABLED(MKS_WIFI_MODULE) && !HAS_TFT_LVGL_UI
 
 #include "mks_wifi_ui.h"
+#include "../../gcode/queue.h"
 
 mks_wifi_state_t mksWifi;
 
 uint8_t mksWifiDmaBuf[TRANS_RCV_FIFO_BLOCK_NUM * UDISKBUFLEN];
 uint8_t mksWifiFileBuf[513];
+
+/**
+ * The LVGL screens and printer_state_polling() move 'print_state' along:
+ * PAUSING to PAUSED, RESUMING to WORKING, and back to IDLE when a print
+ * ends. Without them the WiFi M24/M25 handlers set it and nothing else does,
+ * so a finished print stayed WORKING (M997 PRINTING; the module refuses
+ * uploads and M23 until a WiFi M26) and a WiFi pause stuck at PAUSING.
+ *
+ * Take the state from the SD card instead. This also covers prints started
+ * or paused from the display or the host.
+ */
+void mks_wifi_sync_print_state() {
+  #if HAS_MEDIA
+    // WiFi M24 on a paused print. Resume it the way M24 does, unparking the
+    // head if it was parked.
+    if (mksWifi.print_state == RESUMING && card.isPaused()) {
+      queue.inject(F("M24"));
+      mksWifi.print_state = WORKING;
+      return;
+    }
+
+    if (card.isStillPrinting())   // Until M1001 runs at the end of the file
+      mksWifi.print_state = WORKING;
+    else if (card.isPaused())
+      mksWifi.print_state = PAUSED;
+    else
+      mksWifi.print_state = IDLE;
+  #endif
+}
 
 #endif // MKS_WIFI_MODULE && !HAS_TFT_LVGL_UI
