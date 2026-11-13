@@ -285,6 +285,25 @@
 
   #define FORCE_SOFT_SPI                          // Use this if Hardware SPI causes display problems.
                                                   // Results in LCD Software SPI mode 3, SD Software SPI mode 0.
+#elif ENABLED(MKS_12864OLED_SSD1306)
+
+  // NOTE: Kept inline — this board's SSD1306 wiring differs from lcd/MKS_12864OLED.h
+  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define LCD_SDSS_PIN               EXP2_04_PIN
+
+  #define LCD_PINS_DC                EXP1_06_PIN
+  #define DOGLCD_CS                  EXP1_04_PIN
+  #define DOGLCD_A0                  LCD_PINS_DC
+  #define DOGLCD_SCK                 EXP1_05_PIN
+  #define DOGLCD_MOSI                EXP1_03_PIN
+
+  #define LCD_PINS_RS                EXP1_07_PIN
+  #define LCD_PINS_D7                EXP1_08_PIN
+  #define KILL_PIN                            -1  // NC
+
 #elif HAS_WIRED_LCD
 
   #define BEEPER_PIN                 EXP1_01_PIN

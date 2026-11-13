@@ -213,4 +213,8 @@
   #define BOARD_ST7920_DELAY_2              48
   #define BOARD_ST7920_DELAY_3             600
 
+  #ifndef KILL_PIN
+    #define KILL_PIN                          -1  // EXP1_04 is LCD_PINS_RS here
+  #endif
+
 #endif // HAS_WIRED_LCD

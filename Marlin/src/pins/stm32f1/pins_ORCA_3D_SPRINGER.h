@@ -279,6 +279,10 @@
       #define FORCE_SOFT_SPI                      // SPI MODE3
 
       #define LED_PIN                EXP1_06_PIN  // red pwm
+      #define RGB_LED_R_PIN                   -1  // Panel RGB/Neopixel not wired. See LED_PIN.
+      #define RGB_LED_G_PIN                   -1
+      #define RGB_LED_B_PIN                   -1
+      #define NEOPIXEL_PIN                    -1
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 

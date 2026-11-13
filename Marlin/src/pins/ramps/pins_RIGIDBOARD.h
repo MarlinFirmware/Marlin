@@ -117,6 +117,8 @@
   // Disable encoder
   #undef BTN_EN1
   #undef BTN_EN2
+  #define BTN_EN1                             -1
+  #define BTN_EN2                             -1
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22
