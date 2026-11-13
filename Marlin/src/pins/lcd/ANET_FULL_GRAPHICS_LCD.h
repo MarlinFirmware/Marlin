@@ -67,15 +67,29 @@
            "(Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
 
-  #define BEEPER_PIN      LCD1_01_PIN
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN    LCD1_01_PIN
+  #endif
 
-  #define BTN_ENC         LCD1_03_PIN
-  #define BTN_EN1         LCD1_05_PIN
-  #define BTN_EN2         LCD1_07_PIN
+  #ifndef BTN_ENC
+    #define BTN_ENC       LCD1_03_PIN
+  #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1       LCD1_05_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2       LCD1_07_PIN
+  #endif
 
-  #define LCD_PINS_D4     LCD1_04_PIN
-  #define LCD_PINS_EN     LCD1_06_PIN
-  #define LCD_PINS_RS     LCD1_08_PIN
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4   LCD1_04_PIN
+  #endif
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN   LCD1_06_PIN
+  #endif
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS   LCD1_08_PIN
+  #endif
 
 #else // CTC_A10S_A13
 
@@ -102,14 +116,28 @@
            "(Define NO_CONTROLLER_CUSTOM_WIRING_WARNING to suppress this warning.)"
   #endif
 
-  #define BEEPER_PIN      LCD1_08_PIN
+  #ifndef BEEPER_PIN
+    #define BEEPER_PIN    LCD1_08_PIN
+  #endif
 
-  #define BTN_ENC         LCD1_01_PIN
-  #define BTN_EN1         LCD1_06_PIN
-  #define BTN_EN2         LCD1_07_PIN
+  #ifndef BTN_ENC
+    #define BTN_ENC       LCD1_01_PIN
+  #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1       LCD1_06_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2       LCD1_07_PIN
+  #endif
 
-  #define LCD_PINS_EN     LCD1_03_PIN
-  #define LCD_PINS_RS     LCD1_04_PIN
-  #define LCD_PINS_D4     LCD1_05_PIN
+  #ifndef LCD_PINS_EN
+    #define LCD_PINS_EN   LCD1_03_PIN
+  #endif
+  #ifndef LCD_PINS_RS
+    #define LCD_PINS_RS   LCD1_04_PIN
+  #endif
+  #ifndef LCD_PINS_D4
+    #define LCD_PINS_D4   LCD1_05_PIN
+  #endif
 
 #endif

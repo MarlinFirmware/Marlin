@@ -47,11 +47,23 @@
  * LCD_PINS_RS is used as LCD_RESET_PIN (see pins_lcd.h).
  */
 
-#define LCD_PINS_DC               EXP1_06_PIN  // Set as output on init
-#define LCD_PINS_RS               EXP1_07_PIN  // Pull low for 1s to init (reset)
+#ifndef LCD_PINS_DC
+  #define LCD_PINS_DC             EXP1_06_PIN  // Set as output on init
+#endif
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS             EXP1_07_PIN  // Pull low for 1s to init (reset)
+#endif
 
 // DOGM SPI LCD Support
-#define DOGLCD_CS                 EXP1_04_PIN
-#define DOGLCD_MOSI               EXP1_03_PIN
-#define DOGLCD_SCK                EXP1_05_PIN
-#define DOGLCD_A0                 LCD_PINS_DC
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS               EXP1_04_PIN
+#endif
+#ifndef DOGLCD_MOSI
+  #define DOGLCD_MOSI             EXP1_03_PIN
+#endif
+#ifndef DOGLCD_SCK
+  #define DOGLCD_SCK              EXP1_05_PIN
+#endif
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0               LCD_PINS_DC
+#endif

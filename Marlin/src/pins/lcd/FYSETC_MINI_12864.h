@@ -75,24 +75,48 @@
  *            EXP1                        EXP2
  */
 
-#define BEEPER_PIN        LCD1_01_PIN
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN      LCD1_01_PIN
+#endif
 
-#define BTN_ENC           LCD1_02_PIN
-#define BTN_EN1           LCD2_03_PIN
-#define BTN_EN2           LCD2_05_PIN
+#ifndef BTN_ENC
+  #define BTN_ENC         LCD1_02_PIN
+#endif
+#ifndef BTN_EN1
+  #define BTN_EN1         LCD2_03_PIN
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2         LCD2_05_PIN
+#endif
 
-#define DOGLCD_CS         LCD1_03_PIN
-#define DOGLCD_A0         LCD1_04_PIN
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS       LCD1_03_PIN
+#endif
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0       LCD1_04_PIN
+#endif
 
-#define DOGLCD_MISO       LCD2_01_PIN
-#define DOGLCD_SCK        LCD2_02_PIN
-#define DOGLCD_MOSI       LCD2_06_PIN
+#ifndef DOGLCD_MISO
+  #define DOGLCD_MISO     LCD2_01_PIN
+#endif
+#ifndef DOGLCD_SCK
+  #define DOGLCD_SCK      LCD2_02_PIN
+#endif
+#ifndef DOGLCD_MOSI
+  #define DOGLCD_MOSI     LCD2_06_PIN
+#endif
 
-#define LCD_RESET_PIN     LCD1_05_PIN   // Must be HIGH or open for LCD to operate
-#define KILL_PIN          LCD2_08_PIN
+#ifndef LCD_RESET_PIN
+  #define LCD_RESET_PIN   LCD1_05_PIN   // Must be HIGH or open for LCD to operate
+#endif
+#ifndef KILL_PIN
+  #define KILL_PIN        LCD2_08_PIN
+#endif
 
 #if ENABLED(FYSETC_MINI_12864_2_1)
-  #define LCD_NEOPIXEL_PIN LCD1_06_PIN
+  #ifndef LCD_NEOPIXEL_PIN
+    #define LCD_NEOPIXEL_PIN LCD1_06_PIN
+  #endif
 #elif ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
   #ifndef RGB_LED_R_PIN
     #define RGB_LED_R_PIN LCD1_06_PIN
@@ -104,7 +128,9 @@
     #define RGB_LED_B_PIN LCD1_08_PIN
   #endif
 #elif ENABLED(FYSETC_GENERIC_12864_1_1)
-  #define LCD_BACKLIGHT_PIN LCD1_07_PIN
+  #ifndef LCD_BACKLIGHT_PIN
+    #define LCD_BACKLIGHT_PIN LCD1_07_PIN
+  #endif
 #endif
 
 #if HAS_MEDIA

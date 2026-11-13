@@ -71,22 +71,40 @@
   #define BEEPER_PIN      LCD1_01_PIN
 #endif
 
-#define BTN_ENC           LCD1_02_PIN
-#define BTN_EN1           LCD2_03_PIN
-#define BTN_EN2           LCD2_05_PIN
+#ifndef BTN_ENC
+  #define BTN_ENC         LCD1_02_PIN
+#endif
+#ifndef BTN_EN1
+  #define BTN_EN1         LCD2_03_PIN
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2         LCD2_05_PIN
+#endif
 
-#define DOGLCD_CS         LCD1_06_PIN
-#define DOGLCD_A0         LCD1_07_PIN
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS       LCD1_06_PIN
+#endif
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0       LCD1_07_PIN
+#endif
 
 // When using the single-plug adapter
 // these will be re-routed from 1-1 and 1-8
 #if PINS_EXIST(LCD2_02, LCD2_06)
-  #define DOGLCD_SCK      LCD2_02_PIN  // usually SD_SCK_PIN
-  #define DOGLCD_MOSI     LCD2_06_PIN  // usually SD_MOSI_PIN
+  #ifndef DOGLCD_SCK
+    #define DOGLCD_SCK    LCD2_02_PIN  // usually SD_SCK_PIN
+  #endif
+  #ifndef DOGLCD_MOSI
+    #define DOGLCD_MOSI   LCD2_06_PIN  // usually SD_MOSI_PIN
+  #endif
 #endif
 
-#define LCD_BACKLIGHT_PIN LCD1_08_PIN
-#define KILL_PIN          LCD2_08_PIN
+#ifndef LCD_BACKLIGHT_PIN
+  #define LCD_BACKLIGHT_PIN LCD1_08_PIN
+#endif
+#ifndef KILL_PIN
+  #define KILL_PIN        LCD2_08_PIN
+#endif
 
 #ifndef SD_DETECT_PIN
   #define SD_DETECT_PIN   LCD2_07_PIN

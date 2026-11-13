@@ -41,21 +41,45 @@
 //     HAS_MARLINUI_MENU
 //       HAS_MANUAL_MOVE_MENU
 
-#define BEEPER_PIN                   LCD2_03_PIN
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN                 LCD2_03_PIN
+#endif
 
-#define BTN_ENC                      LCD1_02_PIN
-#define BTN_EN1                      LCD1_01_PIN
-#define BTN_EN2                      LCD1_08_PIN
+#ifndef BTN_ENC
+  #define BTN_ENC                    LCD1_02_PIN
+#endif
+#ifndef BTN_EN1
+  #define BTN_EN1                    LCD1_01_PIN
+#endif
+#ifndef BTN_EN2
+  #define BTN_EN2                    LCD1_08_PIN
+#endif
 
-#define LCD_PINS_DC                  LCD1_06_PIN
-#define LCD_PINS_RS                  LCD2_05_PIN
+#ifndef LCD_PINS_DC
+  #define LCD_PINS_DC                LCD1_06_PIN
+#endif
+#ifndef LCD_PINS_RS
+  #define LCD_PINS_RS                LCD2_05_PIN
+#endif
 
-#define DOGLCD_SCK                   LCD1_03_PIN
-#define DOGLCD_CS                    LCD1_04_PIN
-#define DOGLCD_MOSI                  LCD1_05_PIN
+#ifndef DOGLCD_SCK
+  #define DOGLCD_SCK                 LCD1_03_PIN
+#endif
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS                  LCD1_04_PIN
+#endif
+#ifndef DOGLCD_MOSI
+  #define DOGLCD_MOSI                LCD1_05_PIN
+#endif
 
-#define DOGLCD_A0                    LCD_PINS_DC
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0                  LCD_PINS_DC
+#endif
 
-#define BOARD_NEOPIXEL_PIN           LCD1_07_PIN
+#ifndef BOARD_NEOPIXEL_PIN
+  #define BOARD_NEOPIXEL_PIN         LCD1_07_PIN
+#endif
 
-#define KILL_PIN                            -1    // NC
+#ifndef KILL_PIN
+  #define KILL_PIN                          -1    // NC
+#endif

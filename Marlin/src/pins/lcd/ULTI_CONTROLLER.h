@@ -48,7 +48,11 @@
 
 // This controller needs a reset pin
 #ifdef LCD_PINS_D6
-  #define LCD_RESET_PIN   LCD_PINS_D6
+  #ifndef LCD_RESET_PIN
+    #define LCD_RESET_PIN LCD_PINS_D6
+  #endif
 #else
-  #define LCD_RESET_PIN   LCD1_07_PIN
+  #ifndef LCD_RESET_PIN
+    #define LCD_RESET_PIN LCD1_07_PIN
+  #endif
 #endif

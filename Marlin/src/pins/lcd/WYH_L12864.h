@@ -57,21 +57,37 @@
  *                  ------                     ------
  *                   LCD                        LCD
  */
-#define BEEPER_PIN               -1
+#ifndef BEEPER_PIN
+  #define BEEPER_PIN             -1
+#endif
 
-#define DOGLCD_CS         LCD1_08_PIN
-#define DOGLCD_A0         LCD1_06_PIN
-#define DOGLCD_SCK        LCD1_04_PIN
+#ifndef DOGLCD_CS
+  #define DOGLCD_CS       LCD1_08_PIN
+#endif
+#ifndef DOGLCD_A0
+  #define DOGLCD_A0       LCD1_06_PIN
+#endif
+#ifndef DOGLCD_SCK
+  #define DOGLCD_SCK      LCD1_04_PIN
+#endif
 #ifndef DOGLCD_MOSI
   #define DOGLCD_MOSI     LCD1_02_PIN
 #endif
 
 #if IS_NEWPANEL
-  #define BTN_ENC         LCD1_03_PIN
-  #define BTN_EN1         LCD1_05_PIN
-  #define BTN_EN2         LCD1_07_PIN
+  #ifndef BTN_ENC
+    #define BTN_ENC       LCD1_03_PIN
+  #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1       LCD1_05_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2       LCD1_07_PIN
+  #endif
 #endif
 
-#define LCD_BACKLIGHT_PIN        -1
+#ifndef LCD_BACKLIGHT_PIN
+  #define LCD_BACKLIGHT_PIN      -1
+#endif
 
 #define _LCD_CONTRAST_INIT        190
