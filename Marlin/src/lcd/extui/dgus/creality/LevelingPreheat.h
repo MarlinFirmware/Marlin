@@ -46,11 +46,9 @@ class LevelingPreheat {
 public:
   // Heat up and soak if needed, then inject the commands. If everything is already at
   // temperature (and so already soaked) the commands are injected at once.
-  // With popup, the wait is shown on the Confirm page (for screens with no message field).
-  static void startThen(FSTR_P const cmds, const bool popup=false);
-
-  // Cancel on the wait page. Returns true if that is what the Cancel button was for.
-  static bool handleCancel();
+  // With wait_page, the wait is shown on the Auto Home page (for screens with no message
+  // field). That page has no buttons, so the wait can't be canceled there.
+  static void startThen(FSTR_P const cmds, const bool wait_page=false);
 
   // Called from the screen's loop()
   static void loop();
@@ -64,7 +62,7 @@ private:
   enum State : uint8_t { IDLE, HEATING, SOAKING };
   static State state;
   static FSTR_P commands;
-  static bool use_popup;
+  static bool use_wait_page;
   static void message(const char * const text);
   static void finish();
   static millis_t soak_end_ms, next_message_ms;
