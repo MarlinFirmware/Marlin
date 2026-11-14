@@ -2360,6 +2360,52 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * ADS1115 thermistor settings
+ */
+#if ENABLED(ADS1115_THERMISTORS)
+  #if !HAS_ADS1115
+    #error "ADS1115_THERMISTORS requires at least one ADS1115_CHANNEL_* setting."
+  #elif !WITHIN(ADS1115_ADDRESS, 0x48, 0x4B)
+    #error "ADS1115_ADDRESS must be from 0x48 to 0x4B."
+  #elif !WITHIN(ADS1115_VREF_MV, 2000, 5500)
+    #error "ADS1115_VREF_MV must be from 2000 to 5500."
+  #endif
+
+  #define _ADS1115_THERMISTOR(S) (!TEMP_SENSOR_##S##_IS_ADS1115 || (TEMP_SENSOR_##S##_IS_THERMISTOR && !TEMP_SENSOR_##S##_IS_DUMMY))
+  #if !_ADS1115_THERMISTOR(0)
+    #error "ADS1115_CHANNEL_0 requires TEMP_SENSOR_0 to be a thermistor."
+  #elif !_ADS1115_THERMISTOR(1)
+    #error "ADS1115_CHANNEL_1 requires TEMP_SENSOR_1 to be a thermistor."
+  #elif !_ADS1115_THERMISTOR(2)
+    #error "ADS1115_CHANNEL_2 requires TEMP_SENSOR_2 to be a thermistor."
+  #elif !_ADS1115_THERMISTOR(BED)
+    #error "ADS1115_CHANNEL_BED requires TEMP_SENSOR_BED to be a thermistor."
+  #elif !_ADS1115_THERMISTOR(CHAMBER)
+    #error "ADS1115_CHANNEL_CHAMBER requires TEMP_SENSOR_CHAMBER to be a thermistor."
+  #elif TEMP_SENSOR_1_IS_ADS1115 && HOTENDS < 2
+    #error "ADS1115_CHANNEL_1 requires 2 or more HOTENDS."
+  #elif TEMP_SENSOR_2_IS_ADS1115 && HOTENDS < 3
+    #error "ADS1115_CHANNEL_2 requires 3 or more HOTENDS."
+  #endif
+  #undef _ADS1115_THERMISTOR
+
+  // Count the users of each input in one octal digit, to catch a shared or invalid input
+  #define _ADS1115_USE(S) (TEMP_SENSOR_##S##_IS_ADS1115 * (1L << (3 * ADS1115_CHANNEL_##S)))
+  #if ADS1115_HAS_VREF_CHANNEL
+    #define _ADS1115_VREF_USE (1L << (3 * ADS1115_VREF_CHANNEL))
+  #else
+    #define _ADS1115_VREF_USE 0
+  #endif
+  #define _ADS1115_USES (_ADS1115_USE(0) + _ADS1115_USE(1) + _ADS1115_USE(2) + _ADS1115_USE(BED) + _ADS1115_USE(CHAMBER) + _ADS1115_VREF_USE)
+  #if _ADS1115_USES >= 010000 || (_ADS1115_USES & 06666)
+    #error "ADS1115_CHANNEL_* and ADS1115_VREF_CHANNEL must each use a different input from 0 to 3."
+  #endif
+  #undef _ADS1115_USE
+  #undef _ADS1115_VREF_USE
+  #undef _ADS1115_USES
+#endif
+
+/**
  * Required MAX31865 settings
  */
 #if TEMP_SENSOR_0_IS_MAX31865 || (TEMP_SENSOR_REDUNDANT_IS_MAX31865 && REDUNDANT_TEMP_MATCH(SOURCE, E0))
@@ -2472,7 +2518,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "TEMP_SENSOR_0 can't use Soc temperature sensor."
   #elif TEMP_SENSOR_0 == 0
     #error "TEMP_SENSOR_0 is required with 1 or more HOTENDS."
-  #elif !ANY_PIN(TEMP_0, TEMP_0_CS) && !TEMP_SENSOR_0_IS_DUMMY
+  #elif !ANY_PIN(TEMP_0, TEMP_0_CS) && !TEMP_SENSOR_0_IS_DUMMY && !TEMP_SENSOR_0_IS_ADS1115
     #error "TEMP_0_PIN or TEMP_0_CS_PIN not defined for this board."
   #endif
   #if ANY(HAS_MULTI_HOTEND, HEATERS_PARALLEL) && !HAS_HEATER_1
@@ -2485,7 +2531,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
       #error "TEMP_SENSOR_1 can't use Soc temperature sensor."
     #elif TEMP_SENSOR_1 == 0
       #error "TEMP_SENSOR_1 is required with 2 or more HOTENDS."
-    #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY
+    #elif !ANY_PIN(TEMP_1, TEMP_1_CS) && !TEMP_SENSOR_1_IS_DUMMY && !TEMP_SENSOR_1_IS_ADS1115
       #error "TEMP_1_PIN or TEMP_1_CS_PIN not defined for this board."
     #endif
     #if HOTENDS > 2
@@ -2497,7 +2543,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
         #error "TEMP_SENSOR_2 is required with 3 or more HOTENDS."
       #elif !HAS_HEATER_2
         #error "HEATER_2_PIN not defined for this board."
-      #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY
+      #elif !ANY_PIN(TEMP_2, TEMP_2_CS) && !TEMP_SENSOR_2_IS_DUMMY && !TEMP_SENSOR_2_IS_ADS1115
         #error "TEMP_2_PIN or TEMP_2_CS_PIN not defined for this board."
       #endif
       #if HOTENDS > 3
