@@ -225,6 +225,9 @@
 #elif ENABLED(FYSETC_MINI_12864)
 
   // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
   #define FORCE_SOFT_SPI                          // Use this if default of hardware SPI causes display problems
                                                   //   results in LCD soft SPI mode 3, SD soft SPI mode 0
 #elif ENABLED(WYH_L12864)

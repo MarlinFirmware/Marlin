@@ -181,6 +181,9 @@
 #elif ENABLED(FYSETC_MINI_12864)
 
   // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
   // NOTE: Kept inline — this board's encoder order (upstream wiring)
   #define BTN_EN1                  EXP2_05_PIN
   #define BTN_EN2                  EXP2_03_PIN

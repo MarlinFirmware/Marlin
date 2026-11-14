@@ -52,3 +52,4 @@
 // LCD / Controller
 //
 #undef BEEPER_PIN
+#define BEEPER_PIN                            -1  // No beeper (keeps lcd/ defaults out)
