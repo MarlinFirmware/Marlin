@@ -92,8 +92,20 @@
       #undef BTN_ENC
       #define BTN_ENC                         66
 
-    #elif ENABLED(MINIPANEL)
-      #define ADAPTER_RAMPS_DUO_MKS    // MINIPANEL wired to AUX-2 with Due-specific pin overrides; see lcd/adapters.h
+    #elif ENABLED(MINIPANEL)                    // Also MKS_MINI_12864
+
+      // Due-specific overrides of the RAMPS wiring
+      #undef DOGLCD_CS
+      #define DOGLCD_CS                       69
+
+      #undef LCD_BACKLIGHT_PIN
+      #define LCD_BACKLIGHT_PIN               68  // backlight LED on A14/D68
+
+      #undef KILL_PIN
+      #define KILL_PIN                        67
+
+      #undef BTN_EN2
+      #define BTN_EN2                         66
 
     #else
 
