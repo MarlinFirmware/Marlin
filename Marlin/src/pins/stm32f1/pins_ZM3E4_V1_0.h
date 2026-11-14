@@ -280,15 +280,15 @@
 //
 
 #if ENABLED(ZONESTAR_12864LCD)
-  #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
-  #define LCD_PINS_EN                EXP1_06_PIN  // 6 DATA make sure for zonestar zm3e4!
-  #define LCD_PINS_D4                EXP1_04_PIN  // 8 SCK make sure for zonestar zm3e4!
-  #define BEEPER_PIN                 EXP1_02_PIN
+  // Output pins (RS/EN/D4), BEEPER, BTN_ENC provided by lcd/ZONESTAR_12864LCD.h
+  // BTN_EN1/EN2 kept inline — ZM3E4 swaps them vs. the ZM3E2 board.
   #define KILL_PIN                          -1    // EXP1_01_PIN
   #define BTN_EN1                    EXP1_05_PIN
   #define BTN_EN2                    EXP1_08_PIN
   #define BTN_ENC                    EXP1_07_PIN
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  // NOTE: Kept inline — custom Zonestar wiring (CS=EXP1_03, DAT=EXP1_04, CLK=EXP1_06
+  // and EN1/EN2 on EXP2_06/04) differs from the standard RRD FG connector mapping.
   #define LCD_PINS_RS                EXP1_03_PIN  // 7 CS make sure for zonestar zm3e4!
   #define LCD_PINS_EN                EXP1_04_PIN  // 6 DATA make sure for zonestar zm3e4!
   #define LCD_PINS_D4                EXP1_06_PIN  // 8 SCK make sure for zonestar zm3e4!

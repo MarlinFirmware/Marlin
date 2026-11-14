@@ -301,13 +301,23 @@
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
+
+  //#define KILL_PIN                          41
+
+#elif HAS_WIRED_LCD
 
   //
   // LCD Display output pins
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+    // NOTE: Kept inline — this panel's CS is on EXP2_07, sharing the EXP2 SPI bus
     #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
     #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
     #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
@@ -323,6 +333,8 @@
 
   #elif ENABLED(ZONESTAR_LCD)
 
+    // NOTE: Kept inline — TT_OSCAR wires ZONESTAR_LCD via raw AUX-2 pin numbers
+    // (RS=64, EN=44, D4=63, D5=40, D6=42, D7=65), not EXP tokens.
     #define LCD_PINS_RS                       64
     #define LCD_PINS_EN                       44
     #define LCD_PINS_D4                       63
@@ -333,43 +345,29 @@
 
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
+    #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
 
-      #define LCD_PINS_RS                     27
-      #define LCD_PINS_EN                     29
-      #define LCD_PINS_D4                     25
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN                    37
-      #endif
-
+      // NOTE: Kept inline — TT_OSCAR uses raw pin numbers (not EXP tokens) for MKS OLED wiring.
+      #define LCD_PINS_DC                     25  // Set as output on init
+      #define LCD_PINS_RS                     27  // Pull low for 1s to init
+      // DOGM SPI LCD Support
+      #define DOGLCD_CS                       16
+      #define DOGLCD_MOSI                     17
+      #define DOGLCD_SCK                      23
+      #define DOGLCD_A0              LCD_PINS_DC
     #else
-
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC                   25  // Set as output on init
-        #define LCD_PINS_RS                   27  // Pull low for 1s to init
-        // DOGM SPI LCD Support
-        #define DOGLCD_CS                     16
-        #define DOGLCD_MOSI                   17
-        #define DOGLCD_SCK                    23
-        #define DOGLCD_A0            LCD_PINS_DC
-      #else
-        #define LCD_PINS_RS                   16
-        #define LCD_PINS_EN                   17
-        #define LCD_PINS_D4                   23
-        #define LCD_PINS_D5                   25
-        #define LCD_PINS_D6                   27
-      #endif
-
-      #define LCD_PINS_D7                     29
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN                    33
-      #endif
-
+      #define LCD_PINS_RS                     16
+      #define LCD_PINS_EN                     17
+      #define LCD_PINS_D4                     23
+      #define LCD_PINS_D5                     25
+      #define LCD_PINS_D6                     27
     #endif
 
+    #define LCD_PINS_D7                       29
+
     #if !IS_NEWPANEL
+      #define BEEPER_PIN                      33
+
       // Buttons attached to a shift register
       // Not wired yet
       //#define SHIFT_CLK_PIN                 38
@@ -389,19 +387,14 @@
   //
   #if IS_NEWPANEL
 
-    #if IS_RRD_SC
+    #if IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #define BEEPER_PIN                      37
 
-      #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1                       17
-        #define BTN_EN2                       23
-      #else
-        #define BTN_EN1                       31
-        #define BTN_EN2                       33
-      #endif
-
       #define BTN_ENC                         35
+      #define BTN_EN1                         31
+      #define BTN_EN2                         33
+
       #define SD_DETECT_PIN          EXP2_07_PIN
       //#define KILL_PIN                      41
 
@@ -411,6 +404,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — REPRAPWORLD input pins are raw Arduino numbers
+      // (AUX-2: EN1=64, EN2=59, ENC=63; SD=42). Not EXP/LCD-tokenable.
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63
@@ -455,6 +450,8 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
+      // NOTE: Kept inline — TT_OSCAR uses raw Arduino pin numbers for most signals
+      // (CS=29, A0=27, BEEPER=23, BACKLIGHT=33, EN1=35, EN2=37, ENC=31); not EXP-token based.
       #define DOGLCD_CS                       29
       #define DOGLCD_A0                       27
 
@@ -470,6 +467,7 @@
       //#define KILL_PIN                      41
 
     #elif ENABLED(MKS_MINI_12864)
+    // NOTE: Kept inline — TT_OSCAR uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25
@@ -489,24 +487,9 @@
       //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #elif ENABLED(MINIPANEL)
-
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
-
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
-
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
-
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
       #define SD_SS_PIN              EXP2_04_PIN
       #define SD_DETECT_PIN          EXP2_07_PIN
-      //#define KILL_PIN                      64
-
-      //#define LCD_CONTRAST_INIT            190
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
 
     #else
 

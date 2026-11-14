@@ -239,20 +239,15 @@
 // LCD / Controller
 //
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // LCD pins defined in pins/lcd/CR10_STOCKDISPLAY.h
+
+#elif HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN  // NC
   #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_07_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif IS_TFTGLCD_PANEL
+  #if IS_TFTGLCD_PANEL
 
     #undef BEEPER_PIN
     #undef BTN_ENC
@@ -284,6 +279,10 @@
       #define FORCE_SOFT_SPI                      // SPI MODE3
 
       #define LED_PIN                EXP1_06_PIN  // red pwm
+      #define RGB_LED_R_PIN                   -1  // Panel RGB/Neopixel not wired. See LED_PIN.
+      #define RGB_LED_G_PIN                   -1
+      #define RGB_LED_B_PIN                   -1
+      #define NEOPIXEL_PIN                    -1
       //#define LED_PIN              EXP1_07_PIN  // green
       //#define LED_PIN              EXP1_08_PIN  // blue
 

@@ -139,13 +139,22 @@
 //
 // LCD / Controller
 //
-#define BEEPER_PIN                            46  // LCD_BEEPER
-#define LCD_PINS_RS                           49  // LCD_RS
-#define LCD_PINS_EN                           48  // LCD_EN
-#define LCD_PINS_D4                           50  // LCD_D4
-#define LCD_PINS_D5                           51  // LCD_D5
-#define LCD_PINS_D6                           52  // LCD_D6
-#define LCD_PINS_D7                           53  // LCD_D7
-#define BTN_EN1                               54  // BTN_EN1
-#define BTN_EN2                               55  // BTN_EN2
-#define BTN_ENC                               47  // BTN_ENC
+// Define de-facto EXP1/EXP2 ports matching this board's LCD wiring. The default
+// passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2, so the LCD data
+// lines and buttons come from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h.
+#define EXP1_01_PIN                           46  // BEEPER  (LCD_BEEPER)
+#define EXP1_02_PIN                           47  // BTN_ENC
+#define EXP1_03_PIN                           48  // LCD_EN
+#define EXP1_04_PIN                           49  // LCD_RS
+#define EXP1_05_PIN                           50  // LCD_D4
+#define EXP1_06_PIN                           51  // LCD_D5
+#define EXP1_07_PIN                           52  // LCD_D6
+#define EXP1_08_PIN                           53  // LCD_D7
+#define EXP2_01_PIN                           -1   // not connected
+#define EXP2_02_PIN                           -1   // not connected
+#define EXP2_03_PIN                           54  // BTN_EN1
+#define EXP2_04_PIN                           -1   // not connected
+#define EXP2_05_PIN                           55  // BTN_EN2
+#define EXP2_06_PIN                           -1   // not connected
+#define EXP2_07_PIN                           -1   // not connected
+#define EXP2_08_PIN                           -1   // not connected

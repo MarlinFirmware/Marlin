@@ -86,6 +86,9 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Raspberry Pi Pico has no EXP connector; the SSD1306
+// encoder and I2C lines are wired to raw GPIO, so the lcd/ file EXP defaults
+// cannot apply.
 #if ENABLED(U8GLIB_SSD1306)
   #if !IS_ULTIPANEL
     #error "Add '#define IS_ULTIPANEL 1' to Configuration.h to enable Marlin UI menus and encoder support."

@@ -110,11 +110,12 @@
 //
 // LCD Pins
 //
-#if HAS_WIRED_LCD
+#if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-  #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-    #error "REPRAPWORLD_GRAPHICAL_LCD is not supported."
-  #else
+  // TODO: Define an adapter
+
+#elif HAS_WIRED_LCD
+
     #define LCD_PINS_RS                     PB8
     #define LCD_PINS_EN                     PD2
     #define LCD_PINS_D4                     PB12
@@ -124,7 +125,6 @@
     #if !IS_NEWPANEL
       #error "Non-NEWPANEL LCD is not supported."
     #endif
-  #endif
 
   #if NEED_TOUCH_PINS
 
@@ -138,8 +138,6 @@
 
     #if IS_RRD_SC
       #error "RRD Smart Controller is not supported."
-    #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
-      #error "REPRAPWORLD_GRAPHICAL_LCD is not supported."
     #elif ENABLED(LCD_I2C_PANELOLU2)
       #error "LCD_I2C_PANELOLU2 is not supported."
     #elif ENABLED(LCD_I2C_VIKI)

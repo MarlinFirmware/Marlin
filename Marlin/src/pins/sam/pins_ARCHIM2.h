@@ -235,13 +235,17 @@
 //
 
 #if ANY(HAS_WIRED_LCD, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)
-  #define BEEPER_PIN                          23  // D24 PA15_CTS1
-  #define LCD_PINS_RS                         17  // D17 PA12_RXD1
-  #define LCD_PINS_EN                         24  // D23 PA14_RTS1
-  #define LCD_PINS_D4                         69  // D69 PA0_CANTX0
-  #define LCD_PINS_D5                         54  // D54 PA16_SCK1
-  #define LCD_PINS_D6                         68  // D68 PA1_CANRX0
-  #define LCD_PINS_D7                         34  // D34 PC2_PWML0
+  // Define de-facto EXP1 ports matching this board's LCD data-line wiring. The
+  // default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so data pins come
+  // from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h. Buttons are on AUX-2 (inline).
+  #define EXP1_01_PIN                         23  // BEEPER (D24 PA15_CTS1)
+  #define EXP1_02_PIN                         -1   // not connected
+  #define EXP1_03_PIN                         24  // LCD_EN (D23 PA14_RTS1)
+  #define EXP1_04_PIN                         17  // LCD_RS (D17 PA12_RXD1)
+  #define EXP1_05_PIN                         69  // LCD_D4 (D69 PA0_CANTX0)
+  #define EXP1_06_PIN                         54  // LCD_D5 (D54 PA16_SCK1)
+  #define EXP1_07_PIN                         68  // LCD_D6 (D68 PA1_CANRX0)
+  #define EXP1_08_PIN                         34  // LCD_D7 (D34 PC2_PWML0)
 #endif
 
 #if ANY(IS_ULTIPANEL, TOUCH_UI_ULTIPANEL, TOUCH_UI_FTDI_EVE)

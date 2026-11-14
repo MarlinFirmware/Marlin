@@ -86,6 +86,8 @@
 // u8glib constructor
 // U8GLIB_SH1106_128X64 u8g(DOGLCD_SCK, DOGLCD_MOSI, DOGLCD_CS, LCD_PINS_DC, LCD_PINS_RS);
 
+// NOTE: Kept inline — EINSTART-S wires its SH1106 OLED and buttons to raw pins
+// in a non-standard layout (no EXP connector), so the lcd/ file defaults don't apply.
 #define LCD_PINS_DC                           78
 #define LCD_PINS_RS                           79
 // DOGM SPI LCD Support

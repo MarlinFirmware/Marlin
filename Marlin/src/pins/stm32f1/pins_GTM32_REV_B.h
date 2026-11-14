@@ -145,13 +145,19 @@
     // RepRapDiscount Smart Controller, but adds an FFC40 connector
     // connected with a flat wire to J2 connector on the board.
     //
-    #define LCD_PINS_RS                     PA12  // CS chip select /SS chip slave select
+    // Define de-facto EXP1 ports matching this board's LCD wiring.
+    // The default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so the
+    // LCD data lines come from Marlin/src/pins/lcd/RRD_SC.h. Buttons stay
+    // inline (RRD_SC isn't IS_NEWPANEL); beeper/SD are board-owned below.
+    #define EXP1_01_PIN                     -1    // BEEPER (conditional below)
+    #define EXP1_02_PIN                     -1    // BTN_ENC (inline below)
+    #define EXP1_03_PIN                     PC7   // LCD_EN
     // RW is hardwired to VSS
-    #define LCD_PINS_EN                     PC7   // SID (MOSI)
-    #define LCD_PINS_D4                     PD1   // SCK (CLK) clock
-    #define LCD_PINS_D5                     PD4
-    #define LCD_PINS_D6                     PD5
-    #define LCD_PINS_D7                     PD7
+    #define EXP1_04_PIN                     PA12  // LCD_RS
+    #define EXP1_05_PIN                     PD1   // LCD_D4
+    #define EXP1_06_PIN                     PD4   // LCD_D5
+    #define EXP1_07_PIN                     PD5   // LCD_D6
+    #define EXP1_08_PIN                     PD7   // LCD_D7
 
     #define BTN_EN1                         PE8
     #define BTN_EN2                         PE9

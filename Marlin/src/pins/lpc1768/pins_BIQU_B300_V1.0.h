@@ -119,16 +119,29 @@
  */
 #if HAS_WIRED_LCD
 
-  #define BEEPER_PIN                       P1_31  // EXP1-1
+  // Define EXP1/EXP2 to match the board's single LCD connector, according to
+  // the ports each connector slot maps to (documented in the original wiring).
+  // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2,
+  // so LCD pins come from Marlin/src/pins/lcd/RRD_FG_SC.h or lcd/WIRED.h.
+  #define EXP1_01_PIN                      P1_31  // EXP1-1 BEEPER
+  #define EXP1_02_PIN                      P1_30  // EXP1-2 BTN_ENC
+  #define EXP1_03_PIN                      P0_18  // EXP1-3 LCD_EN (MOSI)
+  #define EXP1_04_PIN                      P0_16  // EXP1-4 LCD_RS
+  #define EXP1_05_PIN                      P0_15  // EXP1-5 LCD_D4 (SCK)
+  #define EXP1_06_PIN                      -1     // EXP1-6 not brought out
+  #define EXP1_07_PIN                      -1     // EXP1-7 not brought out
+  #define EXP1_08_PIN                      -1     // EXP1-8 not brought out
 
-  #define BTN_EN1                          P3_26  // EXP2-3
-  #define BTN_EN2                          P3_25  // EXP2-5
-  #define BTN_ENC                          P1_30  // EXP1-2
+  #define EXP2_03_PIN                      P3_26  // EXP2-3 BTN_EN1
+  #define EXP2_05_PIN                      P3_25  // EXP2-5 BTN_EN2
+  #define EXP2_07_PIN                      P0_27  // EXP2-7 SD_DETECT
 
-  #define SD_DETECT_PIN                    P0_27  // EXP2-7
-  #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_PINS_EN                      P0_18  // (MOSI) EXP1-3
-  #define LCD_PINS_D4                      P0_15  // (SCK)  EXP1-5
+  // Board-specific: the LCD connector wiring puts EN1/EN2 on EXP2-3/5 in the
+  // opposite order from the standard RRD Full Graphics controller.
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+
+  #define SD_DETECT_PIN              EXP2_07_PIN
 
   #if ALL(HAS_MARLINUI_HD44780, IS_RRD_SC)
     #error "REPRAP_DISCOUNT_SMART_CONTROLLER displays aren't supported by the BIQU B300 v1.0"

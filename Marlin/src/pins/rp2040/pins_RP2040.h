@@ -262,7 +262,20 @@
 // LCDs and Controllers //
 //////////////////////////
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  // TODO: Define RP2020 single-plug EXP adapter
+  #define EXP1_01_PIN                         37  // BEEPER
+  #define EXP1_02_PIN                         35  // ENC
+  #define EXP1_03_PIN                         17  // EN1
+  #define EXP1_04_PIN                         41  // KILL
+  #define EXP1_05_PIN                         23  // EN2
+  #define EXP1_06_PIN                         25  // D4
+  #define EXP1_07_PIN                         27  // RS
+  #define EXP1_08_PIN                         29  // EN
+
+#elif ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
   #define TFT_A0_PIN                          43
   #define TFT_CS_PIN                          49
@@ -316,6 +329,7 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+    // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for REPRAPWORLD.
     #define LCD_PINS_RS                       49  // CS chip select /SS chip slave select
     #define LCD_PINS_EN                       51  // SID (MOSI)
     #define LCD_PINS_D4                       52  // SCK (CLK) clock
@@ -331,18 +345,10 @@
 
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
+    #if ENABLED(ZONESTAR_LCD)
 
-      #define LCD_PINS_RS                     27
-      #define LCD_PINS_EN                     29
-      #define LCD_PINS_D4                     25
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN                    37
-      #endif
-
-    #elif ENABLED(ZONESTAR_LCD)
-
+      // NOTE: Kept inline — RP2040 wires ZONESTAR_LCD via raw AUX-2 pin numbers
+      // (RS=64, EN=44, D4=63, D5=40, D6=42, D7=65), not EXP tokens.
       #define LCD_PINS_RS                     64
       #define LCD_PINS_EN                     44
       #define LCD_PINS_D4                     63
@@ -353,6 +359,8 @@
     #else
 
       #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+
+        // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for MKS OLED wiring.
         #define LCD_PINS_DC                   25  // Set as output on init
         #define LCD_PINS_RS                   27  // Pull low for 1s to init
         // DOGM SPI LCD Support
@@ -394,17 +402,13 @@
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
+      // NOTE: Kept inline — RP2040 board has no EXP header; raw pins with unique wiring.
       #define BEEPER_PIN                      37
 
-      #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1                       17
-        #define BTN_EN2                       23
-      #else
-        #define BTN_EN1                       31
-        #define BTN_EN2                       33
-      #endif
-
       #define BTN_ENC                         35
+      #define BTN_EN1                         31
+      #define BTN_EN2                         33
+
       #define SD_DETECT_PIN                   49
       #define KILL_PIN                        41
 
@@ -414,6 +418,7 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens).
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63
@@ -455,6 +460,7 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
+      // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for ELB.
       #define DOGLCD_CS                       29
       #define DOGLCD_A0                       27
 
@@ -470,6 +476,7 @@
       #define KILL_PIN                        41
 
     #elif ENABLED(MKS_MINI_12864)
+    // NOTE: Kept inline — RP2040 uses raw pin numbers (not EXP tokens) for MKS MINI 12864.
 
       #define DOGLCD_A0                       27
       #define DOGLCD_CS                       25
@@ -492,29 +499,11 @@
       #define KILL_PIN                        64
 
     #elif ENABLED(MINIPANEL)
-
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
-
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
-
-      // GLCD features
-      // Uncomment screen orientation
-      //#define LCD_SCREEN_ROT_90
-      //#define LCD_SCREEN_ROT_180
-      //#define LCD_SCREEN_ROT_270
-
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
-
-      #define SD_DETECT_PIN                   49
-      #define KILL_PIN                        64
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 
+      // NOTE: Kept inline — ADC_KEYPAD_PIN is board-specific (repurposed servo pin).
       #define ADC_KEYPAD_PIN                  12
 
     #elif ENABLED(AZSMZ_12864)

@@ -137,6 +137,9 @@
 
 #define SD_SS_PIN                           PA2
 #define SD_DETECT_PIN                       PB0
+// NOTE: Kept inline — RUMBA32's beeper is PE8, NOT on the standard EXP1_01
+// slot (which is -1 here). The lcd/ file default (BEEPER = EXP1_01 = -1)
+// would disable the beeper, so it stays board-owned.
 #define BEEPER_PIN                          PE8
 
 /**
@@ -173,23 +176,16 @@
 
 #if HAS_WIRED_LCD
 
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
-
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define LCD_PINS_D4                EXP1_05_PIN
+  // Standard EXP1/EXP2 LCD pins provided by lcd/WIRED.h
+  // (BTN_ENC, BTN_EN1/2, LCD_PINS_EN/RS/D4)
 
   #if ENABLED(MKS_MINI_12864)
-    #define DOGLCD_CS                EXP1_06_PIN
-    #define DOGLCD_A0                EXP1_07_PIN
-  #endif
+
+    // Migrated to pins/lcd
+  #endif // MKS_MINI_12864
 
   #if IS_ULTIPANEL
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
+    // LCD_PINS_D5/D6/D7 now provided by lcd/WIRED.h
 
     #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
       #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder

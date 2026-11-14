@@ -129,6 +129,8 @@
 //
 // Misc.
 //
+// NOTE: Kept inline — JGAURORA uses an FSMC TFT/serial display; this lone beeper
+// is a general board pin (PC3), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PC3   // use PB7 to shut up if desired
 #define LED_PIN                             PC13
 

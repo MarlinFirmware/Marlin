@@ -194,9 +194,42 @@
 #define EXP1_07_PIN                         PB1
 #define EXP1_08_PIN                         PE11
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
 
-  #if ANY(CR10_STOCKDISPLAY, LCD_FOR_MELZI)
+  // Migrated to pins/lcd
+
+#elif HAS_WIRED_LCD
+
+  #if ENABLED(LCD_FOR_MELZI)
+
+    CONTROLLER_WARNING("BTT_E3_RRF", "LCD_FOR_MELZI")
+
+    /**                           LCD_FOR_MELZI display pinout
+     *              BTT E3 RRF                                    Display Ribbon
+     *                ------                                         ------
+     * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)                    GND |10  9 | 5V
+     * (BTN_EN1) PE7 | 3  4 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
+     * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
+     * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
+     *           GND | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
+     *                ------                                         ------
+     *                 EXP1                                           LCD
+     *
+     * Needs custom cable:
+     *
+     *    Board   Adapter   Display Ribbon (coming from display)
+     *  ----------------------------------
+     *  EXP1-10 ---------- LCD-9   5V
+     *  EXP1-9 ----------- LCD-10  GND
+     *  EXP1-8 ----------- LCD-3   LCD_EN
+     *  EXP1-7 ----------- LCD-1   LCD_RS
+     *  EXP1-6 ----------- LCD-5   LCD_D4
+     *  EXP1-5 ----------- LCD-4   EN2
+     *  EXP1-4 ----------- LCD-7   RESET
+     *  EXP1-3 ----------- LCD-2   EN1
+     *  EXP1-2 ----------- LCD-6   BTN
+     *  EXP1-1 ----------- LCD-8   BEEPER
+     */
 
     #define BEEPER_PIN               EXP1_01_PIN
 
@@ -208,54 +241,16 @@
     #define LCD_PINS_RS              EXP1_07_PIN
     #define LCD_PINS_EN              EXP1_08_PIN
 
-    #if ENABLED(LCD_FOR_MELZI)
-
-      CONTROLLER_WARNING("BTT_E3_RRF", "LCD_FOR_MELZI")
-
-      /** LCD_FOR_MELZI display pinout
-       *
-       *               BTT E3 RRF                                   Display Ribbon
-       *                ------                                         ------
-       * (BEEPER)  PE8 | 1  2 | PE9  (BTN_ENC)                    GND |10  9 | 5V
-       * (BTN_EN1) PE7 | 3  4 | RESET                          BEEPER | 8  7 | ESTOP    (RESET)
-       * (BTN_EN2) PB2   5  6 | PE10 (LCD_D4)       (BTN_ENC) ENC_BTN | 6  5 | LCD_SCLK (LCD_D4)
-       * (LCD_RS)  PB1 | 7  8 | PE11 (LCD_EN)       (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
-       *           GND | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
-       *                ------                                         ------
-       *                 EXP1                                           LCD
-       *
-       * Needs custom cable:
-       *
-       *    Board   Adapter   Display Ribbon (coming from display)
-       *  ----------------------------------
-       *  EXP1-10 ---------- LCD-9   5V
-       *  EXP1-9 ----------- LCD-10  GND
-       *  EXP1-8 ----------- LCD-3   LCD_EN
-       *  EXP1-7 ----------- LCD-1   LCD_RS
-       *  EXP1-6 ----------- LCD-5   LCD_D4
-       *  EXP1-5 ----------- LCD-4   EN2
-       *  EXP1-4 ----------- LCD-7   RESET
-       *  EXP1-3 ----------- LCD-2   EN1
-       *  EXP1-2 ----------- LCD-6   BTN
-       *  EXP1-1 ----------- LCD-8   BEEPER
-       */
-
-    #endif
-
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     CONTROLLER_WARNING("BTT_E3_RRF", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
   #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
+    #define BEEPER_PIN                        -1  // EXP1_01 is DOGLCD_SCK here
     #define BTN_ENC                  EXP1_02_PIN
     #define BTN_EN1                  EXP1_03_PIN
     #define BTN_EN2                  EXP1_05_PIN
@@ -303,6 +298,7 @@
        *   EXP1-1 ----------- EXP1-7   SD_DET
        */
 
+      // NOTE: BTT_E3_RRF uses EXP1_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
       #define TFTGLCD_CS             EXP1_03_PIN
 
     #endif
@@ -311,18 +307,18 @@
     #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, LCD_FOR_MELZI, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the BTT_E3_RRF."
   #endif
 
-  // Alter timing for graphical display
-  #if ENABLED(LCD_FOR_MELZI)                      // LCD_FOR_MELZI default timing is too fast. This works but may be reduced.
-    #define BOARD_ST7920_DELAY_1             200
-    #define BOARD_ST7920_DELAY_2             400
-    #define BOARD_ST7920_DELAY_3            1200
-  #elif IS_U8GLIB_ST7920
-    #define BOARD_ST7920_DELAY_1              96
-    #define BOARD_ST7920_DELAY_2              48
-    #define BOARD_ST7920_DELAY_3             600
-  #endif
-
 #endif // HAS_WIRED_LCD
+
+// Alter timing for graphical display
+#if ENABLED(LCD_FOR_MELZI)                      // LCD_FOR_MELZI default timing is too fast. This works but may be reduced.
+  #define BOARD_ST7920_DELAY_1             200
+  #define BOARD_ST7920_DELAY_2             400
+  #define BOARD_ST7920_DELAY_3            1200
+#elif IS_U8GLIB_ST7920
+  #define BOARD_ST7920_DELAY_1              96
+  #define BOARD_ST7920_DELAY_2              48
+  #define BOARD_ST7920_DELAY_3             600
+#endif
 
 #if ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050)
 

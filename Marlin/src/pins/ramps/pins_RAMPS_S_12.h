@@ -248,6 +248,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — RAMPS S 1.2 wires the LCD and encoder to raw pins that
+// don't match the standard EXP slot order the lcd/ file default uses.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          45
   #define LCD_PINS_RS                         19

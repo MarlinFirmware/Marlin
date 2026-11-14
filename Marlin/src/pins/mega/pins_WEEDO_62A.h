@@ -93,6 +93,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Weedo 62A wires its LCD to raw pins in a non-standard order,
+// not the lcd/ file EXP defaults.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          37
 

@@ -90,6 +90,7 @@
 
 #if HAS_WIRED_LCD
   #if ENABLED(ZONESTAR_LCD)
+    // NOTE: Kept inline — DUPLICATOR_I3_PLUS uses raw Arduino pin numbers (non-standard layout).
     #define LCD_PINS_RS                        2
     #define LCD_PINS_EN                       36
     #define LCD_PINS_D4                       37

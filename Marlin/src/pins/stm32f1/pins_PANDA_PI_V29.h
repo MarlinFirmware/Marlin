@@ -162,6 +162,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Panda Pi V2.9 wires its LCD to raw pins in a non-standard
+// order, not the lcd/ file EXP layout.
 #if HAS_WIRED_LCD
   #define BTN_ENC                           PA0
   #define BTN_EN1                           PC4

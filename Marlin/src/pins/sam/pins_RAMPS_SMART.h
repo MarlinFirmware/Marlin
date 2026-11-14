@@ -96,6 +96,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Smart RAMPS wires the AZSMZ 12864 to raw Due pins in a
+// non-standard layout, not the lcd/ file EXP defaults.
 #if ENABLED(AZSMZ_12864)
 
   // Support for AZSMZ 12864 LCD with SD Card 3D printer smart controller control panel

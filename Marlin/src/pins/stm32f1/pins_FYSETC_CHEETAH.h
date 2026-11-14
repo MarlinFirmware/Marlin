@@ -157,7 +157,11 @@
 #define EXP1_07_PIN                         PB12
 #define EXP1_08_PIN                         PB15
 
-#if HAS_WIRED_LCD
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif HAS_WIRED_LCD
   #define BEEPER_PIN                 EXP1_01_PIN
 
   #if HAS_MARLINUI_U8GLIB
@@ -168,6 +172,10 @@
 
     #if ANY(FYSETC_MINI_12864, IS_U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
+    #endif
+    #if ENABLED(FYSETC_MINI_12864)
+      #define LCD_RESET_PIN                   -1  // Not wired. (EXP1_05 is BTN_EN1 here.)
+      #define NEOPIXEL_PIN                    -1  // Panel Neopixel not wired. (RGB is the board's header.)
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif

@@ -33,6 +33,9 @@
 #undef RGB_LED_R_PIN
 #undef RGB_LED_G_PIN
 #undef RGB_LED_B_PIN
+#define RGB_LED_R_PIN                         -1  // Not on V1.2 (-1 keeps lcd/ defaults out)
+#define RGB_LED_G_PIN                         -1
+#define RGB_LED_B_PIN                         -1
 
 #define FAN1_PIN                            PB0   // Fan1
 

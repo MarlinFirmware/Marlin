@@ -127,6 +127,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Printrboard wires its LCD and encoder to raw Teensy2 pins
+// (JP headers), not a standard EXP connector layout.
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define LCD_PINS_RS                          9  // E1       JP11-11

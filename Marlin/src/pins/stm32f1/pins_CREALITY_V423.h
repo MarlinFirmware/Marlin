@@ -40,6 +40,8 @@
 //
 // Encoder
 //
+// NOTE: Kept inline — CREALITY V4.2.3 overrides BTN_EN1 (shared with the bed
+// heater pin PB10) to raw PA2, which the lcd/ file default doesn't provide.
 #if BTN_EN1 == PB10
   #undef BTN_EN1
   #define BTN_EN1                           PA2   // Rotary Encoder

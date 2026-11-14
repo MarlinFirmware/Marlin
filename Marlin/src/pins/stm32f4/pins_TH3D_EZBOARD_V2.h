@@ -227,27 +227,19 @@
 #define EXP1_08_PIN                         PB15
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  /**          ------
-   *   BEEPER | 1  2 | ENC
-   *   EN1    | 3  4 | RESET
-   *   EN2    | 5  6   LCD_D4
-   *   LCD_RS | 7  8 | LCD_EN
-   *      GND | 9 10 | 5V
-   *           ------
-   */
-  #ifdef DISABLE_JTAGSWD
-    #define BEEPER_PIN               EXP1_01_PIN  // Not connected in dev board
+
+  // Migrated to pins/lcd
+
+  #ifndef DISABLE_JTAGSWD
+    #define BEEPER_PIN                      -1
   #endif
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_EN                EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
-  //#define KILL_PIN                        -1
 
   #define BOARD_ST7920_DELAY_1           600
   #define BOARD_ST7920_DELAY_2           750
   #define BOARD_ST7920_DELAY_3           750
 
 #elif ENABLED(MKS_MINI_12864)
+// NOTE: Kept inline — TH3D_EZBOARD_V2 places BTN_EN1/EN2 on EXP1 instead of EXP2.
   /**          ------
    *      SCK | 1  2 | ENC
    *      EN1 | 3  4 | --
@@ -265,6 +257,7 @@
   #define LCD_CONTRAST_MAX                   180
   #define FORCE_SOFT_SPI
   #define LCD_BACKLIGHT_PIN                 -1
+  #define BEEPER_PIN                        -1  // EXP1_01 is DOGLCD_SCK here
 
 #elif HAS_WIRED_LCD
 
@@ -272,7 +265,7 @@
 
 #endif
 
-#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
+#if ENABLED(MKS_MINI_12864)
   #define BTN_EN1                    EXP1_03_PIN
   #define BTN_EN2                    EXP1_05_PIN
   #define BTN_ENC                    EXP1_02_PIN

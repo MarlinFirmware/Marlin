@@ -137,6 +137,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — MightyBoard REV-G is a custom Makerbot board with raw ATmega
+// pin numbers and no EXP1/EXP2 connector tokens. STAT_LED pins are board-specific.
 #if IS_RRD_FG_SC
 
   #define BEEPER_PIN                           8  // H5, SD_WP

@@ -112,6 +112,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — CHEAPTRONIC v2 wires the LCD and encoder to raw ATmega
+// pins (no EXP connector), so the lcd/ file defaults cannot supply them.
 #define LCD_PINS_RS                           19
 #define LCD_PINS_EN                           42
 #define LCD_PINS_D4                           18

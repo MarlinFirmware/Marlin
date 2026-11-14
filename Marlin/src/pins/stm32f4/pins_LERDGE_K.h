@@ -243,6 +243,8 @@
   #define TOUCH_INT_PIN                     PG12
 #endif
 
+// NOTE: Kept inline — Lerdge K wires the encoder and beeper to raw STM32 pins,
+// not the standard EXP slot order.
 #if IS_NEWPANEL
   #define BEEPER_PIN                        PC7
   #define BTN_EN1                           PG11

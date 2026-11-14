@@ -132,6 +132,7 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — shared tail (beeper, encoder, D7) for all panels; pins/lcd/ defaults only fill gaps.
 #if HAS_WIRED_LCD
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
     #define LCD_PINS_DC              EXP1_07_PIN  // Set as output on init

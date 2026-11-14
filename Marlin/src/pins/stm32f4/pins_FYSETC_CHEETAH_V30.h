@@ -219,6 +219,8 @@
 
   #if ENABLED(CR10_STOCKDISPLAY)
 
+    // NOTE: Kept inline — CHEETAH_V30 routes BTN_EN1/EN2 to EXP2_08/06
+    // (non-standard vs. lcd/CR10_STOCKDISPLAY.h's EXP1_03/05).
     #define LCD_PINS_RS              EXP1_07_PIN
 
     #define BTN_EN1                  EXP2_08_PIN
@@ -228,11 +230,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
   #elif ENABLED(MKS_MINI_12864)
-
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_05_PIN
-    #define BTN_EN1                  EXP2_08_PIN
-    #define BTN_EN2                  EXP2_06_PIN
+    #define ADAPTER_CHEETAH_V30_MINI_12864  // CS/A0 and EN1/EN2 swapped vs. standard
 
   #else
 
@@ -245,6 +243,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — CHEETAH_V30 uses non-standard EXP1_07/08 slots for DOGLCD.
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
       //#define LCD_BACKLIGHT_PIN           -1

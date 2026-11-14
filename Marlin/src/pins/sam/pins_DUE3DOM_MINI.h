@@ -161,15 +161,18 @@
     #define BEEPER_PIN                        -1
 
   #elif ENABLED(MINIPANEL)
+    // Define EXP1/EXP2 to match the MINIPANEL wiring on this board.
+    // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2.
+    #define EXP1_01_PIN                       41  // BEEPER
+    #define EXP1_02_PIN                       48  // BTN_ENC
+    #define EXP1_06_PIN                       45  // DOGLCD_CS
+    #define EXP1_07_PIN                       46  // DOGLCD_A0
 
-    #define BTN_EN1                           52
-    #define BTN_EN2                           50
-    #define BTN_ENC                           48
-    #define LCD_SDSS_PIN               SD_SS_PIN
-    #define SD_DETECT_PIN                     14
-    #define BEEPER_PIN                        41
-    #define DOGLCD_A0                         46
-    #define DOGLCD_CS                         45
+    #define EXP2_03_PIN                       52  // BTN_EN1
+    #define EXP2_05_PIN                       50  // BTN_EN2
+    #define EXP2_07_PIN                       14  // SD_DETECT
+
+    #define LCD_SDSS_PIN               SD_SS_PIN  // Board-specific SD CS
 
   #endif
 

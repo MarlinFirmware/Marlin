@@ -169,6 +169,8 @@
 #define LED_BLUE_PIN                        PF11
 #define LED_RED_PIN                         PF13
 
+// NOTE: Kept inline — MD D301 uses an FSMC TFT/serial display; this lone beeper
+// is a general board pin (PG11), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PG11
 #define LED_PIN                             PG9
 
