@@ -1969,6 +1969,7 @@ void wifi_rcv_handle() {
 }
 
 void wifi_looping() {
+  MKSW_SYNC_PRINT_STATE();
   do {
     wifi_rcv_handle();
     hal.watchdog_refresh();
