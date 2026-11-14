@@ -192,6 +192,25 @@
 //#define MAX31865_WIRE_OHMS_BED            0.0f
 
 /**
+ * ADS1115 16-bit I2C ADC for thermistors
+ * Read thermistors through an ADS1115 instead of the MCU's ADC. Each thermistor still needs its
+ * pull-up resistor, and TEMP_SENSOR_n still selects its table. Read failures halt the printer.
+ * The inputs must not exceed the ADS1115 supply voltage, so use the same rail for its VDD and the pull-ups.
+ */
+//#define ADS1115_THERMISTORS
+#if ENABLED(ADS1115_THERMISTORS)
+  #define ADS1115_ADDRESS         0x48            // (0x48-0x4B) Set by the ADDR pin.
+  #define ADS1115_VREF_MV         5000            // (mV) Voltage of the thermistor pull-ups.
+  //#define ADS1115_VREF_CHANNEL     3            // (0-3) Input wired to the pull-up voltage, to correct for supply changes. Fault if 20% from ADS1115_VREF_MV.
+  //#define ADS1115_RDY_PIN         -1            // Pin wired to ALERT/RDY, to check for a finished conversion without I2C traffic. Uses the pin's pull-up.
+  #define ADS1115_CHANNEL_0          0            // (0-3) Input for TEMP_SENSOR_0
+  //#define ADS1115_CHANNEL_1        1            // (0-3) Input for TEMP_SENSOR_1
+  //#define ADS1115_CHANNEL_2        2            // (0-3) Input for TEMP_SENSOR_2
+  #define ADS1115_CHANNEL_BED        1            // (0-3) Input for TEMP_SENSOR_BED
+  //#define ADS1115_CHANNEL_CHAMBER  2            // (0-3) Input for TEMP_SENSOR_CHAMBER
+#endif
+
+/**
  * Hephestos 2 24V heated bed upgrade kit.
  * https://www.en3dstudios.com/product/bq-hephestos-2-heated-bed-kit/
  */

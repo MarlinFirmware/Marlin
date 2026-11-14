@@ -220,6 +220,10 @@
   #include "../libs/adc/adc_ads1118.h"
 #endif
 
+#if HAS_ADS1115
+  #include "../libs/adc/adc_ads1115.h"
+#endif
+
 #if ENABLED(FILAMENT_WIDTH_SENSOR)
   #include "../feature/filwidth.h"
 #endif
@@ -2352,7 +2356,26 @@ void Temperature::task() {
     #endif
   #endif
 
+  TERN_(HAS_ADS1115, ads1115.update());
+
   if (!updateTemperaturesIfReady()) return; // Will also reset the watchdog if temperatures are ready
+
+  #if HAS_ADS1115
+    // The range checks can't be relied on here. Readings are stale and MINTEMP waits for preheat.
+    if (ads1115.faulted()) {
+      #if TEMP_SENSOR_0_IS_ADS1115
+        MINTEMP_ERROR(H_E0, degHotend(0));
+      #elif TEMP_SENSOR_1_IS_ADS1115
+        MINTEMP_ERROR(H_E1, degHotend(1));
+      #elif TEMP_SENSOR_2_IS_ADS1115
+        MINTEMP_ERROR(H_E2, degHotend(2));
+      #elif TEMP_SENSOR_BED_IS_ADS1115
+        MINTEMP_ERROR(H_BED, degBed());
+      #else
+        MINTEMP_ERROR(H_CHAMBER, degChamber());
+      #endif
+    }
+  #endif
 
   #if DISABLED(IGNORE_THERMOCOUPLE_ERRORS)
     #if TEMP_SENSOR_IS_MAX_TC(0)
@@ -2948,6 +2971,25 @@ void Temperature::updateTemperaturesFromRawValues() {
     //SERIAL_ECHOLN(thck_1.getThot());
   #endif
 
+  #if HAS_ADS1115
+    #define ADS1115_RAW(N) ads1115.raw(ADS1115_CHANNEL_##N, uint32_t(MAX_RAW_THERMISTOR_VALUE) + 1)
+    #if TEMP_SENSOR_0_IS_ADS1115
+      temp_hotend[0].setraw(ADS1115_RAW(0));
+    #endif
+    #if TEMP_SENSOR_1_IS_ADS1115
+      temp_hotend[1].setraw(ADS1115_RAW(1));
+    #endif
+    #if TEMP_SENSOR_2_IS_ADS1115
+      temp_hotend[2].setraw(ADS1115_RAW(2));
+    #endif
+    #if TEMP_SENSOR_BED_IS_ADS1115
+      temp_bed.setraw(ADS1115_RAW(BED));
+    #endif
+    #if TEMP_SENSOR_CHAMBER_IS_ADS1115
+      temp_chamber.setraw(ADS1115_RAW(CHAMBER));
+    #endif
+  #endif
+
   #if HAS_HOTEND
     HOTEND_LOOP() temp_hotend[e].celsius = analog_to_celsius_hotend(rawHotendTemp(e), e);
   #endif
@@ -3053,6 +3095,8 @@ void Temperature::init() {
   //#define TEMP_0_SCK_PIN   78  // E2
   //#define TEMP_0_MISO_PIN  80  // E7
   //#define TEMP_0_MOSI_PIN  84  // H2
+
+  TERN_(HAS_ADS1115, ads1115.init());
 
   #if HAS_ADS1118
     ads1118.init(TEMP_0_CS_PIN, TEMP_0_MOSI_PIN, TEMP_0_MISO_PIN, TEMP_0_SCK_PIN); // Initialize the ADS1118, global instance

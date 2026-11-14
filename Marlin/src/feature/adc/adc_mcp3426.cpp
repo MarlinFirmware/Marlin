@@ -38,8 +38,7 @@ int16_t MCP3426::ReadValue(uint8_t channel, uint8_t gain, uint8_t address) {
   Error = false;
 
   #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    Wire.setSDA(pin_t(I2C_SDA_PIN));
-    Wire.setSCL(pin_t(I2C_SCL_PIN));
+    I2C_SET_PINS(Wire, pin_t(I2C_SDA_PIN), pin_t(I2C_SCL_PIN));
   #endif
 
   Wire.begin(); // No address joins the BUS as the master
