@@ -21,19 +21,132 @@
  */
 #ifdef ARDUINO_ARCH_ESP32
 
+#include "../../inc/MarlinConfig.h"
+
 #include <stdio.h>
 #include <esp_types.h>
-#include <soc/timer_group_struct.h>
-#include <driver/periph_ctrl.h>
-#include <driver/timer.h>
-
-#include "../../inc/MarlinConfig.h"
+#if ESP_IDF_VERSION_MAJOR < 5
+  #include <soc/timer_group_struct.h>
+  #include <driver/periph_ctrl.h>
+#endif
 
 // ------------------------
 // Local defines
 // ------------------------
 
 #define NUM_HARDWARE_TIMERS 4
+
+#if ESP_IDF_VERSION_MAJOR >= 5
+
+// ------------------------
+// Private Variables
+// ------------------------
+
+const tTimerConfig timer_config[NUM_HARDWARE_TIMERS] = {
+  { STEPPER_TIMER_PRESCALE, stepTC_Handler }, // 0 - Stepper
+  {    TEMP_TIMER_PRESCALE, tempTC_Handler }, // 1 - Temperature
+  {     PWM_TIMER_PRESCALE, pwmTC_Handler  }, // 2 - PWM
+  {    TONE_TIMER_PRESCALE, toneTC_Handler }, // 3 - Tone
+};
+
+static gptimer_handle_t timer_handle[NUM_HARDWARE_TIMERS];
+static hal_timer_t timer_alarm[NUM_HARDWARE_TIMERS];
+
+// ------------------------
+// Public functions
+// ------------------------
+
+static bool IRAM_ATTR timer_isr(gptimer_handle_t, const gptimer_alarm_event_data_t*, void *para) {
+  timer_config[(int)para].fn();
+  return false;
+}
+
+/**
+ * Enable and initialize the timer
+ * @param timer_num   timer number to initialize
+ * @param frequency   frequency of the timer
+ */
+void HAL_timer_start(const uint8_t timer_num, const uint32_t frequency) {
+  const tTimerConfig &timer = timer_config[timer_num];
+  gptimer_handle_t &handle = timer_handle[timer_num];
+
+  if (handle)
+    gptimer_stop(handle); // Already set up (e.g., a new tone), so just restart it
+  else {
+    gptimer_config_t config = {};
+    config.clk_src = GPTIMER_CLK_SRC_DEFAULT;
+    config.direction = GPTIMER_COUNT_UP;
+    config.resolution_hz = (HAL_TIMER_RATE) / timer.divider;
+    if (gptimer_new_timer(&config, &handle) != ESP_OK) { handle = nullptr; return; }
+
+    gptimer_event_callbacks_t callbacks = {};
+    callbacks.on_alarm = timer_isr;
+    gptimer_register_event_callbacks(handle, &callbacks, (void*)(uint32_t)timer_num);
+    gptimer_enable(handle);
+  }
+
+  // Counter starts at 0 and reloads to 0 on each alarm
+  gptimer_set_raw_count(handle, 0);
+  HAL_timer_set_compare(timer_num, (HAL_TIMER_RATE) / timer.divider / frequency - 1);
+  gptimer_start(handle);
+}
+
+/**
+ * Set the upper value of the timer, when the timer reaches this upper value the
+ * interrupt should be triggered and the counter reset
+ * @param timer_num timer number to set the compare value to
+ * @param compare   threshold at which the interrupt is triggered
+ */
+void HAL_timer_set_compare(const uint8_t timer_num, const hal_timer_t compare) {
+  timer_alarm[timer_num] = compare;
+  if (!timer_handle[timer_num]) return;
+  gptimer_alarm_config_t alarm = {};
+  alarm.alarm_count = compare;
+  alarm.reload_count = 0;
+  alarm.flags.auto_reload_on_alarm = true;
+  gptimer_set_alarm_action(timer_handle[timer_num], &alarm);
+}
+
+/**
+ * Get the current upper value of the timer
+ * @param  timer_num timer number to get the count from
+ * @return           the timer current threshold for the alarm to be triggered
+ */
+hal_timer_t HAL_timer_get_compare(const uint8_t timer_num) { return timer_alarm[timer_num]; }
+
+/**
+ * Get the current counter value between 0 and the maximum count (HAL_timer_set_count)
+ * @param  timer_num timer number to get the current count
+ * @return           the current counter of the alarm
+ */
+hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
+  uint64_t counter_value = 0;
+  if (timer_handle[timer_num]) gptimer_get_raw_count(timer_handle[timer_num], &counter_value);
+  return counter_value;
+}
+
+/**
+ * Stop the timer counting, so its interrupt no longer fires
+ * @param timer_num timer number to pause
+ */
+void HAL_timer_pause(const uint8_t timer_num) {
+  if (timer_handle[timer_num]) gptimer_stop(timer_handle[timer_num]);
+}
+
+/**
+ * Resume a paused timer
+ * @param timer_num timer number to resume
+ */
+void HAL_timer_resume(const uint8_t timer_num) {
+  if (timer_handle[timer_num]) gptimer_start(timer_handle[timer_num]);
+}
+
+// Like the legacy driver code below, interrupts stay enabled while a timer runs
+void HAL_timer_enable_interrupt(const uint8_t) {}
+void HAL_timer_disable_interrupt(const uint8_t) {}
+bool HAL_timer_interrupt_enabled(const uint8_t) { return true; }
+
+#else // ESP_IDF_VERSION_MAJOR < 5
 
 // ------------------------
 // Private Variables
@@ -146,6 +259,24 @@ hal_timer_t HAL_timer_get_count(const uint8_t timer_num) {
 }
 
 /**
+ * Stop the timer counting, so its interrupt no longer fires
+ * @param timer_num timer number to pause
+ */
+void HAL_timer_pause(const uint8_t timer_num) {
+  const tTimerConfig timer = timer_config[timer_num];
+  timer_pause(timer.group, timer.idx);
+}
+
+/**
+ * Resume a paused timer
+ * @param timer_num timer number to resume
+ */
+void HAL_timer_resume(const uint8_t timer_num) {
+  const tTimerConfig timer = timer_config[timer_num];
+  timer_start(timer.group, timer.idx);
+}
+
+/**
  * Enable timer interrupt on the timer
  * @param timer_num timer number to enable interrupts on
  */
@@ -167,5 +298,7 @@ bool HAL_timer_interrupt_enabled(const uint8_t timer_num) {
   const tTimerConfig timer = timer_config[timer_num];
   return TG[timer.group]->int_ena.val | BIT(timer_num);
 }
+
+#endif // ESP_IDF_VERSION_MAJOR < 5
 
 #endif // ARDUINO_ARCH_ESP32
