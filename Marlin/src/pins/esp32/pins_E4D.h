@@ -35,7 +35,7 @@
 #endif
 
 #define BOARD_INFO_NAME       "E4d@box"
-#define BOARD_WEBSITE_URL     "github.com/Exilaus/E4d@box"
+#define BOARD_WEBSITE_URL     "github.com/exilaus/E4d-box-project"
 #define DEFAULT_MACHINE_NAME  BOARD_INFO_NAME
 
 //
