@@ -31,10 +31,11 @@
 #include "../DGUSScreenHandler.h"
 #include "../../ui_api.h"
 #include "../../../../module/temperature.h"
+#include "../../../../core/serial.h"
 
 LevelingPreheat::State LevelingPreheat::state = LevelingPreheat::IDLE;
 FSTR_P LevelingPreheat::commands;
-bool LevelingPreheat::use_popup;
+bool LevelingPreheat::use_wait_page;
 millis_t LevelingPreheat::soak_end_ms, LevelingPreheat::next_message_ms;
 
 static bool atTemperature() {
@@ -45,17 +46,16 @@ static bool atTemperature() {
   return hotend_ok && bed_ok;
 }
 
-// Show a message on the screen's message field, or on the wait page
+// Show a message on the screen's message field (if there is one) and tell the host
 void LevelingPreheat::message(const char * const text) {
-  if (use_popup)
-    screen.showPreheatPage(text);
-  else
-    screen.setStatusMessage(text);
+  if (!use_wait_page) screen.setStatusMessage(text);
+  SERIAL_ECHO_START();
+  SERIAL_ECHOLN(text);
 }
 
-void LevelingPreheat::startThen(FSTR_P const cmds, const bool popup/*=false*/) {
+void LevelingPreheat::startThen(FSTR_P const cmds, const bool wait_page/*=false*/) {
   commands = cmds;
-  use_popup = popup;
+  use_wait_page = wait_page;
 
   // Raise the targets, never lower them (as Marlin's preheat does)
   if (thermalManager.leveling_temp.hotend > ExtUI::getTargetTemp_celsius(ExtUI::E0))
@@ -75,21 +75,17 @@ void LevelingPreheat::startThen(FSTR_P const cmds, const bool popup/*=false*/) {
 
   state = HEATING;
   next_message_ms = 0;
-  message("Heating...");
+  if (use_wait_page) {
+    screen.setSynchronousOperationStart();  // Disables Back and shows the throbber
+    screen.gotoScreen(DGUS_SCREEN_AUTOHOME);  // "Heating up and homing in progress", with the temperatures
+  }
+  message("Heating before leveling");
 }
 
-// Heated and soaked: go back to the calling screen and run the commands
+// Heated and soaked: run the commands. Homing returns to the calling screen when it is done.
 void LevelingPreheat::finish() {
   state = IDLE;
-  if (use_popup) screen.gotoScreen(DGUS_SCREEN_ZOFFSET_LEVEL);
   ExtUI::injectCommands(commands);
-}
-
-bool LevelingPreheat::handleCancel() {
-  if (state == IDLE || !use_popup || screen.getCurrentScreen() != DGUS_SCREEN_CONFIRM) return false;
-  cancel();
-  screen.gotoScreen(DGUS_SCREEN_ZOFFSET_LEVEL);
-  return true;
 }
 
 void LevelingPreheat::loop() {
@@ -113,7 +109,7 @@ void LevelingPreheat::loop() {
     if (ELAPSED(ms, soak_end_ms))
       finish();
     else if (ELAPSED(ms, next_message_ms)) {
-      next_message_ms = ms + 1000UL;
+      next_message_ms = ms + (use_wait_page ? 10000UL : 1000UL); // The host only needs an occasional note
       const uint16_t secs = uint16_t((soak_end_ms - ms + 999UL) / 1000UL);
       MString<32> msg;
       msg.setf(F("Heat soak %u:%02u"), secs / 60, secs % 60);
@@ -125,6 +121,7 @@ void LevelingPreheat::loop() {
 void LevelingPreheat::cancel() {
   if (state == IDLE) return;
   state = IDLE;
+  if (use_wait_page) screen.setSynchronousOperationFinish();
   screen.setStatusMessage(F("Canceled heating"));
 }
 
