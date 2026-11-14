@@ -1560,6 +1560,37 @@ void Motion::restore_feedrate_and_scaling() {
     #endif
   }
 
+  #if ENABLED(SOFT_ENDSTOPS_REPORT_CLAMP)
+
+    /**
+     * Report a move shortened by software endstops, with the requested and limited positions.
+     * Report at most once per second, so a print that keeps hitting the limits doesn't flood
+     * the serial port.
+     */
+    void Motion::report_clamp(const xyz_pos_t &requested, const xyz_pos_t &limited) {
+      static millis_t next_report_ms = 0;
+
+      char axes[NUM_AXES + 1];  // Letters of the clamped axes, e.g. "XY"
+      uint8_t n = 0;
+      LOOP_NUM_AXES(a) if (requested[a] != limited[a]) axes[n++] = AXIS_CHAR(a);
+      if (!n) return;
+      axes[n] = '\0';
+
+      const millis_t ms = millis();
+      if (PENDING(ms, next_report_ms)) return;
+      next_report_ms = ms + 1000;
+
+      SERIAL_ECHO_START();
+      SERIAL_ECHOPGM("Move clamped by soft endstops:");
+      LOOP_NUM_AXES(a) if (requested[a] != limited[a])
+        SERIAL_ECHO(C(' '), C(AXIS_CHAR(a)), p_float_t(requested[a], 2), F("->"), p_float_t(limited[a], 2));
+      SERIAL_EOL();
+
+      TERN_(SOFT_ENDSTOPS_REPORT_CLAMP_STATUS, ui.status_printf(0, GET_TEXT_F(MSG_MOVE_CLAMPED), axes));
+    }
+
+  #endif
+
 #else // !HAS_SOFTWARE_ENDSTOPS
 
   Motion::soft_endstops_t Motion::soft_endstop;
@@ -2048,7 +2079,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
  * Before exit, position is set to destination.
  */
 void Motion::prepare_line_to_destination() {
+  TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, const xyz_pos_t requested = destination);
   apply_limits(destination);
+  TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, report_clamp(requested, destination));
 
   //SERIAL_ECHOLNPGM(">TPARA Prepare line to destination: ", destination.x , " , ", destination.y,  " , ", destination.z, " , " , destination.e);
   //SERIAL_EOL();

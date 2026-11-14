@@ -366,7 +366,9 @@ void plan_arc(
         raw.e       = start_E + per_segment_E * i
       );
 
+      TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, const xyz_pos_t requested = raw);
       motion.apply_limits(raw);
+      TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, motion.report_clamp(requested, raw));
 
       #if HAS_LEVELING && !PLANNER_LEVELING
         planner.apply_leveling(raw);
@@ -386,7 +388,9 @@ void plan_arc(
   // Ensure last segment arrives at target location.
   raw = cart;
 
+  TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, const xyz_pos_t requested = raw);
   motion.apply_limits(raw);
+  TERN_(SOFT_ENDSTOPS_REPORT_CLAMP, motion.report_clamp(requested, raw));
 
   #if HAS_LEVELING && !PLANNER_LEVELING
     planner.apply_leveling(raw);

@@ -269,6 +269,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_USB_FD_DEVICE_REMOVED          = _UxGT("USB device removed");
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
+  LSTR MSG_MOVE_CLAMPED                   = _UxGT("%s move clamped");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
   LSTR MSG_MKS_WIFI                       = _UxGT("WiFi Module");
   LSTR MSG_MKS_WIFI_SSID                  = _UxGT("Network");
