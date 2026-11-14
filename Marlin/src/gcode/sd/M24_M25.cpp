@@ -28,6 +28,9 @@
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
 #include "../../module/temperature.h"
 
 #if ENABLED(CREALITY_RTS)
@@ -65,6 +68,9 @@
  *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
+  // A UI that parked the nozzle on pause may need to unpark first
+  if (TERN0(EXTENSIBLE_UI, ExtUI::onResumeRequest())) return;
+
   #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
     // Re-enable any timed-out heaters
     HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);

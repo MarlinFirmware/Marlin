@@ -46,6 +46,14 @@ class MarlinSettings {
     static void reset();
     static bool save();    // Return 'true' if data was saved
 
+    // Save settings EEPROM_AUTOSAVE_AFTER ms after the last request, once not printing
+    #if EEPROM_AUTOSAVE_AFTER > 0
+      static void request_autosave();
+      static void autosave_task();
+    #else
+      static void request_autosave() {}
+    #endif
+
     FORCE_INLINE static bool init_eeprom() {
       reset();
       #if ENABLED(EEPROM_SETTINGS)
@@ -66,6 +74,9 @@ class MarlinSettings {
 
       static bool load();      // Return 'true' if data was loaded ok
       static bool validate();  // Return 'true' if EEPROM data is ok
+
+      // CRC of the last settings read or written, e.g., to tell if a save changed anything
+      static uint16_t last_crc() { return last_crc_value; }
 
       #if ENABLED(ONE_CLICK_PRINT) && NONE(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
         static EEPROM_Error eeprom_status() { return (EEPROM_Error)working_crc; }
@@ -136,7 +147,7 @@ class MarlinSettings {
       static EEPROM_Error size_error(const uint16_t size);
 
       static int eeprom_index;
-      static uint16_t working_crc;
+      static uint16_t working_crc, last_crc_value; // last_crc_value: CRC of the last settings loaded or saved
 
       static bool EEPROM_START(int eeprom_offset) {
         if (!persistentStore.access_start()) { SERIAL_ECHO_MSG("No EEPROM."); return false; }
