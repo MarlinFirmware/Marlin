@@ -333,6 +333,7 @@ namespace MMU3 {
 
   bool MMU3::retryIfPossible(const ErrorCode ec) {
     if (logic.RetryAttempts()) {
+      const ButtonOperations previous_response = GetButtonResponse();
       SetButtonResponse(ButtonOperations::Retry);
       // check, that Retry is actually allowed on that operation
       if (ButtonAvailable(ec) != Buttons::NoButton) {
@@ -342,6 +343,8 @@ namespace MMU3 {
         // --retryAttempts; // "used" one retry attempt
         return true;
       }
+      // Retry isn't offered for this error, so don't leave it selected
+      SetButtonResponse(previous_response);
     }
     logic.SetInAutoRetry(false);
     return false;
