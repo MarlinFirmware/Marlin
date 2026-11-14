@@ -179,10 +179,8 @@ class Mixer {
     static void update_gradient_for_planner_z();
     static void gradient_control(const float z) {
       if (gradient.enabled) {
-        if (z >= gradient.end_z)
-          T(gradient.end_vtool);
-        else
-          update_gradient_for_z(z);
+        if (z >= gradient.end_z) T(gradient.end_vtool);
+        update_gradient_for_z(z);   // Above End Z this is the End V-tool's mix, however far Z has jumped
       }
     }
 
