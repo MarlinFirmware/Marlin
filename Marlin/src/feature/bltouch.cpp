@@ -109,6 +109,7 @@ bool BLTouch::deploy_proc() {
     if (_deploy_query_alarm()) {
       // The deploy might have failed or the probe is actually triggered (nozzle too low?) again
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Deploy Failed");
+      PROBE_EXPLAIN("BLTouch alarm or trigger after deploy. Nozzle too low, pin stuck, or wiring?");
       probe.probe_error_stop();            // Something is wrong, needs action, but not too bad, allow restart
       return true;                         // Tell our caller we goofed in case he cares to know
     }
@@ -148,6 +149,7 @@ bool BLTouch::stow_proc() {
     // Last attempt to STOW
     if (_stow_query_alarm()) {             // so if there is now STILL an ALARM condition:
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("BLTouch Stow Failed");
+      PROBE_EXPLAIN("BLTouch alarm after stow. Check that the pin moves freely and the wiring.");
       probe.probe_error_stop();            // Something is wrong, needs action, but not too bad, allow restart
       return true;                         // Tell our caller we goofed in case he cares to know
     }
