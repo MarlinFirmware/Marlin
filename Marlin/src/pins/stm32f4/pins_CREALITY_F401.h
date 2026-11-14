@@ -159,16 +159,10 @@
 #define EXP3_07_PIN                         PB12
 #define EXP3_08_PIN                         PB15
 
-#if ENABLED(CR10_STOCKDISPLAY)
-  #define LCD_PINS_RS                EXP3_07_PIN
-  #define LCD_PINS_EN                EXP3_08_PIN
-  #define LCD_PINS_D4                EXP3_06_PIN
+#if ANY(CR10_STOCKDISPLAY, REPRAPWORLD_GRAPHICAL_LCD)
 
-  #define BTN_ENC                    EXP3_02_PIN
-  #define BTN_EN1                    EXP3_03_PIN
-  #define BTN_EN2                    EXP3_05_PIN
-
-  #define BEEPER_PIN                 EXP3_01_PIN
+  // Migrated to pins/lcd
+  #define LCD_ON_EXP3
 
   // This MCU needs slower ST7920 serial timing than the 125 ns default for the CR-10 display.
   // (Without these the effective delays are 300 / 125 / 340 ns, and the display stays blank.)
