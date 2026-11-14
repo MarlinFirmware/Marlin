@@ -116,7 +116,12 @@ volatile WIFI_DMA_RCV_FIFO wifiDmaRcvFifo;
 
 volatile WIFI_TRANS_ERROR wifiTransError;
 
-static bool need_ok_later = false;
+static uint8_t need_ok_later = 0; // Lines in espGcodeFifo whose ok is held back
+
+// Free bytes in espGcodeFifo. One byte stays unused so a full buffer is not taken for an empty one.
+static uint32_t wifi_gcode_fifo_free() {
+  return (espGcodeFifo.r + (WIFI_GCODE_BUFFER_SIZE) - espGcodeFifo.w - 1) % (WIFI_GCODE_BUFFER_SIZE);
+}
 
 extern volatile WIFI_STATE wifi_link_state;
 extern WIFI_PARA wifiPara;
@@ -1285,18 +1290,17 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       default:
         strcat_P((char *)cmd_line, PSTR("\n"));
 
-        uint32_t left = espGcodeFifo.r - espGcodeFifo.w - 1;
-        if (espGcodeFifo.r > espGcodeFifo.w) left += WIFI_GCODE_BUFFER_SIZE;
+        const uint32_t left = wifi_gcode_fifo_free();
 
         if (left >= strlen((const char *)cmd_line)) {
           for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
             espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
             espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
           }
-          if (left - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((const char *)cmd_line))
+          if (left >= strlen((const char *)cmd_line) + (WIFI_GCODE_BUFFER_LEAST_SIZE))
             send_ok_to_wifi();
           else
-            need_ok_later = true;
+            need_ok_later++;
         }
         break;
     }
@@ -1305,18 +1309,17 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     // Add another linefeed to the command, terminate with null
     strcat_P((char *)cmd_line, PSTR("\n"));
 
-    uint32_t left_g = espGcodeFifo.r - espGcodeFifo.w - 1;
-    if (espGcodeFifo.r > espGcodeFifo.w) left_g += WIFI_GCODE_BUFFER_SIZE;
+    const uint32_t left_g = wifi_gcode_fifo_free();
 
     if (left_g >= strlen((char * const)cmd_line)) {
       for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
         espGcodeFifo.Buffer[espGcodeFifo.w] = cmd_line[index];
         espGcodeFifo.w = (espGcodeFifo.w + 1) % (WIFI_GCODE_BUFFER_SIZE);
       }
-      if (left_g - (WIFI_GCODE_BUFFER_LEAST_SIZE) >= strlen((char * const)cmd_line))
+      if (left_g >= strlen((char * const)cmd_line) + (WIFI_GCODE_BUFFER_LEAST_SIZE))
         send_ok_to_wifi();
       else
-        need_ok_later = true;
+        need_ok_later++;
     }
   }
 }
@@ -1834,7 +1837,7 @@ void stopEspTransfer() {
   upload_time_sec = 0;
   upload_size = 0;
   esp_state = TRANSFER_IDLE;
-  need_ok_later = false;
+  need_ok_later = 0;
 
   // Reset DMA receive FIFO so no stale buffers leak into the next transfer
   for (uint8_t i = 0; i < TRANS_RCV_FIFO_BLOCK_NUM; i++)
@@ -1929,8 +1932,9 @@ void wifi_rcv_handle() {
       if (wifiTransError.flag != 0x1) WIFI_IO1_RESET();
       getDataF = 1;
     }
-    if (need_ok_later && !queue.ring_buffer.full()) {
-      need_ok_later = false;
+    // Send the held-back oks once the buffer has room for another line
+    for (uint32_t left = wifi_gcode_fifo_free(); need_ok_later && left >= (WIFI_GCODE_BUFFER_LEAST_SIZE); left -= (WIFI_GCODE_BUFFER_LEAST_SIZE)) {
+      need_ok_later--;
       send_ok_to_wifi();
     }
   }
