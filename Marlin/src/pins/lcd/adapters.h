@@ -189,6 +189,7 @@
    *              GND | 9 10 | 5V
    *                   ------
    */
+  #define LCD1_01_PIN -1           // BEEPER isn't routed (EXP1_01 carries SCK)
   #define LCD1_02_PIN EXP1_02_PIN  // ENC
   #define LCD1_04_PIN EXP1_04_PIN  // RESET
   #define LCD1_06_PIN EXP1_07_PIN  // CS
@@ -213,6 +214,7 @@
    *              GND | 9 10 | 5V
    *                   ------
    */
+  #define LCD1_01_PIN -1           // BEEPER isn't routed (EXP1_01 carries SCK)
   #define LCD1_02_PIN EXP1_02_PIN  // ENC
   #define LCD1_04_PIN EXP1_04_PIN  // RESET
   #define LCD1_06_PIN EXP1_07_PIN  // CS
