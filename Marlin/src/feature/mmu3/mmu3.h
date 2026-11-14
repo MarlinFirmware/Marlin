@@ -414,6 +414,8 @@
     ErrorSource lastErrorSource = ErrorSource::ErrorSourceNone;
     Buttons lastButton = Buttons::NoButton;
     uint16_t lastReadRegisterValue = 0;
+    bool accessRegister(const uint8_t address, const bool write, const uint16_t data);
+    bool tunePending = false; // The Tune screen was requested and will be opened by manage_response()
     Buttons printerButtonOperation = Buttons::NoButton;
 
     #if ENABLED(MMU_MENUS)

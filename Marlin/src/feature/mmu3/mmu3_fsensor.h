@@ -39,6 +39,8 @@ namespace MMU3 {
     public:
     FSensorBlockRunout();
     ~FSensorBlockRunout();
+    private:
+    bool was_enabled; // Runout state to put back (the user may have turned it off with M412 S0)
   };
 
   // Possible states of filament from the perspective of presence in various parts of the printer

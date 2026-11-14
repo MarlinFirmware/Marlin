@@ -121,6 +121,8 @@ namespace MMU3 {
     void ResetMMU(uint8_t mode=0);
     void button(uint8_t index);
     void home(uint8_t mode);
+    // Set when the MMU has answered the last readRegister() or writeRegister()
+    bool registerAccessDone = false;
     void readRegister(uint8_t address);
     void writeRegister(uint8_t address, uint16_t data);
 
@@ -373,6 +375,7 @@ namespace MMU3 {
     uint16_t mmuFwVersionBuild;
 
     uint8_t retryAttempts;
+    bool commandErrorLogged = false; // The current Command Error has been reported (report each error once)
     bool inAutoRetry;
 
     millis_t rejectedSinceMs = 0; //!< When the current run of rejected commands began (0 = none)
