@@ -951,6 +951,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
   // Handle some M commands here
   if (mStr) {
+    MKSW_SYNC_PRINT_STATE();
     cmd_value = atoi(mStr + 1);
     char * const spStr = strchr(mStr, ' ');
 
@@ -1097,6 +1098,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
                   E_TERN_(planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
+                  MKSW_JOB_STARTED();
                   TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                   MKSW_UI_CLEAR_ONCE();
                 }
@@ -1105,6 +1107,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           }
           else if (MKSW_PRINT_STATE == PAUSED) {
             MKSW_PRINT_STATE = RESUMING;
+            MKSW_RESUME_PRINT();
             MKSW_UI_CLEAR();
             MKSW_UI_TIME_START();
 
@@ -1130,7 +1133,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           MKSW_UI_CLEAR();
 
           #if HAS_MEDIA
-            card.pauseSDPrint();
+            MKSW_PAUSE_PRINT();
             MKSW_PRINT_STATE = PAUSING;
           #endif
           MKSW_UI_SHOW_PREVIEW();
