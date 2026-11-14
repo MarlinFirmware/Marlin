@@ -196,9 +196,9 @@
 
 #endif
 
-#if ENABLED(CR10_STOCKDISPLAY)
+#if ANY(CR10_STOCKDISPLAY, REPRAPWORLD_GRAPHICAL_LCD) // RRW GLCD wired to the CR10 display connector
   #if NONE(RET6_12864_LCD, VET6_12864_LCD)
-    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for CR10_STOCKDISPLAY with the Creality V4 controller."
+    #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
   #endif
 
   // Migrated to pins/lcd

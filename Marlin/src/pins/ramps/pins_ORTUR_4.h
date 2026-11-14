@@ -82,7 +82,7 @@
 
 // NOTE: Kept inline — ORTUR 4 uses raw Arduino pin numbers with non-standard LCD wiring
 // (BEEPER=35, RS=27, EN=23, D4=37 vs RAMPS standard). No EXP1/EXP2 tokens defined.
-#if IS_RRD_FG_SC
+#if IS_RRD_FG_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
   #define BEEPER_PIN                          35
 
   #define LCD_PINS_RS                         27

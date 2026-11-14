@@ -40,7 +40,7 @@
 
 /**          ------
  *   BEEPER | 1  2 | ENC
- *      EN1 | 3  4 | (RESET/KILL)
+ *      EN1 | 3  4 | --
  *      EN2   5  6 | LCD_D4
  *   LCD_RS | 7  8 | LCD_EN
  *      GND | 9 10 | 5V
@@ -61,15 +61,11 @@
 #endif
 
 #ifndef LCD_PINS_D4
-  #define LCD_PINS_D4     LCD1_06_PIN // ST9720 CLK
+  #define LCD_PINS_D4     LCD1_06_PIN // ST7920 CLK
 #endif
 #ifndef LCD_PINS_RS
-  #define LCD_PINS_RS     LCD1_07_PIN // ST9720 CS
+  #define LCD_PINS_RS     LCD1_07_PIN // ST7920 CS
 #endif
 #ifndef LCD_PINS_EN
-  #define LCD_PINS_EN     LCD1_08_PIN // ST9720 DAT
-#endif
-
-#ifndef KILL_PIN
-  #define KILL_PIN        LCD1_04_PIN
+  #define LCD_PINS_EN     LCD1_08_PIN // ST7920 DAT
 #endif
