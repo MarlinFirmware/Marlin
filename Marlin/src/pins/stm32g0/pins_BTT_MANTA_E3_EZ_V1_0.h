@@ -230,6 +230,7 @@
 #elif ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
 
   // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL                        // Single EXP1: see lcd/adapters.h
   #define FORCE_SOFT_SPI
 
 #elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI

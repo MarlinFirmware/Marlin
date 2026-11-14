@@ -196,6 +196,7 @@
 #elif ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
 
   // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL                        // Single EXP1: see lcd/adapters.h
   #define FORCE_SOFT_SPI
 
 #elif ENABLED(ULTI_CONTROLLER)
@@ -204,16 +205,70 @@
 
   #define DOGLCD_SCL_PIN             EXP1_07_PIN  // I2C1
   #define DOGLCD_SDA_PIN             EXP1_08_PIN  // I2C1
+  #define LCD_RESET_PIN              EXP1_03_PIN  // Not on EXP1_07 (SCL), as lcd/ would default
 
 #elif ENABLED(FYSETC_MINI_12864_2_1)
 
-  // Migrated to pins/lcd
-
   CONTROLLER_WARNING("BTT_SKR_E3_DIP", "FYSETC_MINI_12864_2_1 and clones")
+
+  // NOTE: Kept inline — custom cable; differs from lcd/FYSETC_MINI_12864.h
 
   #if SD_CONNECTION_IS(LCD)
     #error "The LCD SD Card is not supported with this configuration."
   #endif
+
+  /**
+   * FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 display pinout
+   *
+   *                   Board                               Display
+   *                   ------                               ------
+   * (NEOPIXEL)  PA15 | 1  2 | PB6 (BTN_ENC)            5V |10  9 | GND
+   * (BTN_EN2)   PA9  | 3  4 | RESET                    -- | 8  7 | --
+   * (BTN_EN1)   PA10   5  6 | PB9 (LCD_RESET)    NEOPIXEL | 6  5   LCD RESET
+   * (LCD_A0)    PB8  | 7  8 | PB7 (LCD_CS)         LCD_A0 | 4  3 | LCD_CS
+   *              GND | 9 10 | 5V                  BTN_ENC | 2  1 | BEEP
+   *                   ------                               ------
+   *                    EXP1                                 EXP1
+   *
+   *
+   *                   ---                                  ------
+   *                  | 1 | RST                         -- |10  9 | --
+   *                  | 2 | PA3 RX2              RESET_BTN | 8  7 | SD_DETECT
+   *                  | 3 | PA2 TX2               LCD_MOSI | 6  5   EN2
+   *                  | 4 | GND                         -- | 4  3 | EN1
+   *                  | 5 | 5V                     LCD_SCK | 2  1 | --
+   *                   ---                                  ------
+   *                   TFT                                   EXP2
+
+   *
+   * Needs custom cable.
+   *
+   *    BOARD EXP1 NEOPIXEL   <-->  LCD EXP1 NEOPIXEL
+   *    BOARD EXP1 BTN_ENC    <-->  LCD EXP1 BTN_ENC
+   *    BOARD EXP1 BTN_EN2    <-->  LCD EXP2 EN2
+   *    BOARD EXP1 RESET      <-->  LCD EXP2 RESET_BTN
+   *    BOARD EXP1 BTN_EN1    <-->  LCD EXP2 EN1
+   *    BOARD EXP1 LCD_RESET  <-->  LCD EXP1 LCD RESET
+   *    BOARD EXP1 LCD_A0     <-->  LCD EXP1 LCD_A0
+   *    BOARD EXP1 LCD_CS     <-->  LCD EXP1 LCD_CS
+   *    BOARD TFT RX2         <-->  LCD EXP2 LCD_MOSI
+   *    BOARD TFT TX2         <-->  LCD EXP2 LCD_SCK
+   */
+
+  #define NEOPIXEL_PIN               EXP1_01_PIN
+  #define BTN_ENC                    EXP1_02_PIN
+  #define BTN_EN1                    EXP1_03_PIN
+  #define BTN_EN2                    EXP1_05_PIN
+  #define LCD_RESET_PIN              EXP1_06_PIN
+  #define BEEPER_PIN                        -1
+  #define DOGLCD_A0                  EXP1_07_PIN
+  #define DOGLCD_CS                  EXP1_08_PIN
+
+  #define DOGLCD_SCK                        PA2
+  #define DOGLCD_MOSI                       PA3
+
+  #define LCD_BACKLIGHT_PIN                 -1
+  #define FORCE_SOFT_SPI
 
 #elif HAS_WIRED_LCD
 
