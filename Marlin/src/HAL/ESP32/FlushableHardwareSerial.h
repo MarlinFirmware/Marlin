@@ -26,30 +26,17 @@
 #include "../shared/Marduino.h"
 #include "../../core/serial_hook.h"
 
-class FlushableHardwareSerial : public HardwareSerial {
+#if ENABLED(EMERGENCY_PARSER)
+  #include "SerialRxTask.h"
+  class FlushableHardwareSerial;
+  typedef SerialRxTask<HardwareSerial, FlushableHardwareSerial> FlushableBaseSerial;
+#else
+  typedef HardwareSerial FlushableBaseSerial;
+#endif
+
+class FlushableHardwareSerial : public FlushableBaseSerial {
 public:
-  FlushableHardwareSerial(int uart_nr) : HardwareSerial(uart_nr) {}
-
-  #if ENABLED(EMERGENCY_PARSER)
-    // The core gives no access to received bytes from its UART interrupt, so a task
-    // on Marlin's core moves them into rx_buffer, passing each to the emergency parser.
-    template <typename... Args>
-    void begin(Args... args) { rx_active = false; HardwareSerial::begin(args...); rx_start(); }
-    template <typename... Args>
-    void end(Args... args) { rx_active = false; HardwareSerial::end(args...); }
-    int available();
-    int peek();
-    int read();
-
-  private:
-    uint8_t rx_buffer[RX_BUFFER_SIZE];
-    volatile uint16_t rx_head = 0, rx_tail = 0;
-    volatile bool rx_active = false;
-    TaskHandle_t rx_task = nullptr;
-    void rx_start();
-    void rx_poll();
-    static void rx_task_loop(void *arg);
-  #endif
+  FlushableHardwareSerial(int uart_nr) : FlushableBaseSerial(uart_nr) {}
 };
 
 extern Serial1Class<FlushableHardwareSerial> flushableSerial;
