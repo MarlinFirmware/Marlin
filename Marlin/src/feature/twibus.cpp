@@ -36,8 +36,7 @@ TWIBus::TWIBus() {
   #if I2C_SLAVE_ADDRESS == 0
 
     #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-      Wire.setSDA(pin_t(I2C_SDA_PIN));
-      Wire.setSCL(pin_t(I2C_SCL_PIN));
+      I2C_SET_PINS(Wire, pin_t(I2C_SDA_PIN), pin_t(I2C_SCL_PIN));
     #endif
 
     Wire.begin();                   // No address joins the BUS as the master
