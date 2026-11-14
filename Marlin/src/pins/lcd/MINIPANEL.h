@@ -106,7 +106,7 @@
   #define KILL_PIN        LCD2_08_PIN
 #endif
 
-#ifndef SD_DETECT_PIN
+#if !defined(SD_DETECT_PIN) && !SD_CONNECTION_IS(ONBOARD) // The panel's SD socket
   #define SD_DETECT_PIN   LCD2_07_PIN
 #endif
 
