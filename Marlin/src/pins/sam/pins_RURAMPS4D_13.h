@@ -210,6 +210,9 @@
 #if ENABLED(MKS_MINI_12864)
 
   // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
 
 #elif IS_RRD_FG_SC
 

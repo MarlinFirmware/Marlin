@@ -265,7 +265,12 @@
   #define LCD_PINS_D4                EXP1_05_PIN
   #define BEEPER_PIN                 EXP1_08_PIN
 
-#elif ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
+#elif ENABLED(ENDER2_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL                        // Wired entirely to EXP1: see lcd/adapters.h
+
+#elif ENABLED(MKS_MINI_12864)
 
   // Migrated to pins/lcd
   #define FORCE_SOFT_SPI
@@ -273,11 +278,6 @@
 #elif ENABLED(CR10_STOCKDISPLAY)
 
   // Migrated to pins/lcd
-
-#elif ENABLED(ENDER2_STOCKDISPLAY)
-
-  // Migrated to pins/lcd
-  #define FORCE_SOFT_SPI
 
 #elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 

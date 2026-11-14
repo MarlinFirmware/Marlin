@@ -304,6 +304,9 @@
 #if ENABLED(CR10_STOCKDISPLAY)
 
   // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN
+  #endif
 
   //#define KILL_PIN                          41
 

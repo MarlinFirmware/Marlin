@@ -132,10 +132,9 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — shared tail (beeper, encoder, D7) for all panels; pins/lcd/ defaults only fill gaps.
 #if HAS_WIRED_LCD
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-
-    // NOTE: Kept inline — ARTILLERY_RUBY swaps DC/RS vs. standard MKS OLED wiring.
     #define LCD_PINS_DC              EXP1_07_PIN  // Set as output on init
     #define LCD_PINS_RS              EXP1_06_PIN  // Pull low for 1s to init
     // DOGM SPI LCD Support
@@ -144,15 +143,50 @@
     #define DOGLCD_SCK               EXP1_05_PIN
     #define DOGLCD_A0                LCD_PINS_DC
   #elif ENABLED(FYSETC_MINI_12864)
+    #define DOGLCD_CS                EXP1_03_PIN
+    #define DOGLCD_A0                EXP1_04_PIN
 
-    // Migrated to pins/lcd
-    #define FORCE_SOFT_SPI                      // Board-specific: use software SPI
+    //#define FORCE_SOFT_SPI                      // Use this if default of hardware SPI causes display problems
+                                                  //   results in LCD soft SPI mode 3, SD soft SPI mode 0
+
+    #define LCD_RESET_PIN            EXP1_05_PIN  // Must be high or open for LCD to operate normally.
+
+    #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+      #ifndef RGB_LED_R_PIN
+        #define RGB_LED_R_PIN        EXP1_06_PIN
+      #endif
+      #ifndef RGB_LED_G_PIN
+        #define RGB_LED_G_PIN        EXP1_07_PIN
+      #endif
+      #ifndef RGB_LED_B_PIN
+        #define RGB_LED_B_PIN        EXP1_08_PIN
+      #endif
+    #elif ENABLED(FYSETC_MINI_12864_2_1)
+      #define NEOPIXEL_PIN           EXP1_06_PIN
+    #endif
+
+    #define LCD_CONTRAST_INIT                255
+  #else
+    #define LCD_PINS_RS              EXP1_04_PIN
+    #define LCD_PINS_EN              EXP1_03_PIN
+    #define LCD_PINS_D4              EXP1_05_PIN
+    #define LCD_PINS_D5              EXP1_06_PIN
+    #define LCD_PINS_D6              EXP1_07_PIN
   #endif
 
-  // Standard EXP1/EXP2 LCD pins provided by lcd/WIRED.h
-  // Board-specific SD wiring stays inline:
+  #define LCD_PINS_D7                EXP1_08_PIN
+
+  //
+  // Beeper, SD Card, Encoder
+  //
+  #define BEEPER_PIN                 EXP1_01_PIN
+
   #if HAS_MEDIA
     #define SD_SS_PIN                EXP2_04_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
+
+  #define BTN_EN1                    EXP2_03_PIN
+  #define BTN_EN2                    EXP2_05_PIN
+  #define BTN_ENC                    EXP1_02_PIN
 #endif
