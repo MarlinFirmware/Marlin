@@ -170,6 +170,7 @@ jobs:
 
         # STM32G0
         - STM32G0B1RE_btt
+        - STM32G0B1RE_manta_btt
 
         # HC32
         - HC32F460C_aquila_101

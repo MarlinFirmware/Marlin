@@ -329,6 +329,16 @@
 #define SD_MOSI_PIN                         PC12
 
 //
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PB12  // FDCAN2 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PB13  // FDCAN2 TX
+#endif
+
+//
 // NeoPixel LED
 //
 #ifndef BOARD_NEOPIXEL_PIN
