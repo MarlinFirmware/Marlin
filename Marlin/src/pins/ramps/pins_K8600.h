@@ -63,27 +63,15 @@
 
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
-  // De-facto EXP1 ports matching this board's LCD data-line wiring, for lcd/ defaults.
-  // Buttons/encoder stay here.
-  #define EXP1_01_PIN                         -1  // not connected
-  #define EXP1_02_PIN                         -1  // not connected
-  #define EXP1_03_PIN                         29  // LCD_EN
-  #define EXP1_04_PIN                         27  // LCD_RS
-  #define EXP1_05_PIN                         37  // LCD_D4
-  #define EXP1_06_PIN                         35  // LCD_D5
-  #define EXP1_07_PIN                         33  // LCD_D6
-  #define EXP1_08_PIN                         31  // LCD_D7
+  #define BEEPER_PIN                          -1  // No beeper with these panels (keeps lcd/ default out)
 
-  #if ENABLED(ZONESTAR_LCD)
-    // NOTE: Kept inline — ZONESTAR_LCD uses the same LCD wiring as other character
-    // LCDs here, not the EXP1 order assumed by lcd/ZONESTAR_LCD.h.
-    #define LCD_PINS_RS              EXP1_04_PIN
-    #define LCD_PINS_EN              EXP1_03_PIN
-    #define LCD_PINS_D4              EXP1_05_PIN
-    #define LCD_PINS_D5              EXP1_06_PIN
-    #define LCD_PINS_D6              EXP1_07_PIN
-    #define LCD_PINS_D7              EXP1_08_PIN
-  #endif
+  // NOTE: Kept inline — this board wires all LCDs to these raw pins (not EXP ports)
+  #define LCD_PINS_RS                         27
+  #define LCD_PINS_EN                         29
+  #define LCD_PINS_D4                         37
+  #define LCD_PINS_D5                         35
+  #define LCD_PINS_D6                         33
+  #define LCD_PINS_D7                         31
 
   // Buttons
   #define BTN_EN1                             17
