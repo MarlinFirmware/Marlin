@@ -240,10 +240,17 @@
 #if ENABLED(FYSETC_242_OLED_12864)
 
   // Migrated to pins/lcd
+  #undef KILL_PIN                               // NC with this panel
 
 #elif ENABLED(FYSETC_MINI_12864)
 
   // Migrated to pins/lcd
+  #if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
+    // The panel's RGB LED, ahead of this board's RGB header defaults below
+    #define RGB_LED_R_PIN            EXP1_06_PIN
+    #define RGB_LED_G_PIN            EXP1_07_PIN
+    #define RGB_LED_B_PIN            EXP1_08_PIN
+  #endif
 
 #elif ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
 

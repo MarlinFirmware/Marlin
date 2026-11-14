@@ -175,10 +175,7 @@
     #endif
     #if ENABLED(FYSETC_MINI_12864)
       #define LCD_RESET_PIN                   -1  // Not wired. (EXP1_05 is BTN_EN1 here.)
-      #define RGB_LED_R_PIN                   -1  // Panel RGB/Neopixel not wired
-      #define RGB_LED_G_PIN                   -1
-      #define RGB_LED_B_PIN                   -1
-      #define NEOPIXEL_PIN                    -1
+      #define NEOPIXEL_PIN                    -1  // Panel Neopixel not wired. (RGB is the board's header.)
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
