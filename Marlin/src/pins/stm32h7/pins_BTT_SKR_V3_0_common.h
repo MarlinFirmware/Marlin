@@ -379,8 +379,6 @@
 #if ENABLED(CR10_STOCKDISPLAY)
 
   // Migrated to pins/lcd
-  #define BEEPER_PIN                        -1
-  #define BTN_ENC                           -1
   #define KILL_PIN                          -1
 
 #elif ENABLED(MKS_MINI_12864)

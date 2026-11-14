@@ -123,7 +123,7 @@
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22
 
-#elif IS_RRD_SC
+#elif IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN                       22

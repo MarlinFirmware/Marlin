@@ -246,11 +246,11 @@
   #define EXP3_07_PIN                       PA4
   #define EXP3_08_PIN                       PA7
 
-#elif ANY(CR10_STOCKDISPLAY, FYSETC_MINI_12864_2_1)
+#elif ANY(CR10_STOCKDISPLAY, REPRAPWORLD_GRAPHICAL_LCD, FYSETC_MINI_12864_2_1)
   #error "Define RET6_12864_LCD or VET6_12864_LCD to select pins for the LCD with the Creality V4 controller."
 #endif
 
-#if ENABLED(CR10_STOCKDISPLAY)
+#if ANY(CR10_STOCKDISPLAY, REPRAPWORLD_GRAPHICAL_LCD) // RRW GLCD wired to the CR10 display connector
 
   // Migrated to pins/lcd
   #define LCD_ON_EXP3

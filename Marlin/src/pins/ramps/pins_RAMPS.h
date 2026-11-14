@@ -633,7 +633,10 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-    // Migrated to pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h
+    // NOTE: Kept inline — this panel's CS is on EXP2_07, sharing the EXP2 SPI bus
+    #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
+    #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
+    #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
 
   #elif ALL(IS_NEWPANEL, PANEL_ONE)
 
@@ -706,7 +709,7 @@
   //
   #if IS_NEWPANEL
 
-    #if IS_RRD_SC
+    #if IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #define BTN_ENC                EXP1_02_PIN
       #define BTN_EN1                EXP2_03_PIN

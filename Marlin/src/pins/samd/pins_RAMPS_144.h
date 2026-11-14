@@ -501,7 +501,7 @@
   //
   #if IS_NEWPANEL
 
-    #if IS_RRD_SC
+    #if IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #define BEEPER_PIN             EXP1_01_PIN
 

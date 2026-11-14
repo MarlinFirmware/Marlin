@@ -42,39 +42,63 @@
 // DOGLCD IS_U8GLIB_ST7920 IS_ULTIPANEL HAS_WIRED_LCD IS_NEWPANEL HAS_MARLINUI_MENU
 
 /**
- * REPRAPWORLD_GRAPHICAL_LCD connects to AUX2 and AUX3 on RAMPS. Other boards vary.
+ * The RepRapWorld Graphical LCD is a serial ST7920 panel (like the RRD Full Graphic
+ * Smart Controller) with an encoder and SD card. Its loose headers have no EXP1/EXP2
+ * sockets, so it always connects with a custom cable. Boards with an established wiring
+ * (RAMPS AUX2/AUX3, Megatronics, Minitronics, Ultratronics...) define its pins inline.
  *
- * Pins that must be minimally defined for this display:
- *    LCD_PINS_EN LCD_PINS_RS LCD_PINS_D4
+ * Otherwise wire it like a Full Graphic Smart Controller. Boards with only one 10-pin
+ * header use the CR10_STOCKDISPLAY layout instead.
  *
- * Default mapping below matches classic RAMPS EXP2 wiring:
- *   RS=EXP2_07, EN=EXP2_06, D4=EXP2_02
- *
- * Boards with custom wiring should pre-define these in their board pins file.
+ *  Panel signal          EXP1 + EXP2      Single EXP1
+ *  ------------------    -----------      -----------
+ *  LCD CS   (RS)         EXP1_04          EXP1_07
+ *  LCD SID  (EN)         EXP1_03          EXP1_08
+ *  LCD CLK  (D4)         EXP1_05          EXP1_06
+ *  Encoder push (ENC)    EXP1_02          EXP1_02
+ *  Encoder A    (EN1)    EXP2_03          EXP1_03
+ *  Encoder B    (EN2)    EXP2_05          EXP1_05
+ *  SD MISO/SCK           EXP2_01/02       (no SD)
+ *  SD SS/MOSI/DETECT     EXP2_04/06/07
+ *  5V / GND              EXP1_10/09       EXP1_10/09
  */
-#if _EXISTS(LCD2_02_PIN) && _EXISTS(LCD2_06_PIN) && _EXISTS(LCD2_07_PIN)
+#if _EXISTS(LCD2_03_PIN) && _EXISTS(LCD2_05_PIN)
   #ifndef LCD_PINS_RS
-    #define LCD_PINS_RS LCD2_07_PIN  // CS chip select /SS chip slave select
+    #define LCD_PINS_RS     LCD1_04_PIN // CS
   #endif
   #ifndef LCD_PINS_EN
-    #define LCD_PINS_EN LCD2_06_PIN  // SID (MOSI)
+    #define LCD_PINS_EN     LCD1_03_PIN // SID
   #endif
   #ifndef LCD_PINS_D4
-    #define LCD_PINS_D4 LCD2_02_PIN  // SCK (CLK) clock
+    #define LCD_PINS_D4     LCD1_05_PIN // CLK
+  #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1         LCD2_03_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2         LCD2_05_PIN
   #endif
 #else
-  // No EXP2 on this board. Use the generic EXP1 positions, as boards did before lcd/.
   #ifndef LCD_PINS_RS
-    #define LCD_PINS_RS LCD1_04_PIN
+    #define LCD_PINS_RS     LCD1_07_PIN // CS
   #endif
   #ifndef LCD_PINS_EN
-    #define LCD_PINS_EN LCD1_03_PIN
+    #define LCD_PINS_EN     LCD1_08_PIN // SID
   #endif
   #ifndef LCD_PINS_D4
-    #define LCD_PINS_D4 LCD1_05_PIN
+    #define LCD_PINS_D4     LCD1_06_PIN // CLK
   #endif
+  #ifndef BTN_EN1
+    #define BTN_EN1         LCD1_03_PIN
+  #endif
+  #ifndef BTN_EN2
+    #define BTN_EN2         LCD1_05_PIN
+  #endif
+#endif
+#ifndef BTN_ENC
+  #define BTN_ENC           LCD1_02_PIN
 #endif
 
 #if !(_EXISTS(LCD_PINS_EN) && _EXISTS(LCD_PINS_RS) && _EXISTS(LCD_PINS_D4))
-  #error "REPRAPWORLD_GRAPHICAL_LCD connection is not defined for your MOTHERBOARD."
+  #error "REPRAPWORLD_GRAPHICAL_LCD needs an EXP1 header (or inline pins) on your MOTHERBOARD. See pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h."
 #endif
