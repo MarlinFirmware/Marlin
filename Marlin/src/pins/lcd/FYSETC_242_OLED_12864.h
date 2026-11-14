@@ -76,8 +76,8 @@
   #define DOGLCD_A0                  LCD_PINS_DC
 #endif
 
-#ifndef BOARD_NEOPIXEL_PIN
-  #define BOARD_NEOPIXEL_PIN         LCD1_07_PIN
+#ifndef NEOPIXEL_PIN
+  #define NEOPIXEL_PIN               LCD1_07_PIN  // The panel's LEDs (not the board's header)
 #endif
 
 #ifndef KILL_PIN
