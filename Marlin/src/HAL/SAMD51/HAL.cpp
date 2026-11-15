@@ -438,7 +438,7 @@ enum ADCIndex {
   #if ADC0_IS_REQUIRED
     Adafruit_ZeroDMA adc0DMAProgram, adc0DMARead;
 
-    static constexpr HAL_DMA_DAC_Registers adc0_dma_regs_list[ADC_COUNT] = {
+    static constexpr HAL_DMA_DAC_Registers adc0_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 0
         { PIN_TO_INPUTCTRL(TEMP_0_PIN) },
       #endif
@@ -513,7 +513,7 @@ enum ADCIndex {
   #if ADC1_IS_REQUIRED
     Adafruit_ZeroDMA adc1DMAProgram, adc1DMARead;
 
-    static constexpr HAL_DMA_DAC_Registers adc1_dma_regs_list[ADC_COUNT] = {
+    static constexpr HAL_DMA_DAC_Registers adc1_dma_regs_list[] = {
       #if GET_TEMP_0_ADC() == 1
         { PIN_TO_INPUTCTRL(TEMP_0_PIN) },
       #endif
