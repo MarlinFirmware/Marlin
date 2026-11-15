@@ -239,7 +239,7 @@ void disp_bed_temp() {
 }
 
 void disp_fan_speed() {
-  sprintf_P(public_buf_l, PSTR("%d%%"), (int)thermalManager.fanSpeedPercent(0));
+  sprintf_P(public_buf_l, PSTR("%d%%"), (int)fans[0].speed_pct());
   lv_label_set_text(labelFan, public_buf_l);
 }
 
@@ -302,6 +302,10 @@ void setProBarRate() {
         default_preview_flg = false;
         lv_clear_printing();
         lv_draw_dialog(DIALOG_TYPE_FINISH_PRINT);
+
+        // The print is over. Don't wait for the dialog's OK button, or the
+        // MKS WiFi module keeps seeing a print in progress (M997 PRINTING).
+        uiCfg.print_state = IDLE;
 
         once_flag = true;
 

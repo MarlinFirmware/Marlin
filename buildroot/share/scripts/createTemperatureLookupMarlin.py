@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Thermistor Value Lookup Table Generator
+"""
+Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on:
 https://en.wikipedia.org/wiki/Steinhart-Hart_equation
@@ -10,12 +11,12 @@ https://reprap.org/wiki/Temperature_Sensor_v2.0
 Usage: python3 createTemperatureLookupMarlin.py [options]
 
 Options:
-  -h, --help        show this help
-  --rp=...          pull-up resistor
-  --t1=ttt:rrr      low temperature temperature:resistance point (around 25 degC)
-  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150 degC)
-  --t3=ttt:rrr      high temperature temperature:resistance point (around 250 degC)
-  --num-temps=...   the number of temperature points to calculate (default: 36)
+  -h, --help        Show this help
+  --rp=...          Pull-up resistor
+  --t1=ttt:rrr      Low temperature temperature:resistance point (around 25 degC)
+  --t2=ttt:rrr      Middle temperature temperature:resistance point (around 150 degC)
+  --t3=ttt:rrr      High temperature temperature:resistance point (around 250 degC)
+  --num-temps=...   The number of temperature points to calculate (default: 36)
 """
 
 from __future__ import print_function, division

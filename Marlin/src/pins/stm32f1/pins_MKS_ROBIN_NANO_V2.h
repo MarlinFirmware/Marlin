@@ -193,7 +193,7 @@
 // Power Supply Control
 //
 #if ENABLED(MKS_PWC)
-  #if ENABLED(TFT_LVGL_UI)
+  #if HAS_TFT_LVGL_UI
     #if ENABLED(PSU_CONTROL)
       #error "PSU_CONTROL is incompatible with MKS_PWC plus TFT_LVGL_UI."
     #endif
@@ -220,11 +220,17 @@
   #define FIL_RUNOUT_STATE                LOW
 #endif
 
-#if HAS_TFT_LVGL_UI
+//
+// MKS WiFi Module
+//
+#if ENABLED(MKS_WIFI_MODULE)
+  #define WIFI_SERIAL_PORT                     1  // USART1
   #define WIFI_IO0_PIN                      PC13
   #define WIFI_IO1_PIN                      PC7
   #define WIFI_RESET_PIN                    PE9
+#endif
 
+#if HAS_TFT_LVGL_UI
   //
   // MKS Testing for code in lcd/extui/mks_ui
   //

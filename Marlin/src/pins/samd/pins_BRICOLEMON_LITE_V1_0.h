@@ -611,9 +611,12 @@
 
   //
   // Software serial
+  // The TMC2209 PDN_UART line is single-wire: with TX on D0 and RX on D1 the TX pin keeps
+  // driving the line and the drivers can't reply ("TMC CONNECTION ERROR", M122 "All LOW").
+  // Using the same pin for TX and RX enables half-duplex mode (as documented by BricoGeek).
   //
   #define X_SERIAL_TX_PIN                      0
-  #define X_SERIAL_RX_PIN                      1
+  #define X_SERIAL_RX_PIN                      0
 
   #define Y_SERIAL_TX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_RX_PIN        X_SERIAL_RX_PIN

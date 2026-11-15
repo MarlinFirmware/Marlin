@@ -42,6 +42,10 @@
   #include "../../MarlinCore.h"
 #endif
 
+#if ENABLED(POWER_LOSS_RECOVERY)
+  #include "../../feature/powerloss.h"
+#endif
+
 #if ENABLED(PSU_CONTROL)
 
   /**
@@ -84,8 +88,7 @@ void GcodeSuite::M81() {
   print_job_timer.stop();
 
   #if ALL(HAS_FAN, PROBING_FANS_OFF)
-    thermalManager.fans_paused = false;
-    ZERO(thermalManager.saved_fan_speed);
+    Fan::power_off();
   #endif
 
   TERN_(POWER_LOSS_RECOVERY, recovery.purge()); // Clear PLR on intentional shutdown
@@ -127,4 +130,6 @@ void GcodeSuite::M81() {
   #elif HAS_SUICIDE
     marlin.suicide();
   #endif
+
+  //OUT_WRITE(SHUTDOWN_PIN, LOW); delay(2000);
 }

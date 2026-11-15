@@ -203,9 +203,17 @@
 #define EXP2_08_PIN                         -1
 
 //
-// Onboard SD card
+// SD Card
 // Must use soft SPI because Marlin's default hardware SPI is tied to LCD's EXP2
 //
+#ifndef SDCARD_CONNECTION
+  #if HAS_WIRED_LCD && DISABLED(NO_LCD_SDCARD)
+    #define SDCARD_CONNECTION                LCD
+  #else
+    #define SDCARD_CONNECTION            ONBOARD
+  #endif
+#endif
+
 #if SD_CONNECTION_IS(LCD)
   #define SD_SS_PIN                  EXP2_04_PIN
   #define SD_SCK_PIN                 EXP2_02_PIN
@@ -308,6 +316,16 @@
   #define BOARD_ST7920_DELAY_1               120
   #define BOARD_ST7920_DELAY_2                80
   #define BOARD_ST7920_DELAY_3               580
+#endif
+
+//
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PD0   // FDCAN1 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PD1   // FDCAN1 TX
 #endif
 
 //

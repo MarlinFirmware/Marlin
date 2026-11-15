@@ -112,7 +112,7 @@ int main() {
 
   #ifdef MYSERIAL1
     MYSERIAL1.begin(BAUDRATE);
-    SERIAL_ECHOLNPGM("x86_64 Initialized");
+    SERIAL_ECHOLN("x86_64 Initialized");
     SERIAL_FLUSHTX();
   #endif
 

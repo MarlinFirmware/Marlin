@@ -3,6 +3,7 @@
 # configuration.py
 # Apply options from config.ini to the existing Configuration headers
 #
+
 import re, os, shutil, subprocess, configparser, datetime
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
@@ -212,7 +213,7 @@ def fetch_example(url):
             gotfile = True
             blab(f"Fetched {fn}", 2)
 
-    if Path('wgot').exists(): shutil.rmtree('wgot')
+    Path('wgot').unlink(missing_ok=True)
 
     if gotfile:
         blab("Example configuration fetched successfully")

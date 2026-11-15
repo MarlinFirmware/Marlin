@@ -154,9 +154,9 @@ auto CardDMA::validate_voltage() -> SDIO_Error_Type {
 
   #if ENABLED(MARLIN_DEV_MODE)
     if (card_type_ == Card_Type::SDCARD_HIGH_CAPACITY) {
-      SERIAL_ECHOPGM("\n SDHC!");
+      SERIAL_ECHO("\n SDHC!");
     } else {
-      SERIAL_ECHOPGM("\n SDSC!");
+      SERIAL_ECHO("\n SDSC!");
     }
   #endif
 
@@ -271,7 +271,7 @@ auto CardDMA::set_hardware_bus_width(Bus_Width width) -> SDIO_Error_Type {
     }
 
     #if ENABLED(MARLIN_DEV_MODE)
-      SERIAL_ECHOPGM("\n wide bus set!");
+      SERIAL_ECHO("\n wide bus set!");
     #endif
     sdio_.set_bus_width(Bus_Width::WIDTH_4BIT);
 
@@ -794,7 +794,7 @@ auto CardDMA::get_command_sent_result() -> SDIO_Error_Type {
   return SDIO_Error_Type::OK;
 }
 
-auto CardDMA::check_sdio_status(Command_Index index, bool check_index, bool ignore_crc) -> SDIO_Error_Type {
+auto CardDMA::check_sdio_status(Command_Index index, bool check_index/*=false*/, bool ignore_crc/*=false*/) -> SDIO_Error_Type {
   // Wait until one of the relevant flags is set
   if (!sdio_.wait_cmd_flags()) {
     return SDIO_Error_Type::RESPONSE_TIMEOUT;

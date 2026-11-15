@@ -51,18 +51,19 @@ static void rs485_write_failed(const PacketWriteResult writeResult) {
 }
 
 void GcodeSuite::M485() {
-  if (strlen(parser.string_arg) & 1) {
+  const size_t data_len = strlen(parser.string_arg);
+  if (data_len & 1) {
     SERIAL_ERROR_MSG("String must contain an even number of bytes.");
     return;
   }
 
-  if (strlen(parser.string_arg) > RS485_SEND_BUFFER_SIZE * 2) {
+  if (data_len > RS485_SEND_BUFFER_SIZE * 2) {
     SERIAL_ERROR_MSG("String too long (" STRINGIFY(RS485_SEND_BUFFER_SIZE) " bytes max).");
     return;
   }
 
   // Convert the string to bytes in the buffer
-  for (size_t i = 0; i < strlen(parser.string_arg); i += 2) {
+  for (size_t i = 0; i < data_len; i += 2) {
     const uint8_t nybble1 = HEXCHR(parser.string_arg[i]),
                   nybble2 = HEXCHR(parser.string_arg[i + 1]);
 
@@ -91,7 +92,7 @@ void GcodeSuite::M485() {
     rs485Packetizer.clearPacket();
   }
 
-  const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
+  const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, data_len / 2);
   switch (writeResult) {
     default: rs485_write_failed(writeResult);
     case PacketWriteResult::OK: break;  // Nothing to do

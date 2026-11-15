@@ -140,6 +140,9 @@ void menu_backlash();
 
     #if ENABLED(NONLINEAR_EXTRUSION)
       EDIT_ITEM(bool, MSG_NLE_ON, &stepper.nle.settings.enabled);
+      EDIT_ITEM_FAST(float54, MSG_NLE_A, &stepper.nle.settings.coeff.A, 0.0f, 1.0f);  // Quadratic coefficient
+      EDIT_ITEM_FAST(float54, MSG_NLE_B, &stepper.nle.settings.coeff.B, 0.0f, 1.0f);  // Linear coefficient
+      EDIT_ITEM_FAST(float32, MSG_NLE_C, &stepper.nle.settings.coeff.C, 0.0f, 1.0f);  // Constant coefficient
     #endif
 
     #if HAS_VOLUMETRIC_EXTRUSION
@@ -186,7 +189,7 @@ void menu_backlash();
     #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
       editable.decimal = runout.motion_distance();
       auto set_motion_distance = []{ runout.set_motion_distance(editable.decimal); };
-      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0.1, 10, set_motion_distance, true);
+      EDIT_ITEM_FAST(float31, MSG_MOTION_DISTANCE_MM, &editable.decimal, 0, 10, set_motion_distance, true);
     #endif
 
     END_MENU();
@@ -407,8 +410,8 @@ void menu_backlash();
       #define _MPC_EDIT_ITEMS(N) \
         MPC_t &mpc = thermalManager.temp_hotend[MenuItemBase::itemIndex].mpc; \
         EDIT_ITEM_FAST_N(float41, N, MSG_MPC_POWER_E, &mpc.heater_power, 1, 200); \
-        EDIT_ITEM_FAST_N(float31, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0, 40); \
-        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0, 1); \
+        EDIT_ITEM_FAST_N(float31, N, MSG_MPC_BLOCK_HEAT_CAPACITY_E, &mpc.block_heat_capacity, 0.1f, 40); \
+        EDIT_ITEM_FAST_N(float43, N, MSG_SENSOR_RESPONSIVENESS_E, &mpc.sensor_responsiveness, 0.001f, 1); \
         EDIT_ITEM_FAST_N(float43, N, MSG_MPC_AMBIENT_XFER_COEFF_E, &mpc.ambient_xfer_coeff_fan0, 0, 1)
 
       #if ENABLED(MPC_INCLUDE_FAN)
@@ -681,7 +684,7 @@ void menu_backlash();
 #endif // EDITABLE_STEPS_PER_UNIT
 
 void menu_advanced_settings() {
-  #if ANY(POLARGRAPH, SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
+  #if ANY(SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
     const bool is_busy = marlin.printer_busy();
   #endif
 
@@ -693,18 +696,6 @@ void menu_advanced_settings() {
   BACK_ITEM(MSG_CONFIGURATION);
 
   #if DISABLED(SLIM_LCD_MENUS)
-
-    #if ENABLED(POLARGRAPH)
-      // M665 - Polargraph Settings
-      if (!is_busy) {
-        EDIT_ITEM_FAST(float4, MSG_SEGMENTS_PER_SECOND, &segments_per_second, 100, 9999);               // M665 S
-        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_X, &draw_area_min.x, X_MIN_POS, draw_area_max.x - 10); // M665 L
-        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_X, &draw_area_max.x, draw_area_min.x + 10, X_MAX_POS); // M665 R
-        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_Y, &draw_area_min.y, Y_MIN_POS, draw_area_max.y - 10); // M665 T
-        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_Y, &draw_area_max.y, draw_area_min.y + 10, Y_MAX_POS); // M665 B
-        EDIT_ITEM_FAST(float51sign, MSG_MAX_BELT_LEN, &polargraph_max_belt_len, 500, 2000);             // M665 H
-      }
-    #endif
 
     #if HAS_HOME_OFFSET
       // M428 - Set Home Offsets

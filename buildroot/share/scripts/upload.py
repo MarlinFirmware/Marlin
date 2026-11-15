@@ -184,13 +184,13 @@ def Upload(source, target, env):
                import heatshrink2
             except ImportError:
                print("Installing 'heatshrink2' python module...")
-               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink2"))
+               env.Execute(env.subst("\"$PYTHONEXE\" -m pip install heatshrink2"))
         else:
             try:
                import heatshrink
             except ImportError:
                print("Installing 'heatshrink' python module...")
-               env.Execute(env.subst("$PYTHONEXE -m pip install heatshrink"))
+               env.Execute(env.subst("\"$PYTHONEXE\" -m pip install heatshrink"))
 
     try:
 

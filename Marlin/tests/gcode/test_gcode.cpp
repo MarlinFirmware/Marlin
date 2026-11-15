@@ -73,3 +73,64 @@ MARLIN_TEST(gcode, parse_g1_nxz) {
   TEST_ASSERT_TRUE(parser.seen('Z'));
   TEST_ASSERT_FALSE(parser.seen('E'));
 }
+
+MARLIN_TEST(gcode, dec_to_long) {
+  TEST_ASSERT_EQUAL_INT32(0, GCodeParser::dec_to_long(""));
+  TEST_ASSERT_EQUAL_INT32(0, GCodeParser::dec_to_long("abc"));
+  TEST_ASSERT_EQUAL_INT32(12, GCodeParser::dec_to_long("12"));
+  TEST_ASSERT_EQUAL_INT32(12, GCodeParser::dec_to_long("  12"));
+  TEST_ASSERT_EQUAL_INT32(7, GCodeParser::dec_to_long("+7"));
+  TEST_ASSERT_EQUAL_INT32(-45, GCodeParser::dec_to_long("-45"));
+  TEST_ASSERT_EQUAL_INT32(3, GCodeParser::dec_to_long("3.99"));        // Stops at the point
+  TEST_ASSERT_EQUAL_INT32(1, GCodeParser::dec_to_long("1e5"));         // No exponent
+  TEST_ASSERT_EQUAL_INT32(0, GCodeParser::dec_to_long("0x10"));        // No hex
+  TEST_ASSERT_EQUAL_INT32(0, GCodeParser::dec_to_long("--5"));
+  TEST_ASSERT_EQUAL_INT32(0, GCodeParser::dec_to_long("-"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MAX, GCodeParser::dec_to_long("2147483647"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MAX, GCodeParser::dec_to_long("2147483648"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MAX, GCodeParser::dec_to_long("99999999999999"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MIN, GCodeParser::dec_to_long("-2147483648"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MIN, GCodeParser::dec_to_long("-2147483649"));
+  TEST_ASSERT_EQUAL_INT32(INT32_MIN, GCodeParser::dec_to_long("-99999999999999"));
+}
+
+MARLIN_TEST(gcode, dec_to_ulong) {
+  TEST_ASSERT_EQUAL_UINT32(0, GCodeParser::dec_to_ulong(""));
+  TEST_ASSERT_EQUAL_UINT32(1234, GCodeParser::dec_to_ulong("1234"));
+  TEST_ASSERT_EQUAL_UINT32(2147483648UL, GCodeParser::dec_to_ulong("2147483648"));
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, GCodeParser::dec_to_ulong("4294967295"));
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, GCodeParser::dec_to_ulong("4294967296"));
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, GCodeParser::dec_to_ulong("99999999999999"));
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, GCodeParser::dec_to_ulong("-1"));  // A minus sign negates, as strtoul does
+}
+
+MARLIN_TEST(gcode, dec_to_float) {
+  TEST_ASSERT_EQUAL_FLOAT(0, GCodeParser::dec_to_float(""));
+  TEST_ASSERT_EQUAL_FLOAT(0, GCodeParser::dec_to_float("abc"));
+  TEST_ASSERT_EQUAL_FLOAT(0, GCodeParser::dec_to_float("nan"));
+  TEST_ASSERT_EQUAL_FLOAT(0, GCodeParser::dec_to_float("inf"));
+  TEST_ASSERT_EQUAL_FLOAT(10, GCodeParser::dec_to_float("10"));
+  TEST_ASSERT_EQUAL_FLOAT(0.5f, GCodeParser::dec_to_float(".5"));
+  TEST_ASSERT_EQUAL_FLOAT(5, GCodeParser::dec_to_float("5."));
+  TEST_ASSERT_EQUAL_FLOAT(-0.5f, GCodeParser::dec_to_float("-.5"));
+  TEST_ASSERT_EQUAL_FLOAT(12.34f, GCodeParser::dec_to_float(" +12.34"));
+  TEST_ASSERT_EQUAL_FLOAT(0.001f, GCodeParser::dec_to_float("0.001"));
+  TEST_ASSERT_EQUAL_FLOAT(0.0001f, GCodeParser::dec_to_float("0.0001"));
+  TEST_ASSERT_EQUAL_FLOAT(123.456f, GCodeParser::dec_to_float("123.456"));
+  TEST_ASSERT_EQUAL_FLOAT(-1234.5678f, GCodeParser::dec_to_float("-1234.5678"));
+  TEST_ASSERT_EQUAL_FLOAT(8388607, GCodeParser::dec_to_float("8388607"));
+  TEST_ASSERT_EQUAL_FLOAT(1, GCodeParser::dec_to_float("1E5"));        // No exponent
+  TEST_ASSERT_EQUAL_FLOAT(0, GCodeParser::dec_to_float("0x10"));       // No hex
+  TEST_ASSERT_EQUAL_FLOAT(1.5f, GCodeParser::dec_to_float("1.5.7"));   // Stops at the second point
+  TEST_ASSERT_EQUAL_FLOAT(10000000000.0f, GCodeParser::dec_to_float("10000000000"));  // Digits past the 9th scale the value
+}
+
+MARLIN_TEST(gcode, value_of_parameters) {
+  char current_command[] = "G1 X-12.5 Y0.25 F3000 E1e3 S4294967295";
+  parser.parse(current_command);
+  TEST_ASSERT_EQUAL_FLOAT(-12.5f, parser.floatval('X'));
+  TEST_ASSERT_EQUAL_FLOAT(0.25f, parser.floatval('Y'));
+  TEST_ASSERT_EQUAL_INT32(3000, parser.longval('F'));
+  TEST_ASSERT_EQUAL_FLOAT(1, parser.floatval('E'));                    // 'E' ends a number, so no scientific notation
+  TEST_ASSERT_EQUAL_UINT32(UINT32_MAX, parser.ulongval('S'));
+}

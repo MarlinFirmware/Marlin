@@ -61,7 +61,7 @@ Practical consequences:
 
 12. **Serial port indices are 0–8, with USB and Ethernet aliases.** `HAL.h` defines `SERIAL_INDEX_MIN 0` / `SERIAL_INDEX_MAX 8`, `Serial0` = `Serial`, `USBSerial` (forwarding `SerialUSB`), and `ETH_SERIAL_PORT` = `ethernet.telnetClient`. `BAUD_RATE_GCODE` is rejected when `SERIAL_PORT_2 == -2` (the Ethernet serial port).
 
-13. **No `FRAME` / variant linker script surgery needed.** The Teensy platform supplies the correct flash/RAM linker script for both 4.0 (1 MB flash / 512 KB RAM) and 4.1 (1 MB / 8 MB PSRAM variants). There is no per-board linker-script assignment to maintain in the Marlin repo.
+13. **No `FRAME` / variant linker script surgery needed.** The Teensy platform supplies the correct flash/RAM linker script for both 4.0 (1984 KB flash, 1024 KB RAM with 512 KB tightly coupled) and 4.1 (7936 KB flash, the same 1024 KB RAM, plus pads for optional QSPI PSRAM or flash chips). There is no per-board linker-script assignment to maintain in the Marlin repo.
 
 ## Conventions
 

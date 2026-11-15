@@ -157,6 +157,9 @@ cmake-build-*
 .settings
 .classpath
 
+# Clangd
+compile_commands.json
+
 # Python
 __pycache__
 
@@ -175,8 +178,13 @@ __pycache__
 tags
 *.logs
 *.bak
-.aider*
-!.aiderignore
 .env
 schema.json
 sqlite*.db
+
+# Tools
+.aider*
+!.aiderignore
+.zed/
+*mcp*.db
+github-app.yml

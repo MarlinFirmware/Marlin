@@ -65,6 +65,16 @@
 #endif // HAS_TMC_UART
 
 //
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PD12  // FDCAN1 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PD13  // FDCAN1 TX
+#endif
+
+//
 // NeoPixel LED
 //
 #ifndef BOARD_NEOPIXEL_PIN

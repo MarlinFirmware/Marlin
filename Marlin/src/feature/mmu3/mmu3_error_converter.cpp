@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_error_converter.cpp
+ * mmu3_error_converter.cpp
  */
 
 #include "../../inc/MarlinConfigPre.h"

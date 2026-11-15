@@ -30,6 +30,8 @@
 #define BOARD_INFO_NAME      "Creality V4.2.7 MFL"
 #define DEFAULT_MACHINE_NAME "Creality3D MFL"
 
+#define BOARD_LCD_SERIAL_PORT               2
+
 //
 // Steppers
 //

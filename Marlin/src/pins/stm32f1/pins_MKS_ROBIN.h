@@ -55,7 +55,7 @@
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
 #endif
 
-#define BOARD_LCD_SERIAL_PORT 2
+#define BOARD_LCD_SERIAL_PORT               2
 
 //
 // Servos

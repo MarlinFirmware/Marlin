@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Marlin DWIN icon: Z fade height -->
+<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20">
+  <rect x="2" y="16" width="16" height="2" fill="#45bed9"/>
+  <rect x="2" y="12" width="16" height="2" fill="#45bed9" fill-opacity="0.7"/>
+  <rect x="2" y="8" width="16" height="2" fill="#45bed9" fill-opacity="0.45"/>
+  <rect x="2" y="4" width="16" height="2" fill="#45bed9" fill-opacity="0.22"/>
+  <path d="M10 1.5 L13 5 H7 Z" fill="#ffffff"/>
+</svg>

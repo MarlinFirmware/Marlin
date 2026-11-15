@@ -112,8 +112,7 @@ void DGUSDisplay::writeVariable(uint16_t adr, uint16_t value) {
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, int16_t value) {
-  value = (value & 0xFFU) << 8U | (value >> 8U);
-  writeVariable(adr, static_cast<const void*>(&value), sizeof(uint16_t));
+  writeVariable(adr, uint16_t(value)); // Swap as unsigned to avoid sign extension
 }
 
 void DGUSDisplay::writeVariable(uint16_t adr, uint8_t value) {
@@ -203,6 +202,18 @@ void DGUSDisplay::processRx() {
         |     DatagramLen  /  VPAdr  |
         |           Command          DataLen (in Words) */
         if (command == DGUS_CMD_READVAR) {
+          if (rx_datagram_len < 4) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
+          const uint16_t dlen = uint16_t(tmp[2]) << 1,
+                         payload_len = rx_datagram_len - 4;
+          if (dlen < 2 || dlen != payload_len) {
+            rx_datagram_state = DGUS_IDLE;
+            break;
+          }
+
           const uint16_t vp = tmp[0] << 8 | tmp[1];
           DGUS_VP_Variable ramcopy;
           if (populate_VPVar(vp, &ramcopy)) {

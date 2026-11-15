@@ -35,6 +35,11 @@
 #include "../../../module/probe.h"
 #include "../../../module/temperature.h"
 #include "../../queue.h"
+#include "../../../module/settings.h"
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../../lcd/rts/lcd_rts.h"
+#endif
 
 #if ENABLED(AUTO_BED_LEVELING_LINEAR)
   #include "../../../libs/least_squares_fit.h"
@@ -111,6 +116,10 @@ public:
   float     measured_z;
   bool      dryrun,
             reenable;
+
+  #if ENABLED(CREALITY_RTS)
+    uint8_t showcount;
+  #endif
 
   #if ANY(PROBE_MANUALLY, AUTO_BED_LEVELING_LINEAR)
     int abl_probe_index;
@@ -237,6 +246,12 @@ G29_TYPE GcodeSuite::G29() {
   // Keep powered steppers from timing out
   reset_stepper_timeout();
 
+  #if ENABLED(CREALITY_RTS)
+    hmiFlag.G29_flag = true;
+    RTS_ProbingPauseHotend();
+    RTS_ProbingPauseFans();
+  #endif
+
   // Q = Query leveling and G29 state
   const bool seenQ = ANY(DEBUG_LEVELING_FEATURE, PROBE_MANUALLY) && parser.seen_test('Q');
 
@@ -269,8 +284,9 @@ G29_TYPE GcodeSuite::G29() {
 
   // 3-point leveling gets points from the probe class
   #if ENABLED(AUTO_BED_LEVELING_3POINT)
-    vector_3 points[3];
-    probe.get_three_points(points);
+    TERN_(PROBE_MANUALLY, static) vector_3 points[3];
+    if (TERN1(PROBE_MANUALLY, !g29_in_progress))
+      probe.get_three_points(points);
   #endif
 
   // Storage for ABL Linear results
@@ -466,9 +482,7 @@ G29_TYPE GcodeSuite::G29() {
           rts.sendData(1, Wait_VP);
           rts.gotoPage(ID_ABL_HeatWait_L, ID_ABL_HeatWait_D);
         #endif
-        if (!abl.dryrun) probe.preheat_for_probing(LEVELING_NOZZLE_TEMP,
-          TERN(EXTENSIBLE_UI, ExtUI::getLevelingBedTemp(), LEVELING_BED_TEMP)
-        );
+        if (!abl.dryrun) thermalManager.preheat_for_leveling();
       #endif
     }
 
@@ -690,6 +704,7 @@ G29_TYPE GcodeSuite::G29() {
 
       // Outer loop is X with PROBE_Y_FIRST enabled
       // Outer loop is Y with PROBE_Y_FIRST disabled
+      TERN_(CREALITY_RTS, abl.showcount = 0);
       for (PR_OUTER_VAR = 0; PR_OUTER_VAR < PR_OUTER_SIZE && !isnan(abl.measured_z); PR_OUTER_VAR++) {
 
         if (TERN0(DWIN_LCD_PROUI, hmiFlag.cancel_lev)) break;
@@ -804,6 +819,7 @@ G29_TYPE GcodeSuite::G29() {
             const float z = abl.measured_z + abl.Z_offset;
             abl.z_values[abl.meshCount.x][abl.meshCount.y] = z;
             TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(abl.meshCount, z));
+            TERN_(CREALITY_RTS, RTS_LevelingUpdate(abl.showcount, abl.abl_points));
 
             #if ENABLED(SOVOL_SV06_RTS)
               if (pt_index <= GRID_MAX_POINTS) rts.sendData(pt_index, AUTO_BED_LEVEL_ICON_VP);
@@ -975,7 +991,7 @@ G29_TYPE GcodeSuite::G29() {
       // For LINEAR and 3POINT leveling correct the current position
 
       if (abl.verbose_level > 0)
-        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"));
+        planner.bed_level_matrix.debug(F("\n\nBed Level Correction Matrix:"), 4);
 
       if (!abl.dryrun) {
         //
@@ -1034,7 +1050,19 @@ G29_TYPE GcodeSuite::G29() {
 
   probe.use_probing_tool(false);
 
+  #if ENABLED(Z_SAFE_HOMING)
+    motion.blocking_move_xy(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT);
+  #endif
+
+  settings.save();
+
   motion.report_position();
+
+  #if ENABLED(CREALITY_RTS)
+    RTS_LevelingDone();
+    RTS_ProbingResumeFans();
+    RTS_ProbingResumeHotend();
+  #endif
 
   G29_RETURN(isnan(abl.measured_z), true);
 }
