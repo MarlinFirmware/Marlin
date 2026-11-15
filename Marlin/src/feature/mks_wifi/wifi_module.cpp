@@ -118,11 +118,6 @@ volatile WIFI_TRANS_ERROR wifiTransError;
 
 static uint8_t need_ok_later = 0; // Lines in espGcodeFifo whose ok is held back
 
-// Free bytes in espGcodeFifo. One byte stays unused so a full buffer is not taken for an empty one.
-static uint32_t wifi_gcode_fifo_free() {
-  return (espGcodeFifo.r + (WIFI_GCODE_BUFFER_SIZE) - espGcodeFifo.w - 1) % (WIFI_GCODE_BUFFER_SIZE);
-}
-
 extern volatile WIFI_STATE wifi_link_state;
 extern WIFI_PARA wifiPara;
 extern IP_PARA ipPara;
@@ -1285,7 +1280,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
       default:
         strcat_P((char *)cmd_line, PSTR("\n"));
 
-        const uint32_t left = wifi_gcode_fifo_free();
+        const uint32_t left = espGcodeFifo.free();
 
         if (left >= strlen((const char *)cmd_line)) {
           for (uint32_t index = 0; index < strlen((const char *)cmd_line); index++) {
@@ -1304,7 +1299,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
     // Add another linefeed to the command, terminate with null
     strcat_P((char *)cmd_line, PSTR("\n"));
 
-    const uint32_t left_g = wifi_gcode_fifo_free();
+    const uint32_t left_g = espGcodeFifo.free();
 
     if (left_g >= strlen((char * const)cmd_line)) {
       for (uint32_t index = 0; index < strlen((char * const)cmd_line); index++) {
@@ -1928,7 +1923,7 @@ void wifi_rcv_handle() {
       getDataF = 1;
     }
     // Send the held-back oks once the buffer has room for another line
-    for (uint32_t left = wifi_gcode_fifo_free(); need_ok_later && left >= (WIFI_GCODE_BUFFER_LEAST_SIZE); left -= (WIFI_GCODE_BUFFER_LEAST_SIZE)) {
+    for (uint32_t left = espGcodeFifo.free(); need_ok_later && left >= (WIFI_GCODE_BUFFER_LEAST_SIZE); left -= (WIFI_GCODE_BUFFER_LEAST_SIZE)) {
       need_ok_later--;
       send_ok_to_wifi();
     }

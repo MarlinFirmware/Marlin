@@ -226,6 +226,7 @@ typedef struct {
   uint8_t Buffer[WIFI_GCODE_BUFFER_SIZE];
   uint32_t r;
   uint32_t w;
+  uint32_t free() { return (r + (WIFI_GCODE_BUFFER_SIZE) - w - 1) % (WIFI_GCODE_BUFFER_SIZE); }
 } WIFI_GCODE_BUFFER;
 
 extern volatile WIFI_STATE wifi_link_state;
