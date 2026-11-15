@@ -71,6 +71,10 @@
 
   // State shared with the UI
   #define MKSW_PRINT_STATE        uiCfg.print_state
+  #define MKSW_SYNC_PRINT_STATE() NOOP  // The LVGL UI keeps print_state current
+  #define MKSW_PAUSE_PRINT()      card.pauseSDPrint()  // The UI finishes the pause (PAUSING)
+  #define MKSW_RESUME_PRINT()     NOOP                 // The UI performs the resume (RESUMING)
+  #define MKSW_JOB_STARTED()      NOOP                 // The UI runs its own print timer
   #define MKSW_COMMAND_SEND       uiCfg.command_send
   #define MKSW_CONFIG_WIFI        uiCfg.configWifi
   #define MKSW_CLOUD_HOSTURL      uiCfg.cloud_hostUrl
@@ -91,6 +95,8 @@
   #include "../../inc/MarlinConfig.h"
   #include "../../sd/cardreader.h"
   #include "../../module/printcounter.h"
+  #include "../../gcode/queue.h"
+  #include "../../MarlinCore.h"
 
   // Screens - nothing to draw
   #define MKSW_UI_CLEAR()         NOOP
@@ -146,6 +152,25 @@
   extern mks_wifi_state_t mksWifi;
 
   #define MKSW_PRINT_STATE        mksWifi.print_state
+
+  // Nothing else tracks the print without the LVGL UI, so derive the state from the
+  // media print before acting on a host request. Otherwise a print finished or
+  // cancelled on the printer stays WORKING forever (and blocks the next M24).
+  inline void mksw_sync_print_state() {
+    if (card.isStillPrinting()) // Not while a cancel is still being processed
+      mksWifi.print_state = WORKING;
+    else if (card.isPaused() && print_job_timer.isPaused()) // A file selected with M23 but not started is open too
+      mksWifi.print_state = PAUSED;
+    else
+      mksWifi.print_state = IDLE;
+  }
+  #define MKSW_SYNC_PRINT_STATE() mksw_sync_print_state()
+
+  // Without the UI, let Marlin's own M25/M24 handle the pause and resume
+  // (print job timer, head parking, host notifications).
+  #define MKSW_PAUSE_PRINT()      queue.inject(F("M25"))
+  #define MKSW_RESUME_PRINT()     queue.inject(F("M24"))
+  #define MKSW_JOB_STARTED()      marlin.startOrResumeJob() // Run the job timer as M24 does, so M25 can pause it
   #define MKSW_COMMAND_SEND       mksWifi.command_send
   #define MKSW_CONFIG_WIFI        mksWifi.configWifi
   #define MKSW_CLOUD_HOSTURL      mksWifi.cloud_hostUrl
