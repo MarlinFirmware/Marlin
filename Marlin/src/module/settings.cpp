@@ -1997,7 +1997,7 @@ void MarlinSettings::postprocess() {
     EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
 
     const EEPROM_Error check = check_version();
-    if (check == ERR_EEPROM_NOPROM) return eeprom_error;
+    if (check == ERR_EEPROM_NOPROM) return check; // Nothing loaded, so the caller must apply defaults
 
     uint16_t stored_crc;
 
@@ -3256,7 +3256,8 @@ void MarlinSettings::postprocess() {
     #endif
     validating = false;
 
-    if (err) ui.eeprom_alert(err);
+    // A missing EEPROM was already reported, and can't be fixed from the LCD
+    if (err && err != ERR_EEPROM_NOPROM) ui.eeprom_alert(err);
 
     return (err == ERR_EEPROM_NOERR);
   }
@@ -3293,10 +3294,11 @@ void MarlinSettings::postprocess() {
     // Otherwise reset settings to default "factory settings"
 
     #if ANY(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
-      // Overwrite the EEPROM data on error
-      (void)init_eeprom();
-      LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
-      SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
+      // Overwrite the EEPROM data on error. Defaults are applied even if it can't be written.
+      if (init_eeprom()) {
+        LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
+        SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
+      }
     #else
       // The user can write settings to EEPROM later
       reset();
