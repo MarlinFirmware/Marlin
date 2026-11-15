@@ -288,10 +288,8 @@ uint8_t MarlinUI::read_slow_buttons() {
     Wire.endTransmission();
     #ifdef __AVR__
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), 2, 0, 0, 1);
-    #elif defined(STM32F1)
+    #else
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), uint8_t(2));
-    #elif ANY(STM32F4xx, TARGET_LPC1768)
-      Wire.requestFrom(LCD_I2C_ADDRESS, 2);
     #endif
     encoderDiff += Wire.read();
     return Wire.read();   //buttons
@@ -331,18 +329,14 @@ void MarlinUI::init_lcd() {
     SPI_SEND_ONE(GET_LCD_ROW);
     t = SPI_SEND_ONE(GET_SPI_DATA);
   #else
-    #ifdef TARGET_LPC1768
-      Wire.begin();   //init twi/I2C
-    #else
-      Wire.begin(uint8_t(LCD_I2C_ADDRESS)); //init twi/I2C
-    #endif
+    Wire.begin(); // Join the bus as master. With an address, STM32 and ESP32 cores make it a slave.
     Wire.beginTransmission(uint8_t(LCD_I2C_ADDRESS));
     Wire.write(uint8_t(GET_LCD_ROW)); // put command to buffer
     Wire.endTransmission(); // send buffer
     #ifdef __AVR__
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), 1, 0, 0, 1);
-    #elif ANY(STM32F1, STM32F4xx, TARGET_LPC1768)
-      Wire.requestFrom(LCD_I2C_ADDRESS, 1);
+    #else
+      Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), uint8_t(1));
     #endif
     t = (uint8_t)Wire.read();
   #endif
