@@ -505,10 +505,31 @@ void mmu2_M600(const bool automatic/*=false*/) {
     UNUSED(automatic);
   #endif
   pause_slot = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool(); // Unknown (255) if no tool is selected
+
+  // Hotend Idle Timeout lowers the targets while this menu waits, and nothing else puts them back.
+  // Remember them so the print can resume at the temperatures it paused with.
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    celsius_t saved_hotend_target[HOTENDS];
+    HOTEND_LOOP() saved_hotend_target[e] = thermalManager.degTargetHotend(e);
+    TERN_(HAS_HEATED_BED, const celsius_t saved_bed_target = thermalManager.degTargetBed());
+  #endif
+
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
   wait_for_mmu_menu = true;
   while (wait_for_mmu_menu) marlin.idle();
+
+  // Raise (never lower) the targets again. resume_print() then waits for the hotend to reach its target.
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    HOTEND_LOOP() {
+      if (thermalManager.degTargetHotend(e) < saved_hotend_target[e])
+        thermalManager.setTargetHotend(saved_hotend_target[e], e);
+    }
+    #if HAS_HEATED_BED
+      if (thermalManager.degTargetBed() < saved_bed_target)
+        thermalManager.setTargetBed(saved_bed_target);
+    #endif
+  #endif
 }
 
 uint8_t mmu2_choose_filament() {
