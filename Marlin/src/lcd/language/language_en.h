@@ -541,6 +541,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Eject Recover");
   LSTR MSG_MIX                            = _UxGT("Mix");
   LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
+  LSTR MSG_MIX_IN_USE                     = _UxGT("In Use");
+  LSTR MSG_MIX_EVEN_SPLIT                 = _UxGT("Even Split");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");
