@@ -52,6 +52,11 @@
 
 enum MMUHotAction : uint8_t { MMU_HOT_LOAD_TO_NOZZLE, MMU_HOT_UNLOAD };
 static uint8_t mmu_hot_action, mmu_hot_tool;
+static bool mmu_hot_back_to_pause;  // Started from the Filament Change menu: return to it when done
+
+static void _mmu2_back_to_pause() {
+  if (mmu_hot_back_to_pause) ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced the menu
+}
 
 static void _mmu2_load_to_nozzle_now(const uint8_t tool) {
   ui.reset_status();
@@ -111,15 +116,18 @@ static void _mmu2_heat_and_run() {
     thermalManager.setTargetHotend(old_target, e);  // Stopped: leave the target as it was
 
   ui.reset_status();
+  _mmu2_back_to_pause();
 }
 
 // Start an action that needs a hot nozzle, asking to preheat first if the nozzle is too cold
-static void _mmu2_hot_action(const MMUHotAction action, const uint8_t tool=0) {
+static void _mmu2_hot_action(const MMUHotAction action, const uint8_t tool=0, const bool back_to_pause=false) {
   mmu_hot_action = action;
   mmu_hot_tool = tool;
+  mmu_hot_back_to_pause = back_to_pause;
 
   if (!thermalManager.tooColdToExtrude(motion.extruder)) {
     _mmu2_run_hot_action();
+    _mmu2_back_to_pause();
     return;
   }
 
@@ -444,14 +452,13 @@ static uint8_t pause_slot = 0xFF; // Slot in use when the Filament Change menu o
 
 static void _mmu2_pause_load(const uint8_t slot) {
   pause_slot = slot;
-  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_feeder(slot);
+  _mmu2_load_to_feeder(slot);   // Shows what is happening on the Status Screen
   ui.goto_screen(menu_mmu2_pause);
 }
 
 static void _mmu2_pause_load_to_nozzle(const uint8_t slot) {
   pause_slot = slot;
-  TERN(HAS_PRUSA_MMU3, mmu3, mmu2).load_to_nozzle(slot);
-  ui.goto_screen(menu_mmu2_pause);
+  _mmu2_hot_action(MMU_HOT_LOAD_TO_NOZZLE, slot, true);   // Preheats if needed, then returns to the menu
 }
 
 static void menu_mmu2_pause_load() {
@@ -469,15 +476,13 @@ static void menu_mmu2_pause_load_to_nozzle() {
 }
 
 void menu_mmu2_pause() {
+  ui.defer_status_screen(); // A return_to_status() (error screen, Eject) clears the flag set by mmu2_M600()
   START_MENU();
   #if LCD_HEIGHT > 2
     STATIC_ITEM(MSG_FILAMENT_CHANGE_HEADER, SS_DEFAULT|SS_INVERT);
   #endif
   ACTION_ITEM(MSG_MMU2_RESUME,          []{ wait_for_mmu_menu = false; });
-  ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{
-    TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload();
-    ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced this menu
-  });
+  ACTION_ITEM(MSG_MMU2_UNLOAD_FILAMENT, []{ _mmu2_hot_action(MMU_HOT_UNLOAD, 0, true); });
   ACTION_ITEM(MSG_MMU2_EJECT_FILAMENT, []{
     if (pause_slot < EXTRUDERS) _mmu2_eject_filament(pause_slot, true);
     else ui.goto_screen(menu_mmu2_eject_filament);
@@ -504,10 +509,33 @@ void mmu2_M600(const bool automatic/*=false*/) {
     UNUSED(automatic);
   #endif
   pause_slot = TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool(); // Unknown (255) if no tool is selected
+
+  // Hotend Idle Timeout lowers the targets while this menu waits, and nothing else puts them back.
+  // Remember them so the print can resume at the temperatures it paused with.
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    celsius_t saved_hotend_target[HOTENDS];
+    HOTEND_LOOP() saved_hotend_target[e] = thermalManager.degTargetHotend(e);
+    #if HAS_HEATED_BED
+      const celsius_t saved_bed_target = thermalManager.degTargetBed();
+    #endif
+  #endif
+
   ui.defer_status_screen();
   ui.goto_screen(menu_mmu2_pause);
   wait_for_mmu_menu = true;
   while (wait_for_mmu_menu) marlin.idle();
+
+  // Raise (never lower) the targets again. resume_print() then waits for the hotend to reach its target.
+  #if ENABLED(HOTEND_IDLE_TIMEOUT)
+    HOTEND_LOOP() {
+      if (thermalManager.degTargetHotend(e) < saved_hotend_target[e])
+        thermalManager.setTargetHotend(saved_hotend_target[e], e);
+    }
+    #if HAS_HEATED_BED
+      if (thermalManager.degTargetBed() < saved_bed_target)
+        thermalManager.setTargetBed(saved_bed_target);
+    #endif
+  #endif
 }
 
 uint8_t mmu2_choose_filament() {

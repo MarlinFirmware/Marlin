@@ -538,7 +538,7 @@
 #define BOARD_ESPRESSIF_ESP32         7000  // Generic ESP32
 #define BOARD_MRR_ESPA                7001  // MRR ESPA based on ESP32 (native pins only)
 #define BOARD_MRR_ESPE                7002  // MRR ESPE based on ESP32 (with I2S stepper stream)
-#define BOARD_E4D_BOX                 7003  // E4d@BOX
+#define BOARD_E4D_BOX                 7003  // E4d@BOX with Marlin WebUI
 #define BOARD_RESP32_CUSTOM           7004  // Rutilea ESP32 custom board
 #define BOARD_FYSETC_E4               7005  // FYSETC E4
 #define BOARD_PANDA_ZHU               7006  // Panda_ZHU

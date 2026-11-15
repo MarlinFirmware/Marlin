@@ -522,7 +522,7 @@ void Endstops::update() {
     COPY_LIVE_STATE(Z_MIN, Z4_MIN);
   #endif
 
-  #if HAS_REAL_BED_PROBE
+  #if HAS_Z_PROBE_STATE
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
       UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));

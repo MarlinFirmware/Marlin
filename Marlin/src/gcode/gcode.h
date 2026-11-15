@@ -338,6 +338,7 @@
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
+ * M960 - Report CAN bus state. List CAN nodes running Klipper or Katapult. (Requires CAN_BUS)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
@@ -1359,6 +1360,10 @@ private:
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     static void M951();
+  #endif
+
+  #if ENABLED(CAN_BUS)
+    static void M960();
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)

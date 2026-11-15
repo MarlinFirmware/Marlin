@@ -377,10 +377,20 @@
  * Conditionals based on the type of Bed Probe
  */
 #if HAS_BED_PROBE
+  /**
+   * HAS_DELTA_SENSORLESS_PROBING
+   *   DELTA sensorless probing stalls any tower and reads the X/Y/Z MAX DIAG pins together.
+   *   There is no single probe pin, so it gets no Z_MIN_PROBE state.
+   *
+   * HAS_Z_PROBE_STATE
+   *   Every other probe reports through a single Z_MIN_PROBE endstop state. This includes a
+   *   Cartesian SENSORLESS_PROBING (the Z driver DIAG pin) and BD_SENSOR, not just a physical switch.
+   *   See also USE_Z_MIN_PROBE in Conditionals-5-post.h.
+   */
   #if ALL(DELTA, SENSORLESS_PROBING)
     #define HAS_DELTA_SENSORLESS_PROBING 1
   #else
-    #define HAS_REAL_BED_PROBE 1
+    #define HAS_Z_PROBE_STATE 1
   #endif
   #if DISABLED(NOZZLE_AS_PROBE)
     #define HAS_PROBE_XY_OFFSET 1

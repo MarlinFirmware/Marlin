@@ -129,6 +129,16 @@
 #define FAN1_PIN                            PA1   // "FAN1"
 
 //
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PB0   // FDCAN2 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PB1   // FDCAN2 TX
+#endif
+
+//
 // Default NEOPIXEL_PIN
 //
 #ifndef BOARD_NEOPIXEL_PIN

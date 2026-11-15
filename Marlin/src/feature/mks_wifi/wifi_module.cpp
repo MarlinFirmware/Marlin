@@ -212,6 +212,11 @@ void mount_file_sys(const uint8_t disk_type) {
     uint8_t i = FILENAME_LENGTH;
     while (i) dosName[--i] = '\0';
 
+    // An 8.3 name keeps up to 8 characters before the dot.
+    // Only a longer name is cut to 6 characters plus "~1".
+    const char * const dot = strchr(longName, '.');
+    const bool tooLong = (dot ? size_t(dot - longName) : strlen(longName)) > 8;
+
     while (*longName) {
       uint8_t c = *longName++;
       if (c == '.') { // For a dot...
@@ -231,7 +236,7 @@ void mount_file_sys(const uint8_t disk_type) {
 
       dosName[i++] = (c < 'a' || c > 'z') ? (c) : (c + ('A' - 'a'));  // Uppercase required for 8.3 name
 
-      if (i >= 5) {
+      if (tooLong && i >= 6) {
         strcat_P(dosName, PSTR("~1.GCO"));
         return dosName[0] != '\0';
       }
@@ -951,6 +956,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
 
   // Handle some M commands here
   if (mStr) {
+    MKSW_SYNC_PRINT_STATE();
     cmd_value = atoi(mStr + 1);
     char * const spStr = strchr(mStr, ' ');
 
@@ -1097,6 +1103,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
                   TERN_(HAS_EXTRUDERS, planner.set_flow(0, 100));
                   E_TERN_(planner.set_flow(1, 100));
                   card.startOrResumeFilePrinting();
+                  MKSW_JOB_STARTED();
                   TERN_(POWER_LOSS_RECOVERY, recovery.prepare());
                   MKSW_UI_CLEAR_ONCE();
                 }
@@ -1105,6 +1112,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           }
           else if (MKSW_PRINT_STATE == PAUSED) {
             MKSW_PRINT_STATE = RESUMING;
+            MKSW_RESUME_PRINT();
             MKSW_UI_CLEAR();
             MKSW_UI_TIME_START();
 
@@ -1130,7 +1138,7 @@ static void wifi_gcode_exec(uint8_t * const cmd_line) {
           MKSW_UI_CLEAR();
 
           #if HAS_MEDIA
-            card.pauseSDPrint();
+            MKSW_PAUSE_PRINT();
             MKSW_PRINT_STATE = PAUSING;
           #endif
           MKSW_UI_SHOW_PREVIEW();

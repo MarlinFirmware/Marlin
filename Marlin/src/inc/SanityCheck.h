@@ -612,7 +612,7 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #if HAS_PRUSA_MMU2 || HAS_PRUSA_MMU3
   #if !HAS_EXTENDABLE_MMU && EXTRUDERS != 5
     #undef SINGLENOZZLE
-    #error "PRUSA_MMU2(S) requires exactly 5 EXTRUDERS. Please update your Configuration."
+    #error "PRUSA_MMU2(S) and PRUSA_MMU3 require exactly 5 EXTRUDERS. Please update your Configuration."
   #elif HAS_EXTENDABLE_MMU && EXTRUDERS > 15
     #error "EXTRUDERS is too large for MMU(S) emulation mode. The maximum value is 15."
   #elif DISABLED(NOZZLE_PARK_FEATURE)
@@ -3332,6 +3332,19 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_2."
   #elif defined(SERIAL_PORT_3) && RS485_SERIAL_PORT == SERIAL_PORT_3
     #error "RS485_SERIAL_PORT cannot be the same as SERIAL_PORT_3."
+  #endif
+#endif
+
+/**
+ * CAN bus requires a supported HAL and the board's CAN pins
+ */
+#if ENABLED(CAN_BUS)
+  #ifndef HAL_STM32
+    #error "CAN_BUS is currently only supported on STM32 (HAL/STM32)."
+  #elif !PINS_EXIST(CAN_RX, CAN_TX)
+    #error "CAN_BUS requires CAN_RX_PIN and CAN_TX_PIN. Define them in Configuration.h if your board's pins file lacks them."
+  #elif !WITHIN(CAN_BITRATE, 10000, 1000000)
+    #error "CAN_BITRATE must be from 10000 to 1000000 (classic CAN)."
   #endif
 #endif
 
