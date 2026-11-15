@@ -65,27 +65,45 @@ class STK500v2:
         self.s.write(msg + bytes([cs]))
         self.seq += 1
 
-    def recv(self):
-        h = self.s.read(5)
-        if len(h) < 5 or h[0] != 0x1B or h[4] != 0x0E: raise TimeoutError("No reply from the bootloader")
-        n = (h[2] << 8) | h[3]
-        r = self.s.read(n + 1)
-        if len(r) < n + 1: raise TimeoutError("Short reply from the bootloader")
-        cs = 0
-        for b in h + r: cs ^= b
-        if cs: raise IOError("Bad reply checksum")
-        return r[:n]
+    def recv(self, seq=None):
+        '''
+        Read the next reply. Bytes before a message start are skipped, as is a
+        frame with a bad token or checksum, so stray firmware output can't
+        misalign the replies. With seq, replies to other messages are skipped.
+        '''
+        end = time.time() + self.s.timeout
+        while time.time() < end:
+            if self.s.read(1) != b'\x1B': continue
+            h = b'\x1B' + self.s.read(4)
+            if len(h) < 5 or h[4] != 0x0E: continue
+            n = (h[2] << 8) | h[3]
+            if n > 2 * PAGE_SIZE: continue
+            r = self.s.read(n + 1)
+            if len(r) < n + 1: continue
+            cs = 0
+            for b in h + r: cs ^= b
+            if cs or (seq is not None and h[1] != seq & 0xFF): continue
+            return r[:n]
+        raise TimeoutError("No reply from the bootloader")
 
     def cmd(self, body):
+        seq = self.seq
         self.send(body)
-        return self.recv()
+        return self.recv(seq)
 
     def sign_on(self, tries=10):
-        for _ in range(tries):
-            try:
-                if self.cmd([CMD_SIGN_ON])[1] == STATUS_CMD_OK: return
-            except (TimeoutError, IOError):
-                self.s.reset_input_buffer()
+        timeout, self.s.timeout = self.s.timeout, 0.25  # Retry soon. The bootloader answers in a few ms.
+        try:
+            for _ in range(tries):
+                try:
+                    if self.cmd([CMD_SIGN_ON])[1] == STATUS_CMD_OK:
+                        time.sleep(0.05); self.s.reset_input_buffer()   # Drop late replies to earlier tries
+                        return
+                except TimeoutError:
+                    pass
+                time.sleep(0.05); self.s.reset_input_buffer()
+        finally:
+            self.s.timeout = timeout
         raise Exception("The bootloader isn't responding")
 
 def upload_firmware(port, path):
