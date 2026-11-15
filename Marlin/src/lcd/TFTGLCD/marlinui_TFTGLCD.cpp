@@ -36,14 +36,15 @@
   #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
+#include "marlinui_TFTGLCD.h"
+#include "../marlinui.h"
+
 #if ENABLED(TFTGLCD_PANEL_SPI)
   #include <SPI.h>
 #else
   #include <Wire.h>
 #endif
 
-#include "marlinui_TFTGLCD.h"
-#include "../marlinui.h"
 #include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
@@ -830,7 +831,7 @@ void MarlinUI::draw_status_screen() {
 
   lcd_moveto(0, 1);
   lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(motion.feedrate_percentage)); lcd.write('%');
-  ui.rotate_progress();   // UNTESTED!!!
+  TERN_(HAS_PRINT_PROGRESS, ui.rotate_progress());   // UNTESTED!!!
 
   //
   // Line 3 - progressbar
