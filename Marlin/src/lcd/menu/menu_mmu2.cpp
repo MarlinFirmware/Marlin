@@ -511,7 +511,9 @@ void mmu2_M600(const bool automatic/*=false*/) {
   #if ENABLED(HOTEND_IDLE_TIMEOUT)
     celsius_t saved_hotend_target[HOTENDS];
     HOTEND_LOOP() saved_hotend_target[e] = thermalManager.degTargetHotend(e);
-    TERN_(HAS_HEATED_BED, const celsius_t saved_bed_target = thermalManager.degTargetBed());
+    #if HAS_HEATED_BED
+      const celsius_t saved_bed_target = thermalManager.degTargetBed();
+    #endif
   #endif
 
   ui.defer_status_screen();
