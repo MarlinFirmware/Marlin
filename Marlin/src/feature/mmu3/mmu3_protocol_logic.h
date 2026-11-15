@@ -373,6 +373,7 @@ namespace MMU3 {
     uint16_t mmuFwVersionBuild;
 
     uint8_t retryAttempts;
+    bool commandErrorLogged = false; // The current Command Error has been reported (report each error once)
     bool inAutoRetry;
 
     millis_t rejectedSinceMs = 0; //!< When the current run of rejected commands began (0 = none)

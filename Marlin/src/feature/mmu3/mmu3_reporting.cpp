@@ -236,9 +236,8 @@ namespace MMU3 {
     #endif
   }
 
-  static bool drawing_more_info_screen = false;
-  static bool msg_next_is_consumed = false;
-  static FSTR_P msg_next = nullptr;
+  static FSTR_P msg_page = nullptr;  // Start of the page being shown (nullptr = start of the message)
+  static FSTR_P msg_rest = nullptr;  // Text left over after the page being shown
 
   /**
    * Display more info about the error. If the error message doesn't fit into
@@ -248,39 +247,30 @@ namespace MMU3 {
    *
    * This gets the message data from the "editable.uint8" which is set in the
    * action item.
+   *
+   * On a graphical LCD the screen handler is called once for every page of the
+   * display, so drawing must not change any state. State only changes on a click.
    */
   void show_more_info_screen() {
     #if HAS_WIRED_LCD
-      if (drawing_more_info_screen) return;
-      drawing_more_info_screen = true;
-      FSTR_P fmsg = PrusaErrorDesc(editable.uint8);
       if (ui.use_click()) {
-        if (msg_next_is_consumed) {
-          msg_next_is_consumed = false;
-          drawing_more_info_screen = false;
-          msg_next = nullptr;
+        if (!msg_rest || !pgm_read_byte(FTOP(msg_rest))) {
+          // Nothing more to show, so return to the error screen.
+          msg_page = msg_rest = nullptr;
           // Prevent this function being triggered again...
           SetButtonResponse(ButtonOperations::NoOperation);
           return ui.go_back();
         }
-        fmsg = msg_next;
+        msg_page = msg_rest;
       }
-      else if (msg_next_is_consumed) {
-        fmsg = msg_next;
-      }
-
-      FSTR_P const msg_next_int = lcd_display_message_fullscreen(fmsg);
-      msg_next_is_consumed = strlen_P(FTOP(msg_next_int)) == 0;
-      if (!msg_next_is_consumed) msg_next = msg_next_int;
+      msg_rest = lcd_display_message_fullscreen(msg_page ?: PrusaErrorDesc(editable.uint8));
       // Set the button response to MoreInfo so we keep coming back to this screen until all messages are consumed
       SetButtonResponse(ButtonOperations::MoreInfo);
     #else
       // no lcd, no error display... just break the loop...
-      msg_next_is_consumed = false;
-      msg_next = nullptr;
+      msg_page = msg_rest = nullptr;
       SetButtonResponse(ButtonOperations::NoOperation);
     #endif // HAS_WIRED_LCD
-    drawing_more_info_screen = false;
   }
 
   /**
@@ -342,8 +332,7 @@ namespace MMU3 {
           []{
             // only when the menu item is used push the current screen back
             ui.push_current_screen();
-            msg_next_is_consumed = false;
-            msg_next = nullptr;
+            msg_page = msg_rest = nullptr;
             SetButtonResponse(ButtonOperations::MoreInfo);
           }
         );
@@ -444,8 +433,7 @@ namespace MMU3 {
       // a button was pushed on the MMU and the LCD should
       // dismiss the error screen until MMU raises a new error
       ReportErrorHookState = ReportErrorHookStates::DISMISS_ERROR_SCREEN;
-      drawing_more_info_screen = false;
-      msg_next_is_consumed = true;
+      msg_page = msg_rest = nullptr;
     }
 
     const uint8_t ei = PrusaErrorCodeIndex((ErrorCode)ec);
@@ -454,9 +442,7 @@ namespace MMU3 {
     if ((uint8_t)ReportErrorHookState == (uint8_t)ReportErrorHookStates::RENDER_ERROR_SCREEN) {
       KEEPALIVE_STATE(PAUSED_FOR_USER);
       #if HAS_WIRED_LCD
-        drawing_more_info_screen = false;
-        msg_next_is_consumed = false;
-        msg_next = nullptr;
+        msg_page = msg_rest = nullptr;
         editable.uint8 = ei;
         ui.defer_status_screen();
         ui.goto_screen([]{ ReportErrorHookStaticRender(editable.uint8); });
