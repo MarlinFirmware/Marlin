@@ -1311,7 +1311,13 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) Fan::sync_speeds());
+  #if HAS_TAIL_FAN_SPEED
+    // A kickstarting fan needs a sync to drop to its speed when the kickstart time ends
+    #if FAN_KICKSTART_TIME
+      FANS_LOOP(i) if (fans[i].kicking) fans_need_update = true;
+    #endif
+    if (fans_need_update) Fan::sync_speeds();
+  #endif
 
   // Update hotend temperature based on extruder speed
   TERN_(AUTOTEMP, thermalManager.autotemp_task());
