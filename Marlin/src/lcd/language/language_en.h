@@ -729,6 +729,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Enable HS mode");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Move Nozzle to Bed");
   LSTR MSG_ERR_TEMP_MALFUNCTION           = _UxGT("TEMP MALFUNCTION");
+  LSTR MSG_ERR_HEATER_STUCK               = _UxGT("HEATER STUCK ON");
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Please wait...");
   LSTR MSG_PREHEATING                     = _UxGT("Preheating...");

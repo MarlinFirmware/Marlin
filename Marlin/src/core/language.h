@@ -266,6 +266,7 @@
 #define STR_T_HEATING_FAILED                "Heating failed"
 #define STR_T_THERMAL_RUNAWAY               "Thermal Runaway"
 #define STR_T_THERMAL_MALFUNCTION           "Thermal Malfunction"
+#define STR_T_HEATER_STUCK                  "Heater stuck on"
 #define STR_T_MAXTEMP                       "MAXTEMP triggered"
 #define STR_T_MINTEMP                       "MINTEMP triggered"
 #define STR_ERR_PROBING_FAILED              "Probing Failed"
