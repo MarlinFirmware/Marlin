@@ -281,6 +281,7 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
+        && !FSensorBlockRunout::active() // Not while the MMU is loading or unloading: the FINDA is expected to change
         && marlin.printingIsActive() // A job is running and not paused. Don't trigger while paused or from the pause itself.
         && parser.codenum != 600
         && xy_are_trusted()

@@ -39,7 +39,9 @@ namespace MMU3 {
     public:
     FSensorBlockRunout();
     ~FSensorBlockRunout();
+    static bool active() { return depth > 0; } // An MMU operation is running: the FINDA is expected to change
     private:
+    static uint8_t depth;
     bool was_enabled; // Runout state to put back (the user may have turned it off with M412 S0)
   };
 
