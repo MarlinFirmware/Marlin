@@ -1596,12 +1596,12 @@
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
-#define ANY_SERIAL_IS(N) (  SERIAL_IN_USE(N) \
-                         || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
-                         || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
-                         || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
-                         || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
-                         || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_TMC_UART_IS(N) (  TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                           || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
+                           || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
+                           || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
+                           || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_SERIAL_IS(N) (SERIAL_IN_USE(N) || ANY_TMC_UART_IS(N))
 
 #define HW_Serial    501
 #define HW_Serial0   502
@@ -1660,6 +1660,29 @@
   #define USING_HW_SERIAL10 1
 #endif
 
+// Flag the Arduino SerialN ports named by TMC *_HARDWARE_SERIAL
+#if ANY_TMC_UART_IS(0)
+  #define USING_TMC_SERIAL0 1
+#endif
+#if ANY_TMC_UART_IS(1)
+  #define USING_TMC_SERIAL1 1
+#endif
+#if ANY_TMC_UART_IS(2)
+  #define USING_TMC_SERIAL2 1
+#endif
+#if ANY_TMC_UART_IS(3)
+  #define USING_TMC_SERIAL3 1
+#endif
+#if ANY_TMC_UART_IS(4)
+  #define USING_TMC_SERIAL4 1
+#endif
+#if ANY_TMC_UART_IS(5)
+  #define USING_TMC_SERIAL5 1
+#endif
+#if ANY_TMC_UART_IS(6)
+  #define USING_TMC_SERIAL6 1
+#endif
+
 #undef HW_Serial
 #undef HW_Serial0
 #undef HW_Serial1
@@ -1683,6 +1706,7 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
+#undef ANY_TMC_UART_IS
 #undef ANY_SERIAL_IS
 
 #if defined(__AVR_ARCH__) && defined(TMC_SPI_MISO) && defined(TMC_SPI_MOSI) && defined(TMC_SPI_SCK)

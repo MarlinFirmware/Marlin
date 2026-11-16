@@ -33,16 +33,16 @@
   #if USING_HW_SERIALUSB
     DefaultSerial1 MSerial0(false, Serial);
   #endif
-  #if USING_HW_SERIAL0
+  #if AGCM4_SERIAL_USED(1)
     DefaultSerial2 MSerial1(false, Serial1);
   #endif
-  #if USING_HW_SERIAL1
+  #if AGCM4_SERIAL_USED(2)
     DefaultSerial3 MSerial2(false, Serial2);
   #endif
-  #if USING_HW_SERIAL2
+  #if AGCM4_SERIAL_USED(3)
     DefaultSerial4 MSerial3(false, Serial3);
   #endif
-  #if USING_HW_SERIAL3
+  #if AGCM4_SERIAL_USED(4)
     DefaultSerial5 MSerial4(false, Serial4);
   #endif
 #endif
