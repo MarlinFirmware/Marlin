@@ -499,6 +499,7 @@
 #define BOARD_PRUSA_BUDDY                   5263  // Prusa Buddy (STM32F407VGT6) as found in the Prusa MINI
 #define BOARD_LDO_LEVIATHAN_V1_2            5264  // LDO Leviathan v1.2 (STM32F446ZE)
 #define BOARD_CREALITY_V24S1_200            5265  // Creality v2.4.S1_200 (STM32F401RC) CR-FDM-v2.4.S1_200 as found in the Sermoon V1 / V1 Pro
+#define BOARD_ANKERMAKE_V8111               5266  // AnkerMake M5 V8111 (STM32F407VG / GD32F407VG)
 
 //
 // Other ARM Cortex-M4
