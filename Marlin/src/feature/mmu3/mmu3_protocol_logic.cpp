@@ -444,7 +444,9 @@ namespace MMU3 {
       case ScopeState::CommandSent: {
         switch (rsp.paramCode) { // the response should be either accepted or rejected
           case ResponseMsgParamCodes::Accepted:
+            if (rejectedCount > 1) SERIAL_ECHO_MSG("MMU3: Command accepted after ", rejectedCount, " rejections");
             rejectedSinceMs = 0;
+            rejectedCount = 0;
             progressCode = ProgressCode::OK;
             errorCode = ErrorCode::RUNNING;
             scopeState = ScopeState::Wait;
@@ -862,10 +864,16 @@ namespace MMU3 {
         // @@TODO wait until Q0 returns command in progress finished, then we can send this one
         // The MMU may still be busy, in which case a resend succeeds. It may also refuse the command for good
         // (e.g., Load while it believes filament is loaded), so only keep trying for a limited time.
-        LogError(PSTR("Command rejected"));
         {
           const millis_t now = _millis();
-          if (!rejectedSinceMs) rejectedSinceMs = now ?: 1;
+          if (!rejectedSinceMs) { rejectedSinceMs = now ?: 1; rejectedCount = 0; }
+          // The MMU is resent the command right away, so a busy MMU can refuse it hundreds of times.
+          // Log the first rejection, then one line per second with the count so far.
+          if (++rejectedCount == 1 || ELAPSED(now, rejectedLoggedMs + 1000)) {
+            rejectedLoggedMs = now;
+            LogError(PSTR("Command rejected"));
+            if (rejectedCount > 1) SERIAL_ECHO_MSG("MMU3: Command rejected ", rejectedCount, " times so far");
+          }
           if (ELAPSED(now, rejectedSinceMs + commandRejectedTimeout)) {
             LogError(PSTR("Command rejected too long"));
             // Raise a printer error so the user sees a screen, instead of silently resending forever
