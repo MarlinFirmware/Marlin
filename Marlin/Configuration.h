@@ -2465,12 +2465,12 @@
 /**
  * Precise Z Homing
  *
- * After Z homes, probe at the same XY with the bed probe and correct Z by the
- * measured error. Uses the same settings as bed leveling, including
- * MULTIPLE_PROBING, EXTRA_PROBING, and PROBING_HEATERS_OFF. Useful for probes
- * that are intermittently inaccurate. Consider Z_SAFE_HOMING, and setting the Z
- * value of HOMING_BUMP_MM to 0. Requires a bed probe.
- * G28 P enables this for one homing; G28 P0 disables it.
+ * Enables the 'G28 P' parameter. After Z homes, 'G28 P' probes at the same XY
+ * with the bed probe and corrects Z by the measured error. Uses the same
+ * settings as bed leveling, including MULTIPLE_PROBING, EXTRA_PROBING, and
+ * PROBING_HEATERS_OFF. Useful for probes that are intermittently inaccurate.
+ * Consider Z_SAFE_HOMING, and setting the Z value of HOMING_BUMP_MM to 0.
+ * Requires a bed probe.
  */
 //#define PRECISE_Z_HOMING
 
