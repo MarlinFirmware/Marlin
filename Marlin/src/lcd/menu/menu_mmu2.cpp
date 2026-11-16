@@ -54,11 +54,22 @@ enum MMUHotAction : uint8_t { MMU_HOT_LOAD_TO_NOZZLE, MMU_HOT_UNLOAD };
 static uint8_t mmu_hot_action, mmu_hot_tool;
 static bool mmu_hot_back_to_pause;  // Started from the Filament Change menu: return to it when done
 
+// There is no queue for menu actions, so while one runs (its wait loops keep the menus alive)
+// ignore a second one rather than send the MMU a command on top of the running command.
+static bool mmu_action_busy;
+
+struct MMUActionGuard {
+  const bool ok;
+  MMUActionGuard() : ok(!mmu_action_busy) { if (ok) mmu_action_busy = true; else MarlinUI::completion_feedback(false); }
+  ~MMUActionGuard() { if (ok) mmu_action_busy = false; }
+};
+
 static void _mmu2_back_to_pause() {
   if (mmu_hot_back_to_pause) ui.goto_screen(menu_mmu2_pause); // An error screen may have replaced the menu
 }
 
 static void _mmu2_load_to_nozzle_now(const uint8_t tool) {
+  MMUActionGuard busy; if (!busy.ok) return;
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
@@ -67,6 +78,7 @@ static void _mmu2_load_to_nozzle_now(const uint8_t tool) {
 }
 
 static void _mmu2_unload_now() {
+  MMUActionGuard busy; if (!busy.ok) return;
   ui.reset_status();
   ui.return_to_status();
   LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
@@ -121,6 +133,7 @@ static void _mmu2_heat_and_run() {
 
 // Start an action that needs a hot nozzle, asking to preheat first if the nozzle is too cold
 static void _mmu2_hot_action(const MMUHotAction action, const uint8_t tool=0, const bool back_to_pause=false) {
+  if (mmu_action_busy) return MarlinUI::completion_feedback(false);
   mmu_hot_action = action;
   mmu_hot_tool = tool;
   mmu_hot_back_to_pause = back_to_pause;
@@ -149,6 +162,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
 }
 
 void _mmu2_load_to_feeder(const uint8_t tool) {
+  MMUActionGuard busy; if (!busy.ok) return;
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
@@ -180,6 +194,7 @@ void menu_mmu2_load_to_nozzle() {
 //
 
 void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
+  MMUActionGuard busy; if (!busy.ok) return;
   TERN_(HAS_PRUSA_MMU3, mmu3.set_return_to_pause_after_eject(return_to_pause));
   ui.reset_status();
   ui.return_to_status();
@@ -194,6 +209,7 @@ void _mmu2_eject_filament(uint8_t index, const bool return_to_pause=false) {
 }
 
 void _mmu2_cut_filament(uint8_t index) {
+  MMUActionGuard busy; if (!busy.ok) return;
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_CUTTING_FILAMENT), int(index + 1));
