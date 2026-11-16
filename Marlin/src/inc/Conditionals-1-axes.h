@@ -381,6 +381,7 @@
   #undef Z_SAFE_HOMING
   #undef MIN_SOFTWARE_ENDSTOP_Z
   #undef MAX_SOFTWARE_ENDSTOP_Z
+  #undef PRECISE_Z_HOMING
 #endif
 
 #if !HAS_I_AXIS

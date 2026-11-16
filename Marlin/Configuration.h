@@ -2462,6 +2462,18 @@
   //#define Z_SAFE_HOMING_POINT_ABSOLUTE  // Ignore home offsets (M206) for Z homing position
 #endif
 
+/**
+ * Precise Z Homing
+ *
+ * After Z homes, probe at the same XY with the bed probe and correct Z by the
+ * measured error. Uses the same settings as bed leveling, including
+ * MULTIPLE_PROBING, EXTRA_PROBING, and PROBING_HEATERS_OFF. Useful for probes
+ * that are intermittently inaccurate. Consider Z_SAFE_HOMING, and setting the Z
+ * value of HOMING_BUMP_MM to 0. Requires a bed probe.
+ * G28 P enables this for one homing; G28 P0 disables it.
+ */
+//#define PRECISE_Z_HOMING
+
 // Homing speeds (linear=mm/min, rotational=°/min)
 #define HOMING_FEEDRATE_MM_M { (50*60), (50*60), (4*60) }
 
