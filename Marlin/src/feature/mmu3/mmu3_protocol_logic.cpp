@@ -473,9 +473,11 @@ namespace MMU3 {
         scopeState = ProcessRead16bitRegister(ScopeState::Wait);
         return Processing;
       case ScopeState::ButtonSent:
-        if (rsp.paramCode == ResponseMsgParamCodes::Accepted)
-          // Button was accepted, decrement the retry.
+        if (rsp.paramCode == ResponseMsgParamCodes::Accepted) {
+          // Button was accepted, decrement the retry. The error was answered, so report the next one.
           DecrementRetryAttempts();
+          commandErrorLogged = false;
+        }
         SendAndUpdateFilamentSensor();
         break;
       default:
@@ -555,9 +557,11 @@ namespace MMU3 {
         scopeState = ProcessRead16bitRegister(ScopeState::Ready);
         return scopeState == ScopeState::Ready ? Finished : Processing;
       case ScopeState::ButtonSent:
-        if (rsp.paramCode == ResponseMsgParamCodes::Accepted)
-          // Button was accepted, decrement the retry.
+        if (rsp.paramCode == ResponseMsgParamCodes::Accepted) {
+          // Button was accepted, decrement the retry. The error was answered, so report the next one.
           DecrementRetryAttempts();
+          commandErrorLogged = false;
+        }
         StartReading8bitRegisters();
         return Processing;
       case ScopeState::ReadRegisterSent:
@@ -840,12 +844,12 @@ namespace MMU3 {
     if (!ExpectsResponse()) // if not waiting for a response, activate a planned request immediately
       ActivatePlannedRequest();
     auto currentStatus = ScopeStep();
-    if (currentStatus != CommandError) commandErrorLogged = false;
     switch (currentStatus) {
       case Processing:
         // we are ok, the state machine continues correctly
         break;
       case Finished: {
+        commandErrorLogged = false; // A finished command has no error to report any more
         // We are ok, switching to Idle if there is no potential next request planned.
         // But the trouble is we must report a finished command if the previous command has just been finished
         // i.e. only try to find some planned command if we just finished the Idle cycle
