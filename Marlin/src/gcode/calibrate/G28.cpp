@@ -235,7 +235,7 @@
  *  R<linear> Raise by n mm/inches before homing
  *  P<bool>   Precise Z homing: after Z homes, probe once more at the current XY using the
  *            bed-leveling probe settings (MULTIPLE_PROBING, etc.) and correct Z.
- *            Defaults to ON with PRECISE_Z_HOMING. (Requires a bed probe)
+ *            (Requires PRECISE_Z_HOMING and a bed probe)
  *  H         Hold the current X/Y position when executing a home Z, or if
  *            multiple axes are homed, the position when Z home is executed.
  *            When using a probe for Z Home, positions close to the edge may
