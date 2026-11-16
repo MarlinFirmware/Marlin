@@ -94,12 +94,23 @@
 
 #if MB(ESPRESSIF_ESP32S3) && !CONFIG_IDF_TARGET_ESP32S3
   #error "BOARD_ESPRESSIF_ESP32S3 requires an ESP32-S3 environment (env:esp32s3_idf4)."
+#elif MB(ESPRESSIF_ESP32S2) && !CONFIG_IDF_TARGET_ESP32S2
+  #error "BOARD_ESPRESSIF_ESP32S2 requires an ESP32-S2 environment (env:esp32s2_idf4)."
 #endif
 
-#if !CONFIG_IDF_TARGET_ESP32S3 && SERIAL_PORT_2 == -1 && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #error "The WiFi serial port is now -3 (e.g., SERIAL_PORT_2 -3). Serial port -1 is the native USB port (ESP32-S3 only)."
-#elif !CONFIG_IDF_TARGET_ESP32S3 && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
-  #error "Serial port -1 (native USB) requires an ESP32-S3."
+#if CONFIG_IDF_TARGET_ESP32S2
+  // The ESP32-S2 has two UARTs
+  #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2 || defined(HARDWARE_SERIAL2_RX)
+    #error "The ESP32-S2 has no UART2. Use serial port 0, -1 (native USB) or -3 (WiFi)."
+  #elif HAS_NATIVE_USB_SERIAL && ARDUINO_USB_CDC_ON_BOOT
+    #error "Serial port -1 requires ARDUINO_USB_CDC_ON_BOOT=0 on the ESP32-S2."
+  #endif
+#endif
+
+#if !(CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3) && SERIAL_PORT_2 == -1 && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "The WiFi serial port is now -3 (e.g., SERIAL_PORT_2 -3). Serial port -1 is the native USB port (ESP32-S2 and ESP32-S3 only)."
+#elif !(CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3) && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+  #error "Serial port -1 (native USB) requires an ESP32-S2 or ESP32-S3."
 #elif (SERIAL_PORT == -3 || SERIAL_PORT_2 == -3 || SERIAL_PORT_3 == -3) && NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
   #error "Serial port -3 (WiFi) requires WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif

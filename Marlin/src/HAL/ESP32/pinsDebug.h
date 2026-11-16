@@ -57,6 +57,9 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
     #if CONFIG_IDF_TARGET_ESP32S3
       // Flash and octal PSRAM (GPIO 26-37), native USB (GPIO 19, 20), UART0 (GPIO 43, 44)
       return WITHIN(index, 26, 37) || index == 19 || index == 20 || index == 43 || index == 44;
+    #elif CONFIG_IDF_TARGET_ESP32S2
+      // Flash and PSRAM (GPIO 26-32), native USB (GPIO 19, 20), UART0 (GPIO 43, 44)
+      return WITHIN(index, 26, 32) || index == 19 || index == 20 || index == 43 || index == 44;
     #else
       // Flash (GPIO 6-11), UART0 (GPIO 1, 3)
       return WITHIN(index, 6, 11) || index == 1 || index == 3;
@@ -70,7 +73,7 @@ struct PinsDebug : PinsDebugBase<PinsDebug> {
    * the actual channel.
    *
    * An analogRead() switches the pin to the ADC, so a never_touch pin isn't
-   * analog here. The ESP32-S3 native USB pins (GPIO 19, 20) are also ADC2 inputs.
+   * analog here. The ESP32-S2/S3 native USB pins (GPIO 19, 20) are also ADC2 inputs.
    */
   static bool is_analog(const pin_t pin) { return is_valid(pin) && !never_touch(pin) && digitalPinToAnalogChannel(pin) >= 0; }
   static int16_t analog_index(const pin_t pin) { return is_analog(pin) ? int8_t(pin) : -1; }

@@ -53,6 +53,9 @@
 // ------------------------
 
 portMUX_TYPE MarlinHAL::spinlock = portMUX_INITIALIZER_UNLOCKED;
+#if CONFIG_FREERTOS_UNICORE
+  volatile uint8_t MarlinHAL::isr_off_count = 0;
+#endif
 
 // ------------------------
 // Local defines
@@ -74,6 +77,14 @@ pwm_pin_t MarlinHAL::pwm_pin_data[MAX_EXPANDER_BITS];
 esp_adc_cal_characteristics_t characteristics[ADC_ATTEN_MAX];
 adc_atten_t attenuations[ADC1_CHANNEL_MAX] = {};
 uint32_t thresholds[ADC_ATTEN_MAX];
+
+#if ESP32_CLASSIC
+  #define ADC1_WIDTH   ADC_WIDTH_BIT_12
+  #define ADC1_RAW_MAX 4095
+#else
+  #define ADC1_WIDTH   adc_bits_width_t(ADC_WIDTH_BIT_DEFAULT) // 13-bit on the ESP32-S2, 12-bit on the ESP32-S3
+  #define ADC1_RAW_MAX ((1 << SOC_ADC_MAX_BITWIDTH) - 1)
+#endif
 
 volatile int numPWMUsed = 0;
 volatile struct { pin_t pin; int value; } pwmState[MAX_PWM_PINS];
@@ -123,7 +134,7 @@ struct {
 
 #endif
 
-#if HAS_NATIVE_USB_SERIAL
+#if HAS_NATIVE_USB_SERIAL && CONFIG_IDF_TARGET_ESP32S3
   // On the ESP32-S3 the ESP-IDF console writes to the native USB port as well as UART0.
   // Keep ESP-IDF log lines off the native USB port: a host reads them as G-code (see NativeUSBSerial.h).
   static int log_to_uart0(const char *fmt, va_list args) {
@@ -152,7 +163,9 @@ struct {
 #endif
 
 void MarlinHAL::init_board() {
-  TERN_(HAS_NATIVE_USB_SERIAL, esp_log_set_vprintf(log_to_uart0));
+  #if HAS_NATIVE_USB_SERIAL && CONFIG_IDF_TARGET_ESP32S3
+    esp_log_set_vprintf(log_to_uart0);
+  #endif
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
@@ -269,7 +282,7 @@ void adc1_set_attenuation(adc1_channel_t chan, adc_atten_t atten) {
 
 void MarlinHAL::adc_init() {
   // Configure ADC
-  adc1_config_width(ADC_WIDTH_12Bit);
+  adc1_config_width(ADC1_WIDTH);
 
   // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
   TERN_(HAS_TEMP_ADC_0,        adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db));
@@ -293,10 +306,10 @@ void MarlinHAL::adc_init() {
 
   // Calculate ADC characteristics (i.e., gain and offset factors for each attenuation level)
   for (int i = 0; i < ADC_ATTEN_MAX; i++) {
-    esp_adc_cal_characterize(ADC_UNIT_1, (adc_atten_t)i, ADC_WIDTH_BIT_12, V_REF, &characteristics[i]);
+    esp_adc_cal_characterize(ADC_UNIT_1, (adc_atten_t)i, ADC1_WIDTH, V_REF, &characteristics[i]);
 
     // Change attenuation 100mV below the calibrated threshold
-    thresholds[i] = esp_adc_cal_raw_to_voltage(4095, &characteristics[i]);
+    thresholds[i] = esp_adc_cal_raw_to_voltage(ADC1_RAW_MAX, &characteristics[i]);
   }
 }
 

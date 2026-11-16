@@ -30,8 +30,8 @@
   #define ESP32_CLASSIC 1
 #endif
 
-// On ESP32-S3, serial port -1 is the native USB CDC port
-#if CONFIG_IDF_TARGET_ESP32S3 && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+// On ESP32-S2 and ESP32-S3, serial port -1 is the native USB CDC port
+#if (CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3) && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
   #define HAS_NATIVE_USB_SERIAL 1
 #endif
 

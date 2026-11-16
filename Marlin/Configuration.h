@@ -76,7 +76,7 @@
 /**
  * Select the serial port on the board to use for communication with the host.
  * This allows the connection of wireless adapters (for instance) to non-default port pins.
- * Serial port -1 is the USB emulated serial port, if available (ESP32-S3: the native USB port).
+ * Serial port -1 is the USB emulated serial port, if available (ESP32-S2/S3: the native USB port).
  * Serial port -2 is the built-in Bluetooth (Classic SPP) on ESP32, not together with WiFi.
  * ESP32: Serial port -3 is the WiFi serial port (WIFISUPPORT or ESP3D_WIFISUPPORT).
  * Note: The first serial port (-1 or 0) will always be used by the Arduino bootloader.
@@ -112,7 +112,7 @@
 /**
  * Select a third serial port on the board to use for communication with the host.
  * Currently supported for AVR, DUE, SAMD51, LPC1768/9, STM32/STM32F1/HC32, and Teensy 4.x,
- * and ESP32 (-2 Bluetooth, -3 the WiFi serial port; ESP32-S3: -1, the native USB port).
+ * and ESP32 (-2 Bluetooth, -3 the WiFi serial port; ESP32-S2/S3: -1, the native USB port).
  * :[-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
  */
 //#define SERIAL_PORT_3 1

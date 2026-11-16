@@ -67,7 +67,7 @@
   #define WIFI_HOST_SERIAL webSocketSerial
 #endif
 
-// Serial port -1 is the native USB port (ESP32-S3), -2 is Bluetooth (ESP32), -3 is the WiFi serial port
+// Serial port -1 is the native USB port (ESP32-S2, ESP32-S3), -2 is Bluetooth (ESP32), -3 is the WiFi serial port
 #if SERIAL_PORT == -3
   #define MYSERIAL1 WIFI_HOST_SERIAL
 #elif SERIAL_PORT == -2
@@ -113,7 +113,11 @@
 #else
   #include <soc/soc_caps.h>
   #define CHANNEL_MAX_NUM  (SOC_LEDC_CHANNEL_NUM - 1U)  // max PWM channel # to allocate
-  #define MAX_PWM_IOPIN    (SOC_GPIO_PIN_COUNT - 1U)    // all GPIOs can output PWM
+  #if CONFIG_IDF_TARGET_ESP32S2
+    #define MAX_PWM_IOPIN  45U                          // GPIO 46 is input only
+  #else
+    #define MAX_PWM_IOPIN  (SOC_GPIO_PIN_COUNT - 1U)    // all GPIOs can output PWM
+  #endif
 #endif
 #ifndef MAX_EXPANDER_BITS
   #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
@@ -244,9 +248,17 @@ public:
 
   // Interrupts
   static portMUX_TYPE spinlock;
-  static bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
-  static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
-  static void isr_off() { portENTER_CRITICAL(&spinlock); }
+  #if CONFIG_FREERTOS_UNICORE
+    // A single-core build doesn't set the spinlock owner, so count the isr_off() calls
+    static volatile uint8_t isr_off_count;
+    static bool isr_state() { return !isr_off_count; }
+    static void isr_on()  { if (isr_off_count) { isr_off_count--; portEXIT_CRITICAL(&spinlock); } }
+    static void isr_off() { portENTER_CRITICAL(&spinlock); isr_off_count++; }
+  #else
+    static bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
+    static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
+    static void isr_off() { portENTER_CRITICAL(&spinlock); }
+  #endif
 
   static void delay_ms(const int ms) { delay(ms); }
 
