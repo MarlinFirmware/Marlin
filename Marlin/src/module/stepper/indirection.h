@@ -100,16 +100,8 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define INVERT_DIR(AXIS, D) (motion.axis_inverted[_INV_AXIS_##AXIS] ? !(D) : (D))
   #define INVERT_E_DIR(N, D)  (motion.extruder_inverted[N] ? !(D) : (D))
   // Secondary stepper relative inversions (vs primary)
-  #if HAS_SYNCED_X_STEPPERS
-    #define INVERT_DIR_X2_VS_X(D) (motion.x2_vs_x_inverted ? !(D) : (D))
-  #else
-    #define INVERT_DIR_X2_VS_X(D) (D)
-  #endif
-  #if HAS_SYNCED_Y_STEPPERS
-    #define INVERT_DIR_Y2_VS_Y(D) (motion.y2_vs_y_inverted ? !(D) : (D))
-  #else
-    #define INVERT_DIR_Y2_VS_Y(D) (D)
-  #endif
+  #define INVERT_DIR_X2_VS_X(D) (TERN(HAS_SYNCED_X_STEPPERS, motion.x2_vs_x_inverted ? !(D) : (D), D))
+  #define INVERT_DIR_Y2_VS_Y(D) (TERN(HAS_SYNCED_Y_STEPPERS, motion.y2_vs_y_inverted ? !(D) : (D), D))
   #if NUM_Z_STEPPERS >= 2
     #define INVERT_DIR_Z2_VS_Z(D) (motion.z2_vs_z_inverted ? !(D) : (D))
   #else
