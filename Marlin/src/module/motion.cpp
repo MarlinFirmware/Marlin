@@ -2440,9 +2440,9 @@ void Motion::prepare_line_to_destination() {
     }
 
     // Only do some things when moving towards an endstop
-    const int8_t axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
+    const int8_t a_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                   ? tool_x_home_dir() : home_dir(axis);
-    const bool is_home_dir = (axis_home_dir > 0) == (distance > 0);
+    const bool is_home_dir = (a_home_dir > 0) == (distance > 0);
 
     #if ENABLED(SENSORLESS_HOMING)
       sensorless_t stealth_states;
@@ -2671,7 +2671,7 @@ void Motion::prepare_line_to_destination() {
 
     if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM(">>> homeaxis(", C(AXIS_CHAR(axis)), ")");
 
-    const int axis_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
+    const int a_home_dir = TERN0(DUAL_X_CARRIAGE, axis == X_AXIS)
                 ? tool_x_home_dir() : home_dir(axis);
 
     //
@@ -2727,7 +2727,7 @@ void Motion::prepare_line_to_destination() {
       #if DISABLED(DELTA) && defined(SENSORLESS_BACKOFF_MM)
         const xyz_float_t backoff = SENSORLESS_BACKOFF_MM;
         if ((TERN0(X_SENSORLESS, axis == X_AXIS) || TERN0(Y_SENSORLESS, axis == Y_AXIS) || TERN0(Z_SENSORLESS, axis == Z_AXIS) || TERN0(I_SENSORLESS, axis == I_AXIS) || TERN0(J_SENSORLESS, axis == J_AXIS) || TERN0(K_SENSORLESS, axis == K_AXIS)) && backoff[axis]) {
-          const float backoff_length = -ABS(backoff[axis]) * axis_home_dir;
+          const float backoff_length = -ABS(backoff[axis]) * a_home_dir;
           if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Sensorless backoff: ", backoff_length, "mm");
           do_homing_move(axis, backoff_length, homing_feedrate(axis));
         }
@@ -2747,14 +2747,14 @@ void Motion::prepare_line_to_destination() {
       // Determine if a homing bump will be done and the bumps distance
       // When homing Z with probe respect probe clearance
       const bool use_probe_bump = TERN0(HOMING_Z_WITH_PROBE, axis == Z_AXIS && home_bump_mm(axis));
-      const float bump = axis_home_dir * (
+      const float bump = a_home_dir * (
         use_probe_bump ? _MAX(TERN0(HOMING_Z_WITH_PROBE, Z_CLEARANCE_BETWEEN_PROBES), home_bump_mm(axis)) : home_bump_mm(axis)
       );
 
       //
       // Fast move towards endstop until triggered
       //
-      const float move_length = 1.5f * max_axis_length(TERN(DELTA, Z_AXIS, axis)) * axis_home_dir;
+      const float move_length = 1.5f * max_axis_length(TERN(DELTA, Z_AXIS, axis)) * a_home_dir;
       if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("Home Fast: ", move_length, "mm");
       do_homing_move(axis, move_length, 0.0, !use_probe_bump);
 
@@ -2779,7 +2779,7 @@ void Motion::prepare_line_to_destination() {
           }
 
           #if ENABLED(DUAL_X_CARRIAGE)
-            if (axis == X_AXIS && axis_home_dir > 0) {
+            if (axis == X_AXIS && a_home_dir > 0) {
               es = X_MAX;
               if (DEBUGGING(LEVELING)) DEBUG_ECHOLNPGM("DUAL_X_CARRIAGE: Homing to X_MAX");
             }
@@ -2810,7 +2810,7 @@ void Motion::prepare_line_to_destination() {
       #endif
 
       #if HAS_EXTRA_ENDSTOPS
-        const bool pos_dir = axis_home_dir > 0;
+        const bool pos_dir = a_home_dir > 0;
         #if ENABLED(X_DUAL_ENDSTOPS)
           if (axis == X_AXIS) {
             const float adj = ABS(endstops.x2_endstop_adj);
@@ -2983,7 +2983,7 @@ void Motion::prepare_line_to_destination() {
     #if DISABLED(DELTA) && defined(HOMING_BACKOFF_POST_MM)
       const xyz_float_t endstop_backoff = HOMING_BACKOFF_POST_MM;
       if (endstop_backoff[axis]) {
-        position[axis] -= ABS(endstop_backoff[axis]) * axis_home_dir;
+        position[axis] -= ABS(endstop_backoff[axis]) * a_home_dir;
         goto_current_position(TERN_(HOMING_Z_WITH_PROBE, (axis == Z_AXIS) ? z_probe_fast_mm_s :) homing_feedrate(axis));
 
         #if ENABLED(SENSORLESS_HOMING)
