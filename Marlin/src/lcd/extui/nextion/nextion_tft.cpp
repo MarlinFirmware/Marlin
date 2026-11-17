@@ -444,28 +444,22 @@ void NextionTFT::panelInfo(uint8_t req) {
     #if ENABLED(RUNTIME_HOMING_DIRECTION)
       // Runtime homing direction - check motion.home_dir() to display correct endstop
       #if HAS_X_AXIS
-        if (motion.home_dir(X_AXIS) < 0) {
+        if (motion.home_dir(X_AXIS) < 0)
           SEND_TXT_F("x1", READ(X_MIN_PIN) == X_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
-        else {
+        else
           SEND_TXT_F("x2", READ(X_MAX_PIN) == X_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
       #endif
       #if HAS_Y_AXIS
-        if (motion.home_dir(Y_AXIS) < 0) {
+        if (motion.home_dir(Y_AXIS) < 0)
           SEND_TXT_F("y1", READ(Y_MIN_PIN) == Y_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
-        else {
+        else
           SEND_TXT_F("y2", READ(Y_MAX_PIN) == Y_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
       #endif
       #if HAS_Z_AXIS
-        if (motion.home_dir(Z_AXIS) < 0) {
+        if (motion.home_dir(Z_AXIS) < 0)
           SEND_TXT_F("z1", READ(Z_MIN_PIN) == Z_MIN_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
-        else {
+        else
           SEND_TXT_F("z2", READ(Z_MAX_PIN) == Z_MAX_ENDSTOP_HIT_STATE ? F("triggered") : F("open"));
-        }
       #endif
     #else
       // Compile-time homing direction

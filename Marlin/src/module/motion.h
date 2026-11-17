@@ -323,9 +323,9 @@ public:
         static constexpr XYZval<T> NAME##_P DEFS_PROGMEM = NUM_AXIS_ARRAY(X_##OPT, Y_##OPT, Z_##OPT, I_##OPT, J_##OPT, K_##OPT, U_##OPT, V_##OPT, W_##OPT); \
         return pgm_read_any(&NAME##_P[axis]); \
       }
-    XYZ_DEFS(float,  base_min_pos,  MIN_POS);     // base_min_pos(axis)
-    XYZ_DEFS(float,  base_max_pos,  MAX_POS);     // base_max_pos(axis)
-    XYZ_DEFS(float,  max_axis_length, MAX_LENGTH); // max_axis_length(axis)
+    XYZ_DEFS(float,  base_min_pos,  MIN_POS);       // base_min_pos(axis)
+    XYZ_DEFS(float,  base_max_pos,  MAX_POS);       // base_max_pos(axis)
+    XYZ_DEFS(float,  max_axis_length, MAX_LENGTH);  // max_axis_length(axis)
     #if ENABLED(RUNTIME_HOMING_DIRECTION)
       XYZ_DEFS(float,  config_home_pos, HOME_POS);  // config_home_pos(axis)
       XYZ_DEFS(int8_t, config_home_dir, HOME_DIR);  // config_home_dir(axis)
