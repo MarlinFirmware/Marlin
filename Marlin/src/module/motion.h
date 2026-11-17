@@ -489,6 +489,8 @@ public:
       OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
     );
     static void set_soft_endstop_loose(const bool loose) { soft_endstop._loose = loose; }
+    static void handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
+    static void handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos);
   #else
     static void apply_limits(xyz_pos_t&) {}
     static void update_software_endstops(...) {}

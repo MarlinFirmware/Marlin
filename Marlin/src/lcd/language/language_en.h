@@ -484,8 +484,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_MANUAL_DEPLOY                  = _UxGT("Deploy Z-Probe");
   LSTR MSG_MANUAL_STOW                    = _UxGT("Stow Z-Probe");
   LSTR MSG_BABYSTEP_TOTAL                 = _UxGT("Total");
-  LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
-  LSTR MSG_SOFTWARE_ENDSTOP_ABORT         = _UxGT("Software Endstop Abort");
   LSTR MSG_COOLING                        = _UxGT("Cooling...");
   LSTR MSG_BED_COOLING                    = _UxGT("Bed Cooling...");
   LSTR MSG_CHAMBER_HEATING                = _UxGT("Chamber Heating...");

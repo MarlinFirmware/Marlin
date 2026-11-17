@@ -67,6 +67,10 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP)
+  #include "printcounter.h" // for print_job_timer
+#endif
+
 #if ANY(SD_ABORT_ON_ENDSTOP_HIT, ABORT_ON_ENDSTOP) && HAS_CUTTER
   #include "../feature/spindle_laser.h"
 #endif
@@ -376,19 +380,21 @@ void Endstops::event_handler() {
       }
 
     #elif ENABLED(ABORT_ON_ENDSTOP)
-      if (planner.abort_on_endstop && TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
-        TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+      if (TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
         motion.quickstop_stepper();
-        #if HAS_CUTTER
-          TERN_(SPINDLE_FEATURE, safe_delay(1000));
-          cutter.kill();
-        #endif
-        queue.clear();
-        set_all_unhomed();
-        #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
-          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
-        #endif
-        print_job_timer.stop();
+        if (planner.abort_on_endstop) {
+          #if HAS_CUTTER
+            TERN_(SPINDLE_FEATURE, safe_delay(1000));
+            cutter.kill();
+          #endif
+          SERIAL_ERROR_MSG(STR_ERR_ENDSTOP);
+          queue.clear();
+          motion.set_all_unhomed();
+          #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
+            queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
+          #endif
+          marlin.stop();
+        }
       }
     #endif
   }
