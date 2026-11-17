@@ -174,8 +174,8 @@
       #define FORCE_SOFT_SPI
     #endif
     #if ENABLED(FYSETC_MINI_12864)
-      #define LCD_RESET_PIN                   -1  // Not wired. (EXP1_05 is BTN_EN1 here.)
-      #define NEOPIXEL_PIN                    -1  // Panel Neopixel not wired. (RGB is the board's header.)
+      #define LCD_RESET_PIN                 -1    // Not wired. (EXP1_05 is BTN_EN1 here.)
+      #define NEOPIXEL_PIN                  -1    // Panel Neopixel not wired. (RGB is the board's header.)
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif

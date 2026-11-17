@@ -148,8 +148,8 @@
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
   // NOTE: Kept inline — this board's encoder order (upstream wiring)
-  #define BTN_EN1                  EXP2_05_PIN
-  #define BTN_EN2                  EXP2_03_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
 
 #elif ENABLED(FYSETC_MINI_12864)
 
@@ -169,7 +169,7 @@
     // EXP1/EXP2 ports above (standard EXP1_03..08 / EXP2_03/05 slot order).
     // BEEPER stays here — it is needed by both branches (WIRED.h is #ifndef
     // guarded, so it wins with the same EXP1_01 value).
-    #define BEEPER_PIN                 EXP1_01_PIN
+    #define BEEPER_PIN               EXP1_01_PIN
     #define SD_DETECT_PIN            EXP2_07_PIN
 
   #else // !IS_NEWPANEL

@@ -135,7 +135,7 @@
   // (interior pins, no physical EXP header — but a standard display can be wired
   // to these pins). The default passthrough in lcd/adapters.h maps LCD1/LCD2 ->
   // EXP1/EXP2, so data/button pins come from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h.
-  #define EXP1_01_PIN                         -1   // BEEPER not connected
+  #define EXP1_01_PIN                         -1  // BEEPER not connected
   #define EXP1_02_PIN                         48  // BTN_ENC
   #define EXP1_03_PIN                         41  // LCD_EN
   #define EXP1_04_PIN                         40  // LCD_RS
@@ -144,14 +144,14 @@
   #define EXP1_07_PIN                         44  // LCD_D6
   #define EXP1_08_PIN                         45  // LCD_D7
 
-  #define EXP2_01_PIN                         -1   // not connected
-  #define EXP2_02_PIN                         -1   // not connected
+  #define EXP2_01_PIN                         -1  // not connected
+  #define EXP2_02_PIN                         -1  // not connected
   #define EXP2_03_PIN                         46  // BTN_EN1
-  #define EXP2_04_PIN                         -1   // not connected
+  #define EXP2_04_PIN                         -1  // not connected
   #define EXP2_05_PIN                         47  // BTN_EN2
-  #define EXP2_06_PIN                         -1   // not connected
-  #define EXP2_07_PIN                         -1   // SD_DETECT not connected
-  #define EXP2_08_PIN                         -1   // KILL not connected
+  #define EXP2_06_PIN                         -1  // not connected
+  #define EXP2_07_PIN                         -1  // SD_DETECT not connected
+  #define EXP2_08_PIN                         -1  // KILL not connected
 #endif
 
 #if IS_NEWPANEL

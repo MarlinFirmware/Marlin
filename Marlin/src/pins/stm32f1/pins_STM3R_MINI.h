@@ -116,12 +116,12 @@
 
 #elif HAS_WIRED_LCD
 
-  #define LCD_PINS_RS                     PB8
-  #define LCD_PINS_EN                     PD2
-  #define LCD_PINS_D4                     PB12
-  #define LCD_PINS_D5                     PB13
-  #define LCD_PINS_D6                     PB14
-  #define LCD_PINS_D7                     PB15
+  #define LCD_PINS_RS                       PB8
+  #define LCD_PINS_EN                       PD2
+  #define LCD_PINS_D4                       PB12
+  #define LCD_PINS_D5                       PB13
+  #define LCD_PINS_D6                       PB14
+  #define LCD_PINS_D7                       PB15
   #if !IS_NEWPANEL
     #error "Non-NEWPANEL LCD is not supported."
   #endif

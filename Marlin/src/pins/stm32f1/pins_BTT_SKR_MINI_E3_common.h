@@ -216,7 +216,7 @@
    */
 
   #define LCD_BACKLIGHT_PIN                 -1
-  #define BEEPER_PIN                        -1  // Not wired by this cable
+  #define BEEPER_PIN                        -1    // Not wired by this cable
   #define LCD_RESET_PIN                     -1
   #define NEOPIXEL_PIN               EXP1_07_PIN
   #define LCD_CONTRAST_INIT                  255

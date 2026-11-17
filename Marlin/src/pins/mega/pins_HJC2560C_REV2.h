@@ -141,7 +141,7 @@
     // data lines come from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h. Beeper and
     // buttons stay inline (beeper is shared with the shift-register path).
     #define EXP1_01_PIN                       18  // BEEPER
-    #define EXP1_02_PIN                       -1   // not connected (ENC inline)
+    #define EXP1_02_PIN                       -1  // not connected (ENC inline)
     #define EXP1_03_PIN                       15  // LCD_EN
     #define EXP1_04_PIN                       20  // LCD_RS
     #define EXP1_05_PIN                       14  // LCD_D4

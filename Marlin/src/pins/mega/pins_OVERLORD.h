@@ -127,14 +127,14 @@
   // Define de-facto EXP1 ports matching this board's LCD data-line wiring. The
   // default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so data pins come
   // from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h.
-  #define EXP1_01_PIN                           -1   // not connected
-  #define EXP1_02_PIN                           -1   // not connected
-  #define EXP1_03_PIN                           15  // LCD_EN
-  #define EXP1_04_PIN                           20  // LCD_RS
-  #define EXP1_05_PIN                           14  // LCD_D4
-  #define EXP1_06_PIN                           21  // LCD_D5
-  #define EXP1_07_PIN                            5  // LCD_D6
-  #define EXP1_08_PIN                            6  // LCD_D7
+  #define EXP1_01_PIN                         -1  // not connected
+  #define EXP1_02_PIN                         -1  // not connected
+  #define EXP1_03_PIN                         15  // LCD_EN
+  #define EXP1_04_PIN                         20  // LCD_RS
+  #define EXP1_05_PIN                         14  // LCD_D4
+  #define EXP1_06_PIN                         21  // LCD_D5
+  #define EXP1_07_PIN                          5  // LCD_D6
+  #define EXP1_08_PIN                          6  // LCD_D7
   #ifndef LCD_RESET_PIN
     #define LCD_RESET_PIN                      5  // LCD_PINS_D6
   #endif

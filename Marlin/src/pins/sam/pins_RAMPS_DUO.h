@@ -92,7 +92,7 @@
       #undef BTN_ENC
       #define BTN_ENC                         66
 
-    #elif ENABLED(MINIPANEL)                    // Also MKS_MINI_12864
+    #elif ENABLED(MINIPANEL)                      // Also MKS_MINI_12864
 
       // Due-specific overrides of the RAMPS wiring
       #undef DOGLCD_CS

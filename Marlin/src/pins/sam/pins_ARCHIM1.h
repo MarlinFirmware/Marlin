@@ -186,7 +186,7 @@
   // default passthrough in lcd/adapters.h maps LCD1 -> EXP1, so data pins come
   // from Marlin/src/pins/lcd/WIRED.h / RRD_SC.h. Buttons are on AUX-2 (inline).
   #define EXP1_01_PIN                         23  // BEEPER (D24 PA15_CTS1)
-  #define EXP1_02_PIN                         -1   // not connected
+  #define EXP1_02_PIN                         -1  // not connected
   #define EXP1_03_PIN                         24  // LCD_EN (D23 PA14_RTS1)
   #define EXP1_04_PIN                         17  // LCD_RS (D17 PA12_RXD1)
   #define EXP1_05_PIN                         69  // LCD_D4 (D69 PA0_CANTX0)

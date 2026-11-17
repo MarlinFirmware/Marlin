@@ -175,8 +175,8 @@
 
   // Migrated to pins/lcd
   // NOTE: Kept inline — this board's encoder order (upstream wiring)
-  #define BTN_EN1                  EXP2_05_PIN
-  #define BTN_EN2                  EXP2_03_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
 
 #elif ENABLED(FYSETC_MINI_12864)
 
@@ -185,8 +185,8 @@
     #define SD_DETECT_PIN            EXP2_07_PIN
   #endif
   // NOTE: Kept inline — this board's encoder order (upstream wiring)
-  #define BTN_EN1                  EXP2_05_PIN
-  #define BTN_EN2                  EXP2_03_PIN
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
 
   //#define FORCE_SOFT_SPI                        // Use this if Hardware SPI causes display problems.
                                                   // Results in LCD Software SPI mode 3, SD Software SPI mode 0.
