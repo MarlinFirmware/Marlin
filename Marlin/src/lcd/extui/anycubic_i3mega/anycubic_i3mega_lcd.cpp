@@ -920,7 +920,7 @@ void AnycubicTFT::startPrint() {
       mediaPauseState    = AMPAUSESTATE_NOT_PAUSED;
       printFile(selectedFile);
     }
-  #endif // SDUPPORT
+  #endif // HAS_MEDIA
 }
 
 void AnycubicTFT::pausePrint() {

@@ -348,21 +348,12 @@ void StatusScreen::draw_interaction_buttons(draw_mode_t what) {
   if (what & FOREGROUND) {
     using namespace ExtUI;
 
-  #if ENABLED(TOUCH_UI_PORTRAIT)
-    #define TOOL_HEAD_POS         BTN_POS(1,11), BTN_SIZE(1,2)
-    #define CHANGE_FILAMENT_POS   BTN_POS(2,11), BTN_SIZE(1,2)
-    #define PREHEAT_POS           BTN_POS(1,13), BTN_SIZE(1,2)
-    #define COOLDOWN_OFFSET_POS   BTN_POS(2,13), BTN_SIZE(1,2)
-    #define MEDIA_BTN_POS         BTN_POS(1,15), BTN_SIZE(1,2)
-    #define MENU_BTN_POS          BTN_POS(2,15), BTN_SIZE(1,2)
-  #else
-    #define TOOL_HEAD_POS         BTN_POS(1,11), BTN_SIZE(1,2)
-    #define CHANGE_FILAMENT_POS   BTN_POS(2,11), BTN_SIZE(1,2)
-    #define PREHEAT_POS           BTN_POS(1,13), BTN_SIZE(1,2)
-    #define COOLDOWN_OFFSET_POS   BTN_POS(2,13), BTN_SIZE(1,2)
-    #define MEDIA_BTN_POS         BTN_POS(1,13), BTN_SIZE(1,4)
-    #define MENU_BTN_POS          BTN_POS(2,13), BTN_SIZE(1,4)
-  #endif
+  #define TOOL_HEAD_POS         BTN_POS(1,11), BTN_SIZE(1,2)
+  #define CHANGE_FILAMENT_POS   BTN_POS(2,11), BTN_SIZE(1,2)
+  #define PREHEAT_POS           BTN_POS(1,13), BTN_SIZE(1,2)
+  #define COOLDOWN_OFFSET_POS   BTN_POS(2,13), BTN_SIZE(1,2)
+  #define MEDIA_BTN_POS         BTN_POS(1,15), BTN_SIZE(1,2)
+  #define MENU_BTN_POS          BTN_POS(2,15), BTN_SIZE(1,2)
 
     const bool has_media = isMediaMounted() && !isPrintingFromMedia();
 

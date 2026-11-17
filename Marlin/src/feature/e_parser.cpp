@@ -44,6 +44,7 @@ bool EmergencyParser::killed_by_M112, // = false
 #if ENABLED(HOST_PROMPT_SUPPORT)
   #include "host_actions.h"
   uint8_t EmergencyParser::M876_reason; // = 0
+  volatile uint8_t EmergencyParser::M876_handled; // = 0
 #endif
 
 // Global instance
@@ -220,7 +221,7 @@ void EmergencyParser::update(EmergencyParser::State &state, const uint8_t c) {
             case EP_M524: sd_abort_by_M524 = true; break;
           #endif
           #if ENABLED(HOST_PROMPT_SUPPORT)
-            case EP_M876SN: hostui.handle_response(M876_reason); break;
+            case EP_M876SN: hostui.handle_response(M876_reason); ++M876_handled; break;
           #endif
           #if ENABLED(REALTIME_REPORTING_COMMANDS)
             case EP_GRBL_STATUS: motion.report_position_moving(); break;

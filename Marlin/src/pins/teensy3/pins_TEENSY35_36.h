@@ -59,7 +59,7 @@
  *  AUX2                                       25 |   41 * * 52   |    A21 DAC0
  *  AUX2  FAN0_PIN            SCL2    TX1      26 |   42 * * 51   | 39 A20      MISO0             SDSS
  *  AUX2  Z-PROBE PWR         SCK0    RX1      27 | *  *  *  *  * | 38 A19 PWM        SDA1
- *  AUX2  SOL1_PIN            MOSI0            28 |   43 * * 50   | 37 A18 PWM        SCL1
+ *  AUX2  SOL0_PIN            MOSI0            28 |   43 * * 50   | 37 A18 PWM        SCL1
  *  D10   CONTROLLER_FAN_PIN  CAN0TX       PWM 29 |   44 * * 49   | 36 A17 PWM
  *  D9    HEATER_0_PIN        CAN0RX       PWM 30 |   45 * * 48   | 35 A16 PWM                    E1_ENABLE_PIN
  *  D8    HEATER_BED_PIN      CS1     RX4  A12 31 |   46 * * 47   | 34 A15 PWM        SDA0  RX5   E1_DIR_PIN
@@ -123,7 +123,7 @@
 #define LED_PIN                               13
 #define PS_ON_PIN                              1
 #define FILWIDTH_PIN                           6
-#define SOL1_PIN                              28
+#define SOL0_PIN                              28
 
 //
 // SD Card

@@ -33,7 +33,7 @@
 
 void lcd_sd_updir() {
   ui.encoderPosition = card.cdup() ? ENCODER_STEPS_PER_MENU_ITEM : 0;
-  encoderTopLine = 0;
+  menuTopIndex = 0;
   ui.screen_changed = true;
   ui.refresh();
 }
@@ -67,7 +67,7 @@ class MenuItem_sdfile : public MenuItem_sdbase {
       #if ENABLED(SD_REPRINT_LAST_SELECTED_FILE)
         // Save menu state for the selected file
         sd_encoder_position = ui.encoderPosition;
-        sd_top_line = encoderTopLine;
+        sd_top_line = menuTopIndex;
         sd_items = screen_items;
       #endif
       #if ENABLED(SD_MENU_CONFIRM_START)
@@ -93,7 +93,7 @@ class MenuItem_sdfolder : public MenuItem_sdbase {
     }
     static void action(FSTR_P const, CardReader &theCard) {
       card.cd(theCard.filename);
-      encoderTopLine = 0;
+      menuTopIndex = 0;
       ui.encoderPosition = (card.get_num_items() ? 2 : 1) * (ENCODER_STEPS_PER_MENU_ITEM);
       ui.screen_changed = true;
       TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
@@ -139,7 +139,7 @@ void menu_file_selector() {
 
   if (card.flag.workDirIsRoot) {
     #if !HAS_SD_DETECT
-      ACTION_ITEM(MSG_REFRESH, []{ encoderTopLine = 0; card.mount(); });
+      ACTION_ITEM(MSG_REFRESH, []{ menuTopIndex = 0; card.mount(); });
     #endif
   }
   else if (card.isMounted())

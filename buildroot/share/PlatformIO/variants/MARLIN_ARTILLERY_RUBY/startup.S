@@ -48,6 +48,9 @@
   .fpu softvfp
   .thumb
 
+.global g_pfnVectors
+.global Default_Handler
+
 /**
  * @brief  This is the code that gets called when the processor first
  *          starts execution following a reset event. Only the absolutely

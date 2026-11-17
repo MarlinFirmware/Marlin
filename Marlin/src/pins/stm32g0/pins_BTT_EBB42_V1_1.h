@@ -39,11 +39,8 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 1UL)
   #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
@@ -130,6 +127,16 @@
 #define HEATER_1_PIN                        PB13  // "HE" V1.2
 #define FAN0_PIN                            PA0   // "FAN0"
 #define FAN1_PIN                            PA1   // "FAN1"
+
+//
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PB0   // FDCAN2 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PB1   // FDCAN2 TX
+#endif
 
 //
 // Default NEOPIXEL_PIN

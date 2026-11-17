@@ -27,7 +27,7 @@
 #include "../../../sd/cardreader.h"
 #include "DGUSSDCardHandler.h"
 
-char DGUS_SDCardHandler::filenames[5][LONG_FILENAME_LENGTH] = {0};
+char DGUS_SDCardHandler::filenames[5][LONG_FILENAME_BYTES] = {0};
 
 void DGUS_SDCardHandler::setFilename(file_t file, const char* filename, bool isDir) {
   const uint8_t fileIndex = DGUS_FILE_TO_INDEX(file);

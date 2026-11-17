@@ -110,7 +110,6 @@ float axis_unit = 10;
 int16_t update_time_value = 0;
 
 bool poweroff_continue = false;
-char commandbuf[30];
 
 static SovolPage change_page_number = ID_Startup;
 
@@ -150,7 +149,7 @@ void RTS::sdCardInit() {
       if (j >= filenamelen) { addrnum++; continue; }
 
       if (j >= FILENAME_LEN) {
-        strncpy(&pFilename[FILENAME_LEN - 3], "..", 2);
+        strncpy(&pFilename[FILENAME_LEN - 3], "..", 3);
         pFilename[FILENAME_LEN - 1] = '\0';
         j = FILENAME_LEN - 1;
       }
@@ -1544,7 +1543,7 @@ void RTS::updateTempBed() {
 }
 
 void RTS::updateFan0() {
-  TERN_(HAS_FAN, sendData(thermalManager.fan_speed[0], FAN_SPEED_VP));
+  TERN_(HAS_FAN, sendData(fans[0].speed, FAN_SPEED_VP));
 }
 
 void RTS::onIdle() {
@@ -1554,7 +1553,7 @@ void RTS::onIdle() {
   // Print the file before the power is off.
   if (!power_off_type_yes) {
     if (!poweroff_continue || (lcd_sd_status && poweroff_continue)) {
-      sendData(ExchangePageBase, ExchangepageAddr);
+      gotoPage(ID_Startup);
       if (startprogress < 0) startprogress = 0;
       if (startprogress < 56) sendData(startprogress, START1_PROCESS_ICON_VP);
       delay(80);

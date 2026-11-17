@@ -85,7 +85,7 @@
 
       case 1: // Pause
 
-        gotoScreen(MKSLCD_SCREEN_PAUSE);
+        gotoScreen(DGUS_SCREEN_SDPRINTMANIPULATION);
         if (!ExtUI::isPrintingFromMediaPaused()) {
           ExtUI::pausePrint();
           //ExtUI::mks_pausePrint();
@@ -368,7 +368,7 @@ void DGUSScreenHandler::handleManualMove(DGUS_VP_Variable &var, void *val_ptr) {
           movevalue = ExtUI::getAxisPosition_mm(filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0) - movevalue;
         }
       }
-      ExtUI::setAxisPosition_mm(movevalue, filament_data.extruder);
+      ExtUI::setAxisPosition_mm(movevalue, filament_data.extruder ? ExtUI::extruder_t::E1 : ExtUI::extruder_t::E0);
     }
   }
 #endif // DGUS_FILAMENT_LOADUNLOAD

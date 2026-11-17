@@ -83,7 +83,7 @@ static void event_handler(lv_obj_t *obj, lv_event_t event) {
 
     #if ENABLED(MKS_WIFI_MODULE)
       case ID_S_WIFI:
-        if (gCfgItems.wifi_mode_sel == STA_MODEL) {
+        if (mks_wifi.mode == STA_MODEL) {
           if (wifi_link_state == WIFI_CONNECTED) {
             last_disp_state = SET_UI;
             lv_draw_wifi();

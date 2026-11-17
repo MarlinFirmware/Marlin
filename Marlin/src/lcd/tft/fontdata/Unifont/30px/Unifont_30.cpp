@@ -25,7 +25,7 @@
 #if HAS_GRAPHICAL_TFT && TFT_FONT == UNIFONT
 
 // Unifont 48pt, capital 'A' height: 30px, width: 100%, range: 0x0020-0x00ff
-extern const uint8_t Unifont_30[16801] = {
+extern const uint8_t Unifont_30[17057] = {
   129,30,32,0,255,0,42,250, // unifont_t
   // 0x0020 " "
   0,0,0,24,0,0,

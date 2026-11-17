@@ -82,6 +82,8 @@
   #include "../feature/mmu/mmu2.h"
 #elif HAS_PRUSA_MMU1
   #include "../feature/mmu/mmu.h"
+#elif HAS_CHAMELEON
+  #include "../feature/mmu/chameleon.h"
 #endif
 
 #if HAS_MARLINUI_MENU
@@ -443,6 +445,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
 #endif // TOOL_SENSOR
 
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  // A Y distance from the dock toward the work area, as a signed offset from SWITCHING_TOOLHEAD_Y_POS
+  constexpr float dock_away(const float dist) { return (SWITCHING_TOOLHEAD_DOCK_DIR) * dist; }
+#endif
+
 #if ENABLED(SWITCHING_TOOLHEAD)
 
   inline void switching_toolhead_lock(const bool locked) {
@@ -524,7 +531,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -547,7 +554,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(200);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     slow_line_to_current(Y_AXIS); // move away from docked toolhead
 
@@ -563,7 +570,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     fast_line_to_current(X_AXIS);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS - (SWITCHING_TOOLHEAD_Y_SECURITY);
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -589,7 +596,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     switching_toolhead_lock(true);
     safe_delay(500);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     slow_line_to_current(Y_AXIS); // Move away from docked toolhead
     planner.synchronize();        // Always sync the final move
@@ -623,7 +630,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 1. Move to switch position current toolhead
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
 
     SERIAL_ECHOLNPGM("(1) Place old tool ", motion.extruder);
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -656,11 +663,11 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(2) Release and Place Toolhead");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_RELEASE);
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS] * 0.1f);
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_SECURITY;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_SECURITY);
 
     DEBUG_SYNCHRONIZE();
     DEBUG_POS("Move Y SwitchPos + Security", motion.position);
@@ -681,7 +688,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_SYNCHRONIZE();
     DEBUG_ECHOLNPGM("(4) Grab new toolhead, move to security position");
 
-    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_RELEASE;
+    motion.position.y = SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_RELEASE);
     DEBUG_POS("Move Y SwitchPos + Release", motion.position);
     motion.goto_current_position(planner.settings.max_feedrate_mm_s[Y_AXIS]);
 
@@ -712,7 +719,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     planner.synchronize();
     safe_delay(100); // Give switch time to settle
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_POS("Move back Y clear", motion.position);
     fast_line_to_current(Y_AXIS); // move away from docked toolhead
     planner.synchronize(); // Always sync last tool-change move
@@ -761,7 +768,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_POS("Moving ParkPos", motion.position);
 
     motion.position.set(hoffs.x + placexpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                        hoffs.y + SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 3. Move gently to park position of active extruder
@@ -770,7 +777,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     SERIAL_ECHOLNPGM("(3) Move gently to park position of active extruder", motion.extruder);
     DEBUG_POS("Moving ParkPos", motion.position);
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y -= dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     slow_line_to_current(Y_AXIS);
 
     // 4. Disengage magnetic field, wait for delay
@@ -784,15 +791,15 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
     DEBUG_ECHOLNPGM("(5) Move near new extruder parking");
     DEBUG_POS("Moving ParkPos", motion.position);
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     slow_line_to_current(Y_AXIS);
     motion.position.set(hoffs.x + grabxpos,
-                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR);
+                         hoffs.y + SWITCHING_TOOLHEAD_Y_POS + dock_away(SWITCHING_TOOLHEAD_Y_CLEAR));
     fast_line_to_current(X_AXIS);
 
     // 6. Move gently to park position of new extruder
 
-    motion.position.y -= SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y -= dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     if (DEBUGGING(LEVELING)) {
       planner.synchronize();
       DEBUG_ECHOLNPGM("(6) Move near new extruder");
@@ -801,13 +808,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
     // 7. Engage magnetic field for new extruder parking
 
-    DEBUG_SYNCHRONIZE();
+    planner.synchronize(); // The carriage must be at the new dock before the magnet engages
     DEBUG_ECHOLNPGM("(7) Engage magnetic field");
     est_activate_solenoid();
 
     // 8. Unpark extruder
 
-    motion.position.y += SWITCHING_TOOLHEAD_Y_CLEAR;
+    motion.position.y += dock_away(SWITCHING_TOOLHEAD_Y_CLEAR);
     DEBUG_ECHOLNPGM("(8) Unpark extruder");
     slow_line_to_current(X_AXIS);
     planner.synchronize(); // Always sync the final move
@@ -912,9 +919,9 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
   // Cool down with fan
   inline void filament_swap_cooling() {
     #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = toolchange_settings.fan_speed;
+      fans[TOOLCHANGE_FS_FAN].speed = toolchange_settings.fan_speed;
       gcode.dwell(SEC_TO_MS(toolchange_settings.fan_time));
-      thermalManager.fan_speed[TOOLCHANGE_FS_FAN] = FAN_OFF_PWM;
+      fans[TOOLCHANGE_FS_FAN].speed = FAN_OFF_PWM;
     #endif
   }
 
@@ -1033,7 +1040,7 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
 
       #if HAS_FAN && TOOLCHANGE_FS_FAN >= 0
         // Store and stop fan. Restored on any exit.
-        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+        REMEMBER(fan, fans[TOOLCHANGE_FS_FAN].speed, 0);
       #endif
 
       // Z raise
@@ -1048,7 +1055,13 @@ void fast_line_to_current(const AxisEnum fr_axis) { _line_to_current(fr_axis, 0.
       // Park
       #if ENABLED(TOOLCHANGE_PARK)
         if (ok) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          #if DISABLED(TOOLCHANGE_PARK_Y_ONLY)
+            motion.position.x = toolchange_settings.change_point.x;
+            // Keep an IDEX carriage out of the other carriage's path
+            #if ALL(DUAL_X_CARRIAGE, HAS_SOFTWARE_ENDSTOPS)
+              LIMIT(motion.position.x, motion.soft_endstop.min.x, motion.soft_endstop.max.x);
+            #endif
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(
@@ -1125,11 +1138,23 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     UNUSED(no_move);
 
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
+
     mmu3.tool_change(new_tool);
+
+  #elif HAS_CHAMELEON
+
+    UNUSED(no_move);
+
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
+
+    chameleon.tool_change(new_tool);
 
   #elif HAS_PRUSA_MMU2
 
     UNUSED(no_move);
+
+    if (new_tool >= EXTRUDERS) return invalid_extruder_error(new_tool);
 
     mmu2.tool_change(new_tool);
 
@@ -1186,7 +1211,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
       #if ALL(TOOLCHANGE_FILAMENT_SWAP, HAS_FAN) && TOOLCHANGE_FS_FAN >= 0
         // Store and stop fan. Restored on any exit.
-        REMEMBER(fan, thermalManager.fan_speed[TOOLCHANGE_FS_FAN], 0);
+        REMEMBER(fan, fans[TOOLCHANGE_FS_FAN].speed, 0);
       #endif
 
       // Z raise before retraction
@@ -1244,7 +1269,11 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
       // Toolchange park
       #if ENABLED(TOOLCHANGE_PARK) && !HAS_SWITCHING_NOZZLE
         if (can_move_away && toolchange_settings.enable_park) {
-          IF_DISABLED(TOOLCHANGE_PARK_Y_ONLY, motion.position.x = toolchange_settings.change_point.x);
+          // With DUAL_X_CARRIAGE the old carriage is parked at its own home below,
+          // so don't send it to an X change point that may be in the other carriage's path.
+          #if NONE(TOOLCHANGE_PARK_Y_ONLY, DUAL_X_CARRIAGE)
+            motion.position.x = toolchange_settings.change_point.x;
+          #endif
           IF_DISABLED(TOOLCHANGE_PARK_X_ONLY, motion.position.y = toolchange_settings.change_point.y);
           #if NONE(TOOLCHANGE_PARK_X_ONLY, TOOLCHANGE_PARK_Y_ONLY)
             SECONDARY_AXIS_CODE(
@@ -1340,7 +1369,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         // Prevent a move outside physical bounds
         #if ENABLED(MAGNETIC_SWITCHING_TOOLHEAD)
           // If the original position is within tool store area, go to X origin at once
-          if (motion.destination.y < SWITCHING_TOOLHEAD_Y_POS + SWITCHING_TOOLHEAD_Y_CLEAR) {
+          if ((motion.destination.y - SWITCHING_TOOLHEAD_Y_POS) * (SWITCHING_TOOLHEAD_DOCK_DIR) < SWITCHING_TOOLHEAD_Y_CLEAR) {
             motion.position.x = X_MIN_POS;
             planner.buffer_line(motion.position, planner.settings.max_feedrate_mm_s[X_AXIS], new_tool);
             planner.synchronize();
@@ -1433,12 +1462,70 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
 
     TERN_(HAS_FANMUX, fanmux_switch(motion.extruder));
 
-    if (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move) {
+    #if defined(EVENT_GCODE_PARK_T0) || defined(EVENT_GCODE_PARK_T1) || defined(EVENT_GCODE_PARK_T2) || defined(EVENT_GCODE_PARK_T3) || defined(EVENT_GCODE_PARK_T4) || defined(EVENT_GCODE_PARK_T5) || defined(EVENT_GCODE_PARK_T6) || defined(EVENT_GCODE_PARK_T7)
+      #define HAS_EVENT_GCODE_PARK 1
+    #endif
+    #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+      #define HAS_TC_GCODE_USE_GLOBAL 1
+    #endif
 
-      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+    // Event G-code may call G28 or T, which call tool_change again. Don't recurse.
+    static bool in_event_gcode; // = false
+
+    if (!in_event_gcode && (ENABLED(EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN) || !no_move)) {
+
+      REMEMBER(evt, in_event_gcode, true);
+
+      #if ANY(HAS_EVENT_GCODE_PARK, HAS_TC_GCODE_USE_GLOBAL)
+        xyz_pos_t old_workspace_offset;
+      #endif
+
+      #if HAS_EVENT_GCODE_PARK
+
+        old_workspace_offset = motion.workspace_offset;
+
+        #if HAS_TC_GCODE_USE_GLOBAL
+          const xyz_pos_t &ho = motion.hotend_offset[new_tool];
+          TERN_(TC_GCODE_USE_GLOBAL_X, motion.workspace_offset.x -= ho.x);
+          TERN_(TC_GCODE_USE_GLOBAL_Y, motion.workspace_offset.y -= ho.y);
+          TERN_(TC_GCODE_USE_GLOBAL_Z, motion.workspace_offset.z -= ho.z);
+        #endif
+
+        switch (old_tool) {
+          default: break;
+          #ifdef EVENT_GCODE_PARK_T0
+            case 0: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T0)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T1
+            case 1: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T1)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T2
+            case 2: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T2)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T3
+            case 3: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T3)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T4
+            case 4: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T4)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T5
+            case 5: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T5)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T6
+            case 6: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T6)); break;
+          #endif
+          #ifdef EVENT_GCODE_PARK_T7
+            case 7: gcode.process_subcommands_now(F(EVENT_GCODE_PARK_T7)); break;
+          #endif
+        }
+
+        motion.workspace_offset = old_workspace_offset;
+
+      #endif // HAS_EVENT_GCODE_PARK
+
+      #if HAS_TC_GCODE_USE_GLOBAL
         // G0/G1/G2/G3/G5 moves are relative to the active tool.
         // Shift the workspace to make custom moves relative to T0.
-        xyz_pos_t old_workspace_offset;
         if (new_tool > 0) {
           old_workspace_offset = motion.workspace_offset;
           const xyz_pos_t &he = motion.hotend_offset[new_tool];
@@ -1476,7 +1563,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
         #endif
       }
 
-      #if ANY(TC_GCODE_USE_GLOBAL_X, TC_GCODE_USE_GLOBAL_Y, TC_GCODE_USE_GLOBAL_Z)
+      #if HAS_TC_GCODE_USE_GLOBAL
         if (new_tool > 0) motion.workspace_offset = old_workspace_offset;
       #endif
 
@@ -1508,7 +1595,7 @@ void tool_change(const uint8_t new_tool, bool no_move/*=false*/) {
           gcode.process_subcommands_now(F(EVENT_GCODE_AFTER_TOOLCHANGE));
       #endif
 
-    } // !no_move
+    } // EVENT_GCODE_TOOLCHANGE_ALWAYS_RUN || !no_move
 
     SERIAL_ECHOLNPGM(STR_ACTIVE_EXTRUDER, motion.extruder);
 

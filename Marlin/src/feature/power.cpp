@@ -170,7 +170,7 @@ void Power::power_off() {
 
   #if ENABLED(POWER_OFF_TIMER)
     millis_t Power::power_off_time = 0;
-    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = millis() + delay_ms; }
+    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = next_millis(millis() + delay_ms); }
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
@@ -210,9 +210,8 @@ void Power::power_off() {
 
     if (marlin.printJobOngoing() || marlin.printingIsPaused()) return true;
 
-    #if ENABLED(AUTO_POWER_FANS)
-      FANS_LOOP(i) if (thermalManager.fan_speed[i]) return true;
-    #endif
+    // Do any fans need power?
+    if (TERN0(AUTO_POWER_FANS, Fan::is_power_needed())) return true;
 
     #if ENABLED(AUTO_POWER_E_FANS)
       HOTEND_LOOP() if (thermalManager.autofan_speed[e]) return true;

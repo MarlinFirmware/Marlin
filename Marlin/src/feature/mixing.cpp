@@ -157,6 +157,7 @@ void Mixer::refresh_collector(const float proportion/*=1.0*/, const uint8_t t/*=
 
   gradient_t Mixer::gradient = {
     false,                      // enabled
+    true,                       // allowed
     {0},                        // color (array)
     0, 0,                       // start_z, end_z
     0, 1,                       // start_vtool, end_vtool

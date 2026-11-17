@@ -327,4 +327,4 @@ struct scsi_mode_page_0_header {
 
 //@}
 
-#endif // SPC_PROTOCOL_H_
+#endif // _SPC_PROTOCOL_H_

@@ -28,7 +28,7 @@
  *   - MYSERIAL1/2/3 ..... for host devices
  *   - MMU_SERIAL ........ for Multi-Material color changers
  *   - LCD_SERIAL ........ for serial LCDs
- *   - RS485_SERIAL ...... for CAN bus devices
+ *   - RS485_SERIAL ...... for RS485 bus devices
  *
  * Before including this header define the following macros:
  *   - SERIAL_INDEX_MIN, SERIAL_INDEX_MAX to provide the valid range of serial port indexes.

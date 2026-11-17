@@ -53,6 +53,10 @@
 #include "motion.h"
 #include "../gcode/queue.h"
 
+#if HAS_FAN
+  #include "temperature.h"
+#endif
+
 #if ENABLED(DELTA)
   #include "delta.h"
 #elif ENABLED(POLARGRAPH)
@@ -309,7 +313,7 @@ typedef struct PlannerBlock {
     uint32_t acceleration_rate;             // Acceleration rate in (2^24 steps)/timer_ticks*s
   #endif
 
-  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is negative motion
+  AxisBits direction_bits;                  // Direction bits set for this block, where 1 is forward motion
 
   #if ENABLED(FT_MOTION)
     ext_distance_t ext_distance_mm;         // The distance traveled in mm along each axis
@@ -349,7 +353,7 @@ typedef struct PlannerBlock {
   #endif
 
   #if HAS_FAN
-    uint8_t fan_speed[FAN_COUNT];
+    uint8_t fan_speed[FAN_COUNT];           // Speeds of all fans
   #endif
 
   #if ENABLED(BARICUDA)
@@ -530,6 +534,7 @@ class Planner {
     #if HAS_EXTRUDERS
       static int16_t flow_percentage[EXTRUDERS];    // Extrusion factor for each extruder
       static float e_factor[EXTRUDERS];             // The flow percentage and volumetric multiplier combine to scale E movement
+      static float e_step_remainder[EXTRUDERS];     // (steps) Fraction of a step left over from scaling E by e_factor, carried to the next block
     #endif
 
     #if HAS_VOLUMETRIC_EXTRUSION
@@ -733,16 +738,6 @@ class Planner {
 
     #if ENABLED(AUTOTEMP)
       static float get_high_e_speed();
-    #endif
-
-    // Apply fan speeds
-    #if HAS_FAN
-      static void sync_fan_speeds(uint8_t (&fan_speed)[FAN_COUNT]);
-      #if FAN_KICKSTART_TIME
-        static void kickstart_fan(uint8_t (&fan_speed)[FAN_COUNT], const millis_t &ms, const uint8_t f);
-      #else
-        FORCE_INLINE static void kickstart_fan(uint8_t (&)[FAN_COUNT], const millis_t &, const uint8_t) {}
-      #endif
     #endif
 
     #if ENABLED(FILAMENT_WIDTH_SENSOR)
@@ -1010,7 +1005,7 @@ class Planner {
      * @param extruder      Optional target extruder (otherwise motion.extruder)
      * @param hints         Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_segment(const abce_pos_t &abce
       OPTARG(HAS_DIST_MM_ARG, const xyze_float_t &cart_dist_mm)
@@ -1024,19 +1019,39 @@ class Planner {
      *
      * @brief Add a new linear movement to the buffer.
      * @details The target is cartesian. It's translated to
-     *          delta/scara if needed.
+     *          DELTA/SCARA if needed.
      *
      * @param cart      Target position in mm or degrees
      * @param fr_mm_s   (Target) speed of the move (mm/s)
      * @param extruder  Optional target extruder (otherwise motion.extruder)
      * @param hints     Optional parameters to aid planner calculations
      *
-     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc...
+     * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
      */
     static bool buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
       , const uint8_t extruder=motion.extruder
       , const PlannerHints &hints=PlannerHints()
     );
+
+    #if HAS_EXTRUDERS
+      /**
+       * @fn Planner::buffer_e_move
+       *
+       * @brief Add an extruder-only movement relative to the end of the planner queue.
+       * @details Starts from the planner's own end position, so no other axis moves and
+       *          neither leveling nor kinematics need to be applied. Backlash is
+       *          unaffected (no other axis changes direction).
+       *
+       * @param de_mm     Distance to extrude (+) or retract (-) in mm of filament
+       * @param fr_mm_s   (Target) speed of the move (mm/s)
+       * @param extruder  Optional target extruder (otherwise motion.extruder)
+       *
+       * @return  false if no segment was queued due to cleaning, cold extrusion, full queue, etc.
+       */
+      static bool buffer_e_move(const float de_mm, const feedRate_t fr_mm_s
+        , const uint8_t extruder=motion.extruder
+      );
+    #endif
 
     #if ENABLED(DIRECT_STEPPING)
       static void buffer_page(const page_idx_t page_idx, const uint8_t extruder, const uint16_t num_steps);

@@ -1,0 +1,179 @@
+# Mainsail + Moonraker + serial2moon in Docker, for a Marlin printer or the Marlin simulator.
+# Mainsail and Moonraker expect Klipper; serial2moon stands in for it and speaks Marlin G-code.
+# Needs Docker with Compose v2.24 or newer.
+#
+#   docker compose -f mainsail.yml up -d
+#   open http://localhost:8088               # Mainsail (Moonraker is on :7125)
+#
+# Settings go in a `.env` file next to this one (all optional):
+#   S2M_TRANSPORT=tcp                          talk to a TCP serial socket instead of USB, e.g.
+#   S2M_TCP_ADDR=host.docker.internal:8099       the Marlin simulator on this computer
+#   S2M_SERIAL_PORT=/dev/serial/by-id/usb-...  pin the printer's port (else autodetect)
+#   S2M_BAUD=115200                            pin the baud (else autodetect via M115)
+#   MAINSAIL_PORT=8088                         Mainsail's port
+#   MOONRAKER_PORT=7125                        Moonraker's port
+#   PRINTER_NAME=my-printer                    name shown in Mainsail
+#   S2M_IMAGE=ghcr.io/...:tag                  another serial2moon image
+#
+# USB printers need a Linux host (Docker Desktop on macOS/Windows can't pass USB through);
+# the TCP transport works everywhere. The simulator's socket takes one client at a time, so
+# don't run this together with octoprint.yml.
+#
+# The default image is built from the MarlinFirmware/serial2moon fork's `marlin-connector`
+# branch, which has the Marlin support (TCP transport, printer-reported limits) that is still
+# going into Lukas-Heiligenbrunner/serial2moon. Once that is released, use its `:stable` tag.
+#
+# Updating: `docker compose -f mainsail.yml pull && docker compose -f mainsail.yml up -d`
+# (not while printing).
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  serial2moon:
+    image: ${S2M_IMAGE:-ghcr.io/marlinfirmware/serial2moon:marlin-connector}
+    hostname: ${PRINTER_NAME:-serial2moon} # shown in Mainsail as the printer name
+    depends_on:
+      - moonraker # let Moonraker initialize the shared volumes first
+    user: "1000:1000"
+    group_add:
+      - dialout # to open the serial port (resolved from the image's /etc/group)
+    env_file: # any S2M_* setting in .env (e.g. S2M_SERIAL_PORT, S2M_BAUD) reaches serial2moon
+      - path: .env
+        required: false
+    environment:
+      - S2M_TRANSPORT=${S2M_TRANSPORT:-serial}
+      - S2M_TCP_ADDR=${S2M_TCP_ADDR:-host.docker.internal:8099}
+      - S2M_UDS=/opt/printer_data/run/klippy.sock
+      - S2M_GCODE_DIR=/opt/printer_data/gcodes
+      - S2M_LOG_DIR=/opt/printer_data/logs
+      # Editable settings file, shown next to moonraker.conf in Mainsail's config editor.
+      - S2M_CONFIG_FILE=/opt/printer_data/config/serial2moon.conf
+    volumes:
+      - comms:/opt/printer_data/run
+      - gcodes:/opt/printer_data/gcodes
+      - logs:/opt/printer_data/logs
+      - config:/opt/printer_data/config
+      - /dev:/dev # all serial devices, surviving hotplug/replug
+    device_cgroup_rules:
+      - "c 188:* rmw" # USB serial (ttyUSB*)
+      - "c 166:* rmw" # USB CDC ACM (ttyACM*)
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # reach a TCP serial socket on this host (Linux)
+    restart: unless-stopped
+    logging: *default-logging
+
+  moonraker:
+    image: mkuf/moonraker:latest
+    hostname: ${PRINTER_NAME:-serial2moon}
+    volumes:
+      - comms:/opt/printer_data/run
+      - gcodes:/opt/printer_data/gcodes
+      - logs:/opt/printer_data/logs
+      - config:/opt/printer_data/config
+    configs:
+      - source: moonraker_conf
+        target: /opt/printer_data/config/moonraker.conf
+      # serial2moon reports klipper_path=/opt/serial2moon; Moonraker serves its config/ and
+      # docs/ folders and warns when they're missing.
+      - source: docs_readme
+        target: /opt/serial2moon/docs/README.md
+      - source: config_example
+        target: /opt/serial2moon/config/serial2moon.conf.example
+    ports:
+      - "${MOONRAKER_PORT:-7125}:7125"
+    restart: unless-stopped
+    logging: *default-logging
+
+  mainsail:
+    # `v2`, not `latest`: Mainsail's `latest` is its unprivileged variant (nginx on 8080).
+    image: ghcr.io/mainsail-crew/mainsail:v2
+    depends_on:
+      - moonraker
+    configs:
+      - source: mainsail_proxy
+        target: /etc/nginx/extra-conf.d/moonraker.conf
+    ports:
+      - "${MAINSAIL_PORT:-8088}:80"
+    restart: unless-stopped
+    logging: *default-logging
+
+configs:
+  moonraker_conf:
+    content: |
+      # serial2moon emulates Klipper; Moonraker connects to its socket as if it were klippy.
+      [server]
+      host: 0.0.0.0
+      port: 7125
+      klippy_uds_address: /opt/printer_data/run/klippy.sock
+
+      [machine]
+      provider: none
+
+      [authorization]
+      trusted_clients:
+          10.0.0.0/8
+          127.0.0.0/8
+          169.254.0.0/16
+          172.16.0.0/12
+          192.168.0.0/16
+          FE80::/10
+          ::1/128
+      cors_domains:
+          *.lan
+          *.local
+          *://localhost
+          *://localhost:*
+
+      [file_manager]
+      enable_object_processing: False
+
+      [octoprint_compat]
+
+      [history]
+
+  mainsail_proxy:
+    content: |
+      # Proxy Moonraker's API + websocket through Mainsail's nginx (one origin for the browser).
+      location /websocket {
+          proxy_pass http://moonraker:7125/websocket;
+          proxy_http_version 1.1;
+          proxy_set_header Upgrade $$http_upgrade;
+          proxy_set_header Connection "upgrade";
+          proxy_set_header Host $$http_host;
+          proxy_read_timeout 86400;
+      }
+      location ~ ^/(printer|api|access|machine|server)/ {
+          proxy_pass http://moonraker:7125$$request_uri;
+          proxy_set_header Host $$http_host;
+          proxy_set_header X-Real-IP $$remote_addr;
+          proxy_set_header X-Forwarded-For $$proxy_add_x_forwarded_for;
+          proxy_set_header X-Scheme $$scheme;
+          client_max_body_size 1024M;
+      }
+
+  docs_readme:
+    content: |
+      # serial2moon
+
+      Runs Mainsail/Fluidd on a Marlin printer. Documentation:
+      https://github.com/Lukas-Heiligenbrunner/serial2moon
+
+  config_example:
+    content: |
+      # serial2moon.conf: KEY=VALUE lines, '#' starts a comment. Restart serial2moon to apply
+      # (docker compose restart serial2moon). All settings: see the project README.
+      #RUST_LOG=info
+      #S2M_EXTRUDER_MAX_TEMP=300
+      #S2M_BED_MAX_TEMP=120
+      #S2M_PAUSE_LIFT=5
+      #S2M_PAUSE_RETRACT=1
+
+volumes:
+  comms:
+  gcodes:
+  logs:
+  config:

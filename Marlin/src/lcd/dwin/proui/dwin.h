@@ -151,9 +151,6 @@ typedef struct {
   #if ENABLED(PREVENT_COLD_EXTRUSION)
     celsius_t extMinT = EXTRUDE_MINTEMP;
   #endif
-  #if ENABLED(PREHEAT_BEFORE_LEVELING)
-    celsius_t bedLevT = LEVELING_BED_TEMP;
-  #endif
 
   // Various Options
   #if ENABLED(BAUD_RATE_GCODE)
@@ -167,13 +164,18 @@ typedef struct {
   #endif
   bool mediaAutoMount = ENABLED(HAS_SD_EXTENDER);
   #if ALL(INDIVIDUAL_AXIS_HOMING_SUBMENU, MESH_BED_LEVELING)
-    uint8_t zAfterHoming = Z_AFTER_HOMING;
+    #ifdef Z_AFTER_HOMING
+      #define DEF_Z_AFTER_HOMING Z_AFTER_HOMING
+    #else
+      #define DEF_Z_AFTER_HOMING 0
+    #endif
+    uint8_t zAfterHoming = DEF_Z_AFTER_HOMING;
     #define Z_POST_CLEARANCE hmiData.zAfterHoming
   #endif
   #if ALL(LED_CONTROL_MENU, HAS_COLOR_LEDS)
     LED1Color_t ledColor = defColorLeds;
   #endif
-  #if HAS_GCODE_PREVIEW
+  #if PROUI_GCODE_PREVIEW
     bool enablePreview = true;
   #endif
   #if HAS_BED_PROBE && DISABLED(BD_SENSOR)
@@ -236,7 +238,7 @@ uint32_t getHash(char * str);
   void writeEEPROM();
   void readEEPROM();
   void resetEEPROM();
-  #if HAS_MESH
+  #if HAS_MESH_STORAGE
     void saveMesh();
   #endif
 #endif
@@ -278,8 +280,10 @@ void autoHome();
 #endif
 #if ENABLED(AUTO_BED_LEVELING_UBL)
   void ublMeshTilt();
-  void ublMeshSave();
-  void ublMeshLoad();
+  #if HAS_MESH_STORAGE
+    void ublMeshSave();
+    void ublMeshLoad();
+  #endif
 #endif
 
 // Other

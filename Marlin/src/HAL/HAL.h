@@ -45,3 +45,11 @@ extern MarlinHAL hal;
 #ifndef PGMSTR
   #define PGMSTR(NAM,STR) const char NAM[] = STR
 #endif
+
+// Pin states
+#ifndef LOW
+  #define LOW 0
+#endif
+#ifndef HIGH
+  #define HIGH 1
+#endif

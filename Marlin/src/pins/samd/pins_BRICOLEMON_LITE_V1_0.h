@@ -38,7 +38,7 @@
 #endif
 
 #ifndef BOARD_INFO_NAME
-  #define BOARD_INFO_NAME "Bricolemon Lite v1.0" // Lemoncrest & BricoGeek collaboration.
+  #define BOARD_INFO_NAME "Bricolemon Lite v1.0"  // Lemoncrest & BricoGeek collaboration.
 #endif
 
 //
@@ -48,14 +48,12 @@
   #define I2C_EEPROM                              // EEPROM on I2C-0
   //#define FLASH_EEPROM_EMULATION
   //#define SDCARD_EEPROM_EMULATION
-  #if ENABLED(I2C_EEPROM)
-    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
-  #if ENABLED(SDCARD_EEPROM_EMULATION)
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #else
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #endif
-  #undef NO_EEPROM_SELECTED
+#endif
+
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE            0x10000U  // 64K (CAT24C512)
+#elif ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -613,9 +611,12 @@
 
   //
   // Software serial
+  // The TMC2209 PDN_UART line is single-wire: with TX on D0 and RX on D1 the TX pin keeps
+  // driving the line and the drivers can't reply ("TMC CONNECTION ERROR", M122 "All LOW").
+  // Using the same pin for TX and RX enables half-duplex mode (as documented by BricoGeek).
   //
   #define X_SERIAL_TX_PIN                      0
-  #define X_SERIAL_RX_PIN                      1
+  #define X_SERIAL_RX_PIN                      0
 
   #define Y_SERIAL_TX_PIN        X_SERIAL_TX_PIN
   #define Y_SERIAL_RX_PIN        X_SERIAL_RX_PIN

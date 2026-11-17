@@ -35,11 +35,8 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE     EEPROM_PAGE_SIZE
@@ -330,6 +327,16 @@
 #define SD_SCK_PIN                          PC10
 #define SD_MISO_PIN                         PC11
 #define SD_MOSI_PIN                         PC12
+
+//
+// CAN bus
+//
+#ifndef CAN_RX_PIN
+  #define CAN_RX_PIN                        PB12  // FDCAN2 RX
+#endif
+#ifndef CAN_TX_PIN
+  #define CAN_TX_PIN                        PB13  // FDCAN2 TX
+#endif
 
 //
 // NeoPixel LED

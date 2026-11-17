@@ -63,7 +63,7 @@ Required host libraries (from `native.ini` comments):
 
 ## Conventions
 
-- All HAL source is guarded by `#ifdef __PLAT_NATIVE_SIM__` (not `ARDUINO_ARCH_*`). Every `.cpp` wraps its body in this guard (see `HAL.cpp`, `pinsDebug.cpp`, `Servo.cpp`).
+- All HAL source is guarded by `#ifdef __PLAT_NATIVE_SIM__` (not `ARDUINO_ARCH_*`). Every `.cpp` wraps its body in this guard (see `HAL.cpp`, `Servo.cpp`).
 - Keep HAL changes in `Marlin/src/HAL/NATIVE_SIM/` and its `u8g/`, `tft/`, `inc/` subfolders. Board pin layout is `Marlin/src/pins/native/pins_RAMPS_NATIVE.h` (`BOARD_SIMULATED`, a RAMPS-like map) — not in this folder.
 - This is the **GUI** simulator; the **LINUX** HAL (`src/HAL/LINUX/`, `linux_native` env) is the separate headless console build. Do not conflate the two. Both share the same virtual-`Gpio` pin model, so a pin/simulation fix may need to be mirrored in the LINUX HAL too.
 - External dependencies (`MarlinSimUI`, `Adafruit NeoPixel`, `LiquidCrystal`) are pinned git-zip `lib_deps`; if you change a HAL API they call, bump/verify the library version and re-test the build.

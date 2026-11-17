@@ -22,6 +22,9 @@
 
 #include "../gcode.h"
 #include "../../module/motion.h"
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 /**
  * M220: Set Feedrate Percentage
@@ -46,4 +49,5 @@ void GcodeSuite::M220() {
   if (parser.seen_test('B')) backup_feedrate_percentage = now_feedrate_perc;
   if (parser.seenval('S')) motion.feedrate_percentage = parser.value_int();
 
+  TERN_(CREALITY_RTS, RTS_UpdateFeedrate(motion.feedrate_percentage));
 }

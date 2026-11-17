@@ -17,7 +17,7 @@ buildroot/bin/mftest -t HC32F460C_aquila_101 -n1 -y   # Voxelab Aquila V1.0.x, 2
 
 ## Framework / Platform Integration (upstream, not vendored)
 
-Unlike AT32, the HC32 HAL uses **upstream (third-party) Arduino packages** pulled straight from GitHub by PlatformIO — there is **no vendored framework** in this repo (`buildroot/share/PlatformIO/` carries only `framework-arduino-at32f4` and `platform-at32`, nothing for HC32). `ini/hc32.ini` declares them as remote archives:
+The HC32 HAL uses **upstream (third-party) Arduino packages** pulled straight from GitHub by PlatformIO — there is **no vendored framework** in this repo. `ini/hc32.ini` declares them as remote archives:
 
 ```ini
 platform          = https://github.com/shadow578/platform-hc32f46x/archive/1.1.1.zip
@@ -27,7 +27,7 @@ platform_packages = framework-hc32f46x-ddl@https://github.com/shadow578/framewor
 
 Implications:
 
-- **Framework fixes are NOT made in this repo.** To change the core (flags, serial, USB, DDL/DDL options) you edit `ini/hc32.ini` `build_flags` / `board_build.*` keys, or pin a new upstream core tag. There is no `buildroot/share/PlatformIO/framework-arduino-hc32f4x` to keep in sync with an installed package — the AT32 "mirror the two copies" rule does **not** apply here.
+- **Framework fixes are NOT made in this repo.** To change the core (flags, serial, USB, DDL/DDL options) you edit `ini/hc32.ini` `build_flags` / `board_build.*` keys, or pin a new upstream core tag.
 - The core version is pinned and **enforced at compile time**: `inc/SanityCheck.h` requires `ARDUINO_CORE_VERSION_INT >= 1.1.0` (for `app_config.h`) and gates `SERIAL_DMA`, `EMERGENCY_PARSER`, and `SoftwareSerial` on core 1.2.0 / 1.3.1. Bumping the core tag is a real compatibility event — check the `ARDUINO_CORE_VERSION_INT` checks before doing so.
 
 ### Gotchas that are not obvious from the source
@@ -40,7 +40,7 @@ Implications:
 
 4. **Emergency parser hooks the USART RX ISR.** `HAL.h` declares `extern "C" void usart_rx_irq_hook(uint8_t ch, uint8_t usart);` (behind `ENABLED(EMERGENCY_PARSER)`). `SERIAL_DMA` + `EMERGENCY_PARSER` together require core `>= 1.2.0` (that release added `core_hook_usart_rx_irq`), else SanityCheck errors. Enable both with an older core at your peril.
 
-5. **EEPROM backend is per-board, not auto-selected.** Marlin does NOT auto-pick an `EEPROM_*_EMULATION` backend. Three implementations ship in `eeprom/`: `eeprom_wired.cpp` (I2C/SPI wired), `eeprom_if_iic.cpp` (generic I2C), `eeprom_bl24cxx.cpp` (BL24Cxx I2C EEPROM), and `eeprom_sdcard.cpp` (`SDCARD_EEPROM_EMULATION`, requires `SDSUPPORT`). The board pins file must `#define` the backend it wants; the Aquila test uses SD-card EEPROM (`sdsupport = on`, `eeprom_settings = on`). `SDCARD_EEPROM_EMULATION` without `HAS_MEDIA` is an error.
+5. **EEPROM backend is per-board, not auto-selected.** Marlin does NOT auto-pick an `EEPROM_*_EMULATION` backend. These implementations ship in `eeprom/`: `eeprom_wired.cpp` (I2C/SPI wired), `eeprom_if_iic.cpp` (generic I2C), `eeprom_bl24cxx.cpp` (BL24Cxx I2C EEPROM), `eeprom_sdcard.cpp` (`SDCARD_EEPROM_EMULATION`, requires `SDSUPPORT`), and `eeprom_flash.cpp` (`FLASH_EEPROM_EMULATION`, uses the last 8K sector of internal flash; needs `HC32_FLASH_SIZE`, which the `HC32F460C_base` / `HC32F460E_base` envs define, and refuses to write if the firmware image reaches that sector). The board pins file must `#define` the backend it wants; the Aquila test uses SD-card EEPROM (`sdsupport = on`, `eeprom_settings = on`). `SDCARD_EEPROM_EMULATION` without `HAS_MEDIA` is an error.
 
 6. **`FAST_PWM_FAN` is unsupported.** `inc/SanityCheck.h` hard-errors on `FAST_PWM_FAN` — there is no hardware PWM-fan implementation yet. Don't enable it; use software PWM fans.
 

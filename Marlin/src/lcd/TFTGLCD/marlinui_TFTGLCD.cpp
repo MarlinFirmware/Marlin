@@ -36,14 +36,15 @@
   #warning "Selected platform not yet tested. Please contribute your good pin mappings."
 #endif
 
+#include "marlinui_TFTGLCD.h"
+#include "../marlinui.h"
+
 #if ENABLED(TFTGLCD_PANEL_SPI)
   #include <SPI.h>
 #else
   #include <Wire.h>
 #endif
 
-#include "marlinui_TFTGLCD.h"
-#include "../marlinui.h"
 #include "../../libs/numtostr.h"
 
 #include "../../sd/cardreader.h"
@@ -288,10 +289,8 @@ uint8_t MarlinUI::read_slow_buttons() {
     Wire.endTransmission();
     #ifdef __AVR__
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), 2, 0, 0, 1);
-    #elif defined(STM32F1)
+    #else
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), uint8_t(2));
-    #elif ANY(STM32F4xx, TARGET_LPC1768)
-      Wire.requestFrom(LCD_I2C_ADDRESS, 2);
     #endif
     encoderDiff += Wire.read();
     return Wire.read();   //buttons
@@ -326,23 +325,19 @@ void MarlinUI::init_lcd() {
     // SPI speed must be less 10MHz
     SET_OUTPUT(TFTGLCD_CS);
     WRITE(TFTGLCD_CS, HIGH);
-    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, SPI_FULL_SPEED));
+    spiInit(TERN(__STM32F1__, SPI_QUARTER_SPEED, TERN(HAL_STM32, SPI_HALF_SPEED, SPI_FULL_SPEED)));
     WRITE(TFTGLCD_CS, LOW);
     SPI_SEND_ONE(GET_LCD_ROW);
     t = SPI_SEND_ONE(GET_SPI_DATA);
   #else
-    #ifdef TARGET_LPC1768
-      Wire.begin();   //init twi/I2C
-    #else
-      Wire.begin(uint8_t(LCD_I2C_ADDRESS)); //init twi/I2C
-    #endif
+    Wire.begin(); // Join the bus as master. With an address, STM32 and ESP32 cores make it a slave.
     Wire.beginTransmission(uint8_t(LCD_I2C_ADDRESS));
     Wire.write(uint8_t(GET_LCD_ROW)); // put command to buffer
     Wire.endTransmission(); // send buffer
     #ifdef __AVR__
       Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), 1, 0, 0, 1);
-    #elif ANY(STM32F1, STM32F4xx, TARGET_LPC1768)
-      Wire.requestFrom(LCD_I2C_ADDRESS, 1);
+    #else
+      Wire.requestFrom(uint8_t(LCD_I2C_ADDRESS), uint8_t(1));
     #endif
     t = (uint8_t)Wire.read();
   #endif
@@ -836,7 +831,7 @@ void MarlinUI::draw_status_screen() {
 
   lcd_moveto(0, 1);
   lcd_put_u8str(F("FR")); lcd.print(i16tostr3rj(motion.feedrate_percentage)); lcd.write('%');
-  ui.rotate_progress();   // UNTESTED!!!
+  TERN_(HAS_PRINT_PROGRESS, ui.rotate_progress());   // UNTESTED!!!
 
   //
   // Line 3 - progressbar
@@ -906,11 +901,11 @@ void MarlinUI::draw_status_screen() {
     #endif
 
     #if HAS_FAN
-      uint16_t spd = thermalManager.fan_speed[0];
+      uint16_t spd = fans[0].speed;
       #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        if (!blink) spd = thermalManager.scaledFanSpeed(0, spd);
+        if (!blink) spd = fans[0].scaled_speed(spd);
       #endif
-      uint16_t per = thermalManager.pwmToPercent(spd);
+      const uint16_t pct = Fan::pwmToPercent(spd);
 
       #if HOTENDS < 2
         #define FANX 11
@@ -920,9 +915,9 @@ void MarlinUI::draw_status_screen() {
       lcd_moveto(FANX, 5); lcd_put_u8str(F("FAN"));
       lcd_moveto(FANX + 1, 6); lcd.write('%');
       lcd_moveto(FANX, 7);
-      lcd.print(i16tostr3rj(per));
+      lcd.print(i16tostr3rj(pct));
 
-      if (TERN0(HAS_FAN0, thermalManager.fan_speed[0]) || TERN0(HAS_FAN1, thermalManager.fan_speed[1]) || TERN0(HAS_FAN2, thermalManager.fan_speed[2]))
+      if (TERN0(HAS_FAN0, fans[0].speed) || TERN0(HAS_FAN1, fans[1].speed) || TERN0(HAS_FAN2, fans[2].speed))
         picBits |= ICON_FAN;
       else
         picBits &= ~ICON_FAN;

@@ -32,6 +32,10 @@
 #include "motion.h"
 #include "planner.h"
 
+#if ANY(HOMING_HYBRID_THRESHOLD, HAS_HOMING_CURRENT)
+  #include "../feature/tmc_util.h"
+#endif
+
 #if ENABLED(AXEL_TPARA)
   #include "endstops.h"
 #endif
@@ -257,19 +261,19 @@ float segments_per_second = DEFAULT_SEGMENTS_PER_SECOND;
       #endif
     #endif
 
-    // Set the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, motion.set_homing_current(Z_AXIS));
+    {
+      // Use the homing current and Hybrid Threshold for this move only
+      TERN_(HAS_HOMING_CURRENT, const TemporaryHomingCurrent temp_current(Z_AXIS));
+      TERN_(HOMING_HYBRID_THRESHOLD, const TemporaryHomingHybridThreshold temp_hybrid_thrs(Z_AXIS));
 
-    // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
-    // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to Z_MAX_LENGTH
-    constexpr xyz_pos_t homing_pos_dir = apply_T_W_offset(xyz_pos_t({ 1, 0, Z_MAX_LENGTH }));
-    motion.position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
+      // Move to home, should move Z, Y, then X. Move X to near 0 (to avoid div by zero
+      // and sign/angle stability around 0 for trigonometric functions), Y to 0 and Z to Z_MAX_LENGTH
+      constexpr xyz_pos_t homing_pos_dir = apply_T_W_offset(xyz_pos_t({ 1, 0, Z_MAX_LENGTH }));
+      motion.position.set(homing_pos_dir.x, homing_pos_dir.y, homing_pos_dir.z);
 
-    motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
-    planner.synchronize();
-
-    // Restore the homing current for all motors
-    TERN_(HAS_HOMING_CURRENT, motion.restore_homing_current(Z_AXIS));
+      motion.goto_current_position(motion.homing_feedrate(Z_AXIS));
+      planner.synchronize();
+    } // Restore homing current and Hybrid Threshold
 
     // Re-enable stealthChop if used. Disable diag1 pin on driver.
     #if ENABLED(SENSORLESS_HOMING)

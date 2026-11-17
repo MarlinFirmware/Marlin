@@ -25,7 +25,7 @@
   #define ONBOARD_SPI_DEVICE SPI_DEVICE
 #endif
 
-#if HAS_SD_HOST_DRIVE
+#if HAL_SD_HOST_DRIVE
   #define ONBOARD_SD_SPI SPI
 #else
   SPIClass OnboardSPI(ONBOARD_SPI_DEVICE);

@@ -1,17 +1,18 @@
-'''
+"""
 config.py - Helper functions for config manipulation
 
 Make sure both copies always match:
  - buildroot/bin/config.py
  - buildroot/share/PlatformIO/scripts/config.py
+"""
 
-'''
 import re, os
 
 FILES = ('Marlin/Configuration.h', 'Marlin/Configuration_adv.h')
 
 def resolve(base=None):
-    """Return config FILES as absolute paths.
+    """
+    Return config FILES as absolute paths.
 
     With --base <dir>: try flat layout first (Configurations repo:
     <dir>/Configuration.h), then fall back to <dir>/Marlin/Configuration.h.
@@ -46,10 +47,10 @@ def pop_and_resolve_base_arg(args):
 
 
 def set(file_path, define_name, value):
-    '''
+    """
     Replaces a define in a file with a new value.
     Returns True if the define was found and replaced, False otherwise.
-    '''
+    """
     # Read the contents of the file
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
@@ -75,9 +76,9 @@ def set(file_path, define_name, value):
 
 
 def add(file_path, define_name, value=""):
-    '''
+    """
     Insert a define on the first blank line in a file.
-    '''
+    """
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()
 
@@ -100,10 +101,10 @@ def add(file_path, define_name, value=""):
 
 
 def enable(file_path, define_name, enable=True):
-    '''
+    """
     Uncomment or comment the named defines in the given file path.
     Returns True if the define was found, False otherwise.
-    '''
+    """
     # Read the contents of the file
     with open(file_path, 'r', encoding='utf-8') as f:
         content = f.readlines()

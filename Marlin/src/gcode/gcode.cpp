@@ -179,11 +179,12 @@ void GcodeSuite::get_destination_from_command() {
   // Get new XYZ position, whether absolute or relative
   LOOP_NUM_AXES(i) {
     if ( (seen[i] = parser.seenval(AXIS_CHAR(i))) ) {
-      const float v = parser.value_axis_units((AxisEnum)i);
       if (skip_move)
         motion.destination[i] = motion.position[i];
-      else
+      else {
+        const float v = parser.value_axis_units((AxisEnum)i);
         motion.destination[i] = axis_is_relative((AxisEnum)i) ? motion.position[i] + v : motion.logical_to_native(v, (AxisEnum)i);
+      }
     }
     else
       motion.destination[i] = motion.position[i];
@@ -562,6 +563,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 48: M48(); break;                                    // M48: Z probe repeatability test
       #endif
 
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+        case 72: M72(); break;                                    // M72: Set Creality Cloud job name
+      #endif
+
       #if ENABLED(SET_PROGRESS_MANUALLY)
         case 73: M73(); break;                                    // M73: Set progress percentage
       #endif
@@ -572,6 +577,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(PRINTCOUNTER)
         case 78: M78(); break;                                    // M78: Show print statistics
+      #endif
+
+      #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+        case 79: M79(); break;                                    // M79: Creality Cloud print status
       #endif
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
@@ -765,6 +774,11 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 221: M221(); break;                                  // M221: Set Flow Percentage
       #endif
 
+      #if ENABLED(CREALITY_RTS)
+        case 224: M224(); break;                                  // M224: LED On
+        case 225: M225(); break;                                  // M225: LED Off
+      #endif
+
       #if ENABLED(DIRECT_PIN_CONTROL)
         case 226: M226(); break;                                  // M226: Wait until a pin reaches a state
       #endif
@@ -848,7 +862,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 360: M360(); break;                                  // M360: Firmware settings
       #endif
 
-      #if ENABLED(SCARA)
+      #if ENABLED(SCARA_CALIBRATION)
         case 360: if (M360()) return; break;                      // M360: SCARA Theta pos1
         case 361: if (M361()) return; break;                      // M361: SCARA Theta pos2
         case 362: if (M362()) return; break;                      // M362: SCARA Psi pos1
@@ -970,6 +984,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(BAUD_RATE_GCODE)
         case 575: M575(); break;                                  // M575: Set serial baudrate
+      #endif
+
+      #if ENABLED(MKS_WIFI_MODULE)
+        case 587: M587(); break;                                  // M587: Set/report MKS WiFi network
       #endif
 
       #if ENABLED(NONLINEAR_EXTRUSION)
@@ -1111,6 +1129,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 951: M951(); break;                                  // M951: Set Magnetic Parking Extruder parameters
       #endif
 
+      #if ENABLED(CAN_BUS)
+        case 960: M960(); break;                                  // M960: CAN bus state and node discovery
+      #endif
+
       #if ENABLED(Z_STEPPER_AUTO_ALIGN)
         case 422: M422(); break;                                  // M422: Set Z Stepper automatic alignment position using probe
       #endif
@@ -1132,7 +1154,19 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
         case 997: M997(); break;                                  // M997: Perform in-application firmware update
       #endif
 
+      #if ENABLED(MENU_RESET_WIFI)
+        case 194: M194(); break;                                  // M194: Reset WiFi
+      #endif
+
+      #if ENABLED(CREALITY_WIFI)
+        case 930: M930(); break;                                  // M930: Support Creality WIFI Box
+      #endif
+
       case 999: M999(); break;                                    // M999: Restart after being Stopped
+
+      #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+        case 7422: M7422(); break;                                // M7422: Dump the Creality v4.2.x bootloader info page
+      #endif
 
       #if ENABLED(POWER_LOSS_RECOVERY)
         case 413: M413(); break;                                  // M413: Enable/disable/query Power-Loss Recovery
@@ -1153,6 +1187,10 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
 
       #if ENABLED(UBL_MESH_WIZARD)
         case 1004: M1004(); break;                                // M1004: UBL Mesh Wizard
+      #endif
+
+      #if ENABLED(CREALITY_RTS)
+        case 2900: M2900(); break;                                // M2900: Report Bed Leveling Grid and test result
       #endif
 
       #if ENABLED(MAX7219_GCODE)
@@ -1181,7 +1219,7 @@ void GcodeSuite::process_parsed_command(bool no_ok/*=false*/) {
       #if ENABLED(WIFI_CUSTOM_COMMAND)
         if (wifi_custom_command(parser.command_ptr)) break;
       #endif
-      parser.unknown_command_warning();
+      parser.unknown_command_warning();                           // Other unknown, including > 65535
   }
 
   if (!no_ok) queue.ok_to_send();
@@ -1238,7 +1276,7 @@ void GcodeSuite::process_subcommands_now(FSTR_P fgcode) {
     if (!delim) break;                                // Last command?
     pgcode = delim + 1;                               // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #pragma GCC diagnostic pop
@@ -1254,10 +1292,14 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
     *delim = '\n';                                    // Put back the newline
     gcode = delim + 1;                                // Get the next command
   }
-  parser.parse(saved_cmd);                            // Restore the parser state
+  if (saved_cmd) parser.parse(saved_cmd);             // Restore the parser state (if any)
 }
 
 #if ENABLED(HOST_KEEPALIVE_FEATURE)
+
+  #if ENABLED(CREALITY_RTS)
+    extern int change_page_indx;
+  #endif
 
   /**
    * Output a "busy" message at regular intervals
@@ -1276,7 +1318,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.report_position_moving());
           break;
         case PAUSED_FOR_USER:
-          SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
+          if (TERN1(CREALITY_RTS, change_page_indx == 7)) SERIAL_ECHO_MSG(STR_BUSY_PAUSED_FOR_USER);
           TERN_(FULL_REPORT_TO_HOST_FEATURE, motion.set_and_report_grblstate(M_HOLD));
           break;
         case PAUSED_FOR_INPUT:
