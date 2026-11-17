@@ -270,7 +270,7 @@ typedef struct SettingsDataStruct {
   #if ENABLED(RUNTIME_AXIS_DIRECTION)
     AxisFlags axis_inverted;                            // M583
     #if HAS_EXTRUDERS
-      bool extruder_inverted[E_STEPPERS];               // M583 T<n> E
+      Flags<EXTRUDERS> extruder_inverted;               // M583 T<n> E
     #endif
     // Secondary stepper relative inversions
     #if HAS_SYNCED_X_STEPPERS

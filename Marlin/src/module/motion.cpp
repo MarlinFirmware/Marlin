@@ -85,7 +85,7 @@ constexpr AxisFlags Motion::rotational;
   // Runtime axis direction inversion flags
   AxisFlags Motion::axis_inverted;
   #if HAS_EXTRUDERS
-    bool Motion::extruder_inverted[E_STEPPERS];
+    Flags<EXTRUDERS> Motion::extruder_inverted;
   #endif
   // Secondary stepper relative inversions
   #if HAS_SYNCED_X_STEPPERS

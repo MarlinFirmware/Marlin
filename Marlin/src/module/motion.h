@@ -106,9 +106,9 @@ public:
 
   #if ENABLED(RUNTIME_AXIS_DIRECTION)
     // Runtime axis direction inversion flags
-    static AxisFlags axis_inverted;              // X, Y, Z, I, J, K, U, V, W
+    static AxisFlags axis_inverted;               // X, Y, Z, I, J, K, U, V, W
     #if HAS_EXTRUDERS
-      static bool extruder_inverted[E_STEPPERS];  // E0, E1, E2, E3, E4, E5, E6, E7
+      static Flags<EXTRUDERS> extruder_inverted;  // E0, E1, E2, E3, E4, E5, E6, E7
     #endif
     // Secondary stepper relative inversions (vs primary)
     #if HAS_SYNCED_X_STEPPERS

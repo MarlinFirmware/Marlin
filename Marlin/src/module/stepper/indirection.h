@@ -98,7 +98,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
   #define _INV_AXIS_V  V_AXIS
   #define _INV_AXIS_W  W_AXIS
   #define INVERT_DIR(AXIS, D) (motion.axis_inverted[_INV_AXIS_##AXIS] ? !(D) : (D))
-  #define INVERT_E_DIR(N, D)  (motion.extruder_inverted[N] ? !(D) : (D))
+  #define INVERT_E_DIR(E, D)  (motion.extruder_inverted[E] ? !(D) : (D))
   // Secondary stepper relative inversions (vs primary)
   #define INVERT_DIR_X2_VS_X(D) (TERN(HAS_SYNCED_X_STEPPERS, motion.x2_vs_x_inverted ? !(D) : (D), D))
   #define INVERT_DIR_Y2_VS_Y(D) (TERN(HAS_SYNCED_Y_STEPPERS, motion.y2_vs_y_inverted ? !(D) : (D), D))
@@ -125,7 +125,7 @@ void reset_stepper_drivers();    // Called by settings.load / settings.reset
 #else
   // Compile-time direction inversion: use INVERT_*_DIR defines
   #define INVERT_DIR(AXIS, D)   (TERN_(INVERT_##AXIS##_DIR, !)(D))
-  #define INVERT_E_DIR(N, D)    (TERN_(INVERT_E##N##_DIR, !)(D))
+  #define INVERT_E_DIR(E, D)    (TERN_(INVERT_E##E##_DIR, !)(D))
   #define INVERT_DIR_X2_VS_X(D) (TERN_(INVERT_X2_VS_X_DIR, !)(D))
   #define INVERT_DIR_Y2_VS_Y(D) (TERN_(INVERT_Y2_VS_Y_DIR, !)(D))
   #define INVERT_DIR_Z2_VS_Z(D) (TERN_(INVERT_Z2_VS_Z_DIR, !)(D))
