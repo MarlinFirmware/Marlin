@@ -297,7 +297,7 @@ typedef struct SettingsDataStruct {
   // Runtime Homing Direction
   //
   #if ENABLED(RUNTIME_HOMING_DIRECTION)
-    int8_t axis_home_dir[LOGICAL_AXES];                 // M574
+    xyz_int8_t axis_home_dir;                           // M574
   #endif
 
   //

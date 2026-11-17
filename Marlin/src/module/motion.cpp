@@ -141,11 +141,11 @@ constexpr AxisFlags Motion::rotational;
 
 #if ENABLED(RUNTIME_HOMING_DIRECTION)
   // Runtime homing direction storage
-  int8_t Motion::axis_home_dir[NUM_AXES];
+  xyz_int8_t Motion::axis_home_dir;
 
   // Initialize runtime homing direction from compile-time defaults
   void Motion::reset_axis_home_dir() {
-    #define _RESET_HOME_DIR(N) axis_home_dir[_AXIS(N)] = N##_HOME_DIR;
+    #define _RESET_HOME_DIR(N) axis_home_dir.N = N##_HOME_DIR;
     MAIN_AXIS_MAP(_RESET_HOME_DIR);
   }
 #endif

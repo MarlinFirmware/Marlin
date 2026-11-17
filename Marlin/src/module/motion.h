@@ -134,7 +134,7 @@ public:
 
   #if ENABLED(RUNTIME_HOMING_DIRECTION)
     // Runtime homing direction flags (-1 = MIN, 1 = MAX)
-    static int8_t axis_home_dir[LOGICAL_AXES];   // X, Y, Z, I, J, K, U, V, W
+    static xyz_int8_t axis_home_dir;  // X, Y, Z, I, J, K, U, V, W
     static void reset_axis_home_dir();
   #endif
 
