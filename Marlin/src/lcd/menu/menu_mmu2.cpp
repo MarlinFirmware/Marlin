@@ -518,6 +518,7 @@ void menu_mmu2_pause() {
 }
 
 void mmu2_M600(const bool automatic/*=false*/) {
+  SERIAL_ECHO_MSG("DIAG ", millis(), " mmu2_M600 automatic=", automatic);
   // Disable automatic switching if MMU3 is not enabled or spool join is disabled
   #if HAS_PRUSA_MMU3
     if (automatic && spooljoin.enabled) {
