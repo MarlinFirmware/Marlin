@@ -1121,6 +1121,18 @@ void DGUSScreenHandlerCreality::handleFanToggle() {
 void DGUSScreenHandlerCreality::updateNewScreen(const DGUS_ScreenID screenID, const bool popup/*=false*/) {
   DEBUG_ECHOLNPGM("SetNewScreen: ", screenID);
 
+  // Leaving the Z Offset / leveling screen (by Back, or from the display itself) turns off the heaters
+  // that the leveling preheat or Preheat turned on, unless a leveling operation is what comes next.
+  #if DISABLED(HOTEND_IDLE_TIMEOUT)
+    if (current_screenID == DGUS_SCREEN_ZOFFSET_LEVEL
+      && screenID != DGUS_SCREEN_AUTOHOME && screenID != DGUS_SCREEN_LEVELING
+      && screenID != DGUS_SCREEN_POPUP && screenID != DGUS_SCREEN_CONFIRM
+    ) {
+      TERN_(CREALITY_LEVEL_PREHEAT, LevelingPreheat::cancel());
+      thermalManager.disable_all_heaters();
+    }
+  #endif
+
   // Remember the current screen, unless it's a popup
   if (!popup && current_screenID != DGUS_SCREEN_POPUP && current_screenID != DGUS_SCREEN_CONFIRM) {
     memmove(&past_screenIDs[1], &past_screenIDs[0], sizeof(past_screenIDs) - 1);
