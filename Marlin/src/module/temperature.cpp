@@ -5467,8 +5467,8 @@ void Temperature::isr() {
     DEBUG_EOL();
 
     if (!early) {
-      const bool waitHotend = TERN_(HAS_HOTEND, wait_for_nozzle_heat && hotend_temp > wholeDegHotend(0) + (TEMP_WINDOW)),
-                 waitBed    = TERN_(HAS_HEATED_BED, wait_for_bed_heat && bed_temp > wholeDegBed() + (TEMP_BED_WINDOW));
+      const bool waitHotend = TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotend_temp > wholeDegHotend(0) + (TEMP_WINDOW)),
+                 waitBed    = TERN0(HAS_HEATED_BED, wait_for_bed_heat && bed_temp > wholeDegBed() + (TEMP_BED_WINDOW));
 
       // Only announce a preheat when there is something to wait for. Each wait
       // clears the status line when it ends, so a notice with nothing to wait
