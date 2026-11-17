@@ -280,11 +280,21 @@ namespace MMU3 {
    * multi color/material prints so this should be fine.
    */
   void MMU3::checkFINDARunout() {
+    const auto command_in_progress = (CommandInProgress)logic.CommandInProgress();
+    const auto progress = logic.Progress();
+
+    // A transient FINDA drop during unload/load transitions is not a real runout.
+    // The MMU intentionally moves filament away from the sensor while idler engage/disengage
+    // and unload is in progress, so skip the print runout check until the MMU is idle and stable.
     if (!findaDetectsFilament()
         && marlin.printingIsActive() // A job is running and not paused. Don't trigger while paused or from the pause itself.
         && parser.codenum != 600
         && xy_are_trusted()
         && e_active()
+        && command_in_progress == CommandInProgress::NoCommand
+        && progress != ProgressCode::UnloadingToFinda
+        && progress != ProgressCode::DisengagingIdler
+        && progress != ProgressCode::EngagingIdler
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
           && runout.enabled // to prevent M600 to be triggered during M600 AUTO
           && !FILAMENT_PRESENT() // so the filament is totally consumed
