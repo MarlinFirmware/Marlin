@@ -71,7 +71,7 @@ void LevelingPreheat::startThen(FSTR_P const cmds, const bool wait_page/*=false*
 
   // Home X and Y, which first raises Z for clearance (Z_CLEARANCE_FOR_HOMING), so the nozzle
   // is in view and clear of the bed to be cleaned while it heats up and soaks.
-  ExtUI::injectCommands(F("G28 X Y"));
+  ExtUI::injectCommands(F("G28XY"));
 
   state = HEATING;
   next_message_ms = 0;
