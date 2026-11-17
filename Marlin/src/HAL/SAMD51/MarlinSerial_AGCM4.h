@@ -27,6 +27,9 @@
 
 #include "../../core/serial_hook.h"
 
+// Arduino SerialN is used as Marlin serial port N-1 or named by a TMC *_HARDWARE_SERIAL
+#define AGCM4_SERIAL_USED(N) (SERIAL_IN_USE(N - 1) || ENABLED(USING_TMC_SERIAL##N))
+
 typedef Serial1Class<Uart> UartT;
 
 extern UartT Serial2;

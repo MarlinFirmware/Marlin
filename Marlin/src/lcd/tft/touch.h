@@ -34,9 +34,6 @@
   #error "Unknown Touch Screen Type."
 #endif
 
-// Menu Navigation
-extern int8_t encoderTopLine, encoderLine, screen_items;
-
 enum TouchControlType : uint16_t {
   NONE = 0x0000,
   CALIBRATE,

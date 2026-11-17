@@ -69,11 +69,17 @@
   // Settings persisted to the MKS SPI flash by the LVGL UI
   #define MKSW_SETTINGS_SAVE()    update_spi_flash()
 
+  // printer_state_polling() moves the print state along
+  #define MKSW_SYNC_PRINT_STATE() NOOP
+
   // State shared with the UI
   #define MKSW_PRINT_STATE        uiCfg.print_state
+  #define MKSW_SYNC_PRINT_STATE() NOOP  // The LVGL UI keeps print_state current
+  #define MKSW_PAUSE_PRINT()      card.pauseSDPrint()  // The UI finishes the pause (PAUSING)
+  #define MKSW_RESUME_PRINT()     NOOP                 // The UI performs the resume (RESUMING)
+  #define MKSW_JOB_STARTED()      NOOP                 // The UI runs its own print timer
   #define MKSW_COMMAND_SEND       uiCfg.command_send
   #define MKSW_CONFIG_WIFI        uiCfg.configWifi
-  #define MKSW_TOTAL_SEND         uiCfg.totalSend
   #define MKSW_CLOUD_HOSTURL      uiCfg.cloud_hostUrl
   #define MKSW_CLOUD_PORT         uiCfg.cloud_port
   #define MKSW_WIFI_TYPE          gCfgItems.wifi_type
@@ -92,6 +98,8 @@
   #include "../../inc/MarlinConfig.h"
   #include "../../sd/cardreader.h"
   #include "../../module/printcounter.h"
+  #include "../../gcode/queue.h"
+  #include "../../MarlinCore.h"
 
   // Screens - nothing to draw
   #define MKSW_UI_CLEAR()         NOOP
@@ -122,6 +130,10 @@
   // Nothing to persist: without a UI these settings can't be changed at runtime
   #define MKSW_SETTINGS_SAVE()    NOOP
 
+  // No screens move the print state along, so follow the SD card instead
+  void mks_wifi_sync_print_state();
+  #define MKSW_SYNC_PRINT_STATE() mks_wifi_sync_print_state()
+
   // Print state, mirroring the LVGL 'print_state' values used by the protocol
   enum : uint8_t { IDLE, WORKING, PAUSING, PAUSED, REPRINTING, REPRINTED, RESUMING };
 
@@ -136,7 +148,6 @@
   typedef struct {
     uint8_t  print_state;
     bool     command_send, configWifi;
-    uint32_t totalSend;
     uint8_t  cloud_hostUrl[96];
     uint16_t cloud_port;
     uint8_t  wifi_type, fileSysType;
@@ -148,9 +159,27 @@
   extern mks_wifi_state_t mksWifi;
 
   #define MKSW_PRINT_STATE        mksWifi.print_state
+
+  // Nothing else tracks the print without the LVGL UI, so derive the state from the
+  // media print before acting on a host request. Otherwise a print finished or
+  // cancelled on the printer stays WORKING forever (and blocks the next M24).
+  inline void mksw_sync_print_state() {
+    if (card.isStillPrinting()) // Not while a cancel is still being processed
+      mksWifi.print_state = WORKING;
+    else if (card.isPaused() && print_job_timer.isPaused()) // A file selected with M23 but not started is open too
+      mksWifi.print_state = PAUSED;
+    else
+      mksWifi.print_state = IDLE;
+  }
+  #define MKSW_SYNC_PRINT_STATE() mksw_sync_print_state()
+
+  // Without the UI, let Marlin's own M25/M24 handle the pause and resume
+  // (print job timer, head parking, host notifications).
+  #define MKSW_PAUSE_PRINT()      queue.inject(F("M25"))
+  #define MKSW_RESUME_PRINT()     queue.inject(F("M24"))
+  #define MKSW_JOB_STARTED()      marlin.startOrResumeJob() // Run the job timer as M24 does, so M25 can pause it
   #define MKSW_COMMAND_SEND       mksWifi.command_send
   #define MKSW_CONFIG_WIFI        mksWifi.configWifi
-  #define MKSW_TOTAL_SEND         mksWifi.totalSend
   #define MKSW_CLOUD_HOSTURL      mksWifi.cloud_hostUrl
   #define MKSW_CLOUD_PORT         mksWifi.cloud_port
   #define MKSW_WIFI_TYPE          mksWifi.wifi_type

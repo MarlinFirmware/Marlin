@@ -43,6 +43,10 @@
 #include "../../inc/MarlinConfig.h"
 
 #include "../../lcd/marlinui.h"
+#if ENABLED(MMU_MENUS)
+  #include "../../lcd/menu/menu_mmu2.h" // for menu_mmu2_pause
+#endif
+
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
 #include "../../module/motion.h"
@@ -277,9 +281,8 @@ namespace MMU3 {
    */
   void MMU3::checkFINDARunout() {
     if (!findaDetectsFilament()
-        //&& marlin.printJobOngoing()
+        && marlin.printingIsActive() // A job is running and not paused. Don't trigger while paused or from the pause itself.
         && parser.codenum != 600
-        && TERN1(HAS_LEVELING, planner.leveling_active)
         && xy_are_trusted()
         && e_active()
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
@@ -330,6 +333,7 @@ namespace MMU3 {
 
   bool MMU3::retryIfPossible(const ErrorCode ec) {
     if (logic.RetryAttempts()) {
+      const ButtonOperations previous_response = GetButtonResponse();
       SetButtonResponse(ButtonOperations::Retry);
       // check, that Retry is actually allowed on that operation
       if (ButtonAvailable(ec) != Buttons::NoButton) {
@@ -339,6 +343,8 @@ namespace MMU3 {
         // --retryAttempts; // "used" one retry attempt
         return true;
       }
+      // Retry isn't offered for this error, so don't leave it selected
+      SetButtonResponse(previous_response);
     }
     logic.SetInAutoRetry(false);
     return false;
@@ -852,6 +858,14 @@ namespace MMU3 {
           // Do not send a button to the MMU unless the MMU is in error state
           button(buttons_to_uint8t(btn));
 
+        #if ENABLED(MMU_MENUS)
+          // After eject go back to the pause screen
+          if (lastErrorCode == ErrorCode::FILAMENT_EJECTED && return_to_pause_after_eject) { // #28813
+            ui.goto_screen(menu_mmu2_pause);
+            return_to_pause_after_eject = false;
+          }
+        #endif
+
         // A quick hack: for specific error codes move the E-motor every time.
         // Not sure if we can rely on the fsensor.
         // Just plan the move, let the MMU take over when it is ready
@@ -861,7 +875,7 @@ namespace MMU3 {
           default: break;
         }
         break;
-      case Buttons::TuneMMU:
+      case Buttons::TuneMMU: // TODO: May go unutilized, but it's here for now
         tune();
         break;
       case Buttons::Load:
@@ -1044,12 +1058,13 @@ namespace MMU3 {
     execute_extruder_sequence(ramming_sequence, sizeof(ramming_sequence) / sizeof(E_Step));
   }
 
-  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps) {
+  void MMU3::execute_extruder_sequence(const E_Step *sequence, uint8_t steps, const float first_step_adjustment/*=0*/) {
     planner_synchronize();
 
     const E_Step *step = sequence;
     for (uint8_t i = steps; i > 0; --i) {
-      extruder_move(pgm_read_float(&(step->extrude)), pgm_read_float(&(step->feedRate)));
+      const float extrude = pgm_read_float(&(step->extrude)) - (i == steps ? first_step_adjustment : 0);
+      extruder_move(extrude, pgm_read_float(&(step->feedRate)));
       step++;
     }
     planner_synchronize(); // it looks like it's better to sync the moves at the end - smoother move (if the sequence is not too long).
@@ -1059,9 +1074,8 @@ namespace MMU3 {
 
   void MMU3::execute_load_to_nozzle_sequence() {
     planner_synchronize();
-    // Compensate for configurable Extra Loading Distance
-    planner_set_current_position_E(planner_get_current_position_E() - (logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION));
-    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]));
+    const float extra_load_offset = logic.ExtraLoadDistance() - MMU3_FILAMENT_SENSOR_E_POSITION;
+    execute_extruder_sequence(load_to_nozzle_sequence, sizeof(load_to_nozzle_sequence) / sizeof(load_to_nozzle_sequence[0]), extra_load_offset);
   }
 
   void MMU3::reportError(ErrorCode ec, ErrorSource res) {

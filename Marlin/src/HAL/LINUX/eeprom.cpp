@@ -27,6 +27,7 @@
 
 #include "../shared/eeprom_api.h"
 #include <stdio.h>
+#include <errno.h>
 
 #ifndef MARLIN_EEPROM_SIZE
   #define MARLIN_EEPROM_SIZE 0x1000 // 4KB of Emulated EEPROM
@@ -40,7 +41,12 @@ size_t PersistentStore::capacity() { return MARLIN_EEPROM_SIZE - eeprom_exclude_
 bool PersistentStore::access_start() {
   const char eeprom_erase_value = 0xFF;
   FILE * eeprom_file = fopen(filename, "rb");
-  if (!eeprom_file) return false;
+  if (!eeprom_file) {
+    if (errno != ENOENT) return false;
+    // No file yet. Start erased, and access_finish() will create it.
+    memset(buffer, eeprom_erase_value, MARLIN_EEPROM_SIZE);
+    return true;
+  }
 
   fseek(eeprom_file, 0L, SEEK_END);
   std::size_t file_size = ftell(eeprom_file);

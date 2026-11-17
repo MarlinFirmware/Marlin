@@ -43,7 +43,8 @@
 
 /**
  * Network settings, saved with the rest of Marlin's settings (M500).
- * Defaults come from WIFI_SSID / WIFI_PWD / MKS_WIFI_AP_MODE.
+ * Defaults come from WIFI_SSID / WIFI_PWD / MKS_WIFI_AP_MODE. With no WIFI_SSID
+ * the SSID is empty and the module keeps the network it already has.
  */
 typedef struct {
   uint8_t ssid[32];
@@ -61,8 +62,8 @@ void mks_wifi_apply_settings();   // Push the current settings to the module
 
 #define IP_DHCP_FLAG          1
 
-// Default credentials, shared with WIFISUPPORT. Fall back to the legacy MKS
-// demo values so an unconfigured build behaves as it always did.
+// Default credentials, shared with WIFISUPPORT. Without WIFI_SSID the legacy MKS
+// demo values are only shown until the module reports its own network.
 #ifdef WIFI_SSID
   #define WIFI_AP_NAME        WIFI_SSID
 #else
@@ -226,6 +227,7 @@ typedef struct {
   uint8_t Buffer[WIFI_GCODE_BUFFER_SIZE];
   uint32_t r;
   uint32_t w;
+  uint32_t free() { return (r + (WIFI_GCODE_BUFFER_SIZE) - w - 1) % (WIFI_GCODE_BUFFER_SIZE); }
 } WIFI_GCODE_BUFFER;
 
 extern volatile WIFI_STATE wifi_link_state;

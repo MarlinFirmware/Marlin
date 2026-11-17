@@ -23,6 +23,10 @@
 
 #include "../../inc/MarlinConfig.h"
 
+#if ENABLED(MIXING_EXTRUDER)
+  #include "../../feature/mixing.h"
+#endif
+
 //
 // uint64-free equivalent of: ((uint64_t)a * b) >> 16
 //
@@ -58,6 +62,9 @@ typedef struct stepper_plan {
   AxisBits dir_bits;
   xyze_uint_t first_interval_fp;
   xyze_uint_t interval_fp;
+  #if ENABLED(MIXING_EXTRUDER)
+    mixer_comp_t mix[MIXING_STEPPERS];  // Mix of E steppers for the steps in this frame
+  #endif
 } stepper_plan_t;
 
 // Stepping plan handles steps for a whole frame (trajectory point delta)
@@ -107,6 +114,7 @@ typedef struct Stepping {
         //
         const stepper_plan_t next = dequeue();
         dir_bits         = next.dir_bits;
+        TERN_(MIXING_EXTRUDER, mixer.stepper_setup(next.mix));  // Steps from here on use the mix this frame was planned with
         axis_interval_fp = next.interval_fp.asUInt32();
 
         // Note the frame will actually end a fraction of a tick in the future, and ticks_left_in_frame_fp still has that fraction.
@@ -158,6 +166,12 @@ typedef struct Stepping {
   stepper_plan_t stepper_plan_buff[FTM_BUFFER_SIZE];
   uint32_t stepper_plan_tail = 0, stepper_plan_head = 0;
   XYZEval<int64_t> curr_steps_q48_16{};
+
+  #if ENABLED(MIXING_EXTRUDER)
+    // Mix of the block being planned. Each frame carries its own copy so the mix changes
+    // at the right moment even though frames are planned well ahead of the stepper ISR.
+    mixer_comp_t plan_mix[MIXING_STEPPERS] = { 0 };
+  #endif
 
   FORCE_INLINE void enqueue(XYZEval<int64_t> next_steps_q48_16) {
 
@@ -220,6 +234,8 @@ typedef struct Stepping {
     };
 
     LOGICAL_AXIS_CALL(_run_axis);
+
+    TERN_(MIXING_EXTRUDER, MIXER_STEPPER_LOOP(i) stepper_plan.mix[i] = plan_mix[i]);
 
     // Store the plan into the circular buffer
     stepper_plan_buff[stepper_plan_head] = stepper_plan;

@@ -767,6 +767,7 @@
 
 #endif // HAS_WIRED_LCD
 
-#ifndef KILL_PIN
+// linux_native has no buttons, and its pins don't pull up, so a KILL_PIN would read as pressed
+#if !defined(KILL_PIN) && !defined(__PLAT_LINUX__)
   #define KILL_PIN                            11
 #endif

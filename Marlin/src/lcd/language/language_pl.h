@@ -1033,7 +1033,7 @@ namespace LanguageNarrow_pl {
 
 namespace LanguageWide_pl {
   using namespace LanguageNarrow_pl;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" dyszę"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" dyszę ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Rozgrzej ") PREHEAT_1_LABEL _UxGT(" ustawienia"); // Preheat (PREHEAT_1_LABEL) Settings

@@ -1040,7 +1040,7 @@ namespace LanguageNarrow_gl {
 
 namespace LanguageWide_gl {
   using namespace LanguageNarrow_gl;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Prequentar ") PREHEAT_1_LABEL _UxGT(" Bico"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Prequentar ") PREHEAT_1_LABEL _UxGT(" Bico ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Prequentar ") PREHEAT_1_LABEL _UxGT(" Axustes"); // Preheat (PREHEAT_1_LABEL) Settings

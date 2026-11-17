@@ -279,6 +279,23 @@ def extract_files(filekey):
                 elif state == Parse.NORMAL:
                     # Skip a commented define when evaluating comment opening
                     st = 2 if re.match(r'^//\s*#define', line) else 0
+
+                    # Remove /* ... */ comments that open and close on this line (e.g., inside a
+                    # joined multi-line #define). Left alone they'd open a block comment that never
+                    # closes here and swallow following lines, including any #endif.
+                    while True:
+                        bs = line.find('/*')
+                        be = line.find('*/', bs + 2) if bs != -1 else -1
+                        sl = line.find('//', st)
+                        if be == -1 or (sl != -1 and sl < bs): break
+                        inner = re.sub(r'^\*+ ?', '', line[bs+2:be].strip())
+                        line = (line[:bs] + ' ' + line[be+2:]).strip()
+                        if line == '' and inner != '':  # A comment on its own line
+                            comment_buff = []
+                            options_json, section = use_comment(inner, options_json, section, comment_buff)
+                    if line == '':
+                        continue
+
                     cpos1 = line.find('/*')     # Start a block comment on the line?
                     cpos2 = line.find('//', st) # Start an end of line comment on the line?
 

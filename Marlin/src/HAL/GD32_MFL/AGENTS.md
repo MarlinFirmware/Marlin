@@ -2,7 +2,7 @@
 
 Working notes and conventions for the **GD32_MFL HAL** folder (`Marlin/src/HAL/GD32_MFL/`).
 
-This HAL targets GigaDevice GD32F1/GD32F3 MCUs via the third-party **MFL Arduino Core** (`https://github.com/bmourit/ArduinoCore-MFL`), not the older Maple/STM32duino cores. It currently supports the GD32F303RE (Creality V4.2.x) and GD32F103RC (Aquila v1.0.1) boards.
+This HAL targets GigaDevice GD32F1/GD32F3 MCUs via the third-party **MFL Arduino Core** (`https://github.com/bmourit/ArduinoCore-MFL`), not the older Maple/STM32duino cores. It currently supports the GD32F303RE (Creality V4.2.x), GD32F303RG (Anycubic Kobra 2 Neo, TriGorilla Gen V4.0.1) and GD32F103RC (Aquila v1.0.1) boards.
 
 ## Build & Test Loop
 
@@ -11,6 +11,7 @@ Always validate with `mftest` (it regenerates `Marlin/Configuration.h` per targe
 ```bash
 cd "$(git rev-parse --show-toplevel)"
 buildroot/bin/mftest -t GD32F303RE_creality_mfl -n1 -y   # GD32F303RE, 512 KB flash
+buildroot/bin/mftest -t GD32F303RG_kobra2_neo_mfl -n1 -y  # GD32F303RG, 1 MB flash
 buildroot/bin/mftest -t GD32F103RC_aquila_mfl   -n1 -y   # GD32F103RC, 256 KB flash
 ```
 
@@ -34,7 +35,7 @@ Key `gd32_base` settings (`ini/gd32.ini`):
 
 2. **0x7000 bootloader offset is mandatory.** Both boards link with `board_build.offset = 0x7000` and upload to `0x08007000`; the `offset_and_rename.py` extra script also renames the artifact to `firmware-{time}.bin`. Removing the offset / the script bricks the image (it would overwrite the bootloader). Keep them.
 
-3. **EEPROM backend is per-board / fallback, not auto-picked like STM32.** `inc/Conditionals_post.h` falls back to `SDCARD_EEPROM_EMULATION` when no real or emulated EEPROM is selected, and maps `I2C_EEPROM`/`SPI_EEPROM` → `USE_SHARED_EEPROM`. `FLASH_EEPROM_LEVELING` is explicitly unsupported (SanityCheck error). The two test boards enable `SDSUPPORT` + `EEPROM_SETTINGS`, so the fallback SD emulation is what is exercised — make sure `SDSUPPORT` is on wherever `SDCARD_EEPROM_EMULATION` is used.
+3. **EEPROM backend is per-board / fallback, not auto-picked like STM32.** `inc/Conditionals_post.h` falls back to `SDCARD_EEPROM_EMULATION` when no real or emulated EEPROM is selected, and maps `I2C_EEPROM`/`SPI_EEPROM` → `USE_SHARED_EEPROM`. `FLASH_EEPROM_LEVELING` is explicitly unsupported (SanityCheck error). The implementations in `eeprom/` are `eeprom_sdcard.cpp` (`SDCARD_EEPROM_EMULATION`, requires `SDSUPPORT`), `eeprom_bl24cxx.cpp` (`IIC_BL24CXX_EEPROM`) and `eeprom_wired.cpp` (`USE_WIRED_EEPROM`). The Creality/Aquila boards carry an I2C 24Cxx part and select it from their pins file; boards without one (Anycubic Kobra 2 Neo) fall through to the SD-card emulation, so `SDSUPPORT` must be on wherever `SDCARD_EEPROM_EMULATION` is used.
 
 4. **Serial uses hardware USART, not USB-CDC.** `MarlinSerial` wraps the MFL `UsartSerial` (`MarlinSerial.h`); `SERIAL_INDEX_MIN/MAX` = 0..4. `EMERGENCY_PARSER` works via `register_emergency_callback()`. There is no USB-CDC path for Marlin — do not add one. `SERIAL_STATS_MAX_RX_QUEUED` and `SERIAL_STATS_DROPPED_RX` are explicitly unsupported (SanityCheck errors) — don't enable them.
 
@@ -43,6 +44,8 @@ Key `gd32_base` settings (`ini/gd32.ini`):
 6. **C++23 only.** `gd32_base` forces `-std=gnu++23` and unflags the older standards. Don't reintroduce `gnu++11/14/17` and don't use constructs that break under gnu++23.
 
 7. **Timer assignment is fixed per board.** `TIMER_TONE=2`, `SS_TIMER=3`, `TIMER_SERVO=4`, `TRANSFER_CLOCK_DIV=8`, `TIMER_IRQ_PRIORITY=12` are passed in `ini/gd32.ini`. Changing them shifts which hardware timers are used for toning, stepper ISR, and servo — verify pin/timer conflicts before editing.
+
+8. **GD32F303RG needs a compatibility define.** `system/MFL/CMSIS/mcu_common.hpp` in the framework only knows `GD32F303RE`/`GD32F303RC`, so a `-DGD32F303RG`-only build stops at `#error Unsupported mcu series!`. The `marlin_GD32F303RG_kobra2_neo` board JSON therefore also passes `-DGD32F303RE`; RG and RE are identical in everything that macro controls (Cortex-M4 / NVIC / FPU / MPU). Flash and RAM sizes come from `upload.maximum_size` / `upload.maximum_ram_size` instead, so 1 MB / 96 KB still take effect. Drop the extra define once the core gains an `F303RG` variant.
 
 ## Conventions
 

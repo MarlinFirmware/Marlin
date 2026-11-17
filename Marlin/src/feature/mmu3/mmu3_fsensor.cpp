@@ -35,7 +35,7 @@ namespace MMU3 {
 
   #if HAS_FILAMENT_SENSOR
 
-    FSensorBlockRunout::FSensorBlockRunout() {
+    FSensorBlockRunout::FSensorBlockRunout() : was_enabled(runout.enabled) {
       runout.enabled = false; // Suppress filament runouts while loading filament.
       //fsensor.setAutoLoadEnabled(false); //suppress filament autoloads while loading filament.
     }
@@ -43,7 +43,7 @@ namespace MMU3 {
     FSensorBlockRunout::~FSensorBlockRunout() {
       //fsensor.settings_init(); // restore filament runout state.
       runout.reset();
-      runout.enabled = true;
+      runout.enabled = was_enabled;
       //SERIAL_ECHOLNPGM("FSUnBlockRunout");
     }
 

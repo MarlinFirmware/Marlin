@@ -1033,7 +1033,7 @@ namespace LanguageNarrow_nl {
 
 namespace LanguageWide_nl {
   using namespace LanguageNarrow_nl;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" hotend voorverwarmen");    // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" hotend ~ voorverw.");      // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" voorverw. instellingen");  // Preheat (PREHEAT_1_LABEL) Settings

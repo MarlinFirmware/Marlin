@@ -622,6 +622,11 @@
     #endif
   #endif
 
+  // G-code thumbnails (embedded images in the SD file header)
+  #if ENABLED(CREALITY_RTS)
+    #define HAS_GCODE_THUMBNAIL 1
+  #endif
+
 #else // !HAS_MEDIA
   #undef REINIT_NOISY_LCD
 #endif
@@ -1591,12 +1596,12 @@
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
-#define ANY_SERIAL_IS(N) (  SERIAL_IN_USE(N) \
-                         || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
-                         || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
-                         || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
-                         || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
-                         || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_TMC_UART_IS(N) (  TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                           || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
+                           || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
+                           || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
+                           || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_SERIAL_IS(N) (SERIAL_IN_USE(N) || ANY_TMC_UART_IS(N))
 
 #define HW_Serial    501
 #define HW_Serial0   502
@@ -1655,6 +1660,29 @@
   #define USING_HW_SERIAL10 1
 #endif
 
+// Flag the Arduino SerialN ports named by TMC *_HARDWARE_SERIAL
+#if ANY_TMC_UART_IS(0)
+  #define USING_TMC_SERIAL0 1
+#endif
+#if ANY_TMC_UART_IS(1)
+  #define USING_TMC_SERIAL1 1
+#endif
+#if ANY_TMC_UART_IS(2)
+  #define USING_TMC_SERIAL2 1
+#endif
+#if ANY_TMC_UART_IS(3)
+  #define USING_TMC_SERIAL3 1
+#endif
+#if ANY_TMC_UART_IS(4)
+  #define USING_TMC_SERIAL4 1
+#endif
+#if ANY_TMC_UART_IS(5)
+  #define USING_TMC_SERIAL5 1
+#endif
+#if ANY_TMC_UART_IS(6)
+  #define USING_TMC_SERIAL6 1
+#endif
+
 #undef HW_Serial
 #undef HW_Serial0
 #undef HW_Serial1
@@ -1678,6 +1706,7 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
+#undef ANY_TMC_UART_IS
 #undef ANY_SERIAL_IS
 
 #if defined(__AVR_ARCH__) && defined(TMC_SPI_MISO) && defined(TMC_SPI_MOSI) && defined(TMC_SPI_SCK)
@@ -2286,18 +2315,27 @@
   #endif
 #endif
 
-#if HAS_REAL_BED_PROBE
-  #define HAS_Z_PROBE_STATE 1
-  // With SPI sensorless Z homing the Z_MIN pin is free for the probe.
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
-    #define NEED_Z_MIN_PROBE_PIN 1
-    #if PIN_EXISTS(Z_MIN_PROBE)
-      #define USE_Z_MIN_PROBE 1
-    #endif
+/**
+ * USE_Z_MIN_PROBE
+ *   The probe state is read from Z_MIN_PROBE_PIN, giving it its own Z_MIN_PROBE endstop
+ *   bit. Otherwise Z_MIN_PROBE is an alias of Z_MIN (see endstops.h).
+ */
+#if HAS_Z_PROBE_STATE
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #define PROBE_IS_MIN_ENDSTOP 1
+  #elif PIN_EXISTS(Z_MIN_PROBE)
+    #define USE_Z_MIN_PROBE 1
   #endif
 #endif
 
-#if HAS_BED_PROBE && Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+/**
+ * HOMING_Z_WITH_PROBE
+ *   Z homes toward MIN with the bed probe acting as the Z endstop, either because
+ *   USE_PROBE_FOR_Z_HOMING is enabled or because the probe shares the Z_MIN pin
+ *   (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) so there is no other Z endstop.
+ *   A probe on its own pin does not home Z by itself, and keeps any Z sensorless homing.
+ */
+#if HAS_BED_PROBE && Z_HOME_TO_MIN && ANY(USE_PROBE_FOR_Z_HOMING, PROBE_IS_MIN_ENDSTOP)
   #define HOMING_Z_WITH_PROBE 1
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HAS_TRINAMIC_CONFIG
@@ -2308,6 +2346,8 @@
     #undef Z_SPI_SENSORLESS
   #endif
 #endif
+
+#undef PROBE_IS_MIN_ENDSTOP // not used further
 
 #if PIN_EXISTS(CALIBRATION)
   #define USE_CALIBRATION 1
@@ -3224,7 +3264,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC)
+#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC, CREALITY_RTS)
   #ifdef PREHEAT_10_LABEL
     #define PREHEAT_COUNT 10
   #elif defined(PREHEAT_9_LABEL)
@@ -3393,7 +3433,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS, CREALITY_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3751,7 +3791,7 @@
 #endif
 
 // Flag whether hex_print.cpp is needed
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID, I2C_SCANNER)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID, I2C_SCANNER, CREALITY_BOOTLOADER_INFO_DUMP, CAN_BUS)
   #define NEED_HEX_PRINT 1
 #endif
 

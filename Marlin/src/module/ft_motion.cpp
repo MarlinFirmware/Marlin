@@ -422,6 +422,11 @@ bool FTMotion::plan_next_block() {
       block_extruder_axis = E_AXIS_N(current_block->extruder);
     #endif
 
+    // Frames planned from this block step with this block's mix
+    #if ENABLED(MIXING_EXTRUDER)
+      MIXER_STEPPER_LOOP(i) stepping.plan_mix[i] = current_block->b_color[i];
+    #endif
+
     const float totalLength = current_block->millimeters;
 
     startPos = endPos_prevBlock;

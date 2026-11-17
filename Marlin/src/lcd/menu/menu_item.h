@@ -252,15 +252,15 @@ class MenuItem_bool : public MenuEditItemBase {
 /**
  * SCREEN_OR_MENU_LOOP generates header code for a screen or menu
  *
- *   encoderTopLine is the top menu line to display
+ *   menuTopIndex is the top menu line to display
  *   _lcdLineNr is the index of the LCD line (e.g., 0-3)
  *   _menuLineNr is the menu item to draw and process
  *   _thisItemNr is the index of each MENU_ITEM or STATIC_ITEM
  */
-#define SCREEN_OR_MENU_LOOP(IS_MENU)                    \
-  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);     \
-  int8_t _menuLineNr = encoderTopLine, _thisItemNr = 0; \
-  bool _skipStatic = IS_MENU; UNUSED(_thisItemNr);      \
+#define SCREEN_OR_MENU_LOOP(IS_MENU)                  \
+  scroll_screen(IS_MENU ? 1 : LCD_HEIGHT, IS_MENU);   \
+  int8_t _menuLineNr = menuTopIndex, _thisItemNr = 0; \
+  UNUSED(_thisItemNr);                                \
   for (int8_t _lcdLineNr = 0; _lcdLineNr < LCD_HEIGHT; _lcdLineNr++, _menuLineNr++) { \
     _thisItemNr = 0
 
@@ -275,11 +275,11 @@ class MenuItem_bool : public MenuEditItemBase {
 #define START_MENU() SCREEN_OR_MENU_LOOP(true)
 #define NEXT_ITEM() (++_thisItemNr)
 #define MY_LINE() (_menuLineNr == _thisItemNr)
-#define HIGHLIGHTED() (encoderLine == _thisItemNr)
+#define HIGHLIGHTED() (menuIndex == _thisItemNr)
 #define CLICKED() (HIGHLIGHTED() && ui.use_click())
 #define SKIP_ITEM() NEXT_ITEM()
 #define END_SCREEN() } screen_items = _thisItemNr
-#define END_MENU() END_SCREEN(); UNUSED(_skipStatic)
+#define END_MENU() END_SCREEN()
 
 /**
  * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
@@ -330,7 +330,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Item with optional data
 #define _MENU_ITEM_F(TYPE, V...) do { \
   if (MY_LINE()) {                    \
-    _skipStatic = false;              \
     _MENU_INNER_F(TYPE, ##V);         \
   }                                   \
   NEXT_ITEM();                        \
@@ -339,7 +338,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Item with index value, C-string, and optional data
 #define _MENU_ITEM_N_S_F(TYPE, N, S, V...) do{ \
   if (MY_LINE()) {                             \
-    _skipStatic = false;                       \
     MenuItemBase::init(N, S);                  \
     _MENU_INNER_F(TYPE, ##V);                  \
   }                                            \
@@ -349,7 +347,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Item with index value and F-string
 #define _MENU_ITEM_N_f_F(TYPE, N, f, V...) do{ \
   if (MY_LINE()) {                             \
-    _skipStatic = false;                       \
     MenuItemBase::init(N, f);                  \
     _MENU_INNER_F(TYPE, ##V);                  \
   }                                            \
@@ -359,7 +356,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Item with index value
 #define _MENU_ITEM_N_F(TYPE, N, V...) do{ \
   if (MY_LINE()) {                        \
-    _skipStatic = false;                  \
     MenuItemBase::init(N);                \
     _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
@@ -369,7 +365,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Items with a unique string
 #define _MENU_ITEM_S_F(TYPE, S, V...) do{ \
   if (MY_LINE()) {                        \
-    _skipStatic = false;                  \
     MenuItemBase::init(0, S);             \
     _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
@@ -379,7 +374,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Items with a unique F-string
 #define _MENU_ITEM_f_F(TYPE, f, V...) do{ \
   if (MY_LINE()) {                        \
-    _skipStatic = false;                  \
     MenuItemBase::init(0, f);             \
     _MENU_INNER_F(TYPE, ##V);             \
   }                                       \
@@ -389,12 +383,8 @@ class MenuItem_bool : public MenuEditItemBase {
 // STATIC_ITEM draws a styled string with no highlight.
 // Parameters: label [, style [, char *value] ]
 
-#define STATIC_SKIP() do{ \
-  if (_skipStatic && encoderLine <= _thisItemNr) {      \
-    ui.encoderPosition += ENCODER_STEPS_PER_MENU_ITEM;  \
-    ++encoderLine;                                      \
-  }                                                     \
-}while(0)
+// A static line has no selection. If the encoder put the selection here, move it on.
+#define STATIC_SKIP() do{ if (HIGHLIGHTED()) menu_skip_static(); }while(0)
 
 #define STATIC_ITEM_INNER_F(FLABEL, V...) do{       \
   STATIC_SKIP();                                    \
@@ -594,7 +584,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Confirm Item with Main label, YES/NO labels, etc.
 #define _CONFIRM_ITEM_F(FLABEL, V...) do { \
   if (MY_LINE()) {                         \
-    _skipStatic = false;                   \
     _CONFIRM_ITEM_INNER_F(FLABEL, ##V);    \
   }                                        \
   NEXT_ITEM();                             \
@@ -603,7 +592,6 @@ class MenuItem_bool : public MenuEditItemBase {
 // Confirm Item with Index, String, YES/NO labels, etc.
 #define _CONFIRM_ITEM_N_S_F(N, S, V...) do{ \
   if (MY_LINE()) {                          \
-    _skipStatic = false;                    \
     MenuItemBase::init(N, S);               \
     _CONFIRM_ITEM_INNER_F(V);               \
   }                                         \

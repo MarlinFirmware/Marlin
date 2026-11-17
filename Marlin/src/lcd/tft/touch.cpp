@@ -222,13 +222,13 @@ void Touch::touch(touch_control_t * const control) {
 
     // Page Up button
     case PAGE_UP:
-      encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
+      menuTopIndex = menuTopIndex > LCD_HEIGHT ? menuTopIndex - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
       ui.refresh();
       break;
     // Page Down button
     case PAGE_DOWN:
-      encoderTopLine = (encoderTopLine + 2 * LCD_HEIGHT < screen_items) ? encoderTopLine + LCD_HEIGHT : screen_items - LCD_HEIGHT;
+      menuTopIndex = (menuTopIndex + 2 * LCD_HEIGHT < screen_items) ? menuTopIndex + LCD_HEIGHT : screen_items - LCD_HEIGHT;
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < uint32_t(screen_items) ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;

@@ -59,6 +59,10 @@
   #include "../feature/mks_wifi/wifi_module.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 #include "../lcd/marlinui.h"
 #include "../libs/vector_3.h"   // for matrix_3x3
 #include "../gcode/gcode.h"
@@ -780,6 +784,14 @@ typedef struct SettingsDataStruct {
   //
   #if ENABLED(MKS_WIFI_MODULE)
     mks_wifi_settings_t mks_wifi_settings;              // M587 S P
+  #endif
+
+  //
+  // Creality RTS
+  //
+  #if ENABLED(CREALITY_RTS)
+    bool wifi_enable_flag;        // M194 S
+    bool rts_sound_on;            // Screen sound button
   #endif
 
 } SettingsData;
@@ -1908,6 +1920,12 @@ void MarlinSettings::postprocess() {
       EEPROM_WRITE(ui.language);
     #endif
 
+    #if ENABLED(CREALITY_RTS)
+      _FIELD_TEST(wifi_enable_flag);
+      EEPROM_WRITE(wifi_enable_flag);
+      EEPROM_WRITE(rts_sound_on);
+    #endif
+
     //
     // Model predictive control
     //
@@ -2061,7 +2079,7 @@ void MarlinSettings::postprocess() {
     EEPROM_Error eeprom_error = ERR_EEPROM_NOERR;
 
     const EEPROM_Error check = check_version();
-    if (check == ERR_EEPROM_NOPROM) return eeprom_error;
+    if (check == ERR_EEPROM_NOPROM) return check; // Nothing loaded, so the caller must apply defaults
 
     uint16_t stored_crc;
 
@@ -3127,6 +3145,12 @@ void MarlinSettings::postprocess() {
       }
       #endif
 
+      #if ENABLED(CREALITY_RTS)
+        _FIELD_TEST(wifi_enable_flag);
+        EEPROM_READ(wifi_enable_flag);
+        EEPROM_READ(rts_sound_on);
+      #endif
+
       //
       // Model predictive control
       //
@@ -3355,7 +3379,8 @@ void MarlinSettings::postprocess() {
     #endif
     validating = false;
 
-    if (err) ui.eeprom_alert(err);
+    // A missing EEPROM was already reported, and can't be fixed from the LCD
+    if (err && err != ERR_EEPROM_NOPROM) ui.eeprom_alert(err);
 
     return (err == ERR_EEPROM_NOERR);
   }
@@ -3390,13 +3415,16 @@ void MarlinSettings::postprocess() {
     }
 
     // Otherwise reset settings to default "factory settings"
-    reset();
 
-    // Options to overwrite the EEPROM on error
     #if ANY(EEPROM_AUTO_INIT, EEPROM_INIT_NOW)
-      (void)init_eeprom();
-      LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
-      SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
+      // Overwrite the EEPROM data on error. Defaults are applied even if it can't be written.
+      if (init_eeprom()) {
+        LCD_MESSAGE(MSG_EEPROM_INITIALIZED);
+        SERIAL_ECHO_MSG(STR_EEPROM_INITIALIZED);
+      }
+    #else
+      // The user can write settings to EEPROM later
+      reset();
     #endif
 
     return false;
@@ -4029,6 +4057,12 @@ void MarlinSettings::reset() {
       stepper.set_digipot_current(q, tmp_motor_current_setting[q]);
   #endif
 
+  #if ENABLED(CREALITY_RTS)
+    ui.language = 1; // 0:Chinese, 1:English
+    wifi_enable_flag = true;
+    rts_sound_on = true;
+  #endif
+
   //
   // Adaptive Step Smoothing state
   //
@@ -4504,6 +4538,13 @@ void MarlinSettings::reset() {
     // MMU3
     //
     TERN_(HAS_PRUSA_MMU3, gcode.MMU3_report(forReplay));
+
+    #if ENABLED(CREALITY_RTS)
+      CONFIG_ECHO_HEADING("WIFI Enabled");
+      CONFIG_ECHO_MSG("  M194 S", wifi_enable_flag);
+      CONFIG_ECHO_HEADING("Screen Sound (set with the screen's sound button)");
+      CONFIG_ECHO_MSG("  ; ", rts_sound_on ? F("on") : F("off"));
+    #endif
   }
 
 #endif // !DISABLE_M503

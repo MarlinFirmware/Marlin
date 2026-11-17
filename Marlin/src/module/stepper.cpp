@@ -553,6 +553,9 @@ xyze_int8_t Stepper::count_direction{0};
 
 #if ENABLED(MIXING_EXTRUDER)
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { MIXER_STEPPER_LOOP(j) FWD_E_DIR(j); } else { MIXER_STEPPER_LOOP(j) REV_E_DIR(j); } }while(0)
+  // A step starts on the stepper whose turn it is in the mix, and ends on that same stepper (as in the Stepper ISR).
+  // Fixed-Time Motion calls this with the step level for each pulse phase, and expects an active-high STEP.
+  #define E_APPLY_STEP(STATE,Q) do{ if (STATE) E_STEP_WRITE(mixer.get_next_stepper(), STATE); else E_STEP_WRITE(mixer.get_stepper(), STATE); }while(0)
 #else
   #define E_APPLY_DIR(FWD,Q) do{ if (FWD) { FWD_E_DIR(stepper_extruder); } else { REV_E_DIR(stepper_extruder); } }while(0)
   #define E_APPLY_STEP(STATE,Q) E_STEP_WRITE(stepper_extruder, STATE)

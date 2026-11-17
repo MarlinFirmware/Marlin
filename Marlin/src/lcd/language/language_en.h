@@ -546,6 +546,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Eject Recover");
   LSTR MSG_MIX                            = _UxGT("Mix");
   LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
+  LSTR MSG_MIX_IN_USE                     = _UxGT("In Use");
+  LSTR MSG_MIX_EVEN_SPLIT                 = _UxGT("Even Split");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");
@@ -1020,14 +1022,15 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_SELECTOR_CANNOT_HOME     = _UxGT("SELECTOR CANNOT HOME");
   LSTR MSG_TITLE_IDLER_CANNOT_MOVE        = _UxGT("IDLER CANNOT MOVE");
   LSTR MSG_TITLE_IDLER_CANNOT_HOME        = _UxGT("IDLER CANNOT HOME");
-  LSTR MSG_TITLE_TMC_WARNING_TMC_TOO_HOT  = _UxGT("WARNING TMC TOO HOT");
+  LSTR MSG_TITLE_WARNING_TMC_TOO_HOT      = _UxGT("WARNING TMC TOO HOT");
   LSTR MSG_TITLE_TMC_OVERHEAT_ERROR       = _UxGT("TMC OVERHEAT ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_ERROR         = _UxGT("TMC DRIVER ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_RESET         = _UxGT("TMC DRIVER RESET");
   LSTR MSG_TITLE_TMC_UNDERVOLTAGE_ERROR   = _UxGT("TMC UNDERVOLTAGE ERR");
   LSTR MSG_TITLE_TMC_DRIVER_SHORTED       = _UxGT("TMC DRIVER SHORTED");
   LSTR MSG_TITLE_SELFTEST_FAILED          = _UxGT("MMU SELFTEST FAILED");
-  LSTR MSG_TITLE_MMU_MCU_ERROR            = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_POWER_ERROR      = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_UNDERVOLTAGE_VCC = _UxGT("MMU MCU UNDERPOWER");
   LSTR MSG_TITLE_MMU_NOT_RESPONDING       = _UxGT("MMU NOT RESPONDING");
   LSTR MSG_TITLE_COMMUNICATION_ERROR      = _UxGT("COMMUNICATION ERROR");
   LSTR MSG_TITLE_FILAMENT_ALREADY_LOADED  = _UxGT("FIL. ALREADY LOADED");
@@ -1051,6 +1054,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_CANNOT_MOVE               = _UxGT("Can't move Selector or Idler.");
   LSTR MSG_DESC_IDLER_CANNOT_HOME         = _UxGT("The Idler cannot home properly. Check for anything blocking its movement.");
   LSTR MSG_DESC_TMC                       = _UxGT("More details online.");
+  LSTR MSG_DESC_MMU_MCU_POWER_ERROR       = _UxGT("MMU detected a power-related issue. Check the wiring and connectors. If the issue persists, contact support.");
+  LSTR MSG_DESC_MMU_MCU_UNDERVOLTAGE_VCC  = _UxGT("MMU MCU detected a 5V undervoltage. There might be an issue with the electronics. Check the wiring and connectors.");
   LSTR MSG_DESC_MMU_NOT_RESPONDING        = _UxGT("MMU not responding. Check the wiring and connectors.");
   LSTR MSG_DESC_COMMUNICATION_ERROR       = _UxGT("MMU not responding correctly. Check the wiring and connectors.");
   LSTR MSG_DESC_FILAMENT_ALREADY_LOADED   = _UxGT("Cannot perform the action, filament is already loaded. Unload it first.");
@@ -1067,7 +1072,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_BTN_UNLOAD                     = _UxGT("Unload");
   LSTR MSG_BTN_LOAD                       = _UxGT("Load");
   LSTR MSG_BTN_EJECT                      = _UxGT("Eject");
-  LSTR MSG_BTN_STOP                       = _UxGT("Stop");
   LSTR MSG_BTN_DISABLE_MMU                = _UxGT("Disable");
   LSTR MSG_BTN_MORE                       = _UxGT("More Info");
   LSTR MSG_DONE                           = _UxGT("Done");
@@ -1107,7 +1111,7 @@ namespace LanguageNarrow_en {
 
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend");
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings");

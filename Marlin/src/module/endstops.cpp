@@ -33,6 +33,8 @@
 
 #if ENABLED(SOVOL_SV06_RTS)
   #include "../lcd/sovol_rts/sovol_rts.h"
+#elif ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
 #endif
 
 #if ENABLED(FT_MOTION)
@@ -254,6 +256,7 @@ void Endstops::enable(const bool onoff) {
       hit_on_purpose();
     else {
       TERN_(SOVOL_SV06_RTS, rts.gotoPageBeep(ID_KillHome_L, ID_KillHome_D));
+      TERN_(CREALITY_RTS, RTS_Error(Error_202));
       marlin.kill(GET_TEXT_F(MSG_KILL_HOMING_FAILED));
     }
   }
@@ -519,7 +522,7 @@ void Endstops::update() {
     COPY_LIVE_STATE(Z_MIN, Z4_MIN);
   #endif
 
-  #if HAS_REAL_BED_PROBE
+  #if HAS_Z_PROBE_STATE
     // When closing the gap check the enabled probe
     if (probe_switch_activated())
       UPDATE_LIVE_STATE(Z, TERN(USE_Z_MIN_PROBE, MIN_PROBE, MIN));

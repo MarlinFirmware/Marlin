@@ -1037,7 +1037,7 @@ namespace LanguageNarrow_hg {
 
 namespace LanguageWide_hg {
   using namespace LanguageNarrow_hg;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings"); // Preheat (PREHEAT_1_LABEL) Settings
