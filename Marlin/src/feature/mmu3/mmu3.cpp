@@ -292,6 +292,7 @@ namespace MMU3 {
         && parser.codenum != 600
         && xy_are_trusted()
         && e_active()
+        && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN // Intentional unload leaves no active slot and should not trigger M600.
         && command_in_progress == CommandInProgress::NoCommand
         && progress != ProgressCode::UnloadingToFinda
         && progress != ProgressCode::RetractingFromFinda
