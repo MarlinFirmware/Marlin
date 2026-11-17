@@ -2070,7 +2070,7 @@
 // When RUNTIME_HOMING_DIRECTION is enabled and both MIN and MAX pins exist,
 // ensure both directions are compiled so runtime switching works correctly
 #if ENABLED(RUNTIME_HOMING_DIRECTION)
-  #if PIN_EXISTS(X_MIN) && PIN_EXISTS(X_MAX) && !X_SPI_SENSORLESS
+  #if PINS_EXIST(X_MIN, X_MAX) && !X_SPI_SENSORLESS
     #ifndef USE_X_MIN
       #define USE_X_MIN 1
     #endif
@@ -2084,7 +2084,7 @@
       #define HAS_X_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(Y_MIN) && PIN_EXISTS(Y_MAX) && !Y_SPI_SENSORLESS
+  #if PINS_EXIST(Y_MIN, Y_MAX) && !Y_SPI_SENSORLESS
     #ifndef USE_Y_MIN
       #define USE_Y_MIN 1
     #endif
@@ -2098,7 +2098,7 @@
       #define HAS_Y_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(Z_MIN) && PIN_EXISTS(Z_MAX) && !Z_SPI_SENSORLESS
+  #if PINS_EXIST(Z_MIN, Z_MAX) && !Z_SPI_SENSORLESS
     #ifndef USE_Z_MIN
       #define USE_Z_MIN 1
     #endif
@@ -2112,7 +2112,7 @@
       #define HAS_Z_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(I_MIN) && PIN_EXISTS(I_MAX) && !I_SPI_SENSORLESS
+  #if PINS_EXIST(I_MIN, I_MAX) && !I_SPI_SENSORLESS
     #ifndef USE_I_MIN
       #define USE_I_MIN 1
     #endif
@@ -2126,7 +2126,7 @@
       #define HAS_I_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(J_MIN) && PIN_EXISTS(J_MAX) && !J_SPI_SENSORLESS
+  #if PINS_EXIST(J_MIN, J_MAX) && !J_SPI_SENSORLESS
     #ifndef USE_J_MIN
       #define USE_J_MIN 1
     #endif
@@ -2140,7 +2140,7 @@
       #define HAS_J_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(K_MIN) && PIN_EXISTS(K_MAX) && !K_SPI_SENSORLESS
+  #if PINS_EXIST(K_MIN, K_MAX) && !K_SPI_SENSORLESS
     #ifndef USE_K_MIN
       #define USE_K_MIN 1
     #endif
@@ -2154,7 +2154,7 @@
       #define HAS_K_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(U_MIN) && PIN_EXISTS(U_MAX) && !U_SPI_SENSORLESS
+  #if PINS_EXIST(U_MIN, U_MAX) && !U_SPI_SENSORLESS
     #ifndef USE_U_MIN
       #define USE_U_MIN 1
     #endif
@@ -2168,7 +2168,7 @@
       #define HAS_U_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(V_MIN) && PIN_EXISTS(V_MAX) && !V_SPI_SENSORLESS
+  #if PINS_EXIST(V_MIN, V_MAX) && !V_SPI_SENSORLESS
     #ifndef USE_V_MIN
       #define USE_V_MIN 1
     #endif
@@ -2182,7 +2182,7 @@
       #define HAS_V_MAX_STATE 1
     #endif
   #endif
-  #if PIN_EXISTS(W_MIN) && PIN_EXISTS(W_MAX) && !W_SPI_SENSORLESS
+  #if PINS_EXIST(W_MIN, W_MAX) && !W_SPI_SENSORLESS
     #ifndef USE_W_MIN
       #define USE_W_MIN 1
     #endif
