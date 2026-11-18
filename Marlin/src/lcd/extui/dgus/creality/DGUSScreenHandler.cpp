@@ -660,6 +660,10 @@ void DGUSScreenHandlerCreality::onHomingStart() {
 }
 
 void DGUSScreenHandlerCreality::onHomingDone() {
+  // The preheat homes X and Y first, then waits on this same page
+  #if CREALITY_LEVEL_PREHEAT
+    if (LevelingPreheat::keepsWaitPage()) return;
+  #endif
   setSynchronousOperationFinish();
   popToOldScreen();
 }

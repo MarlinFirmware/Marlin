@@ -58,6 +58,9 @@ public:
 
   static bool isActive() { return state != IDLE; }
 
+  // True while the wait page (Auto Home) is to stay up, even if a homing move in between ends
+  static bool keepsWaitPage() { return state != IDLE && use_wait_page; }
+
 private:
   enum State : uint8_t { IDLE, HEATING, SOAKING };
   static State state;
