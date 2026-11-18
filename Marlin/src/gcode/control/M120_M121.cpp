@@ -23,19 +23,11 @@
 #include "../gcode.h"
 #include "../../module/endstops.h"
 
-#if ENABLED(ABORT_ON_ENDSTOP)
-#include "../../module/planner.h"
-#endif
-
 /**
  * M120: Enable endstops and set non-homing endstop state to "enabled"
  */
 void GcodeSuite::M120() { 
   endstops.enable_globally(true); 
-  #if ENABLED(ABORT_ON_ENDSTOP)
-    if (parser.seen('H'))
-      planner.abort_on_endstop = parser.value_bool();
-  #endif
 }
 
 /**
@@ -43,8 +35,4 @@ void GcodeSuite::M120() {
  */
 void GcodeSuite::M121() {
   endstops.enable_globally(false);
-  #if ENABLED(ABORT_ON_ENDSTOP)
-    if (parser.seen('H'))
-      planner.abort_on_endstop = parser.value_bool();
-  #endif
 }
