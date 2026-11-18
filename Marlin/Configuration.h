@@ -1983,16 +1983,6 @@
 //#define V_SAFETY_STOP
 //#define W_SAFETY_STOP
 
-/**
- * Abort printing when when a hardware endstop is triggered outside of probing or homing,
- * or when a software endstop is triggered.
- * Abort on software endstops is enabled with 'M211 H1' or from the LCD menu.
- * Software endstops must be activated for this option to work.
- * Abort on hardware endstops is enabled with 'M120 H1' or from the LCD menu.
- * Endstops must be activated for this option to work.
- */
-//#define ABORT_ON_ENDSTOP
-
 // @section geometry
 
 // The size of the printable area
@@ -2059,6 +2049,18 @@
 #if ANY(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
   //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
 #endif
+
+/**
+ * Abort machining when any limit switch is triggered.
+ * Hardware endstops must be activated for this option to work.
+ */
+#define ABORT_ON_ENDSTOP
+
+/**
+ * Abort machining when any software endstop is triggered.
+ * Software endstops must be activated for this option to work.
+ */
+#define ABORT_ON_SOFTWARE_ENDSTOP
 
 /**
  * @section filament runout sensors
