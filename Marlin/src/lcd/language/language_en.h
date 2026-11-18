@@ -208,7 +208,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_BABYSTEP_Z                     = _UxGT("Babystep Z");
   LSTR MSG_BABYSTEP_N                     = _UxGT("Babystep @");
   LSTR MSG_ENDSTOP_ABORT                  = _UxGT("Endstop Abort");
-  LSTR MSG_SW_ENDSTOP_ABORT               = _UxGT("Software Endstop Abort");
   LSTR MSG_ERR_HEATING_FAILED             = _UxGT("Heating Failed");
   LSTR MSG_ERR_REDUNDANT_TEMP             = _UxGT("Err: REDUNDANT TEMP");
   LSTR MSG_ERR_THERMAL_RUNAWAY            = _UxGT("THERMAL RUNAWAY");

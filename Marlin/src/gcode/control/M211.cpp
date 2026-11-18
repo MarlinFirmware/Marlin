@@ -29,14 +29,8 @@
 
 /**
  * M211: Enable, Disable, and/or Report software endstops
- * 
- * Parameters
- *   S<bool>: flag to enable (1, default) or disable (0) software endstops.
- * 
- * Report the software endstop status if no parameter is specified, 
- * 
- * Examples:
- *   M211 S0 to disable software endstops
+ *
+ * Usage: M211 S1 to enable, M211 S0 to disable, M211 alone for report
  */
 void GcodeSuite::M211() {
   if (parser.seen('S'))

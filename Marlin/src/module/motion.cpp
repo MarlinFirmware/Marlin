@@ -66,10 +66,6 @@
   #include "../feature/babystep.h"
 #endif
 
-#if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP) && HAS_CUTTER
-  #include "../feature/spindle_laser.h"
-#endif
-
 #define DEBUG_OUT ENABLED(DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -1418,48 +1414,6 @@ void Motion::restore_feedrate_and_scaling() {
       SERIAL_ECHOLNPGM("Axis ", C(AXIS_CHAR(axis)), " min:", soft_endstop.min[axis], " max:", soft_endstop.max[axis]);
   }
 
-
-  void Motion::handle_min_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
-    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
-      if (target_pos[axis] < soft_endstop.min[axis]) {
-        SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
-        quickstop_stepper();
-        #if HAS_CUTTER
-          TERN_(SPINDLE_FEATURE, safe_delay(1000));
-          cutter.kill();
-        #endif
-        queue.clear();
-        #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
-          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
-        #endif
-        marlin.stop();
-      }
-    #else
-      NOLESS(target_pos[axis], soft_endstop.min[axis]);
-    #endif
-  }
-
-  void Motion::handle_max_software_endstop(const AxisEnum axis, xyz_pos_t &target_pos) {
-    #if ENABLED(ABORT_ON_SOFTWARE_ENDSTOP)
-      if (target_pos[axis] > soft_endstop.max[axis]) {
-        NOMORE(target_pos[axis], soft_endstop.max[axis]);
-        SERIAL_ERROR_MSG(STR_ERR_SW_ENDSTOP);
-        quickstop_stepper();
-        #if HAS_CUTTER
-          TERN_(SPINDLE_FEATURE, safe_delay(1000));
-          cutter.kill();
-        #endif
-        queue.clear();
-        #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
-          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
-        #endif
-        marlin.stop();
-      }
-    #else
-      NOMORE(target_pos[axis], soft_endstop.max[axis]);
-    #endif
-  }
-
   /**
    * Constrain the given coordinates to the software endstops.
    *
@@ -1513,10 +1467,10 @@ void Motion::restore_feedrate_and_scaling() {
       #if HAS_X_AXIS
         if (axis_was_homed(X_AXIS)) {
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_X)
-            handle_min_software_endstop(X_AXIS, target);
+            NOLESS(target.x, soft_endstop.min.x);
           #endif
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_X)
-            handle_max_software_endstop(X_AXIS, target); 
+            NOMORE(target.x, soft_endstop.max.x);
           #endif
         }
       #endif
@@ -1524,10 +1478,10 @@ void Motion::restore_feedrate_and_scaling() {
       #if HAS_Y_AXIS
         if (axis_was_homed(Y_AXIS)) {
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Y)
-            handle_min_software_endstop(Y_AXIS, target);
+            NOLESS(target.y, soft_endstop.min.y);
           #endif
           #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Y)
-            handle_max_software_endstop(Y_AXIS, target); 
+            NOMORE(target.y, soft_endstop.max.y);
           #endif
         }
       #endif
@@ -1537,70 +1491,70 @@ void Motion::restore_feedrate_and_scaling() {
     #if HAS_Z_AXIS
       if (axis_was_homed(Z_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_Z)
-          handle_min_software_endstop(Z_AXIS, target);
+          NOLESS(target.z, soft_endstop.min.z);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_Z)
-          handle_max_software_endstop(Z_AXIS, target);
+          NOMORE(target.z, soft_endstop.max.z);
         #endif
       }
     #endif
     #if HAS_I_AXIS
       if (axis_was_homed(I_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_I)
-          handle_min_software_endstop(I_AXIS, target);
+          NOLESS(target.i, soft_endstop.min.i);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_I)
-          handle_max_software_endstop(I_AXIS, target);
+          NOMORE(target.i, soft_endstop.max.i);
         #endif
       }
     #endif
     #if HAS_J_AXIS
       if (axis_was_homed(J_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_J)
-          handle_min_software_endstop(J_AXIS, target);
+          NOLESS(target.j, soft_endstop.min.j);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_J)
-          handle_max_software_endstop(J_AXIS, target);
+          NOMORE(target.j, soft_endstop.max.j);
         #endif
       }
     #endif
     #if HAS_K_AXIS
       if (axis_was_homed(K_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_K)
-          handle_min_software_endstop(K_AXIS, target);
+          NOLESS(target.k, soft_endstop.min.k);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_K)
-          handle_max_software_endstop(K_AXIS, target);
+          NOMORE(target.k, soft_endstop.max.k);
         #endif
       }
     #endif
     #if HAS_U_AXIS
       if (axis_was_homed(U_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_U)
-          handle_min_software_endstop(U_AXIS, target);
+          NOLESS(target.u, soft_endstop.min.u);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_U)
-          handle_max_software_endstop(U_AXIS, target);
+          NOMORE(target.u, soft_endstop.max.u);
         #endif
       }
-      #endif
+    #endif
     #if HAS_V_AXIS
       if (axis_was_homed(V_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_V)
-          handle_min_software_endstop(V_AXIS, target);
+          NOLESS(target.v, soft_endstop.min.v);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_V)
-          handle_max_software_endstop(V_AXIS, target);
+          NOMORE(target.v, soft_endstop.max.v);
         #endif
       }
     #endif
     #if HAS_W_AXIS
       if (axis_was_homed(W_AXIS)) {
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MIN_SOFTWARE_ENDSTOP_W)
-          handle_min_software_endstop(W_AXIS, target);
+          NOLESS(target.w, soft_endstop.min.w);
         #endif
         #if !HAS_SOFTWARE_ENDSTOPS || ENABLED(MAX_SOFTWARE_ENDSTOP_W)
-          handle_max_software_endstop(W_AXIS, target);
+          NOMORE(target.w, soft_endstop.max.w);
         #endif
       }
     #endif
