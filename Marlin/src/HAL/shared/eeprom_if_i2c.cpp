@@ -41,8 +41,7 @@
 
 void eeprom_init() {
   #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
-    eWire.setSDA(I2C_SDA_PIN);
-    eWire.setSCL(I2C_SCL_PIN);
+    I2C_SET_PINS(eWire, I2C_SDA_PIN, I2C_SCL_PIN);
   #endif
 
   eWire.begin();

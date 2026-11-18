@@ -133,6 +133,8 @@ void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
+#define I2C_SET_PINS(W, SDA, SCL) W.setPins(SDA, SCL)
+
 #if ENABLED(USE_ESP32_EXIO)
   void Write_EXIO(uint8_t IO, uint8_t v);
 #endif

@@ -1064,6 +1064,15 @@
 #endif
 
 /**
+ * I2C pins that can't be selected on this platform
+ */
+#if I2C_PINS_FIXED && PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM) && (ANY(EXPERIMENTAL_I2CBUS, HAS_MCP3426_ADC, HAS_ADS1115, I2C_EEPROM) || HAS_U8GLIB_I2C_OLED)
+  #if !defined(PIN_WIRE_SDA) || !defined(PIN_WIRE_SCL) || I2C_SDA_PIN != PIN_WIRE_SDA || I2C_SCL_PIN != PIN_WIRE_SCL
+    #warning "I2C_SDA_PIN and I2C_SCL_PIN have no effect on this platform. Its I2C pins are fixed."
+  #endif
+#endif
+
+/**
  * FREEZE_FEATURE may override the KILL_PIN
  */
 #if FREEZE_STOLE_KILL_PIN_WARNING

@@ -89,6 +89,8 @@ typedef libServo hal_servo_t;
 #define GET_PIN_MAP_INDEX(pin) pin
 #define PARSED_PIN_INDEX(code, dval) parser.intval(code, dval)
 
+#define I2C_SET_PINS(W, SDA, SCL) do{ W.setSDA(SDA); W.setSCL(SCL); }while(0)
+
 #ifdef STM32F1xx
   #define JTAG_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_JTAGDISABLE)
   #define JTAGSWD_DISABLE() AFIO_DBGAFR_CONFIG(AFIO_MAPR_SWJ_CFG_DISABLE)
