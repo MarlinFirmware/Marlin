@@ -71,10 +71,15 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
   // Power-up delay as per HD44780 datasheet (> 40ms required)
   delay(50);
 
-  // Initialization sequence for 4-bit mode
-  // This is a simplified sequence that works reliably
-  sendCommand(0x33); // Initialize, 8-bit mode attempt 1
-  sendCommand(0x32); // Set 4-bit mode
+  // Initialization by instruction, HD44780 datasheet figure 24
+  writeSerial(0);           // RS and E low
+  write4bits(0x03, false);  // 8-bit mode
+  _delay_us(4500);
+  write4bits(0x03, false);
+  _delay_us(4500);
+  write4bits(0x03, false);
+  _delay_us(150);
+  write4bits(0x02, false);  // 4-bit mode
   sendCommand(0x28); // Function Set: 4-bit, 2-line, 5x8 dots
   sendCommand(0x0C); // Display ON, cursor OFF, blink OFF
   sendCommand(0x06); // Entry Mode Set: increment, no shift
@@ -288,6 +293,7 @@ void MightyboardLCDSerial::write4bits(uint8_t value, bool dataMode) {
  * @param value Pre-set data bits (D7-D0 in shift register)
  */
 void MightyboardLCDSerial::pulseEnable(uint8_t value) {
+  writeSerial(value);   // Set RS and data before raising enable
   _delay_us(1);
   SBI(value, 3);        // Set enable HIGH
   writeSerial(value);
@@ -308,6 +314,7 @@ void MightyboardLCDSerial::writeSerial(uint8_t value) {
     WRITE(SR_CLK_PIN, LOW);
     bool data = (value >> i) & 0x01;
     WRITE(SR_DATA_PIN, data);
+    _delay_us(1);  // Data setup time, for the cable to the interface board
     WRITE(SR_CLK_PIN, HIGH);
     _delay_us(1);  // Clock pulse width
   }
