@@ -48,12 +48,6 @@ void MightyboardLCDSerial::begin(uint8_t cols, uint8_t rows, uint8_t charsize) {
   SET_OUTPUT(SR_DATA_PIN);
   SET_OUTPUT(SR_CLK_PIN);
 
-  // Power on LCD if power pin is defined
-  // Already handled in MarlinUI::init_lcd()
-  //#if PIN_EXISTS(LCD_PWR)
-  //  OUT_WRITE(LCD_PWR_PIN, LOW); // Power on (active low)
-  //#endif
-
   _cols = cols;
   _rows = rows;
 

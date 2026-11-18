@@ -387,6 +387,10 @@ void MarlinUI::set_custom_characters(const HD44780CharSet screen_charset/*=CHARS
 
 void MarlinUI::init_lcd() {
 
+  #if PIN_EXISTS(LCD_PWR)
+    OUT_WRITE(LCD_PWR_PIN, LOW);
+  #endif
+
   #if ENABLED(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
