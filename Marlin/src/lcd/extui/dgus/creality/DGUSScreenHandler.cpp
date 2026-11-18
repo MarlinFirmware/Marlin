@@ -1125,6 +1125,12 @@ void DGUSScreenHandlerCreality::handleFanToggle() {
 void DGUSScreenHandlerCreality::updateNewScreen(const DGUS_ScreenID screenID, const bool popup/*=false*/) {
   DEBUG_ECHOLNPGM("SetNewScreen: ", screenID);
 
+  // The boot message ("Ready") only belongs on the main menu. Blank it when moving on, so
+  // other pages with a message field don't show it while nothing else has been said.
+  if (current_screenID == DGUS_SCREEN_MAIN && screenID != DGUS_SCREEN_MAIN
+    && screenID != DGUS_SCREEN_POPUP && screenID != DGUS_SCREEN_CONFIRM
+  ) setStatusMessage("");
+
   // Leaving the Z Offset / leveling screen (by Back, or from the display itself) turns off the heaters
   // that the leveling preheat or Preheat turned on, unless a leveling operation is what comes next.
   #if DISABLED(HOTEND_IDLE_TIMEOUT)
