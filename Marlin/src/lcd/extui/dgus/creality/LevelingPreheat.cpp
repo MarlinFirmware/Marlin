@@ -46,9 +46,9 @@ static bool atTemperature() {
   return hotend_ok && bed_ok;
 }
 
-// Show a message on the screen's message field (if there is one) and tell the host
+// Show a message on the screen's message field (if the page has one) and tell the host
 void LevelingPreheat::message(const char * const text) {
-  if (!use_wait_page) screen.setStatusMessage(text);
+  screen.setStatusMessage(text);
   SERIAL_ECHO_START();
   SERIAL_ECHOLN(text);
 }
