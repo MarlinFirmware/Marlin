@@ -182,6 +182,9 @@
 
   #define LCD_PWR_PIN                         29  // A7
 
+  // Power the interface board at startup with the shift register lines low, as MakerBot and Sailfish do
+  #define BOARD_PREINIT() do{ OUT_WRITE(SR_DATA_PIN, LOW); OUT_WRITE(SR_CLK_PIN, LOW); OUT_WRITE(SR_STROBE_PIN, LOW); OUT_WRITE(LCD_PWR_PIN, LOW); }while(0)
+
   #define BUTTON_LED_PIN                      35  // C2 To be implemented...
 
   /**
