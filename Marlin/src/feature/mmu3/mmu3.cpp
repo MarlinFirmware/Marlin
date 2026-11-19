@@ -644,6 +644,14 @@ namespace MMU3 {
   bool MMU3::load_to_feeder(uint8_t slot) {
     if (!waitForMMUReady()) return false;
 
+    // The MMU refuses to load while its FINDA sees filament. Marlin would resend the command until it gives up
+    // with a generic communication error, so say what is wrong instead.
+    if (findaDetectsFilament()) {
+      SERIAL_ECHO_MSG("MMU3: Filament ", slot + 1, " not loaded. ", GET_TEXT_F(MSG_DESC_FILAMENT_ALREADY_LOADED));
+      LCD_ALERTMESSAGE(MSG_DESC_FILAMENT_ALREADY_LOADED);
+      return false;
+    }
+
     fullScreenMsgLoad(slot);
 
     // Scope for ReportingRAII
