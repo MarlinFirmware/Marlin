@@ -83,7 +83,7 @@
  *  Default values are used for omitted arguments.
  */
 void GcodeSuite::M600() {
-  SERIAL_ECHO_MSG("DIAG ", millis(), " M600 start automatic=", parser.seen('A'));
+  DIAG_MSG("DIAG ", millis(), " M600 start automatic=", parser.seen('A'));
 
   #if ENABLED(MIXING_EXTRUDER)
     const int8_t eindex = get_target_e_stepper_from_command();

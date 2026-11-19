@@ -117,6 +117,10 @@ extern uint8_t marlin_debug_flags;
 #define PORT_RESTORE()     _PORT_RESTORE(1)
 #define SERIAL_PORTMASK(P) SerialMask::from(P)
 
+// DIAG (temporary, do not merge): print to every port. Commands run from the SD card have no port, so plain
+// SERIAL_ECHO output during an SD print goes nowhere. Only //action: lines are forced to all ports.
+#define DIAG_MSG(...) do{ PORT_REDIRECT(SerialMask::All); SERIAL_ECHO_MSG(__VA_ARGS__); }while(0)
+
 //
 // SERIAL_CHAR - Print one or more individual chars
 //
