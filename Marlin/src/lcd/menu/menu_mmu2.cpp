@@ -166,8 +166,42 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   _mmu2_hot_action(MMU_HOT_LOAD_TO_NOZZLE, tool);
 }
 
+#if HAS_PRUSA_MMU3
+
+  // The MMU refuses to load while its FINDA sees filament, so say so on a screen the user must answer.
+  // (A status message is easily missed, and a Load from the Filament Change menu returns to that menu at once.)
+  static bool mmu_already_loaded_from_pause;  // Opened from the Filament Change menu: Unload returns to it
+
+  static void _mmu2_unload_from_alert() {
+    _mmu2_hot_action(MMU_HOT_UNLOAD, 0, mmu_already_loaded_from_pause);
+  }
+
+  static void menu_mmu2_already_loaded() {
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_MMU2_UNLOAD_FILAMENT), GET_TEXT_F(MSG_BUTTON_DONE),
+      _mmu2_unload_from_alert, nullptr,   // Done goes back to the screen that was open
+      GET_TEXT_F(MSG_TITLE_FILAMENT_ALREADY_LOADED)
+    );
+  }
+
+  // Returns true if the alert was shown and the Load must not be sent.
+  static bool _mmu2_already_loaded(const bool from_pause=false) {
+    if (!mmu3.findaDetectsFilament()) return false;
+    MarlinUI::completion_feedback(false);
+    SERIAL_ECHO_MSG("MMU3: ", GET_TEXT_F(MSG_DESC_FILAMENT_ALREADY_LOADED));
+    mmu_already_loaded_from_pause = from_pause;
+    ui.push_current_screen();
+    ui.goto_screen(menu_mmu2_already_loaded);
+    return true;
+  }
+
+#else
+  static bool _mmu2_already_loaded(const bool=false) { return false; }
+#endif
+
 void _mmu2_load_to_feeder(const uint8_t tool) {
   MMUActionGuard busy; if (!busy.ok) return;
+  if (_mmu2_already_loaded()) return;
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
@@ -176,6 +210,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
 }
 
 void action_mmu2_load_all() {
+  if (_mmu2_already_loaded()) return;
   EXTRUDER_LOOP() _mmu2_load_to_feeder(e);
 }
 
@@ -473,6 +508,7 @@ static uint8_t pause_slot = 0xFF; // Slot in use when the Filament Change menu o
 
 static void _mmu2_pause_load(const uint8_t slot) {
   pause_slot = slot;
+  if (_mmu2_already_loaded(true)) return;   // Alert; Done goes back to the screen that was open
   _mmu2_load_to_feeder(slot);   // Shows what is happening on the Status Screen
   ui.goto_screen(menu_mmu2_pause);
 }
