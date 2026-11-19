@@ -1133,13 +1133,14 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      #ifdef LEVELING_HEAT_SOAK_TIME
-        static void wait_for_heat_soak(const uint16_t seconds);
-      #endif
-
       static void manage_heated_bed(const millis_t &ms);
 
     #endif // HAS_HEATED_BED
+
+    #ifdef LEVELING_HEAT_SOAK_TIME
+      // Wait for the heat to soak in, with a hotend, a heated bed, or both
+      static void wait_for_heat_soak(const uint16_t seconds);
+    #endif
 
     #if HAS_TEMP_PROBE
       static raw_adc_t rawProbeTemp()    { return temp_probe.getraw(); }
