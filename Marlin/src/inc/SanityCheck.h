@@ -1374,7 +1374,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
   static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
   static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
-  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), TERN(BD_PRESSURE_PROBE, "(BD_PRESSURE_PROBE is enabled.)", "(NOZZLE_AS_PROBE is enabled.)"));
   static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
   static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
   static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
@@ -1666,7 +1666,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   constexpr xyz_pos_t sanity_nozzle_to_probe_offset = NOZZLE_TO_PROBE_OFFSET;
   #if ENABLED(NOZZLE_AS_PROBE)
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
-                  "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
+      TERN(BD_PRESSURE_PROBE, "BD_PRESSURE_PROBE makes the nozzle the probe, so the XY offsets in NOZZLE_TO_PROBE_OFFSET must both be 0.",
+                              "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0."));
   #endif
   #if HAS_PROBE_XY_OFFSET
     PROBE_OFFSET_ASSERT("NOZZLE_TO_PROBE_OFFSET.x", sanity_nozzle_to_probe_offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);

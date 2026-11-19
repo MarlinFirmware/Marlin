@@ -1789,9 +1789,9 @@
  * bd_pressure - Strain gauge module on I2C (https://github.com/markniu/bd_pressure)
  *
  * A BF350-1EB strain gauge between the hotend and the toolhead, which does two
- * unrelated jobs. As a nozzle probe it drives a plain endstop output and needs
- * NO firmware support at all - just wire it to Z-MIN and set
- * Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN. As a Pressure Advance sensor it reports
+ * unrelated jobs. As a nozzle probe it drives a plain endstop output: wire it to
+ * Z-MIN, set Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, and use NOZZLE_AS_PROBE with the
+ * NOZZLE_TO_PROBE_OFFSET X and Y set to 0. As a Pressure Advance sensor it reports
  * curve metrics that the host uses to sweep for the best K value.
  *
  * BD_PRESSURE therefore means "the I2C bus is wired up", and the two options
@@ -1806,7 +1806,7 @@
   #define BD_PRESSURE_I2C_SCL_PIN     -1
   #define BD_PRESSURE_I2C_DELAY       50  // (us) Half bit period. 50 = ~10kHz, the known-good rate.
 
-  //#define BD_PRESSURE_PROBE             // Set the trigger threshold and re-tare before probing
+  //#define BD_PRESSURE_PROBE             // Set the trigger threshold and re-tare before probing. Enables NOZZLE_AS_PROBE.
   #if ENABLED(BD_PRESSURE_PROBE)
     #define BD_PRESSURE_THRESHOLD      4  // Probe trigger threshold
     #define BD_PRESSURE_PROBE_SETTLE_MS 250 // (ms) Quiet time before taring, so the baseline average is clean

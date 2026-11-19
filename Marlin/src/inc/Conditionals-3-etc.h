@@ -105,6 +105,11 @@
   #undef EDITABLE_SERVO_ANGLES
 #endif
 
+// The bd_pressure module senses the nozzle touching the bed
+#if ENABLED(BD_PRESSURE_PROBE)
+  #define NOZZLE_AS_PROBE
+#endif
+
 /**
  * Set flags for any form of bed probe
  */
