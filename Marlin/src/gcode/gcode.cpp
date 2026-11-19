@@ -1245,7 +1245,7 @@ void GcodeSuite::process_next_command() {
   { // DIAG (temporary): log every command except plain moves, with a timestamp
     const char * const b = command.buffer;
     const bool is_move = b[0] == 'G' && b[1] >= '0' && b[1] <= '3' && (b[2] == ' ' || b[2] == '\0');
-    if (!is_move) SERIAL_ECHO_MSG("DIAG ", millis(), " cmd ", b);
+    if (!is_move) DIAG_MSG("DIAG ", millis(), " cmd ", b);
   }
 
   if (DEBUGGING(ECHO)) {

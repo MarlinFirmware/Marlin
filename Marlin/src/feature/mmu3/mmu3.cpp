@@ -290,7 +290,7 @@ namespace MMU3 {
       const uint8_t bits = uint8_t(marlin.printingIsActive()) | (uint8_t(parser.codenum == 600) << 1) | (uint8_t(xy_are_trusted()) << 2) | (uint8_t(e_active()) << 3);
       if (bits != diag_bits || ELAPSED(millis(), diag_last + 2000)) {
         diag_bits = bits; diag_last = millis();
-        SERIAL_ECHO_MSG("DIAG ", millis(), " FINDA empty: printing_active=", marlin.printingIsActive(), " codenum=", parser.codenum, " xy_trusted=", xy_are_trusted(), " e_active=", e_active(), " tool=", get_current_tool());
+        DIAG_MSG("DIAG ", millis(), " FINDA empty: printing_active=", marlin.printingIsActive(), " codenum=", parser.codenum, " xy_trusted=", xy_are_trusted(), " e_active=", e_active(), " tool=", get_current_tool());
       }
     }
 
@@ -320,7 +320,7 @@ namespace MMU3 {
           && !FILAMENT_PRESENT() // so the filament is totally consumed
         #endif
     ) {
-      SERIAL_ECHO_MSG("DIAG ", millis(), " FINDA runout TRIGGERED");
+      DIAG_MSG("DIAG ", millis(), " FINDA runout TRIGGERED");
       SERIAL_ECHOLN_P("FINDA filament runout!");
       if (spooljoin.isEnabled() && get_current_tool() != (uint8_t)FILAMENT_UNKNOWN) { // Can't auto if F=?
         #if ENABLED(MMU3_SPOOL_JOIN_CONSUMES_ALL_FILAMENT)
@@ -605,7 +605,7 @@ namespace MMU3 {
   }
 
   bool MMU3::unload() {
-    SERIAL_ECHO_MSG("DIAG ", millis(), " MMU unload() start tool=", get_current_tool(), " finda=", findaDetectsFilament());
+    DIAG_MSG("DIAG ", millis(), " MMU unload() start tool=", get_current_tool(), " finda=", findaDetectsFilament());
     if (!waitForMMUReady()) return false;
 
     WaitForHotendTargetTempBeep();
@@ -653,7 +653,7 @@ namespace MMU3 {
     tool_change(slot);
     planner_synchronize();
     unload();
-    SERIAL_ECHO_MSG("DIAG ", millis(), " MMU unload() end finda=", findaDetectsFilament());
+    DIAG_MSG("DIAG ", millis(), " MMU unload() end finda=", findaDetectsFilament());
     ScreenUpdateEnable();
     return true;
   }
