@@ -91,6 +91,7 @@
       ParkExtruder = 1, // The extruder was parked.
       Cooldown = 2,   // The extruder was allowed to cool.
       CooldownPending = 4,
+      Saved = 8,      // Print state saved (and the head parked, if it was allowed to move); don't repeat that until resumed.
     };
 
     // Source of operation error

@@ -744,7 +744,8 @@ namespace MMU3 {
   }
 
   void MMU3::saveAndPark(bool move_axes) {
-    if (mmu_print_saved == SavedState::None) { // First occurrence. Save current position, park print head, disable nozzle heater.
+    if (!(mmu_print_saved & SavedState::Saved)) { // First occurrence. Save current position, park print head, disable nozzle heater.
+      mmu_print_saved |= SavedState::Saved;
       LogEchoEvent(F("Saving and parking"));
       Disable_E0();
       planner_synchronize();
@@ -816,6 +817,7 @@ namespace MMU3 {
   }
 
   void MMU3::resumeUnpark() {
+    mmu_print_saved &= ~(SavedState::Saved);
     if (mmu_print_saved & SavedState::ParkExtruder) {
       LogEchoEvent(F("Resuming XYZ"));
 
