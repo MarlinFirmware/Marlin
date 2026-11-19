@@ -178,7 +178,7 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
 
   static void menu_mmu2_already_loaded() {
     MenuItem_confirm::select_screen(
-      GET_TEXT_F(MSG_MMU2_UNLOAD_FILAMENT), GET_TEXT_F(MSG_BUTTON_DONE),
+      GET_TEXT_F(MSG_MMU2_UNLOAD_FILAMENT), GET_TEXT_F(MSG_BUTTON_BACK),
       _mmu2_unload_from_alert, nullptr,   // Done goes back to the screen that was open
       GET_TEXT_F(MSG_TITLE_FILAMENT_ALREADY_LOADED)
     );
