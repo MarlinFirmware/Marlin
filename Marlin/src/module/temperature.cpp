@@ -1928,6 +1928,8 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    * @param ms Current Time
    */
   void Temperature::manage_hotends(const millis_t &ms) {
+    TERN_(HAS_HEAT_SOAK_TRACKING, temp_hotend[0].track_range(ms, TEMP_WINDOW, TEMP_HYSTERESIS));
+
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       {
@@ -1980,6 +1982,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    * @param ms Current Time
    */
   void Temperature::manage_heated_bed(const millis_t &ms) {
+    TERN_(HAS_HEAT_SOAK_TRACKING, temp_bed.track_range(ms, TEMP_BED_WINDOW, TEMP_BED_HYSTERESIS));
 
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
@@ -5431,6 +5434,29 @@ void Temperature::isr() {
     constexpr Temperature::leveling_temp_t Temperature::leveling_temp;
   #endif
 
+  #if HAS_HEAT_SOAK_TRACKING
+
+    // The settling time that M109 / M190 use, then the soak itself
+    bool Temperature::heaters_soaked(const celsius_t hotend_temp, const celsius_t bed_temp) {
+      const millis_t ms = millis();
+      bool soaked = false;
+      #if HAS_HOTEND
+        if (hotend_temp) {
+          if (!temp_hotend[0].been_in_range(hotend_temp, ms, SEC_TO_MS(TEMP_RESIDENCY_TIME + LEVELING_HEAT_SOAK_TIME))) return false;
+          soaked = true;
+        }
+      #endif
+      #if HAS_HEATED_BED
+        if (bed_temp) {
+          if (!temp_bed.been_in_range(bed_temp, ms, SEC_TO_MS(TEMP_BED_RESIDENCY_TIME + LEVELING_HEAT_SOAK_TIME))) return false;
+          soaked = true;
+        }
+      #endif
+      return soaked;
+    }
+
+  #endif
+
   /**
    * Do preheating as required before leveling or probing.
    *  - If a preheat input is higher than the current target, raise the target temperature.
@@ -5466,7 +5492,13 @@ void Temperature::isr() {
 
     DEBUG_EOL();
 
-    if (!early) {
+    // A heater that has been settled at the preheat temperature for as long as a soak takes,
+    // such as after an earlier soak, needs no more waiting. A brief dip (e.g., while the
+    // heaters are paused for probing) must not start another full heat soak.
+    const bool soaked = TERN0(HAS_HEAT_SOAK_TRACKING, heaters_soaked(TERN0(HAS_HOTEND, hotend_temp), TERN0(HAS_HEATED_BED, bed_temp)));
+    if (soaked) DEBUG_ECHOLNPGM("Already heat-soaked");
+
+    if (!early && !soaked) {
       const bool waitHotend = TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotend_temp > wholeDegHotend(0) + (TEMP_WINDOW)),
                  waitBed    = TERN0(HAS_HEATED_BED, wait_for_bed_heat && bed_temp > wholeDegBed() + (TEMP_BED_WINDOW));
 

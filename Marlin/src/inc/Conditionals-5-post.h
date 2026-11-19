@@ -2490,6 +2490,9 @@
   #define HAS_HEATED_BED 1
   #define HAS_TEMP_BED 1
 #endif
+#if !HAS_HEATED_BED
+  #undef LEVELING_HEAT_SOAK_TIME  // The soak is for the bed
+#endif
 #if TEMP_SENSOR(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
 #endif

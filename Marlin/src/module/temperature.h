@@ -447,10 +447,37 @@ typedef struct TempInfo {
   } redundant_info_t;
 #endif
 
+// Remember how long a heater has been settled at its target, to skip a heat soak it has already had
+#if ENABLED(PREHEAT_BEFORE_LEVELING) && defined(LEVELING_HEAT_SOAK_TIME)  // (A value is not "enabled")
+  #define HAS_HEAT_SOAK_TRACKING 1
+#endif
+
 // A PWM heater with temperature sensor
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
+  #if HAS_HEAT_SOAK_TRACKING
+    millis_t in_range_ms;       // When the heater came within the window of its target. 0 if not in range.
+    celsius_t in_range_target;  // The target that it came into range of
+    /**
+     * Called regularly. Starts timing when the temperature comes within 'window' of a target,
+     * and stops when the target changes or the temperature leaves 'hysteresis' of the target.
+     * (The same rules that Marlin's M109 / M190 use to decide that a heater has settled.)
+     */
+    void track_range(const millis_t ms, const celsius_float_t window, const celsius_float_t hysteresis) {
+      const celsius_float_t diff = ABS(celsius - float(target));
+      if (!target || (in_range_ms && (target != in_range_target || diff > hysteresis)))
+        in_range_ms = 0;
+      if (!in_range_ms && target && diff < window) {
+        in_range_ms = _MAX(ms, 1UL);  // Zero means "not in range"
+        in_range_target = target;
+      }
+    }
+    // Has the heater been in range of a target of at least 'min_target' for 'duration' ms?
+    bool been_in_range(const celsius_t min_target, const millis_t ms, const millis_t duration) const {
+      return in_range_ms && in_range_target >= min_target && ELAPSED(ms, in_range_ms + duration);
+    }
+  #endif
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
   #if ENABLED(PELTIER_BED)
@@ -1330,6 +1357,11 @@ class Temperature {
         static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
       #endif
       static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      #if HAS_HEAT_SOAK_TRACKING
+        // Have the hotend and bed (whichever has a temperature given) been settled long enough
+        // to count as heat-soaked, so that waiting for another soak is a waste of time?
+        static bool heaters_soaked(const celsius_t hotend_temp, const celsius_t bed_temp);
+      #endif
       static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
     #endif
 
