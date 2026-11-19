@@ -252,6 +252,11 @@ void DGUSScreenHandlerCreality::handleDevelopmentTestButton(DGUS_VP_Variable &va
 char DGUSScreenHandlerCreality::prevStatus[96];
 
 void DGUSScreenHandlerCreality::setStatusMessage(const char *msg, const bool forceScrolling/*=false*/) {
+  // Marlin restores the welcome message ("Ready") after every heating wait and the like.
+  // It only belongs on the main menu, so show nothing in its place on the other pages.
+  if (current_screenID != DGUS_SCREEN_MAIN && current_screenID != DGUS_SCREEN_BOOT && !strcmp_P(msg, GET_TEXT(WELCOME_MSG)))
+    msg = NUL_STR;
+
   if (strcmp_P(msg, GET_TEXT(MSG_SETTINGS_STORED))) strlcpy(prevStatus, msg, sizeof(prevStatus));
   const bool needs_scrolling = forceScrolling || strlen(msg) > M117_STATIC_DISPLAY_LEN;
 
