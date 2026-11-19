@@ -81,7 +81,12 @@ static void _mmu2_unload_now() {
   MMUActionGuard busy; if (!busy.ok) return;
   ui.reset_status();
   ui.return_to_status();
-  LCD_MESSAGE(MSG_MMU2_UNLOADING_FILAMENT);
+  // The message needs a slot number. Without a known tool, show a plain message instead of "%i".
+  const uint8_t tool = uint8_t(TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool());
+  if (tool < EXTRUDERS)
+    ui.status_printf(0, GET_TEXT_F(MSG_MMU2_UNLOADING_FILAMENT), int(tool + 1));
+  else
+    LCD_MESSAGE(MSG_FILAMENTUNLOAD);
   while (!TERN(HAS_PRUSA_MMU3, mmu3, mmu2).unload()) {
     safe_delay(50);
     TERN(HAS_PRUSA_MMU3, MMU3::marlin_idle(true), marlin.idle());
