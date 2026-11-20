@@ -78,7 +78,7 @@ void LevelingBilinear::extrapolate_one_point(const uint8_t x, const uint8_t y, c
   const float a = 2 * a1 - a2, b = 2 * b1 - b2, c = 2 * c1 - c2;
 
   // Take the average instead of the median
-  z_values[x][y] = (a + b + c) / 3.0;
+  z_values[x][y] = (a + b + c) / 3.0f;
   TERN_(EXTENSIBLE_UI, ExtUI::onMeshUpdate(x, y, z_values[x][y]));
 
   // Median is robust (ignores outliers).
