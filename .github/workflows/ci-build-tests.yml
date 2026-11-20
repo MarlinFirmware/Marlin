@@ -85,6 +85,7 @@ jobs:
         - esp32_idf3
         - esp32_idf4
         - mks_tinybee
+        - mks_tinybee_idf5
         - mks_dlc32_v2_1
 
         # Teensy 2
