@@ -133,7 +133,7 @@
 #endif
 
 /**
- * EXP1 pinout for the LCD according to FYSETC's Cheetah board schematic
+ * EXP3 pinout for the LCD according to FYSETC's Cheetah board schematic
  *                 ------
  * (BEEPER)  PC9  | 1  2 | PC12 (BTN_ENC)
  * (BTN_EN2) PC11 | 3  4 | PB14 (LCD_RS / MISO)
@@ -141,69 +141,70 @@
  * (LCD_EN)  PB12 | 7  8 | PB15 (MOSI)
  *            GND | 9 10 | 5V
  *                 ------
- *                  EXP1
+ *                  EXP3
  *
  * Notes:
  *  - The pin-numbers match the connector correctly and are not in reverse order like on the Ender-3 board.
  *  - Functionally the pins are assigned in the same order as on the Ender-3 board.
  *  - Pin 4 on the Cheetah board is assigned to an I/O, it is assigned to RESET on the Ender-3 board.
  */
-#define EXP1_01_PIN                         PC9
-#define EXP1_02_PIN                         PC12
-#define EXP1_03_PIN                         PC11
-#define EXP1_04_PIN                         PB14
-#define EXP1_05_PIN                         PC10
-#define EXP1_06_PIN                         PB13
-#define EXP1_07_PIN                         PB12
-#define EXP1_08_PIN                         PB15
+#define EXP3_01_PIN                         PC9
+#define EXP3_02_PIN                         PC12
+#define EXP3_03_PIN                         PC11
+#define EXP3_04_PIN                         PB14
+#define EXP3_05_PIN                         PC10
+#define EXP3_06_PIN                         PB13
+#define EXP3_07_PIN                         PB12
+#define EXP3_08_PIN                         PB15
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
   // Migrated to pins/lcd
 
 #elif HAS_WIRED_LCD
-  #define BEEPER_PIN                 EXP1_01_PIN
+  #define BEEPER_PIN                 EXP3_01_PIN
 
   #if HAS_MARLINUI_U8GLIB
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_SCK               EXP1_06_PIN
-    #define DOGLCD_MOSI              EXP1_08_PIN
+    #define DOGLCD_A0                EXP3_04_PIN
+    #define DOGLCD_CS                EXP3_07_PIN
+    #define DOGLCD_SCK               EXP3_06_PIN
+    #define DOGLCD_MOSI              EXP3_08_PIN
 
     #if ANY(FYSETC_MINI_12864, IS_U8GLIB_ST7920)
       #define FORCE_SOFT_SPI
     #endif
     #if ENABLED(FYSETC_MINI_12864)
-      #define LCD_RESET_PIN                 -1    // Not wired. (EXP1_05 is BTN_EN1 here.)
+      #define LCD_RESET_PIN                 -1    // Not wired. (EXP3_05 is BTN_EN1 here.)
       #define NEOPIXEL_PIN                  -1    // Panel Neopixel not wired. (RGB is the board's header.)
     #endif
     //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
   #endif
 
-  #define LCD_PINS_RS                EXP1_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
-  #define LCD_PINS_D4                EXP1_06_PIN  // SCLK
-  #define LCD_PINS_EN                EXP1_08_PIN  // DATA MOSI
+  #define LCD_PINS_RS                EXP3_07_PIN  // CS -- SOFT SPI for ENDER3 LCD
+  #define LCD_PINS_D4                EXP3_06_PIN  // SCLK
+  #define LCD_PINS_EN                EXP3_08_PIN  // DATA MOSI
 
   //#define LCD_CONTRAST_INIT                190
 
   #if IS_NEWPANEL
-    #define BTN_EN1                  EXP1_05_PIN
-    #define BTN_EN2                  EXP1_03_PIN
-    #define BTN_ENC                  EXP1_02_PIN
+    #define BTN_EN1                  EXP3_05_PIN
+    #define BTN_EN2                  EXP3_03_PIN
+    #define BTN_ENC                  EXP3_02_PIN
   #endif
 #endif
 
 #if ENABLED(TOUCH_UI_FTDI_EVE)
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define CLCD_MOD_RESET             EXP1_03_PIN
-  #define CLCD_SPI_CS                EXP1_07_PIN
+  #define BEEPER_PIN                 EXP3_01_PIN
+  #define CLCD_MOD_RESET             EXP3_03_PIN
+  #define CLCD_SPI_CS                EXP3_07_PIN
 
   //#define CLCD_USE_SOFT_SPI                     // the Cheetah can use hardware-SPI so we do not really need this
 
   #if ENABLED(CLCD_USE_SOFT_SPI)
-    #define CLCD_SOFT_SPI_MOSI       EXP1_08_PIN
-    #define CLCD_SOFT_SPI_MISO       EXP1_04_PIN
-    #define CLCD_SOFT_SPI_SCLK       EXP1_06_PIN
+    #define CLCD_SOFT_SPI_MOSI       EXP3_08_PIN
+    #define CLCD_SOFT_SPI_MISO       EXP3_04_PIN
+    #define CLCD_SOFT_SPI_SCLK       EXP3_06_PIN
   #else
     #define CLCD_SPI_BUS                       2
   #endif

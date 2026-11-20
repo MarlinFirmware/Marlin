@@ -118,16 +118,17 @@
  * (LCD_RS)  PE7  | 7  8 | PB1 (LCD_EN)
  *           GND  | 9 10 | 5V
  *                 ------
- *                  EXP1
+ *                  EXP3
  */
-#define EXP1_01_PIN                         PE12
-#define EXP1_02_PIN                         PE11
-#define EXP1_03_PIN                         PE10
-#define EXP1_04_PIN                         -1    // RESET
-#define EXP1_05_PIN                         PE9
-#define EXP1_06_PIN                         PE8
-#define EXP1_07_PIN                         PE7
-#define EXP1_08_PIN                         PB1
+#define EXP3_01_PIN                         PE12
+#define EXP3_02_PIN                         PE11
+#define EXP3_03_PIN                         PE10
+#define EXP3_04_PIN                         -1    // RESET
+#define EXP3_05_PIN                         PE9
+#define EXP3_06_PIN                         PE8
+#define EXP3_07_PIN                         PE7
+#define EXP3_08_PIN                         PB1
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if HAS_WIRED_LCD
 
@@ -137,17 +138,17 @@
 
   #elif ENABLED(LCD_FOR_MELZI)
 
-    // NOTE: Kept inline — LCD_FOR_MELZI uses the CR10-style EXP1 wiring here,
+    // NOTE: Kept inline — LCD_FOR_MELZI uses the CR10-style EXP3 wiring here,
     // but the lcd/ dispatcher would treat it as an RRD_SC (lcd/RRD_SC.h).
-    #define BEEPER_PIN               EXP1_01_PIN
+    #define BEEPER_PIN               EXP3_01_PIN
 
-    #define BTN_ENC                  EXP1_02_PIN
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
+    #define BTN_ENC                  EXP3_02_PIN
+    #define BTN_EN1                  EXP3_03_PIN
+    #define BTN_EN2                  EXP3_05_PIN
 
-    #define LCD_PINS_D4              EXP1_06_PIN
-    #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_EN              EXP1_08_PIN
+    #define LCD_PINS_D4              EXP3_06_PIN
+    #define LCD_PINS_RS              EXP3_07_PIN
+    #define LCD_PINS_EN              EXP3_08_PIN
 
     CONTROLLER_WARNING("FLY_RRF_E3_V1", "LCD_FOR_MELZI")
 
@@ -161,49 +162,49 @@
      * (LCD_RS)  PE7  | 7  8 | PB1 (LCD_EN)        (BTN_EN2) ENC_A   | 4  3 | LCD_DATA (LCD_EN)
      *           GND  | 9 10 | 5V                  (BTN_EN1) ENC_B   | 2  1 | LCD_CS   (LCD_RS)
      *                 ------                                         ------
-     *                  EXP1                                           LCD
+     *                  EXP3                                           LCD
      *
      * Needs custom cable:
      *
      *    Board   Adapter   Display Ribbon (coming from display)
      *  ----------------------------------
-     *  EXP1-10 ---------- LCD-9   5V
-     *  EXP1-9 ----------- LCD-10  GND
-     *  EXP1-8 ----------- LCD-3   LCD_EN
-     *  EXP1-7 ----------- LCD-1   LCD_RS
-     *  EXP1-6 ----------- LCD-5   LCD_D4
-     *  EXP1-5 ----------- LCD-4   EN2
-     *  EXP1-4 ----------- LCD-7   RESET
-     *  EXP1-3 ----------- LCD-2   EN1
-     *  EXP1-2 ----------- LCD-6   BTN
-     *  EXP1-1 ----------- LCD-8   BEEPER
+     *  EXP3-10 ---------- LCD-9   5V
+     *  EXP3-9 ----------- LCD-10  GND
+     *  EXP3-8 ----------- LCD-3   LCD_EN
+     *  EXP3-7 ----------- LCD-1   LCD_RS
+     *  EXP3-6 ----------- LCD-5   LCD_D4
+     *  EXP3-5 ----------- LCD-4   EN2
+     *  EXP3-4 ----------- LCD-7   RESET
+     *  EXP3-3 ----------- LCD-2   EN1
+     *  EXP3-2 ----------- LCD-6   BTN
+     *  EXP3-1 ----------- LCD-8   BEEPER
      */
 
   #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     CONTROLLER_WARNING("FLY_RRF_E3_V1", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
+    #define LCD_PINS_RS              EXP3_06_PIN
+    #define LCD_PINS_EN              EXP3_02_PIN
+    #define LCD_PINS_D4              EXP3_07_PIN
+    #define LCD_PINS_D5              EXP3_05_PIN
+    #define LCD_PINS_D6              EXP3_03_PIN
+    #define LCD_PINS_D7              EXP3_01_PIN
     #define ADC_KEYPAD_PIN                  PB0   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
   #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
 
-    // NOTE: Kept inline — this board wires these panels entirely to EXP1.
+    // NOTE: Kept inline — this board wires these panels entirely to EXP3.
 
-    #define BEEPER_PIN                      -1    // EXP1_01 is DOGLCD_SCK here
-    #define BTN_ENC                  EXP1_02_PIN
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
+    #define BEEPER_PIN                      -1    // EXP3_01 is DOGLCD_SCK here
+    #define BTN_ENC                  EXP3_02_PIN
+    #define BTN_EN1                  EXP3_03_PIN
+    #define BTN_EN2                  EXP3_05_PIN
 
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_01_PIN
-    #define DOGLCD_MOSI              EXP1_08_PIN
+    #define DOGLCD_CS                EXP3_07_PIN
+    #define DOGLCD_A0                EXP3_06_PIN
+    #define DOGLCD_SCK               EXP3_01_PIN
+    #define DOGLCD_MOSI              EXP3_08_PIN
 
     #define FORCE_SOFT_SPI
     #define LCD_BACKLIGHT_PIN               -1
@@ -225,26 +226,26 @@
        * (LCD_CS)    PE7  | 7  8 | PB1         (SD_CS) | 4  3 | (LCD_CS)
        *             GND  | 9 10 | 5V          (SCK)   | 2  1 | (MISO)
        *                   ------                       ------
-       *                   EXP1                         EXP1
+       *                   EXP3                         EXP1
        *
        * Needs custom cable:
        *
        *    Board   Adapter   Display
        *   ----------------------------------
-       *   EXP1-10 ---------- EXP1-10  5V
-       *   EXP1-9 ----------- EXP1-9   GND
+       *   EXP3-10 ---------- EXP1-10  5V
+       *   EXP3-9 ----------- EXP1-9   GND
        *   SPI1-4 ----------- EXP1-6   MOSI
-       *   EXP1-7 ----------- n/c
+       *   EXP3-7 ----------- n/c
        *   SPI1-3 ----------- EXP1-2   SCK
-       *   EXP1-5 ----------- EXP1-4   SD_CS
-       *   EXP1-4 ----------- n/c
-       *   EXP1-3 ----------- EXP1-3   LCD_CS
+       *   EXP3-5 ----------- EXP1-4   SD_CS
+       *   EXP3-4 ----------- n/c
+       *   EXP3-3 ----------- EXP1-3   LCD_CS
        *   SPI1-1 ----------- EXP1-1   MISO
-       *   EXP1-1 ----------- EXP1-7   SD_DET
+       *   EXP3-1 ----------- EXP1-7   SD_DET
        */
 
-      // NOTE: Kept inline — TFTGLCD_CS on EXP1_03 (custom cable) instead of the EXP2_03 default.
-      #define TFTGLCD_CS             EXP1_03_PIN
+      // NOTE: Kept inline — TFTGLCD_CS on EXP3_03 (custom cable) instead of the EXP2_03 default.
+      #define TFTGLCD_CS             EXP3_03_PIN
 
     #endif
 
@@ -279,30 +280,30 @@
    * (LCD_CS)    PE7  | 7  8 | PB1            (SD_CS) | 4  3 | (MOD_RESET)
    *             GND  | 9 10 | 5V             (SCK)   | 2  1 | (MISO)
    *                   ------                          ------
-   *                   EXP1                            EXP1
+   *                   EXP3                            EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
    *   ----------------------------------
-   *   EXP1-10 ---------- EXP1-10  5V
-   *   EXP1-9 ----------- EXP1-9   GND
+   *   EXP3-10 ---------- EXP1-10  5V
+   *   EXP3-9 ----------- EXP1-9   GND
    *   SPI1-4 ----------- EXP1-6   MOSI
-   *   EXP1-7 ----------- EXP1-5   LCD_CS
+   *   EXP3-7 ----------- EXP1-5   LCD_CS
    *   SPI1-3 ----------- EXP1-2   SCK
-   *   EXP1-5 ----------- EXP1-4   SD_CS
-   *   EXP1-4 ----------- EXP1-8   RESET
-   *   EXP1-3 ----------- EXP1-3   MOD_RST
+   *   EXP3-5 ----------- EXP1-4   SD_CS
+   *   EXP3-4 ----------- EXP1-8   RESET
+   *   EXP3-3 ----------- EXP1-3   MOD_RST
    *   SPI1-1 ----------- EXP1-1   MISO
-   *   EXP1-1 ----------- EXP1-7   SD_DET
+   *   EXP3-1 ----------- EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
 
-  #define BEEPER_PIN                 EXP1_02_PIN
+  #define BEEPER_PIN                 EXP3_02_PIN
 
-  #define CLCD_MOD_RESET             EXP1_03_PIN
-  #define CLCD_SPI_CS                EXP1_07_PIN
+  #define CLCD_MOD_RESET             EXP3_03_PIN
+  #define CLCD_SPI_CS                EXP3_07_PIN
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 

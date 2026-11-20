@@ -131,16 +131,17 @@
  *  PB7 | 7  8 | PA4
  *  GND | 9 10 | VCC5
  *       ------
- *        EXP1
+ *        EXP3
  */
-#define EXP1_01_PIN                         PB5
-#define EXP1_02_PIN                         PB6
-#define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         -1    // RESET
-#define EXP1_05_PIN                         PA3
-#define EXP1_06_PIN                         PB8
-#define EXP1_07_PIN                         PB7
-#define EXP1_08_PIN                         PA4
+#define EXP3_01_PIN                         PB5
+#define EXP3_02_PIN                         PB6
+#define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         -1    // RESET
+#define EXP3_05_PIN                         PA3
+#define EXP3_06_PIN                         PB8
+#define EXP3_07_PIN                         PB7
+#define EXP3_08_PIN                         PA4
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 //
 // LCD / Controller

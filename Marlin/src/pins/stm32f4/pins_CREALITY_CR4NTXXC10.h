@@ -216,16 +216,17 @@
  * SPI2_NSS  PB12 | 7  8 | PB15 SPI2_MOSI
  *            GND | 9 10 | 5V
  *                 ------
- *                  EXP1
+ *                  EXP3
  */
-#define EXP1_01_PIN                         PC0
-#define EXP1_02_PIN                         PB2
-#define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         PA3
-#define EXP1_05_PIN                         PB14
-#define EXP1_06_PIN                         PB13
-#define EXP1_07_PIN                         PB12
-#define EXP1_08_PIN                         PB15
+#define EXP3_01_PIN                         PC0
+#define EXP3_02_PIN                         PB2
+#define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         PA3
+#define EXP3_05_PIN                         PB14
+#define EXP3_06_PIN                         PB13
+#define EXP3_07_PIN                         PB12
+#define EXP3_08_PIN                         PB15
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -238,13 +239,13 @@
 #elif ANY(HAS_DWIN_E3V2, IS_DWIN_MARLINUI)
 
   // DWIN ENCODER LCD
-  #define BTN_ENC                    EXP1_05_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_07_PIN
+  #define BTN_ENC                    EXP3_05_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
 
-  //#define LCD_LED_PIN              EXP1_02_PIN
+  //#define LCD_LED_PIN              EXP3_02_PIN
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN               EXP1_06_PIN
+    #define BEEPER_PIN               EXP3_06_PIN
     #define NO_SPEAKER
   #endif
 

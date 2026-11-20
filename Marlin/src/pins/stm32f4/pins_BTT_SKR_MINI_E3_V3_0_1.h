@@ -171,16 +171,17 @@
  *  (LCD_RS)  PD2  | 7  8 | PC0  (LCD_EN)
  *             GND | 9 10 | 5V
  *                  ------
- *                   EXP1
+ *                   EXP3
  */
-#define EXP1_01_PIN                         PB15
-#define EXP1_02_PIN                         PB14
-#define EXP1_03_PIN                         PA9
-#define EXP1_04_PIN                         -1    // RESET
-#define EXP1_05_PIN                         PA10
-#define EXP1_06_PIN                         PB4
-#define EXP1_07_PIN                         PD2
-#define EXP1_08_PIN                         PC0
+#define EXP3_01_PIN                         PB15
+#define EXP3_02_PIN                         PB14
+#define EXP3_03_PIN                         PA9
+#define EXP3_04_PIN                         -1    // RESET
+#define EXP3_05_PIN                         PA10
+#define EXP3_06_PIN                         PB4
+#define EXP3_07_PIN                         PD2
+#define EXP3_08_PIN                         PC0
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
 
@@ -201,17 +202,17 @@
    *   (B) | 7  8 | (A)      (B) | 4  3 | (A)        B | 4  3 | A
    *   GND | 9 10 | (VCC)    GND | 2  1 | VCC      GND | 2  1 | VCC
    *        ------                ------                ------
-   *         EXP1                  DWIN               DWIN (plug)
+   *         EXP3                  DWIN               DWIN (plug)
    *
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
   #error "DWIN_CREALITY_LCD requires a custom cable, see diagram above this line. Comment out this line to continue."
 
-  #define BEEPER_PIN                 EXP1_02_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_07_PIN
-  #define BTN_ENC                    EXP1_01_PIN
+  #define BEEPER_PIN                 EXP3_02_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
+  #define BTN_ENC                    EXP3_01_PIN
 
 #elif HAS_WIRED_LCD
 
@@ -239,26 +240,26 @@
        *          PB7  | 7  8 | PD2  (LCD_CS)        (SD_CS) | 4  3 | (LCD_CS)
        *           GND | 9 10 | 5V                   (SCK)   | 2  1 | (MISO)
        *                ------                                ------
-       *                 EXP1                                  EXP1
+       *                 EXP3                                  EXP1
        *
        * Needs custom cable:
        *
        *    Board             Display
        *
-       *   EXP1-10 ---------- EXP1-10
-       *   EXP1-9 ----------- EXP1-9
+       *   EXP3-10 ---------- EXP1-10
+       *   EXP3-9 ----------- EXP1-9
        *   SPI1-4 ----------- EXP1-6
-       *   EXP1-7 ----------- FREE
+       *   EXP3-7 ----------- FREE
        *   SPI1-3 ----------- EXP1-2
-       *   EXP1-5 ----------- EXP1-4
-       *   EXP1-4 ----------- FREE
-       *   EXP1-3 ----------- EXP1-3
+       *   EXP3-5 ----------- EXP1-4
+       *   EXP3-4 ----------- FREE
+       *   EXP3-3 ----------- EXP1-3
        *   SPI1-1 ----------- EXP1-1
-       *   EXP1-1 ----------- EXP1-7
+       *   EXP3-1 ----------- EXP1-7
        */
 
-      // NOTE: BTT_SKR_MINI_E3_V3_0_1 uses EXP1_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
-      #define TFTGLCD_CS             EXP1_03_PIN
+      // NOTE: BTT_SKR_MINI_E3_V3_0_1 uses EXP3_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
+      #define TFTGLCD_CS             EXP3_03_PIN
 
     #endif
 
@@ -283,30 +284,30 @@
    * (LCD_CS)    PD2  | 7  8 | PB7 (FREE)       (SD_CS) | 4  3 | (MOD_RESET)
    *               5V | 9 10 | GND              (SCK)   | 2  1 | (MISO)
    *                   ------                            ------
-   *                    EXP1                              EXP1
+   *                    EXP3                              EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
    *           _________
-   *   EXP1-10 ---------- EXP1-10
-   *   EXP1-9 ----------- EXP1-9
+   *   EXP3-10 ---------- EXP1-10
+   *   EXP3-9 ----------- EXP1-9
    *   SPI1-4 ----------- EXP1-6
-   *   EXP1-7 ----------- EXP1-5
+   *   EXP3-7 ----------- EXP1-5
    *   SPI1-3 ----------- EXP1-2
-   *   EXP1-5 ----------- EXP1-4
-   *   EXP1-4 ----------- EXP1-8
-   *   EXP1-3 ----------- EXP1-3
+   *   EXP3-5 ----------- EXP1-4
+   *   EXP3-4 ----------- EXP1-8
+   *   EXP3-3 ----------- EXP1-3
    *   SPI1-1 ----------- EXP1-1
-   *   EXP1-1 ----------- EXP1-7
+   *   EXP3-1 ----------- EXP1-7
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
 
-  #define BEEPER_PIN                 EXP1_02_PIN
+  #define BEEPER_PIN                 EXP3_02_PIN
 
-  #define CLCD_MOD_RESET             EXP1_03_PIN
-  #define CLCD_SPI_CS                EXP1_07_PIN
+  #define CLCD_MOD_RESET             EXP3_03_PIN
+  #define CLCD_SPI_CS                EXP3_07_PIN
 
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
@@ -319,8 +320,8 @@
 #endif
 
 #if SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
-  #define SD_DETECT_PIN              EXP1_01_PIN
-  #define SD_SS_PIN                  EXP1_05_PIN
+  #define SD_DETECT_PIN              EXP3_01_PIN
+  #define SD_SS_PIN                  EXP3_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif

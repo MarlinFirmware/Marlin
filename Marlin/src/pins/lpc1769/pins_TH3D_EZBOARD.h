@@ -160,22 +160,23 @@
  *  P0_16 | 7  8 | P0_18
  *    GND | 9 10 | 5V
  *         ------
- *          EXP1
+ *          EXP3
  *
- * LCD_PINS_D5, D6, and D7 are not present in the EXP1 connector, and will need to be
+ * LCD_PINS_D5, D6, and D7 are not present in the EXP3 connector, and will need to be
  * defined to use the REPRAP_DISCOUNT_SMART_CONTROLLER.
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
  */
-#define EXP1_01_PIN                        P1_31
-#define EXP1_02_PIN                        P1_30
-#define EXP1_03_PIN                        P3_26
-#define EXP1_04_PIN                        P2_11
-#define EXP1_05_PIN                        P3_25
-#define EXP1_06_PIN                        P0_15
-#define EXP1_07_PIN                        P0_16
-#define EXP1_08_PIN                        P0_18
+#define EXP3_01_PIN                        P1_31
+#define EXP3_02_PIN                        P1_30
+#define EXP3_03_PIN                        P3_26
+#define EXP3_04_PIN                        P2_11
+#define EXP3_05_PIN                        P3_25
+#define EXP3_06_PIN                        P0_15
+#define EXP3_07_PIN                        P0_16
+#define EXP3_08_PIN                        P0_18
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
 

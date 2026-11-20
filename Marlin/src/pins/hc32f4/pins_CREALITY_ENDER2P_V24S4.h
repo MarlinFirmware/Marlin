@@ -192,16 +192,17 @@
  *   PB15 | 7  8 | PB12
  *   GND  | 9 10 | 5V
  *         ------
- *          EXP1
+ *          EXP3
  */
-#define EXP1_01_PIN                         PC6
-#define EXP1_02_PIN                         PC7
-#define EXP1_03_PIN                         PA2
-#define EXP1_04_PIN                         PA3
-#define EXP1_05_PIN                         PB13
-#define EXP1_06_PIN                         PB14
-#define EXP1_07_PIN                         PB15
-#define EXP1_08_PIN                         PB12
+#define EXP3_01_PIN                         PC6
+#define EXP3_02_PIN                         PC7
+#define EXP3_03_PIN                         PA2
+#define EXP3_04_PIN                         PA3
+#define EXP3_05_PIN                         PB13
+#define EXP3_06_PIN                         PB14
+#define EXP3_07_PIN                         PB15
+#define EXP3_08_PIN                         PB12
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
   // Migrated to pins/lcd

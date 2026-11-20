@@ -34,7 +34,7 @@
  *  |12V |               |12V D12| |12V D13| |12V GND| |D27 D17| |GND D18| |GND D19| |GND D20|
  *  ------               --------- --------- --------- --------- --------- --------- ---------
  *
- *                EXP1                  EXP1 as ENDER2 STOCKDISPLAY           EXP1 as CR10 STOCKDISPLAY
+ *                EXP3                  EXP3 as ENDER2 STOCKDISPLAY           EXP3 as CR10 STOCKDISPLAY
  *               ------                            ------                               ------
  * (AVR_SCK) D7 | 1  2 | D16                  SCK | 1  2 | BTN_E            BEEPER_PIN | 1  2 | BTN_ENC
  *          D11 | 3  4 | RESET            BTN_EN1 | 3  4 | RESET               BTN_EN1 | 3  4 | RESET
@@ -44,14 +44,15 @@
  *               ------                            ------                               ------
  */
 
-#define EXP1_01_PIN                            7
-#define EXP1_02_PIN                           16
-#define EXP1_03_PIN                           11
-#define EXP1_04_PIN                           -1  // hardware reset line
-#define EXP1_05_PIN                           10
-#define EXP1_06_PIN                           30
-#define EXP1_07_PIN                           28
-#define EXP1_08_PIN                            5
+#define EXP3_01_PIN                            7
+#define EXP3_02_PIN                           16
+#define EXP3_03_PIN                           11
+#define EXP3_04_PIN                           -1  // hardware reset line
+#define EXP3_05_PIN                           10
+#define EXP3_06_PIN                           30
+#define EXP3_07_PIN                           28
+#define EXP3_08_PIN                            5
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 //
 // LCD / Controller

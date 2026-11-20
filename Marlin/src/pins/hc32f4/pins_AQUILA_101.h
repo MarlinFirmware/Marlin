@@ -145,16 +145,17 @@
  *  PB12 | 7  8 | PB15
  *  GND  | 9 10 | +5V
  *        ------
- *         EXP1
+ *         EXP3
  */
-#define EXP1_01_PIN                         PC6
-#define EXP1_02_PIN                         PB2
-#define EXP1_03_PIN                         PC0
-#define EXP1_04_PIN                         PC1
-#define EXP1_05_PIN                         PB14  // ENC
-#define EXP1_06_PIN                         PB13  // BEEPER
-#define EXP1_07_PIN                         PB12  // EN2
-#define EXP1_08_PIN                         PB15  // EN1
+#define EXP3_01_PIN                         PC6
+#define EXP3_02_PIN                         PB2
+#define EXP3_03_PIN                         PC0
+#define EXP3_04_PIN                         PC1
+#define EXP3_05_PIN                         PB14  // ENC
+#define EXP3_06_PIN                         PB13  // BEEPER
+#define EXP3_07_PIN                         PB12  // EN2
+#define EXP3_08_PIN                         PB15  // EN1
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)                    // LCD used for C2
 
@@ -178,12 +179,12 @@
    */
 
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN               EXP1_06_PIN  // BEEP
+    #define BEEPER_PIN               EXP3_06_PIN  // BEEP
   #endif
 
-  #define BTN_ENC                    EXP1_05_PIN  // EN
-  #define BTN_EN1                    EXP1_08_PIN  // A
-  #define BTN_EN2                    EXP1_07_PIN  // B
+  #define BTN_ENC                    EXP3_05_PIN  // EN
+  #define BTN_EN1                    EXP3_08_PIN  // A
+  #define BTN_EN2                    EXP3_07_PIN  // B
 
   #ifndef LCD_SERIAL_PORT
     #define LCD_SERIAL_PORT                    1

@@ -50,17 +50,17 @@
  * Otherwise wire it like a Full Graphic Smart Controller. Boards with only one 10-pin
  * header use the CR10_STOCKDISPLAY layout instead.
  *
- *  Panel signal          EXP1 + EXP2      Single EXP1
+ *  Panel signal          EXP1 + EXP2      Single EXP3
  *  ------------------    -----------      -----------
- *  LCD CS   (RS)         EXP1_04          EXP1_07
- *  LCD SID  (EN)         EXP1_03          EXP1_08
- *  LCD CLK  (D4)         EXP1_05          EXP1_06
- *  Encoder push (ENC)    EXP1_02          EXP1_02
- *  Encoder A    (EN1)    EXP2_03          EXP1_03
- *  Encoder B    (EN2)    EXP2_05          EXP1_05
+ *  LCD CS   (RS)         EXP1_04          EXP3_07
+ *  LCD SID  (EN)         EXP1_03          EXP3_08
+ *  LCD CLK  (D4)         EXP1_05          EXP3_06
+ *  Encoder push (ENC)    EXP1_02          EXP3_02
+ *  Encoder A    (EN1)    EXP2_03          EXP3_03
+ *  Encoder B    (EN2)    EXP2_05          EXP3_05
  *  SD MISO/SCK           EXP2_01/02       (no SD)
  *  SD SS/MOSI/DETECT     EXP2_04/06/07
- *  5V / GND              EXP1_10/09       EXP1_10/09
+ *  5V / GND              EXP1_10/09       EXP3_10/09
  */
 #if _EXISTS(LCD2_03_PIN) && _EXISTS(LCD2_05_PIN)
   #ifndef LCD_PINS_RS
@@ -100,5 +100,5 @@
 #endif
 
 #if !(_EXISTS(LCD_PINS_EN) && _EXISTS(LCD_PINS_RS) && _EXISTS(LCD_PINS_D4))
-  #error "REPRAPWORLD_GRAPHICAL_LCD needs an EXP1 header (or inline pins) on your MOTHERBOARD. See pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h."
+  #error "REPRAPWORLD_GRAPHICAL_LCD needs an EXP1 or EXP3 header (or inline pins) on your MOTHERBOARD. See pins/lcd/REPRAPWORLD_GRAPHICAL_LCD.h."
 #endif
