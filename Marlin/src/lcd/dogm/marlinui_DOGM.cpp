@@ -40,7 +40,11 @@
 #if HAS_MARLINUI_U8GLIB
 
 #include "marlinui_DOGM.h"
-#include "u8g_fontutf8.h"
+#if HAS_MARLINUI_U8G2
+  #include "u8g2_fontutf8.h"
+#else
+  #include "u8g_fontutf8.h"
+#endif
 
 #if ENABLED(SHOW_BOOTSCREEN)
   #include "dogm_Bootscreen.h"
@@ -67,12 +71,22 @@
  * Include all needed font files
  * (See https://marlinfw.org/docs/development/fonts.html)
  */
-#include "fontdata/fontdata_ISO10646_1.h"
-#if ENABLED(USE_SMALL_INFOFONT)
-  #include "fontdata/fontdata_6x9_marlin.h"
-  #define FONT_STATUSMENU_NAME u8g_font_6x9
+#if HAS_MARLINUI_U8G2
+  #include "fontdata/fontdata_ISO10646_1_u8g2.h"
+  #if ENABLED(USE_SMALL_INFOFONT)
+    #include "fontdata/fontdata_6x9_marlin_u8g2.h"
+    #define FONT_STATUSMENU_NAME u8g2_font_6x9_marlin
+  #else
+    #define FONT_STATUSMENU_NAME MENU_FONT_NAME
+  #endif
 #else
-  #define FONT_STATUSMENU_NAME MENU_FONT_NAME
+  #include "fontdata/fontdata_ISO10646_1.h"
+  #if ENABLED(USE_SMALL_INFOFONT)
+    #include "fontdata/fontdata_6x9_marlin.h"
+    #define FONT_STATUSMENU_NAME u8g_font_6x9
+  #else
+    #define FONT_STATUSMENU_NAME MENU_FONT_NAME
+  #endif
 #endif
 
 U8G_CLASS u8g;
@@ -359,25 +373,31 @@ void MarlinUI::init_lcd() {
 }
 
 void MarlinUI::update_language_font() {
+  #if HAS_MARLINUI_U8G2
+    #define SET_LANG_FONT(L) uxg_SetUtf8Fonts(LANG_FONT_INFO(L))
+  #else
+    #define SET_LANG_FONT(L) uxg_SetUtf8Fonts(LANG_FONT_INFO(L), COUNT(LANG_FONT_INFO(L)))
+  #endif
   #if HAS_MULTI_LANGUAGE
     switch (language) {
-      default: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE), COUNT(LANG_FONT_INFO(LCD_LANGUAGE))); break;
+      default: SET_LANG_FONT(LCD_LANGUAGE); break;
       #ifdef LCD_LANGUAGE_2
-        case 1: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_2), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_2))); break;
+        case 1: SET_LANG_FONT(LCD_LANGUAGE_2); break;
       #endif
       #ifdef LCD_LANGUAGE_3
-        case 2: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_3), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_3))); break;
+        case 2: SET_LANG_FONT(LCD_LANGUAGE_3); break;
       #endif
       #ifdef LCD_LANGUAGE_4
-        case 3: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_4), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_4))); break;
+        case 3: SET_LANG_FONT(LCD_LANGUAGE_4); break;
       #endif
       #ifdef LCD_LANGUAGE_5
-        case 4: uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE_5), COUNT(LANG_FONT_INFO(LCD_LANGUAGE_5))); break;
+        case 4: SET_LANG_FONT(LCD_LANGUAGE_5); break;
       #endif
     }
   #else
-    uxg_SetUtf8Fonts(LANG_FONT_INFO(LCD_LANGUAGE), COUNT(LANG_FONT_INFO(LCD_LANGUAGE)));
+    SET_LANG_FONT(LCD_LANGUAGE);
   #endif
+  #undef SET_LANG_FONT
 }
 
 // The kill screen is displayed for unrecoverable conditions

@@ -633,7 +633,13 @@
 
 // Include localized LCD Menu Messages
 
-#define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
+
+#if HAS_MARLINUI_U8G2
+  #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M##_u8g2.h)
+#else
+  #define LANGUAGE_DATA_INCL_(M) STRINGIFY_(fontdata/langdata_##M.h)
+#endif
+
 #define LANGUAGE_DATA_INCL(M) LANGUAGE_DATA_INCL_(M)
 
 #define LANGUAGE_INCL_(M) STRINGIFY_(../lcd/language/language_##M.h)
