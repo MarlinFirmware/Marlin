@@ -482,6 +482,13 @@ typedef struct SettingsDataStruct {
   controllerFan_settings_t controllerFan_settings;      // M710
 
   //
+  // Extruder fan settings
+  //
+  #if ENABLED(EDITABLE_AUTO_FAN_SPEED)
+    uint8_t extruder_fan_speed;
+  #endif
+
+  //
   // POWER_LOSS_RECOVERY
   //
   bool recovery_enabled;                                // M413 S
@@ -1420,6 +1427,16 @@ void MarlinSettings::postprocess() {
       #endif
       EEPROM_WRITE(cfs);
     }
+
+    //
+    // Extruder fan
+    //
+    #if ENABLED(EDITABLE_AUTO_FAN_SPEED)
+    {
+      _FIELD_TEST(extruder_fan_speed);
+      EEPROM_WRITE(thermalManager.extruder_fan_speed);
+    }
+    #endif
 
     //
     // Power-Loss Recovery
@@ -2554,6 +2571,18 @@ void MarlinSettings::postprocess() {
         EEPROM_READ(cfs);
         TERN_(CONTROLLER_FAN_EDITABLE, if (!validating) controllerFan.settings = cfs);
       }
+
+      //
+      // Extruder Fan
+      //
+      #if ENABLED(EDITABLE_AUTO_FAN_SPEED)
+      {
+        _FIELD_TEST(extruder_fan_speed);
+        uint8_t efs;
+        EEPROM_READ(efs);
+        if (!validating) thermalManager.extruder_fan_speed = efs;
+      }
+      #endif
 
       //
       // Power-Loss Recovery
@@ -3791,6 +3820,11 @@ void MarlinSettings::reset() {
   // Controller Fan
   //
   TERN_(USE_CONTROLLER_FAN, controllerFan.reset());
+
+  //
+  // Extruder Fan
+  //
+  TERN_(EDITABLE_AUTO_FAN_SPEED, thermalManager.extruder_fan_speed = EXTRUDER_AUTO_FAN_SPEED);
 
   //
   // Power-Loss Recovery
