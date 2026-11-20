@@ -192,6 +192,7 @@ void menu_tune() {
       singlenozzle_item(7);
     #endif
 
+    EDIT_ITEM_FAST(percent, MSG_MAX_FAN_SPEED, &Temperature::max_fan_speed, 0, 255);
   #endif // HAS_FAN
 
   //
