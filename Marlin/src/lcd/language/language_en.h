@@ -538,6 +538,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MMU2_LOADING_FILAMENT          = _UxGT("Filament %i Load...");
   LSTR MSG_MMU2_EJECTING_FILAMENT         = _UxGT("Filament %i Eject...");
   LSTR MSG_MMU2_UNLOADING_FILAMENT        = _UxGT("Filament %i Unload...");
+  LSTR MSG_MMU2_UNLOAD_THEN_LOAD          = _UxGT("Unload, then Load %i");
   LSTR MSG_MMU2_ALL                       = _UxGT("All");
   LSTR MSG_MMU2_FILAMENT_N                = _UxGT("Filament ~");
   LSTR MSG_MMU2_RESET                     = _UxGT("Reset MMU");
