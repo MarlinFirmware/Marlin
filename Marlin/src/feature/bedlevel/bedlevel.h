@@ -41,6 +41,11 @@ void reset_bed_level();
   void set_z_fade_height(const float zfh, const bool do_report=true);
 #endif
 
+#if ENABLED(GLOBAL_MESH_Z_OFFSET)
+  void mesh_z_offset_changed();                       // Call after modifying mesh_z_offset in place
+  void set_mesh_z_offset(const float zoff);           // Set the offset and fix up the current position
+#endif
+
 #if ANY(MESH_BED_LEVELING, PROBE_MANUALLY)
   void _manual_goto_xy(const xy_pos_t &pos);
 #endif
@@ -58,6 +63,12 @@ class TemporaryBedLevelingState {
 #define TEMPORARY_BED_LEVELING_STATE(enable) const TemporaryBedLevelingState tbls(enable)
 
 #if HAS_MESH
+
+  #if ENABLED(GLOBAL_MESH_Z_OFFSET)
+    extern float mesh_z_offset;
+  #else
+    static constexpr float mesh_z_offset = 0.0f;
+  #endif
 
   typedef float bed_mesh_t[GRID_MAX_POINTS_X][GRID_MAX_POINTS_Y];
 
