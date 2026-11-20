@@ -70,7 +70,10 @@ void MoveAxisScreen::onRedraw(draw_mode_t what) {
       #endif
     #endif
   #endif
-  #if Z_HOME_TO_MIN
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    if (motion.home_dir(Z_AXIS) < 0)
+      w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !motion.axis_should_home(Z_AXIS));
+  #elif ENABLED(Z_HOME_TO_MIN)
     w.button(24, GET_TEXT_F(MSG_MOVE_Z_TO_TOP), !motion.axis_should_home(Z_AXIS));
   #endif
   w.increments();
