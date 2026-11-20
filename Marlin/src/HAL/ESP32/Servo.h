@@ -23,6 +23,13 @@
 
 #include <Arduino.h>
 
+#if ESP32_CLASSIC
+  #define SERVO_PWM_BITS 16
+#else
+  #include <soc/soc_caps.h>
+  #define SERVO_PWM_BITS SOC_LEDC_TIMER_BIT_WIDE_NUM // 14 on the ESP32-S2 and ESP32-S3
+#endif
+
 class Servo {
   static const int MIN_ANGLE =   0,
                    MAX_ANGLE = 180,
@@ -30,7 +37,7 @@ class Servo {
                    MAX_PULSE_WIDTH = 2400,  // Longest pulse sent to a servo
                    TAU_MSEC = 20,
                    TAU_USEC = (TAU_MSEC * 1000),
-                   MAX_COMPARE = _BV(16) - 1; // 65535
+                   MAX_COMPARE = _BV(SERVO_PWM_BITS) - 1; // 65535 on the original ESP32
 
 public:
   Servo();
