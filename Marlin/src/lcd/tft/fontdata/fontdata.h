@@ -39,6 +39,7 @@
 #define _VIETNAMESE           6
 #define _SIMPLIFIED_CHINESE   7
 #define _TRADITIONAL_CHINESE  8
+#define _KLINGON              9
 
 #define LCODE_cz      _LATIN_EXTENDED_A
 #define LCODE_hr      _LATIN_EXTENDED_A
@@ -56,6 +57,7 @@
 #define LCODE_vi      _VIETNAMESE
 #define LCODE_zh_CN   _SIMPLIFIED_CHINESE
 #define LCODE_zh_TW   _TRADITIONAL_CHINESE
+#define LCODE_tlh     _KLINGON
 
 #define _LCODE(N) (CAT(LCODE_, LCD_LANGUAGE) == N)
 
@@ -83,6 +85,9 @@
 #elif _LCODE(_TRADITIONAL_CHINESE)
   #define FONT_EXTRA    Traditional_Chinese
   #define EXTRA_GLYPHS  558
+#elif _LCODE(_KLINGON)
+  #define FONT_EXTRA    Klingon
+  #define EXTRA_GLYPHS  39
 #else // Basin Latin (0x0020 - 0x007f) and Latin-1 Supplement (0x0080-0x00ff) characters only
   #define EXTRA_GLYPHS  0
 #endif
@@ -104,6 +109,7 @@
 #undef LCODE_vi
 #undef LCODE_zh_CN
 #undef LCODE_zh_TW
+#undef LCODE_tlh
 
 #if TFT_FONT == NOTOSANS
   #define FONT_FAMILY       NotoSans_Medium

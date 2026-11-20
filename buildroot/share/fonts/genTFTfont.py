@@ -29,6 +29,9 @@ font set (as verified byte-for-byte against the existing font files):
               FreeType pixel size given as "pt" in each file's header comment.
               Fallback chain: NotoSans-Medium, NotoSansJP, NotoSansKR,
               NotoSansSC, NotoSansTC (first font that has the glyph wins).
+  - Klingon pIqaD (ConScript Unicode Registry, U+F8D0-U+F8FF) comes from
+    unifont_csur_klingon-15.0.01.otf, a subset of Unifont CSUR, for both
+    families since Noto has no pIqaD.
   - The FreeType bitmap is trimmed of blank columns on the left and right and
     of blank rows on the top. Blank rows at the bottom are kept.
 
@@ -76,21 +79,22 @@ sys.path.insert(0, str(REPO / 'buildroot/share/scripts'))
 FAMILIES = {
   'Unifont': {
     'bpp': 1,
-    'fonts': ('Unifont/unifont-15.0.01.otf', 'Unifont/unifont_upper-15.0.01.otf'),
+    'fonts': ('Unifont/unifont-15.0.01.otf', 'Unifont/unifont_upper-15.0.01.otf', 'Unifont/unifont_csur_klingon-15.0.01.otf'),
     'sizes': { 10:(16, 1), 20:(16, 2), 30:(16, 3) },
     'path': lambda cat, sz: FONTDATA / f'Unifont/{sz}px/Unifont_{cat}_{sz}.cpp',
   },
   'NotoSans': {
     'bpp': 2,
     'fonts': ('NotoSans/NotoSans-Medium.ttf', 'NotoSans/NotoSansJP-Medium.otf', 'NotoSans/NotoSansKR-Medium.otf',
-              'NotoSans/NotoSansSC-Medium.otf', 'NotoSans/NotoSansTC-Medium.otf'),
+              'NotoSans/NotoSansSC-Medium.otf', 'NotoSans/NotoSansTC-Medium.otf',
+              'Unifont/unifont_csur_klingon-15.0.01.otf'),
     'sizes': { 14:(19, 1), 16:(22, 1), 19:(26, 1), 26:(36, 1), 27:(37, 1), 28:(38, 1), 29:(40, 1) },
     'path': lambda cat, sz: FONTDATA / f'NotoSans/Medium_{sz}px/NotoSans_Medium_{cat}_{sz}.cpp',
   },
 }
 
 # Categories in the "hieroglyphs" format (glyphs carry their own unicode)
-CATEGORIES = ('Katakana', 'Korean', 'Simplified_Chinese', 'Traditional_Chinese')
+CATEGORIES = ('Katakana', 'Korean', 'Simplified_Chinese', 'Traditional_Chinese', 'Klingon')
 
 def s8(v): return v - 256 if v > 127 else v
 def u8(v): return v & 0xFF
