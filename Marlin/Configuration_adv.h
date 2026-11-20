@@ -3517,6 +3517,8 @@
    */
   #if HAS_STEALTHCHOP
     #define STEALTHCHOP_XY
+    //#define STEALTHCHOP_X
+    //#define STEALTHCHOP_Y
     #define STEALTHCHOP_Z
     #define STEALTHCHOP_I
     #define STEALTHCHOP_J
@@ -3525,6 +3527,11 @@
     #define STEALTHCHOP_V
     #define STEALTHCHOP_W
     #define STEALTHCHOP_E
+
+    #if ENABLED(STEALTHCHOP_XY)
+      #define STEALTHCHOP_X
+      #define STEALTHCHOP_Y
+    #endif
   #endif
 
   /**
