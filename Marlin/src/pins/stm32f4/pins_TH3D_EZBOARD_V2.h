@@ -209,45 +209,38 @@
  *  PB12 | 7  8 | PB15
  *   GND | 9 10 | 5V
  *        ------
- *         EXP1
+ *         EXP3
  *
- * LCD_PINS_D5, D6, and D7 are not present in the EXP1 connector, and will need to be
+ * LCD_PINS_D5, D6, and D7 are not present in the EXP3 connector, and will need to be
  * defined to use the REPRAP_DISCOUNT_SMART_CONTROLLER.
  *
  * A remote SD card is currently not supported because the pins routed to the EXP2
  * connector are shared with the onboard SD card.
  */
-#define EXP1_01_PIN                         PA14
-#define EXP1_02_PIN                         PB0
-#define EXP1_03_PIN                         PC4
-//#define EXP1_04_PIN                       -1
-#define EXP1_05_PIN                         PC5
-#define EXP1_06_PIN                         PB13
-#define EXP1_07_PIN                         PB12
-#define EXP1_08_PIN                         PB15
+#define EXP3_01_PIN                         PA14
+#define EXP3_02_PIN                         PB0
+#define EXP3_03_PIN                         PC4
+//#define EXP3_04_PIN                       -1
+#define EXP3_05_PIN                         PC5
+#define EXP3_06_PIN                         PB13
+#define EXP3_07_PIN                         PB12
+#define EXP3_08_PIN                         PB15
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 #if ENABLED(CR10_STOCKDISPLAY)
-  /**          ------
-   *   BEEPER | 1  2 | ENC
-   *   EN1    | 3  4 | RESET
-   *   EN2    | 5  6   LCD_D4
-   *   LCD_RS | 7  8 | LCD_EN
-   *      GND | 9 10 | 5V
-   *           ------
-   */
-  #ifdef DISABLE_JTAGSWD
-    #define BEEPER_PIN               EXP1_01_PIN  // Not connected in dev board
+
+  // Migrated to pins/lcd
+
+  #ifndef DISABLE_JTAGSWD
+    #define BEEPER_PIN                      -1
   #endif
-  #define LCD_PINS_RS                EXP1_07_PIN
-  #define LCD_PINS_EN                EXP1_08_PIN
-  #define LCD_PINS_D4                EXP1_06_PIN
-  //#define KILL_PIN                        -1
 
   #define BOARD_ST7920_DELAY_1           600
   #define BOARD_ST7920_DELAY_2           750
   #define BOARD_ST7920_DELAY_3           750
 
 #elif ENABLED(MKS_MINI_12864)
+// NOTE: Kept inline — TH3D_EZBOARD_V2 places BTN_EN1/EN2 on EXP3 instead of EXP2.
   /**          ------
    *      SCK | 1  2 | ENC
    *      EN1 | 3  4 | --
@@ -256,15 +249,16 @@
    *      GND | 9 10 | 5V
    *           ------
    */
-  #define DOGLCD_CS                  EXP1_07_PIN
-  #define DOGLCD_A0                  EXP1_06_PIN
-  #define DOGLCD_SCK                 EXP1_01_PIN
-  #define DOGLCD_MOSI                EXP1_08_PIN
+  #define DOGLCD_CS                  EXP3_07_PIN
+  #define DOGLCD_A0                  EXP3_06_PIN
+  #define DOGLCD_SCK                 EXP3_01_PIN
+  #define DOGLCD_MOSI                EXP3_08_PIN
   #define LCD_CONTRAST_INIT                  160
   #define LCD_CONTRAST_MIN                   120
   #define LCD_CONTRAST_MAX                   180
   #define FORCE_SOFT_SPI
   #define LCD_BACKLIGHT_PIN                 -1
+  #define BEEPER_PIN                        -1    // EXP3_01 is DOGLCD_SCK here
 
 #elif HAS_WIRED_LCD
 
@@ -272,8 +266,8 @@
 
 #endif
 
-#if ANY(CR10_STOCKDISPLAY, MKS_MINI_12864)
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
-  #define BTN_ENC                    EXP1_02_PIN
+#if ENABLED(MKS_MINI_12864)
+  #define BTN_EN1                    EXP3_03_PIN
+  #define BTN_EN2                    EXP3_05_PIN
+  #define BTN_ENC                    EXP3_02_PIN
 #endif

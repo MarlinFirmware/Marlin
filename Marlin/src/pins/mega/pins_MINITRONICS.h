@@ -102,6 +102,7 @@
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+  // NOTE: Kept inline — MINITRONICS uses raw Mega pin numbers (not EXP tokens).
   #define LCD_PINS_RS                         15  // CS chip select /SS chip slave select
   #define LCD_PINS_EN                         11  // SID (MOSI)
   #define LCD_PINS_D4                         10  // SCK (CLK) clock

@@ -95,6 +95,8 @@
 // Display
 //
 
+// NOTE: Kept inline — SELENA COMPACT has no EXP1/EXP2 connector tokens; raw LPC port
+// pins are used with a non-standard signal layout (D5-D7 on P1_00/01/04).
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                      P0_16
   #define LCD_PINS_EN                      P0_18

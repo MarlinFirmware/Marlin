@@ -34,7 +34,7 @@
  *  |12V |               |12V D12| |12V D13| |12V GND| |D27 D17| |GND D18| |GND D19| |GND D20|
  *  ------               --------- --------- --------- --------- --------- --------- ---------
  *
- *                EXP1                  EXP1 as ENDER2 STOCKDISPLAY           EXP1 as CR10 STOCKDISPLAY
+ *                EXP3                  EXP3 as ENDER2 STOCKDISPLAY           EXP3 as CR10 STOCKDISPLAY
  *               ------                            ------                               ------
  * (AVR_SCK) D7 | 1  2 | D16                  SCK | 1  2 | BTN_E            BEEPER_PIN | 1  2 | BTN_ENC
  *          D11 | 3  4 | RESET            BTN_EN1 | 3  4 | RESET               BTN_EN1 | 3  4 | RESET
@@ -44,36 +44,34 @@
  *               ------                            ------                               ------
  */
 
-#define EXP1_01_PIN                            7
-#define EXP1_02_PIN                           16
-#define EXP1_03_PIN                           11
-#define EXP1_04_PIN                           -1  // hardware reset line
-#define EXP1_05_PIN                           10
-#define EXP1_06_PIN                           30
-#define EXP1_07_PIN                           28
-#define EXP1_08_PIN                            5
+#define EXP3_01_PIN                            7
+#define EXP3_02_PIN                           16
+#define EXP3_03_PIN                           11
+#define EXP3_04_PIN                           -1  // hardware reset line
+#define EXP3_05_PIN                           10
+#define EXP3_06_PIN                           30
+#define EXP3_07_PIN                           28
+#define EXP3_08_PIN                            5
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 //
 // LCD / Controller
 //
 
-#if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #if HAS_MEDIA
-      #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
-    #endif
-    #define LCD_PINS_RS              EXP1_07_PIN  // ST9720 CS
-    #define LCD_PINS_EN              EXP1_08_PIN  // ST9720 DAT
-    #define LCD_PINS_D4              EXP1_06_PIN  // ST9720 CLK
-    #define BEEPER_PIN               EXP1_01_PIN
-  #elif ENABLED(ENDER2_STOCKDISPLAY)
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #if HAS_MEDIA
+    #error "Cannot have SDSUPPORT with CR10_STOCKDISPLAY on this motherboard." // Hardware SDCARD SCK and MOSI pins are reallocated.
   #endif
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
   #define LCD_PINS_DEFINED
+
+#elif ENABLED(ENDER2_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #define ADAPTER_MELZI_CREALITY
+  #define LCD_PINS_DEFINED
+
 #endif
 
 #define LCD_SDSS_PIN                          31  // Controller's SD card

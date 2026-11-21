@@ -112,6 +112,8 @@
 //
 // Misc. Functions
 //
+// NOTE: Kept inline — Cutlass uses a TFT/serial display; this lone beeper is a
+// general board pin, not part of any wired-LCD wiring.
 #define BEEPER_PIN                            24  // A2
 
 //

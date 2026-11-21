@@ -201,21 +201,31 @@
  *                  ------
  *                   EXP
  */
-#define EXP1_01_PIN                        P2_08
-#define EXP1_02_PIN                        P0_16
-#define EXP1_03_PIN                        P0_19
-#define EXP1_04_PIN                        -1
-#define EXP1_05_PIN                        P0_20
-#define EXP1_06_PIN                        P0_15
-#define EXP1_07_PIN                        P0_17
-#define EXP1_08_PIN                        P0_18
+#define EXP3_01_PIN                        P2_08
+#define EXP3_02_PIN                        P0_16
+#define EXP3_03_PIN                        P0_19
+#define EXP3_04_PIN                        -1
+#define EXP3_05_PIN                        P0_20
+#define EXP3_06_PIN                        P0_15
+#define EXP3_07_PIN                        P0_17
+#define EXP3_08_PIN                        P0_18
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
-#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
+
+  // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL
+
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
 
   CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "Ender-3 V2 display", " Requires a custom cable with TX = P0_15, RX = P0_16.")
 
  /**
-  *          Ender-3 V2 display                       SKR E3 Turbo (EXP1)                Ender-3 V2 display --> SKR E3 Turbo
+  *          Ender-3 V2 display                       SKR E3 Turbo (EXP3)                Ender-3 V2 display --> SKR E3 Turbo
   *                ------                                     ------                                  RX  3 -->  5  P0_15
   *           --  | 1  2 | --                (BEEPER)  P2_08 |10  9 | P0_16 (BTN_ENC)                 TX  4 -->  9  P0_16
   * (SKR_TX1) RX  | 3  4 | TX (SKR_RX1)      (BTN_EN1) P0_19 | 8  7 | RESET                       BEEPER  6 --> 10  P2_08
@@ -225,55 +235,21 @@
   *                ------                                     ------
   */
 
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_07_PIN
-  #define BTN_ENC                    EXP1_05_PIN
+  #define BEEPER_PIN                 EXP3_01_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
+  #define BTN_ENC                    EXP3_05_PIN
+
+#elif ENABLED(ZONESTAR_LCD)                       // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+
+  CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "ZONESTAR_LCD")
+
+  #define ADC_KEYPAD_PIN                   P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+  // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-
-    #define BEEPER_PIN               EXP1_01_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
-
-    CONTROLLER_WARNING("BTT_SKR_E3_TURBO", "ZONESTAR_LCD")
-
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
-    #define ADC_KEYPAD_PIN                 P1_23  // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
-
-  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_01_PIN
-    #define DOGLCD_MOSI              EXP1_08_PIN
-    #define FORCE_SOFT_SPI
-    #define LCD_BACKLIGHT_PIN              -1
-
-  #else
-
-    #error "Only ZONESTAR_LCD, MKS_MINI_12864, ENDER2_STOCKDISPLAY, and CR10_STOCKDISPLAY are currently supported on the BTT_SKR_E3_TURBO."
-
-  #endif
+  #error "Only ZONESTAR_LCD, MKS_MINI_12864, ENDER2_STOCKDISPLAY, and CR10_STOCKDISPLAY are currently supported on the BTT_SKR_E3_TURBO."
 
 #endif // HAS_WIRED_LCD
 

@@ -28,6 +28,8 @@
 
 #define BOARD_INFO_NAME "GT2560 4.x"
 
+// NOTE: Kept inline — GT2560 A20 wires its LCD to raw pins in a non-standard
+// order (only D4/D7 of the data nibble), not the lcd/ file EXP layout.
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                          5
   #define LCD_PINS_EN                         36

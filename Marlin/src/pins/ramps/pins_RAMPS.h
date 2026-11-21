@@ -617,6 +617,13 @@
 
   // LCD pins already defined by including header
 
+#elif ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  #ifndef SD_DETECT_PIN
+    #define SD_DETECT_PIN            EXP2_07_PIN  // As for other RAMPS panels
+  #endif
+
 #elif HAS_WIRED_LCD
 
   //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
@@ -626,6 +633,7 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+    // NOTE: Kept inline — this panel's CS is on EXP2_07, sharing the EXP2 SPI bus
     #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
     #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
     #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
@@ -640,23 +648,15 @@
     #define LCD_PINS_D7                  AUX2_05
 
   #elif ENABLED(TFTGLCD_PANEL_SPI)
-
+    // NOTE: RAMPS uses EXP2_05 for TFTGLCD_CS (non-standard vs. EXP2_03 default)
     #define TFTGLCD_CS               EXP2_05_PIN
 
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
+    #if ENABLED(ZONESTAR_LCD)
 
-      #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_EN            EXP1_08_PIN
-      #define LCD_PINS_D4            EXP1_06_PIN
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN           EXP1_01_PIN
-      #endif
-
-    #elif ENABLED(ZONESTAR_LCD)
-
+      // NOTE: Kept inline — ZONESTAR_LCD plugs into AUX-2 on RAMPS, a different
+      // order from the EXP1 mapping in lcd/ZONESTAR_LCD.h.
       CONTROLLER_WARNING("RAMPS", "ZONESTAR_LCD", " Plugs into AUX2 but GND and 5V must be swapped.")
 
       #define LCD_PINS_RS                AUX2_05
@@ -672,15 +672,8 @@
 
     #else
 
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC          EXP1_06_PIN  // Set as output on init
-        #define LCD_PINS_RS          EXP1_07_PIN  // Pull low for 1s to init
-        // DOGM SPI LCD Support
-        #define DOGLCD_A0            LCD_PINS_DC
-        #define DOGLCD_CS            EXP1_04_PIN
-        #define DOGLCD_MOSI          EXP1_03_PIN
-        #define DOGLCD_SCK           EXP1_05_PIN
-      #else
+      // MKS_12864OLED / MKS_12864OLED_SSD1306: migrated to pins/lcd/MKS_12864OLED.h
+      #if !ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
         #define LCD_PINS_RS          EXP1_04_PIN
         #define LCD_PINS_EN          EXP1_03_PIN
         #define LCD_PINS_D4          EXP1_05_PIN
@@ -716,17 +709,12 @@
   //
   #if IS_NEWPANEL
 
-    #if IS_RRD_SC
-
-      #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1              EXP1_03_PIN
-        #define BTN_EN2              EXP1_05_PIN
-      #else
-        #define BTN_EN1              EXP2_03_PIN
-        #define BTN_EN2              EXP2_05_PIN
-      #endif
+    #if IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #define BTN_ENC                EXP1_02_PIN
+      #define BTN_EN1                EXP2_03_PIN
+      #define BTN_EN2                EXP2_05_PIN
+
       #ifndef SD_DETECT_PIN
         #define SD_DETECT_PIN        EXP2_07_PIN
       #endif
@@ -740,6 +728,8 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — REPRAPWORLD input pins are on the AUX-2 connector
+      // (separate from EXP-2, which carries the display output). Not EXP/LCD-tokenable.
       #define BTN_EN1                    AUX2_05
       #define BTN_EN2                    AUX2_03
       #define BTN_ENC                    AUX2_04
@@ -790,23 +780,9 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
-      #define DOGLCD_CS              EXP1_08_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
-
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN           EXP1_05_PIN
-      #endif
-      #define LCD_BACKLIGHT_PIN      EXP2_05_PIN
-
-      #define BTN_EN1                EXP1_02_PIN
-      #define BTN_EN2                EXP1_01_PIN
-      #define BTN_ENC                EXP2_03_PIN
-
-      #define LCD_SDSS_PIN             SD_SS_PIN
-      #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN        EXP2_07_PIN
-      #endif
-      #define KILL_PIN               EXP2_08_PIN
+      // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
+      // (BEEPER_PIN here, since this board's generic fallback below would win)
+      #define BEEPER_PIN             EXP1_05_PIN
 
     #elif ANY(MKS_MINI_12864, FYSETC_MINI_12864)
 
@@ -821,16 +797,10 @@
 
       #if ENABLED(MKS_MINI_12864)
 
-        #define DOGLCD_A0            EXP1_07_PIN
-        #define DOGLCD_CS            EXP1_06_PIN
-
-        // not connected to a pin
-        #define LCD_BACKLIGHT_PIN             -1  // 65 (MKS mini12864 can't adjust backlight by software!)
-
-        #define BTN_EN1              EXP2_03_PIN
-        #define BTN_EN2              EXP2_05_PIN
+        // Migrated to pins/lcd
 
       #elif ENABLED(FYSETC_MINI_12864)
+      // NOTE: Kept inline — RAMPS uses multi-variant AUX2/AUX4/EXP wiring.
 
         // From https://wiki.fysetc.com/docs/Mini12864Panel
 
@@ -862,23 +832,8 @@
       #endif
 
     #elif ENABLED(MINIPANEL)
-
-      #ifndef BEEPER_PIN
-        #define BEEPER_PIN               AUX2_08
-      #endif
-      #define LCD_BACKLIGHT_PIN          AUX2_10
-
-      #define DOGLCD_A0                  AUX2_07
-      #define DOGLCD_CS                  AUX2_09
-
-      #define BTN_EN1                    AUX2_06
-      #define BTN_EN2                    AUX2_04
-      #define BTN_ENC                    AUX2_03
-
-      #ifndef SD_DETECT_PIN
-        #define SD_DETECT_PIN            AUX3_02
-      #endif
-      #define KILL_PIN                   AUX2_05
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
+      #define BEEPER_PIN                 AUX2_08  // Here, since the generic EXP1_01 fallback below would win
 
     #elif ENABLED(ZONESTAR_LCD)
 

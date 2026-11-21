@@ -144,6 +144,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — FLY CDY's LCD data and encoder are wired to raw LPC pins
+// in a non-standard order, not the EXP slot layout the lcd/ file default uses.
 #define BEEPER_PIN                         P2_07
 #define LCD_PINS_RS                        P2_10
 #define LCD_PINS_EN                        P0_22

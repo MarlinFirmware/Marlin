@@ -203,9 +203,7 @@
 
 #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
-  #define DOGLCD
-  #define IS_U8GLIB_ST7920 1
-  #define IS_ULTIPANEL 1
+  #define IS_RRD_FG_SC 1                // Serial ST7920, encoder, and SD. Wired like the RRD Full Graphic.
   #define STD_ENCODER_PULSES_PER_STEP 2
 
 #elif ENABLED(MKS_12864OLED)
@@ -253,7 +251,6 @@
 
   #define IS_ULTIPANEL 1
   #define U8GLIB_SSD1309
-  #define LCD_RESET_PIN LCD_PINS_D6         // ULTI_CONTROLLER needs a reset pin
   #define STD_ENCODER_PULSES_PER_STEP 4
   #define STD_ENCODER_STEPS_PER_MENU_ITEM 1
   #ifndef PCA9632

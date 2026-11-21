@@ -53,7 +53,9 @@
 #define FAN1_PIN                               2
 #define FAN2_PIN                               6
 
-// Encoder
+// Encoder — ThinkerV2 uses custom encoder pins, not the RAMBO defaults.
+// NOTE: Kept inline — encoder wired to non-standard pins (64/63) that don't
+// match the EXP1/EXP2 slot order the lcd/ file would use.
 #define BTN_EN1                               64
 #define BTN_EN2                               63
 

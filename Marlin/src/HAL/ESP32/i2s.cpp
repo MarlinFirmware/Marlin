@@ -305,13 +305,13 @@ int i2s_init() {
 
   // Route the i2s pins to the appropriate GPIO
   // If a pin is not defined, no need to configure
-  #if defined(I2S_DATA) && I2S_DATA >= 0
+  #if _EXISTS(I2S_DATA)
     gpio_matrix_out_check(I2S_DATA, I2S0O_DATA_OUT23_IDX, 0, 0);
   #endif
-  #if defined(I2S_BCK) && I2S_BCK >= 0
+  #if _EXISTS(I2S_BCK)
     gpio_matrix_out_check(I2S_BCK, I2S0O_BCK_OUT_IDX, 0, 0);
   #endif
-  #if defined(I2S_WS) && I2S_WS >= 0
+  #if _EXISTS(I2S_WS)
     gpio_matrix_out_check(I2S_WS, I2S0O_WS_OUT_IDX, 0, 0);
   #endif
 

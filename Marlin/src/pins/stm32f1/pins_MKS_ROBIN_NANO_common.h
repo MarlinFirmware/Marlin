@@ -184,6 +184,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — MKS Robin Nano uses an FSMC TFT/serial display; this lone
+// beeper is a general board pin (PC5), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PC5
 
 //
@@ -202,6 +204,9 @@
 
   #define TFT_RESET_PIN                     PC6   // FSMC_RST
   #define TFT_BACKLIGHT_PIN                 PD13
+
+  #define DOGLCD_MOSI                       -1    // Prevent auto-define by pins_lcd.h
+  #define DOGLCD_SCK                        -1
 
   #define TOUCH_CS_PIN                      PA7   // SPI2_NSS
   #define TOUCH_SCK_PIN                     PB13  // SPI2_SCK

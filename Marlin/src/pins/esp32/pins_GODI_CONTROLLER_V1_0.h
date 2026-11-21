@@ -129,6 +129,9 @@
 // Heaters / Fans
 //
 
+// NOTE: Kept inline — GODI Controller has no EXP connector; the OLED buttons,
+// encoder, and I2C data lines are wired to raw GPIO, so the lcd/ file EXP
+// defaults cannot apply.
 #if ANY(EDUTRONICS_12864OLED_SH1106, EDUTRONICS_12864OLED_SSD1306)
   #define BTN_EN2                              1
   #define BTN_EN1                              3

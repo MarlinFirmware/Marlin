@@ -233,10 +233,7 @@
 //
 
 #if IS_TFTGLCD_PANEL
-
-  #if ENABLED(TFTGLCD_PANEL_SPI)
-    #define TFTGLCD_CS               EXP2_03_PIN
-  #endif
+  // Migrated to pins/lcd
   #if SD_CONNECTION_IS(LCD)
     #define SD_DETECT_PIN            EXP2_04_PIN
   #endif
@@ -257,6 +254,7 @@
   #endif
 
   #if ENABLED(FYSETC_MINI_12864)
+  // NOTE: Kept inline — MKS_SBASE uses raw J8/Ethernet pins (not EXP tokens) for DOGLCD_SCK/MOSI.
     /**
      * The FYSETC display can NOT use the SCK and MOSI pins on EXP2, so a
      * special cable is needed to go between EXP2 on the FYSETC and the

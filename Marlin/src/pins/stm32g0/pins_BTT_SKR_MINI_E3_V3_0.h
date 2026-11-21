@@ -161,18 +161,19 @@
  *  (LCD_RS)  PB8  | 7  8 | PD6  (LCD_EN)
  *             GND | 9 10 | 5V
  *                  ------
- *                   EXP1
+ *                   EXP3
  */
-#define EXP1_01_PIN                         PB5
-#define EXP1_02_PIN                         PA15
-#define EXP1_03_PIN                         PA9
-#define EXP1_04_PIN                         -1
-#define EXP1_05_PIN                         PA10
-#define EXP1_06_PIN                         PB9
-#define EXP1_07_PIN                         PB8
-#define EXP1_08_PIN                         PD6
-#define EXP1_09_PIN                         -1
-#define EXP1_10_PIN                         -1
+#define EXP3_01_PIN                         PB5
+#define EXP3_02_PIN                         PA15
+#define EXP3_03_PIN                         PA9
+#define EXP3_04_PIN                         -1
+#define EXP3_05_PIN                         PA10
+#define EXP3_06_PIN                         PB9
+#define EXP3_07_PIN                         PB8
+#define EXP3_08_PIN                         PD6
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
+#define EXP3_09_PIN                         -1
+#define EXP3_10_PIN                         -1
 
 /**      SPI Port
  *        ------
@@ -188,7 +189,17 @@
 #define SPI1_05_PIN                         PA7
 #define SPI1_06_PIN                         PA6
 
-#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif ENABLED(MINIPANEL)
+
+  // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL
+  #define FORCE_SOFT_SPI
+
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
   /**
    *        ------                ------                ------
    * (ENT) | 1  2 | (BEEP)       |10  9 |              |10  9 |
@@ -197,21 +208,21 @@
    *   (B) | 7  8 | (A)      (B) | 4  3 | (A)        B | 4  3 | A
    *   GND | 9 10 | (VCC)    GND | 2  1 | VCC      GND | 2  1 | VCC
    *        ------                ------                ------
-   *         EXP1                  DWIN               DWIN (plug)
+   *         EXP3                  DWIN               DWIN (plug)
    *
    * All pins are labeled as printed on DWIN PCB. Connect TX-TX, A-A and so on.
    */
 
   CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "DWIN_CREALITY_LCD", " Requires a custom cable.")
 
-  #define BEEPER_PIN                 EXP1_02_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_07_PIN
-  #define BTN_ENC                    EXP1_01_PIN
+  #define BEEPER_PIN                 EXP3_02_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
+  #define BTN_ENC                    EXP3_01_PIN
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(SKR_MINI_SCREEN_ADAPTER)
+  #if ENABLED(ADAPTER_SKR_MINI_SCREEN)
     /** https://github.com/VoronDesign/Voron-Hardware/tree/master/SKR-Mini_Screen_Adaptor/SRK%20Mini%20E3%20V3.0
      *
      *            SKR Mini E3 V3.0                   SKR Mini Screen Adaptor
@@ -231,65 +242,34 @@
      *            PB8 | 7  8 | PD6                       -- | 7  8 | --
      *            GND | 9 10 | 5V                       GND | 9 10 | 5V
      *                 ------                                ------
-     *                  EXP1                                  EXP1
+     *                  EXP3                                  EXP1
      */
     #if ENABLED(FYSETC_MINI_12864_2_1)
-      #define BTN_ENC                EXP1_01_PIN
-      #define BTN_EN1                EXP1_03_PIN
-      #define BTN_EN2                EXP1_05_PIN
+      #define BTN_ENC                EXP3_01_PIN
+      #define BTN_EN1                EXP3_03_PIN
+      #define BTN_EN2                EXP3_05_PIN
       #define BEEPER_PIN                    -1
-      #define LCD_RESET_PIN          EXP1_06_PIN
-      #define DOGLCD_CS              EXP1_07_PIN
-      #define DOGLCD_A0              EXP1_08_PIN
+      #define LCD_RESET_PIN          EXP3_06_PIN
+      #define DOGLCD_CS              EXP3_07_PIN
+      #define DOGLCD_A0              EXP3_08_PIN
       #define DOGLCD_SCK                    PA5
       #define DOGLCD_MOSI                   PA7
 
       #define FORCE_SOFT_SPI
       #define LCD_BACKLIGHT_PIN             -1
-      #define NEOPIXEL_PIN           EXP1_02_PIN
+      #define NEOPIXEL_PIN           EXP3_02_PIN
     #else
-      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the SKR Mini E3 with SKR_MINI_SCREEN_ADAPTER."
+      #error "Only FYSETC_MINI_12864_2_1 / MKS_MINI_12864_V3 / BTT_MINI_12864 / BEEZ_MINI_12864 are currently supported on the BIGTREE_SKR_MINI_E3 with ADAPTER_SKR_MINI_SCREEN."
     #endif
 
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
-
-      #define BEEPER_PIN             EXP1_01_PIN
-      #define BTN_ENC                EXP1_02_PIN
-
-      #define BTN_EN1                EXP1_03_PIN
-      #define BTN_EN2                EXP1_05_PIN
-
-      #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_EN            EXP1_08_PIN
-      #define LCD_PINS_D4            EXP1_06_PIN
-
-    #elif ENABLED(ZONESTAR_LCD)                   // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+    #if ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
       CONTROLLER_WARNING("BTT_SKR_MINI_E3_V3_0", "ZONESTAR_LCD")
 
-      #define LCD_PINS_RS            EXP1_06_PIN
-      #define LCD_PINS_EN            EXP1_02_PIN
-      #define LCD_PINS_D4            EXP1_07_PIN
-      #define LCD_PINS_D5            EXP1_05_PIN
-      #define LCD_PINS_D6            EXP1_03_PIN
-      #define LCD_PINS_D7            EXP1_01_PIN
       #define ADC_KEYPAD_PIN                PA1   // Repurpose servo pin for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
-
-    #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-      #define BTN_ENC                EXP1_02_PIN
-      #define BTN_EN1                EXP1_03_PIN
-      #define BTN_EN2                EXP1_05_PIN
-
-      #define DOGLCD_CS              EXP1_07_PIN
-      #define DOGLCD_A0              EXP1_06_PIN
-      #define DOGLCD_SCK             EXP1_01_PIN
-      #define DOGLCD_MOSI            EXP1_08_PIN
-
-      #define FORCE_SOFT_SPI
-      #define LCD_BACKLIGHT_PIN             -1
+      // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
     #elif IS_TFTGLCD_PANEL
 
@@ -308,25 +288,26 @@
          *          PB7  | 7  8 | PB8  (LCD_CS)        (SD_CS) | 4  3 | (LCD_CS)
          *           GND | 9 10 | 5V                   (SCK)   | 2  1 | (MISO)
          *                 ------                               ------
-         *                  EXP1                                 EXP1
+         *                  EXP3                                 EXP1
          *
          * Needs custom cable:
          *
          *    Board             Display
          *
-         *  EXP1-10 ----------- EXP1-10  5V
-         *  EXP1-9 ------------ EXP1-9   GND
+         *  EXP3-10 ----------- EXP1-10  5V
+         *  EXP3-9 ------------ EXP1-9   GND
          *  SPI1-4 ------------ EXP1-6   MOSI
-         *  EXP1-7 ------------ n/c
+         *  EXP3-7 ------------ n/c
          *  SPI1-3 ------------ EXP1-2   SCK
-         *  EXP1-5 ------------ EXP1-4   SD_CS
-         *  EXP1-4 ------------ n/c
-         *  EXP1-3 ------------ EXP1-3   LCD_CS
+         *  EXP3-5 ------------ EXP1-4   SD_CS
+         *  EXP3-4 ------------ n/c
+         *  EXP3-3 ------------ EXP1-3   LCD_CS
          *  SPI1-1 ------------ EXP1-1   MISO
-         *  EXP1-1 ------------ EXP1-7   SD_DET
+         *  EXP3-1 ------------ EXP1-7   SD_DET
          */
 
-        #define TFTGLCD_CS           EXP1_03_PIN
+        // NOTE: BTT_SKR_MINI_E3_V3_0 uses EXP3_03 for TFTGLCD_CS (non-standard vs. EXP2_03 default; custom cable required)
+        #define TFTGLCD_CS           EXP3_03_PIN
 
       #endif
 
@@ -344,7 +325,7 @@
        *  (LCD_SCK)PB8  | 7  8 | PD6 (MOSI)         (LCD_A0) | 4  3 | (LCD_CS)
        *            GND | 9 10 | 5V                (BTN_ENC) | 2  1 | --
        *                 ------                               ------
-       *                  EXP1                                 EXP1
+       *                  EXP3                                 EXP1
        *
        *                                                      ------
        *                                                  -- |10  9 | --
@@ -361,24 +342,26 @@
        * Check the index/notch position twice!!!
        * On BTT boards pins from IDC10 connector are numbered in unusual order.
        */
-      #define BTN_ENC                EXP1_02_PIN
-      #define BTN_EN1                EXP1_06_PIN
-      #define BTN_EN2                EXP1_01_PIN
+      #define BTN_ENC                EXP3_02_PIN
+      #define BTN_EN1                EXP3_06_PIN
+      #define BTN_EN2                EXP3_01_PIN
       #define BEEPER_PIN                    -1
 
-      #define DOGLCD_CS              EXP1_03_PIN
-      #define DOGLCD_A0              EXP1_05_PIN
-      #define DOGLCD_SCK             EXP1_07_PIN
-      #define DOGLCD_MOSI            EXP1_08_PIN
+      #define DOGLCD_CS              EXP3_03_PIN
+      #define DOGLCD_A0              EXP3_05_PIN
+      #define DOGLCD_SCK             EXP3_07_PIN
+      #define DOGLCD_MOSI            EXP3_08_PIN
 
       #define FORCE_SOFT_SPI
       #define LCD_BACKLIGHT_PIN             -1
+      #define LCD_RESET_PIN                 -1    // Panel RESET goes to the board's RST line
+      #define NEOPIXEL_PIN   BOARD_NEOPIXEL_PIN   // Panel DIN goes to the board's Neopixel header
 
     #else
       #error "Only CR10_STOCKDISPLAY, ZONESTAR_LCD, ENDER2_STOCKDISPLAY, MKS_MINI_12864, FYSETC_MINI_12864_2_1, and TFTGLCD_PANEL_(SPI|I2C) are currently supported on the SKR Mini E3."
     #endif
 
-  #endif // SKR_MINI_SCREEN_ADAPTER
+  #endif // ADAPTER_SKR_MINI_SCREEN
 
 #endif // HAS_WIRED_LCD
 
@@ -397,30 +380,30 @@
    * (LCD_CS)    PB8  | 7  8 | PB7 (FREE)       (SD_CS) | 4  3 | (MOD_RESET)
    *               5V | 9 10 | GND              (SCK)   | 2  1 | (MISO)
    *                   ------                            ------
-   *                    EXP1                              EXP1
+   *                    EXP3                              EXP1
    *
    * Needs custom cable:
    *
    *    Board   Adapter   Display
    *   ----------------------------------
-   *   EXP1-10 ----------- EXP1-10  5V
-   *   EXP1-9 ------------ EXP1-9   GND
+   *   EXP3-10 ----------- EXP1-10  5V
+   *   EXP3-9 ------------ EXP1-9   GND
    *   SPI1-4 ------------ EXP1-6   MOSI
-   *   EXP1-7 ------------ EXP1-5   LCD_CS
+   *   EXP3-7 ------------ EXP1-5   LCD_CS
    *   SPI1-3 ------------ EXP1-2   SCK
-   *   EXP1-5 ------------ EXP1-4   SD_CS
-   *   EXP1-4 ------------ EXP1-8   RESET
-   *   EXP1-3 ------------ EXP1-3   MOD_RST
+   *   EXP3-5 ------------ EXP1-4   SD_CS
+   *   EXP3-4 ------------ EXP1-8   RESET
+   *   EXP3-3 ------------ EXP1-3   MOD_RST
    *   SPI1-1 ------------ EXP1-1   MISO
-   *   EXP1-1 ------------ EXP1-7   SD_DET
+   *   EXP3-1 ------------ EXP1-7   SD_DET
    */
 
   #define CLCD_SPI_BUS                         1  // SPI1 connector
 
-  #define BEEPER_PIN                 EXP1_02_PIN
+  #define BEEPER_PIN                 EXP3_02_PIN
 
-  #define CLCD_MOD_RESET             EXP1_03_PIN
-  #define CLCD_SPI_CS                EXP1_07_PIN
+  #define CLCD_MOD_RESET             EXP3_03_PIN
+  #define CLCD_SPI_CS                EXP3_07_PIN
 #endif // TOUCH_UI_FTDI_EVE && LCD_FYSETC_TFT81050
 
 //
@@ -434,8 +417,8 @@
 #if SD_CONNECTION_IS(ONBOARD)
   #define SD_DETECT_PIN                     PC3
 #elif SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
-  #define SD_DETECT_PIN              EXP1_01_PIN
-  #define SD_SS_PIN                  EXP1_05_PIN
+  #define SD_DETECT_PIN              EXP3_01_PIN
+  #define SD_SS_PIN                  EXP3_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with SKR Mini E3."
 #endif

@@ -149,6 +149,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Teensylu wires its Panelolu2 buttons to raw Teensy2 pins,
+// not the standard EXP connector layout.
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
   #define BEEPER_PIN                          -1

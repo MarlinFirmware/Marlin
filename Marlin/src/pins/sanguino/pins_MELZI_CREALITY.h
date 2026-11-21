@@ -44,41 +44,29 @@
  *    28 | 7  8 | 17
  *   GND | 9 10 | 5V
  *        ------
- *         EXP1
+ *         EXP3
  */
-#define EXP1_01_PIN                           27  // BEEP
-#define EXP1_02_PIN                           16  // ENC
-#define EXP1_03_PIN                           11  // EN1
-#define EXP1_04_PIN                           -1  // RESET
-#define EXP1_05_PIN                           10  // EN2
-#define EXP1_06_PIN                           30  // A0 / ST9720 CLK
-#define EXP1_07_PIN                           28  // CS / ST9720 CS
-#define EXP1_08_PIN                           17  //      ST9720 DAT
+#define EXP3_01_PIN                           27  // BEEP
+#define EXP3_02_PIN                           16  // ENC
+#define EXP3_03_PIN                           11  // EN1
+#define EXP3_04_PIN                           -1  // RESET
+#define EXP3_05_PIN                           10  // EN2
+#define EXP3_06_PIN                           30  // A0 / ST9720 CLK
+#define EXP3_07_PIN                           28  // CS / ST9720 CS
+#define EXP3_08_PIN                           17  //      ST9720 DAT
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
 
 //
 // LCD / Controller
 //
 
-#if ANY(MKS_MINI_12864, CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-  #if ANY(CR10_STOCKDISPLAY, ENDER2_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_07_PIN  // ST9720 CS
-    #define LCD_PINS_EN              EXP1_08_PIN  // ST9720 DAT
-    #define LCD_PINS_D4              EXP1_06_PIN  // ST9720 CLK
+#if ANY(CR10_STOCKDISPLAY, MINIPANEL)
+  // Migrated to pins/lcd
+  #if ENABLED(MINIPANEL)
+    #define ADAPTER_MELZI_CREALITY
   #endif
-  #if ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-  #endif
-
   #define LCD_SDSS_PIN                        31  // Controller's SD card
-
-  #define BTN_ENC                    EXP1_02_PIN
-  #define BTN_EN1                    EXP1_03_PIN
-  #define BTN_EN2                    EXP1_05_PIN
-  #define BEEPER_PIN                 EXP1_01_PIN
-
   #define LCD_PINS_DEFINED
-
 #endif
 
 // Alter timing for graphical display
@@ -92,11 +80,11 @@
 
 #if ENABLED(BLTOUCH)
   #ifndef SERVO0_PIN
-    #define SERVO0_PIN               EXP1_01_PIN
+    #define SERVO0_PIN               EXP3_01_PIN
   #endif
 #elif HAS_FILAMENT_SENSOR
   #ifndef FIL_RUNOUT_PIN
-    #define FIL_RUNOUT_PIN           EXP1_01_PIN
+    #define FIL_RUNOUT_PIN           EXP3_01_PIN
   #endif
 #endif
 #if PIN_EXISTS(BEEPER) && (SERVO0_PIN == BEEPER_PIN || FIL_RUNOUT_PIN == BEEPER_PIN)

@@ -234,6 +234,7 @@
 #define DIV_TERN(O,B,A)     ((B) DIV_TERN1(O,A))    // ((B) (OPTION ? '/ (A)' : '<nul>'))
 
 // Macros to support pins/buttons exist testing
+#define _EXISTS(PN,V...)    (defined(PN##V) && PN##V >= 0)
 #define PIN_EXISTS(PN)      (defined(PN##_PIN) && PN##_PIN >= 0)
 #define _PINEX_1            PIN_EXISTS
 #define PINS_EXIST(V...)    DO(PINEX,&&,V)

@@ -161,25 +161,38 @@
 // Formbot only supports REPRAP_DISCOUNT_SMART_CONTROLLER
 //
 #if IS_RRD_SC
+
+  // Define de-facto EXP1/EXP2 ports matching this board's physical wiring.
+  // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2, so
+  // any display's pins come from Marlin/src/pins/lcd/RRD_SC.h or WIRED.h.
+  #define EXP1_01_PIN                         37  // BEEPER
+  #define EXP1_02_PIN                         35  // BTN_ENC
+  #define EXP1_03_PIN                         17  // LCD_EN
+  #define EXP1_04_PIN                         16  // LCD_RS
+  #define EXP1_05_PIN                         23  // LCD_D4
+  #define EXP1_06_PIN                         25  // LCD_D5
+  #define EXP1_07_PIN                         27  // LCD_D6
+  #define EXP1_08_PIN                         29  // LCD_D7
+
+  #define EXP2_01_PIN                         -1  // not connected
+  #define EXP2_02_PIN                         -1  // not connected
+  #define EXP2_03_PIN                         31  // BTN_EN1
+  #define EXP2_04_PIN                         -1  // not connected
+  #define EXP2_05_PIN                         33  // BTN_EN2
+  #define EXP2_06_PIN                         -1  // not connected
+  #define EXP2_07_PIN                         49  // SD_DETECT
+  #define EXP2_08_PIN                         41  // KILL
+
+  #define SD_DETECT_PIN              EXP2_07_PIN
+
   #ifndef BEEPER_PIN
-    #define BEEPER_PIN                        37
+    #define BEEPER_PIN               EXP1_01_PIN
   #endif
-  #define BTN_EN1                             31
-  #define BTN_EN2                             33
-  #define BTN_ENC                             35
-  #define SD_DETECT_PIN                       49
 
   // Allow MAX7219 to steal the KILL pin
   #if !defined(KILL_PIN) && MAX7219_CLK_PIN != 41 && MAX7219_DIN_PIN != 41 && MAX7219_LOAD_PIN != 41
-    #define KILL_PIN                          41
+    #define KILL_PIN                 EXP2_08_PIN
   #endif
-
-  #define LCD_PINS_RS                         16
-  #define LCD_PINS_EN                         17
-  #define LCD_PINS_D4                         23
-  #define LCD_PINS_D5                         25
-  #define LCD_PINS_D6                         27
-  #define LCD_PINS_D7                         29
 #endif
 
 // Alter timing for graphical display

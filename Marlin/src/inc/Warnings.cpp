@@ -1076,3 +1076,17 @@
 #if DISABLED_HOST_DRIVE_WARNING
   #warning "The selected board has automatically enabled NO_SD_HOST_DRIVE."
 #endif
+
+/**
+ * Board and LCD have differently-keyed plugs
+ */
+#if LCD_USES_EXP12 && ENABLED(EXP_REVERSE_KEYED) != ENABLED(LCD_REVERSE_KEYED)
+  #warning "CAUTION! The MOTHERBOARD and LCD have oppositely-keyed EXP plugs."
+#endif
+
+/**
+ * LCD Controller using old pin definition method
+ */
+#ifdef LCD_MIGRATION_WARNING
+  #warning "The selected LCD is not yet migrated to the new system. Please contribute to this effort."
+#endif

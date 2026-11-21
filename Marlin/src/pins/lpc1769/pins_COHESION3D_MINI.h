@@ -140,18 +140,31 @@
 //
 #if HAS_WIRED_LCD
 
-  #define BEEPER_PIN                       P0_27  // EXP2-7 - open drain
+  // Define EXP1/EXP2 to match the board's LCD connectors, according to the
+  // ports each connector slot maps to (see schematic). The default passthrough
+  // in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2, so LCD pins come from
+  // Marlin/src/pins/lcd/RRD_FG_SC.h or lcd/WIRED.h.
+  #define EXP1_01_PIN                      -1     // EXP1-1 not brought out
+  #define EXP1_02_PIN                      P1_30  // EXP1-2 BTN_ENC
+  #define EXP1_03_PIN                      P0_18  // EXP1-3 LCD_EN
+  #define EXP1_04_PIN                      P0_16  // EXP1-4 LCD_RS
+  #define EXP1_05_PIN                      P0_15  // EXP1-5 LCD_D4
+  #define EXP1_06_PIN                      -1     // EXP1-6 not brought out
+  #define EXP1_07_PIN                      -1     // EXP1-7 not brought out
+  #define EXP1_08_PIN                      -1     // EXP1-8 not brought out
 
-  #define BTN_EN1                          P3_26  // EXP2-5
-  #define BTN_EN2                          P3_25  // EXP2-3
-  #define BTN_ENC                          P1_30  // EXP1-2
+  #define EXP2_03_PIN                      P3_25  // EXP2-3 BTN_EN2
+  #define EXP2_04_PIN                      P0_28  // EXP2-4 SDSS (onboard SD)
+  #define EXP2_05_PIN                      P3_26  // EXP2-5 BTN_EN1
+  #define EXP2_07_PIN                      P0_27  // EXP2-7 BEEPER (open drain)
+  #define EXP2_08_PIN                      P2_11  // EXP2-8 KILL
 
-  #define LCD_PINS_RS                      P0_16  // EXP1-4
-  #define LCD_SDSS_PIN                     P0_28  // EXP2-4
-  #define LCD_PINS_EN                      P0_18  // EXP1-3
-  #define LCD_PINS_D4                      P0_15  // EXP1-5
-
-  #define KILL_PIN                         P2_11  // EXP2-10
+  // Board-specific wiring:
+  #define BEEPER_PIN                   EXP2_07_PIN  // open drain
+  #define BTN_EN1                    EXP2_05_PIN
+  #define BTN_EN2                    EXP2_03_PIN
+  #define KILL_PIN                   EXP2_08_PIN
+  #define LCD_SDSS_PIN                 EXP2_04_PIN  // onboard SD CS (EXP2-1/2/6 not documented for this board)
 
   #if HAS_MEDIA
     #error "SDSUPPORT is not currently supported by the Cohesion3D boards"

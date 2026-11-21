@@ -224,19 +224,22 @@
 
 #define LCM_RS                                20  // Named, unused pin connected to 10k pull-up
 
-#if ENABLED(YHCB2004)
+#if ENABLED(CR10_STOCKDISPLAY)                    // Compatible with stock GT 128x64 12-pin LCD for V4.1b
+  // Migrated to pins/lcd
+  // Custom adapter
+  #define EXP1_01_PIN                  H2_12_PIN  // BEEPER
+  #define EXP1_02_PIN                  H2_09_PIN  // ENC
+  #define EXP1_03_PIN                  H2_07_PIN  // EN1
+  #define EXP1_04_PIN                         -1
+  #define EXP1_05_PIN                  H2_08_PIN  // EN2
+  #define EXP1_06_PIN                  H2_05_PIN  // D4 / CLK
+  #define EXP1_07_PIN                  H2_04_PIN  // RS / CS
+  #define EXP1_08_PIN                  H2_03_PIN  // EN / DAT
+#elif ENABLED(YHCB2004)
   #define YHCB2004_SS_PIN              H2_04_PIN
   #define YHCB2004_SCK_PIN             H2_05_PIN
   #define YHCB2004_MOSI_PIN            H2_03_PIN
   #define YHCB2004_MISO_PIN               LCM_RS  // Unused on V4.1b board
-  #define BTN_EN1                      H2_07_PIN
-  #define BTN_EN2                      H2_08_PIN
-  #define BTN_ENC                      H2_09_PIN
-  #define BEEPER_PIN                   H2_12_PIN
-#elif ENABLED(CR10_STOCKDISPLAY)                  // Firmware compatible with stock GT 128x64 12pin LCD for the V41b
-  #define LCD_PINS_RS                  H2_04_PIN  // DOGLCD_CS
-  #define LCD_PINS_D4                  H2_05_PIN  // DOGLCD_SCK
-  #define LCD_PINS_EN                  H2_03_PIN  // DOGLCD_MOSI
   #define BTN_EN1                      H2_07_PIN
   #define BTN_EN2                      H2_08_PIN
   #define BTN_ENC                      H2_09_PIN

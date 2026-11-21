@@ -63,6 +63,9 @@
 
 #if HAS_WIRED_LCD && IS_NEWPANEL
 
+  #define BEEPER_PIN                          -1  // No beeper with these panels (keeps lcd/ default out)
+
+  // NOTE: Kept inline — this board wires all LCDs to these raw pins (not EXP ports)
   #define LCD_PINS_RS                         27
   #define LCD_PINS_EN                         29
   #define LCD_PINS_D4                         37

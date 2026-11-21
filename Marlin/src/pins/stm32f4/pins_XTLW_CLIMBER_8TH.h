@@ -220,6 +220,7 @@
 #if IS_TFTGLCD_PANEL
 
   #if ENABLED(TFTGLCD_PANEL_SPI)
+    // NOTE: XTLW_CLIMBER_8TH uses EXP2_08 for TFTGLCD_CS (non-standard vs. EXP2_03 default)
     #define TFTGLCD_CS               EXP2_08_PIN
   #endif
 
@@ -230,10 +231,7 @@
 
   #if ENABLED(MKS_MINI_12864)
 
-    #define DOGLCD_A0                EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_05_PIN
-    #define BTN_EN1                  EXP2_06_PIN
-    #define BTN_EN2                  EXP2_08_PIN
+    #define ADAPTER_MKS_MINI_SWAP_CS_A0 // CS/A0 and EN1/EN2 swapped vs. standard
 
   #else
 
@@ -246,6 +244,7 @@
     #define LCD_PINS_D4              EXP1_06_PIN
 
     #if ENABLED(FYSETC_MINI_12864)
+    // NOTE: Kept inline — XTLW_CLIMBER_8TH swaps DOGLCD_CS/A0 vs. standard EXP1 layout.
       #define DOGLCD_CS              EXP1_08_PIN
       #define DOGLCD_A0              EXP1_07_PIN
       //#define LCD_BACKLIGHT_PIN           -1

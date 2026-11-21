@@ -99,6 +99,8 @@
 //
 // Encoder pins
 //
+// NOTE: Kept inline — BLACKPILL_CUSTOM wires the Tinyboy2 OLED encoder to raw
+// STM32 pins (no EXP connector), so the lcd/ file defaults don't apply.
 #if ENABLED(OLED_PANEL_TINYBOY2)
 #define BTN_EN1                             PB12
 #define BTN_EN2                             PB13
