@@ -34,7 +34,7 @@
   #define BS_AXIS(I) Z_AXIS
 #endif
 
-#if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+#if HAS_BABYSTEP_TOTAL
   #if ENABLED(BABYSTEP_XY)
     #define BS_TOTAL_IND(A) A
   #else
@@ -51,7 +51,7 @@ public:
     static int16_t ep_babysteps;
   #endif
 
-  #if ENABLED(BABYSTEP_DISPLAY_TOTAL)
+  #if HAS_BABYSTEP_TOTAL
     static int16_t axis_total[BS_TOTAL_IND(Z_AXIS) + 1];   // Total babysteps since G28
     static void reset_total(const AxisEnum axis) {
       if (TERN1(BABYSTEP_XY, axis == Z_AXIS))
