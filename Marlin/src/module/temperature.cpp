@@ -1928,6 +1928,12 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    * @param ms Current Time
    */
   void Temperature::manage_hotends(const millis_t &ms) {
+    // Note when each hotend comes into range of its target, and when it leaves
+    {
+      const uint16_t sec = uint16_t(MS_TO_SEC(ms));
+      HOTEND_LOOP() temp_hotend[e].track_range(sec, TEMP_SETTLE_BAND, TEMP_HYSTERESIS);
+    }
+
     HOTEND_LOOP() {
       #if ENABLED(THERMAL_PROTECTION_HOTENDS)
       {
@@ -1980,6 +1986,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    * @param ms Current Time
    */
   void Temperature::manage_heated_bed(const millis_t &ms) {
+    temp_bed.track_range(uint16_t(MS_TO_SEC(ms)), TEMP_BED_SETTLE_BAND, TEMP_BED_HYSTERESIS);
 
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
@@ -4785,10 +4792,8 @@ void Temperature::isr() {
       #endif
 
       #if TEMP_RESIDENCY_TIME > 0
-        millis_t residency_start_ms = 0;
-        bool first_loop = true;
-        // Loop until the temperature has stabilized
-        #define TEMP_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms, SEC_TO_MS(TEMP_RESIDENCY_TIME)))
+        // Loop until the temperature has stabilized, counting the time already spent in range
+        #define TEMP_CONDITIONS (!hotend_settled(target_extruder, TEMP_RESIDENCY_TIME))
       #else
         // Loop until the temperature is very close target
         #define TEMP_CONDITIONS (wants_to_cool ? isCoolingHotend(target_extruder) : isHeatingHotend(target_extruder))
@@ -4823,8 +4828,9 @@ void Temperature::isr() {
           print_heater_states(target_extruder);
           #if TEMP_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
-            if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+            const auto &hot = temp_hotend[TERN0(HAS_MULTI_HOTEND, target_extruder)];
+            if (hot.is_in_range())
+              s += long(TEMP_RESIDENCY_TIME) - long(hot.secs_in_range(now_sec()));
             else
               s += '?';
             s.echo();
@@ -4840,24 +4846,6 @@ void Temperature::isr() {
         #if ENABLED(PRINTER_EVENT_LEDS)
           // Gradually change LED strip from violet to red as nozzle heats up
           if (!wants_to_cool) printerEventLEDs.onHotendHeating(start_temp, temp, target_temp);
-        #endif
-
-        #if TEMP_RESIDENCY_TIME > 0
-
-          const celsius_float_t temp_diff = ABS(target_temp - temp);
-
-          if (!residency_start_ms) {
-            // Start the TEMP_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_WINDOW)
-              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_RESIDENCY_TIME) / 3 : 0);
-          }
-          else if (temp_diff > TEMP_HYSTERESIS) {
-            // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
-          }
-
-          first_loop = false;
-
         #endif
 
         // Prevent a wait-forever situation if R is misused i.e. M109 R0
@@ -4905,10 +4893,11 @@ void Temperature::isr() {
 
     #if ENABLED(WAIT_FOR_HOTEND)
       void Temperature::wait_for_hotend_heating(const uint8_t target_extruder) {
-        if (isHeatingHotend(target_extruder)) {
+        // Only wait if the hotend is heating and isn't already in range
+        if (isHeatingHotend(target_extruder) && !hotend_settled(target_extruder, 0)) {
           SERIAL_ECHOLNPGM(STR_WAIT_FOR_HOTEND);
           LCD_MESSAGE(MSG_HEATING);
-          wait_for_hotend(target_extruder);
+          wait_for_settle(_BV(TERN0(HAS_MULTI_HOTEND, target_extruder)), false);
           ui.reset_status();
         }
       }
@@ -4981,10 +4970,8 @@ void Temperature::isr() {
       OPTARG(G26_CLICK_CAN_CANCEL, const bool click_to_cancel/*=false*/)
     ) {
       #if TEMP_BED_RESIDENCY_TIME > 0
-        millis_t residency_start_ms = 0;
-        bool first_loop = true;
-        // Loop until the temperature has stabilized
-        #define TEMP_BED_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms, SEC_TO_MS(TEMP_BED_RESIDENCY_TIME)))
+        // Loop until the temperature has stabilized, counting the time already spent in range
+        #define TEMP_BED_CONDITIONS (!bed_settled(TEMP_BED_RESIDENCY_TIME))
       #else
         // Loop until the temperature is very close target
         #define TEMP_BED_CONDITIONS (wants_to_cool ? isCoolingBed() : isHeatingBed())
@@ -5020,8 +5007,8 @@ void Temperature::isr() {
           print_heater_states(motion.extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
-            if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+            if (temp_bed.is_in_range())
+              s += long(TEMP_BED_RESIDENCY_TIME) - long(temp_bed.secs_in_range(now_sec()));
             else
               s += '?';
             s.echo();
@@ -5038,22 +5025,6 @@ void Temperature::isr() {
           // Gradually change LED strip from blue to violet as bed heats up
           if (!wants_to_cool) printerEventLEDs.onBedHeating(start_temp, temp, target_temp);
         #endif
-
-        #if TEMP_BED_RESIDENCY_TIME > 0
-
-          const celsius_float_t temp_diff = ABS(target_temp - temp);
-
-          if (!residency_start_ms) {
-            // Start the TEMP_BED_RESIDENCY_TIME timer when we reach target temp for the first time.
-            if (temp_diff < TEMP_BED_WINDOW)
-              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_BED_RESIDENCY_TIME) / 3 : 0);
-          }
-          else if (temp_diff > TEMP_BED_HYSTERESIS) {
-            // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
-          }
-
-        #endif // TEMP_BED_RESIDENCY_TIME > 0
 
         // Prevent a wait-forever situation if R is misused i.e. M190 R0
         if (wants_to_cool) {
@@ -5073,10 +5044,6 @@ void Temperature::isr() {
           }
         #endif
 
-        #if TEMP_BED_RESIDENCY_TIME > 0
-          first_loop = false;
-        #endif
-
       } while (marlin.is_heating() && TEMP_BED_CONDITIONS);
 
       // If wait_for_heatup is set, temperature was reached, no cancel
@@ -5091,44 +5058,83 @@ void Temperature::isr() {
     }
 
     void Temperature::wait_for_bed_heating() {
-      if (isHeatingBed()) {
+      // Only wait if the bed is heating and isn't already in range
+      if (isHeatingBed() && !bed_settled(0)) {
         SERIAL_ECHOLNPGM(STR_WAIT_FOR_BED);
         LCD_MESSAGE(MSG_BED_HEATING);
-        wait_for_bed();
+        wait_for_settle(HEATERS_BED, false);
         ui.reset_status();
       }
     }
 
   #endif // HAS_HEATED_BED
 
-  #ifdef LEVELING_HEAT_SOAK_TIME
+  #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
-    void Temperature::wait_for_heat_soak(const uint16_t seconds) {
-      if (!seconds) return;
+    // Called for each heater to find how long it has to go
+    static uint16_t settle_secs(const bool residency, const uint16_t residency_secs, const uint16_t soak_secs) {
+      return (residency ? residency_secs : 0) + soak_secs;
+    }
 
-      SERIAL_ECHOLN(F("Heat soak for "), seconds, C('s'));
+    bool Temperature::heaters_settled(const uint16_t heaters, const bool residency, const uint16_t soak_secs/*=0*/) {
+      const uint16_t sec = now_sec();
+      #if HAS_TEMP_HOTEND
+        HOTEND_LOOP() if (TEST(heaters, e) && temp_hotend[e].target
+          && !temp_hotend[e].settled(sec, settle_secs(residency, TEMP_RESIDENCY_TIME, soak_secs))) return false;
+      #endif
+      #if HAS_HEATED_BED
+        if ((heaters & HEATERS_BED) && temp_bed.target
+          && !temp_bed.settled(sec, settle_secs(residency, TEMP_BED_RESIDENCY_TIME, soak_secs))) return false;
+      #endif
+      return true;
+    }
 
+    bool Temperature::wait_for_settle(const uint16_t heaters, const bool residency, const uint16_t soak_secs/*=0*/) {
       #if DISABLED(BUSY_WHILE_HEATING) && ENABLED(HOST_KEEPALIVE_FEATURE)
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
-      millis_t next_temp_ms = millis();
-      const millis_t soak_end = next_temp_ms + SEC_TO_MS(seconds);
+      millis_t next_temp_ms = 0;
+      bool soak_started = false;
 
       marlin.heatup_start();
-      while (marlin.is_heating()) {
-        millis_t now = millis();
-        if (ELAPSED(now, soak_end)) break;
+      while (marlin.is_heating() && !heaters_settled(heaters, residency, soak_secs)) {
+        const millis_t now = millis();
 
-        // Report every 1 second
+        // Report every second: the heaters, and how long until all of them have settled
         if (ELAPSED(now, next_temp_ms)) {
           next_temp_ms = now + 1000UL;
+
+          const uint16_t sec = now_sec();
+          bool all_in_range = true;
+          long remaining = 0;
+          #if HAS_TEMP_HOTEND
+            HOTEND_LOOP() if (TEST(heaters, e) && temp_hotend[e].target) {
+              const long need = settle_secs(residency, TEMP_RESIDENCY_TIME, soak_secs);
+              if (!temp_hotend[e].is_in_range()) all_in_range = false;
+              remaining = _MAX(remaining, need - long(temp_hotend[e].secs_in_range(sec)));
+            }
+          #endif
+          #if HAS_HEATED_BED
+            if ((heaters & HEATERS_BED) && temp_bed.target) {
+              const long need = settle_secs(residency, TEMP_BED_RESIDENCY_TIME, soak_secs);
+              if (!temp_bed.is_in_range()) all_in_range = false;
+              remaining = _MAX(remaining, need - long(temp_bed.secs_in_range(sec)));
+            }
+          #endif
+
+          // Once every heater is in range, the rest of the time is the heat soak
+          if (soak_secs && all_in_range && !soak_started) {
+            soak_started = true;
+            SERIAL_ECHOLN(F("Heat soak for "), remaining, C('s'));
+          }
+
           print_heater_states(motion.extruder);
-          const millis_t remaining = soak_end - now;
-          const long rem_sec = long((remaining + 800UL) / 1000UL); // Show "0" for the last 0.2 seconds
-          SERIAL_ECHOLNPGM(" W:", rem_sec);
+          if (all_in_range) SERIAL_ECHOPGM(" W:", remaining); else SERIAL_ECHOPGM(" W:?");
+          SERIAL_EOL();
           #if HAS_STATUS_MESSAGE
-            ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), rem_sec);
+            if (soak_secs && all_in_range)
+              ui.status_printf(0, F(S_FMT " %lus"), GET_TEXT(MSG_HEAT_SOAK), remaining);
           #endif
         }
 
@@ -5136,13 +5142,17 @@ void Temperature::isr() {
         gcode.reset_stepper_timeout(); // Keep steppers powered
       }
 
+      // If wait_for_heatup is set, the heaters settled, no cancel
       if (marlin.is_heating()) {
         marlin.heatup_done();
         ui.reset_status();
+        return true;
       }
+
+      return false;
     }
 
-  #endif // LEVELING_HEAT_SOAK_TIME
+  #endif // HAS_TEMP_HOTEND || HAS_HEATED_BED
 
   #if HAS_TEMP_PROBE
 
@@ -5261,7 +5271,7 @@ void Temperature::isr() {
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+              s += long((TEMP_CHAMBER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
             else
               s += '?';
             s.echo();
@@ -5362,7 +5372,7 @@ void Temperature::isr() {
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+              s += long((TEMP_COOLER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
             else
               s += '?';
             s.echo();
@@ -5467,19 +5477,23 @@ void Temperature::isr() {
     DEBUG_EOL();
 
     if (!early) {
-      const bool waitHotend = TERN0(HAS_HOTEND, wait_for_nozzle_heat && hotend_temp > wholeDegHotend(0) + (TEMP_WINDOW)),
-                 waitBed    = TERN0(HAS_HEATED_BED, wait_for_bed_heat && bed_temp > wholeDegBed() + (TEMP_BED_WINDOW));
+      // Wait for the heaters to settle at their preheat temperatures, and then for the heat soak.
+      // Time already spent in range counts, so heaters that have been there long enough (such as
+      // after an earlier soak, or after a brief dip while the heaters were paused for probing)
+      // are not waited for again.
+      #ifdef LEVELING_HEAT_SOAK_TIME
+        constexpr uint16_t soak_secs = LEVELING_HEAT_SOAK_TIME;
+      #else
+        constexpr uint16_t soak_secs = 0;
+      #endif
+      const uint16_t heaters = TERN0(HAS_HOTEND, wait_for_nozzle_heat ? 1 : 0) | TERN0(HAS_HEATED_BED, wait_for_bed_heat ? HEATERS_BED : 0);
 
       // Only announce a preheat when there is something to wait for. Each wait
       // clears the status line when it ends, so a notice with nothing to wait
       // for would be left on the display until something else replaced it.
-      if (waitHotend || waitBed) {
+      if (heaters && !heaters_settled(heaters, true, soak_secs)) {
         LCD_MESSAGE(MSG_PREHEATING);
-        TERN_(HAS_HOTEND,     if (waitHotend) wait_for_hotend(0));
-        TERN_(HAS_HEATED_BED, if (waitBed)    wait_for_bed_heating());
-        #ifdef LEVELING_HEAT_SOAK_TIME
-          wait_for_heat_soak(LEVELING_HEAT_SOAK_TIME);
-        #endif
+        wait_for_settle(heaters, true, soak_secs);
       }
     }
   }

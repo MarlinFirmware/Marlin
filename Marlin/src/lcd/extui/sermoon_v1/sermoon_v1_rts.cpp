@@ -118,13 +118,11 @@ namespace {
   }
 
   bool nozzleAtTemp() {
-    const celsius_t t = getTargetTemp_celsius(E0);
-    return t && getActualTemp_celsius(E0) >= t - (TEMP_WINDOW);
+    return getReachedTargetTemp(E0);
   }
 
   bool bedAtTemp() {
-    const celsius_t t = getTargetTemp_celsius(BED);
-    return !t || getActualTemp_celsius(BED) >= t - (TEMP_BED_WINDOW);
+    return getReachedTargetTemp(BED);
   }
 
   bool isIdleMachine() { return !commandsInQueue() && !isMoving(); }

@@ -451,6 +451,33 @@ typedef struct TempInfo {
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
+
+  /**
+   * Remember when the heater came into range of its target, so that waits and heat soaks
+   * can count the time it has already spent there. Times are whole seconds (wrapping) to save RAM.
+   *   - Timing starts when the temperature comes within 'band' of the target.
+   *   - It stops when the target changes, or the temperature goes farther than 'leave' from it.
+   */
+  uint16_t in_range_sec;        // Second when the heater came into range. 0 if not in range.
+  celsius_t in_range_target;    // The target that it came into range of
+
+  // Called regularly with the current time in seconds
+  void track_range(const uint16_t sec, const celsius_float_t band, const celsius_float_t leave) {
+    const celsius_float_t diff = ABS(celsius - float(target));
+    if (!target || (in_range_sec && (in_range_target != target || diff > leave)))
+      in_range_sec = 0;
+    else if (in_range_sec && uint16_t(sec - in_range_sec) >= 0x8000)
+      in_range_sec = uint16_t(sec - 0x7FFF) ?: 1;   // Keep a very long time from wrapping around
+    if (!in_range_sec && target && diff <= band) {
+      in_range_sec = sec ?: 1;                      // Zero means "not in range"
+      in_range_target = target;
+    }
+  }
+  bool is_in_range() const { return in_range_sec && in_range_target == target; }
+  // Whole seconds that the heater has been in range
+  uint16_t secs_in_range(const uint16_t sec) const { return is_in_range() ? uint16_t(sec - in_range_sec) : 0; }
+  // In range, and for more than 'secs' seconds (so at least that long, given the one-second steps)
+  bool settled(const uint16_t sec, const uint16_t secs) const { return is_in_range() && (!secs || secs_in_range(sec) > secs); }
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
   #if ENABLED(PELTIER_BED)
@@ -1030,11 +1057,18 @@ class Temperature {
       }
 
       static bool isHeatingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX);
       }
-
       static bool isCoolingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) > degTargetHotend(HOTEND_INDEX);
+      }
+      static bool hotendOnTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || WITHIN(t - degHotend(HOTEND_INDEX), -(TEMP_WINDOW), (TEMP_WINDOW));
+      }
+      static bool hotendReachedTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || t <= degHotend(HOTEND_INDEX) + (TEMP_WINDOW);
       }
 
       #if HAS_TEMP_HOTEND
@@ -1052,7 +1086,7 @@ class Temperature {
       }
 
       static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
+        return degTargetHotend(e) > (TEMP_HYSTERESIS) && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
@@ -1092,12 +1126,21 @@ class Temperature {
         #if PREHEAT_TIME_BED_MS > 0
           if (celsius == 0)
             reset_bed_preheat_time();
-          else if (temp_bed.target == 0)
+          else if (degTargetBed() == 0)
             start_bed_preheat_time();
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
+      }
+
+      static bool bedOnTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || WITHIN(t - degBed(), -(TEMP_BED_WINDOW), (TEMP_BED_WINDOW));
+      }
+      static bool bedReachedTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || t <= degBed() + (TEMP_BED_WINDOW);
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
@@ -1106,13 +1149,40 @@ class Temperature {
 
       static void wait_for_bed_heating();
 
-      #ifdef LEVELING_HEAT_SOAK_TIME
-        static void wait_for_heat_soak(const uint16_t seconds);
-      #endif
-
       static void manage_heated_bed(const millis_t &ms);
 
     #endif // HAS_HEATED_BED
+
+    #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+
+      // The current time in whole seconds (wrapping), as the heaters count their time in range
+      static uint16_t now_sec() { return uint16_t(MS_TO_SEC(millis())); }
+
+      #if HAS_TEMP_HOTEND
+        static bool hotend_settled(const uint8_t E_NAME, const uint16_t secs) { return temp_hotend[HOTEND_INDEX].settled(now_sec(), secs); }
+      #endif
+      #if HAS_HEATED_BED
+        static bool bed_settled(const uint16_t secs) { return temp_bed.settled(now_sec(), secs); }
+      #endif
+
+      // Heaters to wait for: hotend 'e' is bit 'e', and the bed is HEATERS_BED
+      static constexpr uint16_t HEATERS_BED = _BV(8);
+
+      /**
+       * Have all of the given heaters (that have a target) been in range of it for long enough?
+       * The caller says what counts: 'residency' for the usual settling time of each heater
+       * (TEMP_RESIDENCY_TIME, TEMP_BED_RESIDENCY_TIME), and/or 'soak_secs' for a heat soak on top of that.
+       * With neither, the heaters only need to be in range.
+       */
+      static bool heaters_settled(const uint16_t heaters, const bool residency, const uint16_t soak_secs=0);
+
+      /**
+       * Wait for the given heaters to settle, counting the time they have already been in range.
+       * Returns at once if they have. Returns false if the wait was canceled.
+       */
+      static bool wait_for_settle(const uint16_t heaters, const bool residency, const uint16_t soak_secs=0);
+
+    #endif
 
     #if HAS_TEMP_PROBE
       static raw_adc_t rawProbeTemp()    { return temp_probe.getraw(); }
@@ -1143,6 +1213,15 @@ class Temperature {
       }
       // Start watching the Chamber to make sure it's really heating up
       static void start_watching_chamber() { OPTCODE(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())) }
+
+      static bool chamberOnTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || WITHIN(t - degChamber(), -(TEMP_CHAMBER_WINDOW), (TEMP_CHAMBER_WINDOW));
+      }
+      static bool chamberReachedTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || t <= degChamber() + (TEMP_CHAMBER_WINDOW);
+      }
     #endif
 
     #if HAS_TEMP_COOLER

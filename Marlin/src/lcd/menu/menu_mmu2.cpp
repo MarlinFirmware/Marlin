@@ -120,7 +120,7 @@ static void _mmu2_heat_and_run() {
 
   thermalManager.setTargetHotend(temp, e);
   marlin.heatup_start();    // A click or M108 ends the wait
-  while (marlin.is_heating() && thermalManager.wholeDegHotend(e) < temp - (TEMP_WINDOW)) {
+  while (marlin.is_heating() && !thermalManager.hotendReachedTarget(e)) {
     marlin.idle();
     if (ui.use_click()) marlin.heatup_done();
   }

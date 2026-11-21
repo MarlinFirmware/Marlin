@@ -119,14 +119,12 @@ namespace {
 
   // Target is 0 or set below current temp
   bool nozzleAtTemp() {
-    const celsius_t t = getTargetTemp_celsius(E0);
-    return !t || t <= getActualTemp_celsius(E0) + (TEMP_WINDOW);
+    return getReachedTargetTemp(E0);
   }
 
   // Target is 0 or set below current temp
   bool bedAtTemp() {
-    const celsius_t t = getTargetTemp_celsius(BED);
-    return !t || t <= getActualTemp_celsius(BED) + (TEMP_BED_WINDOW);
+    return getReachedTargetTemp(BED);
   }
 
   // Current temp percent of target

@@ -149,10 +149,10 @@ static void wizard_move_screen();
    */
   static bool wizard_preheat_pending() {
     #if HAS_HOTEND && PROBING_NOZZLE_TEMP
-      if ((PROBING_NOZZLE_TEMP) > thermalManager.wholeDegHotend(0) + (TEMP_WINDOW)) return true;
+      if (!thermalManager.hotendReachedTarget(0)) return true;
     #endif
     #if HAS_HEATED_BED && PROBING_BED_TEMP
-      if ((PROBING_BED_TEMP) > thermalManager.wholeDegBed() + (TEMP_BED_WINDOW)) return true;
+      if (!thermalManager.bedReachedTarget()) return true;
     #endif
     return false;
   }

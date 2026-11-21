@@ -2346,6 +2346,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Settle bands must not be wider than the hysteresis that ends them
+ */
+#if HAS_TEMP_HOTEND && TEMP_SETTLE_BAND > TEMP_HYSTERESIS
+  #error "TEMP_SETTLE_BAND must not be greater than TEMP_HYSTERESIS."
+#elif HAS_HEATED_BED && TEMP_BED_SETTLE_BAND > TEMP_BED_HYSTERESIS
+  #error "TEMP_BED_SETTLE_BAND must not be greater than TEMP_BED_HYSTERESIS."
+#endif
+
+/**
  * Required thermistor 66 (Dyze Design / Trianglelab T-D500) settings
  * https://docs.dyzedesign.com/hotends.html#_500-%C2%B0c-thermistor
  */
