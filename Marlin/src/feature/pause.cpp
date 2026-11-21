@@ -437,6 +437,8 @@ bool pause_print(const float retract, const xyz_pos_t &park_point, const bool sh
   DEBUG_SECTION(pp, "pause_print", true);
   DEBUG_ECHOLNPGM("... park.x:", park_point.x, " y:", park_point.y, " z:", park_point.z, " unloadlen:", unload_length, " showlcd:", show_lcd DXC_SAY);
 
+  DIAG_MSG("DIAG ", millis(), " pause_print codenum=", parser.codenum, " printing_active=", marlin.printingIsActive(), " already_paused=", paused_for_filament_change, " show_lcd=", show_lcd);
+
   if (paused_for_filament_change) return false; // already paused
 
   #if ENABLED(HOST_ACTION_COMMANDS)
