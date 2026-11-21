@@ -300,7 +300,7 @@ void DiskIODriver_SPI_SD::initStart(const uint8_t sckRateID, const pin_t chipSel
   initResult = 0;
   chipSelectPin_ = chipSelectPin;
   initSckRateID_ = sckRateID;
-  initTimeout_ = millis() + SD_INIT_TIMEOUT;
+  initTimeout_.start(SD_INIT_TIMEOUT);
 
   // Set pin modes
   #if ENABLED(ZONESTAR_12864OLED)
@@ -335,7 +335,7 @@ int8_t DiskIODriver_SPI_SD::initStep() {
   if (initResult) return initResult;
 
   #if SD_INIT_TIMEOUT
-    const bool timed_out = ELAPSED(millis(), initTimeout_);
+    const bool timed_out = initTimeout_.elapsed();
   #else
     constexpr bool timed_out = false;
   #endif
@@ -521,8 +521,8 @@ bool DiskIODriver_SPI_SD::readData(uint8_t * const dst, const uint16_t count) {
   bool success = false;
 
   #if SD_READ_TIMEOUT
-    const millis_t read_timeout = millis() + SD_READ_TIMEOUT;
-    #define READ_TIMEOUT() ELAPSED(millis(), read_timeout)
+    const MTimeout read_timeout(SD_READ_TIMEOUT);
+    #define READ_TIMEOUT() read_timeout.elapsed()
   #else
     #define READ_TIMEOUT() false
   #endif
@@ -621,8 +621,8 @@ bool DiskIODriver_SPI_SD::setSckRate(const uint8_t sckRateID) {
  * \return true for success, false for timeout.
  */
 bool DiskIODriver_SPI_SD::waitNotBusy(const millis_t timeout_ms) {
-  const millis_t wait_timeout = millis() + timeout_ms;
-  while (spiRec() != 0xFF) if (ELAPSED(millis(), wait_timeout)) return false;
+  const MTimeout wait_timeout(timeout_ms);
+  while (spiRec() != 0xFF) if (wait_timeout.elapsed()) return false;
   return true;
 }
 

@@ -611,7 +611,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       if (is_reload) {
         const millis_t ms = millis();
         if (active_filament_is_out()) {
-          if (ELAPSED(ms, last_present_ms + clear_ms)) cleared = true;
+          if (ELAPSED(ms, last_present_ms, clear_ms)) cleared = true;
         }
         else if (cleared)
           marlin.user_resume();

@@ -183,11 +183,11 @@ void DiskIODriver_USBFlash::idle() {
     }
   #endif
 
-  static millis_t next_state_ms = 0;
+  static MTimeout24 state_timer;
 
-  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; next_state_ms  = millis() + DELAY; }while(0)
+  #define GOTO_STATE_AFTER_DELAY(STATE, DELAY) do{ state = STATE; state_timer.start(DELAY); }while(0)
 
-  if (PENDING(millis(), next_state_ms)) return;
+  if (state_timer.pending()) return;
 
   GOTO_STATE_AFTER_DELAY(state, 250); // Default delay
 

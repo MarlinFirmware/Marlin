@@ -403,15 +403,15 @@
     const millis_t ms = millis();
 
     // Poll TMC drivers at the configured interval
-    static millis_t next_poll = 0;
-    const bool need_update_error_counters = ELAPSED(ms, next_poll);
-    if (need_update_error_counters) next_poll = ms + MONITOR_DRIVER_STATUS_INTERVAL_MS;
+    static MTimeout24 poll_timer;
+    const bool need_update_error_counters = poll_timer.elapsed(ms);
+    if (need_update_error_counters) poll_timer.start(MONITOR_DRIVER_STATUS_INTERVAL_MS, ms);
 
     // Also poll at intervals for debugging
     #if ENABLED(TMC_DEBUG)
-      static millis_t next_debug_reporting = 0;
-      const bool need_debug_reporting = report_tmc_status_interval && ELAPSED(ms, next_debug_reporting);
-      if (need_debug_reporting) next_debug_reporting = ms + report_tmc_status_interval;
+      static MTimeout24 debug_timer;
+      const bool need_debug_reporting = report_tmc_status_interval && debug_timer.elapsed(ms);
+      if (need_debug_reporting) debug_timer.start(report_tmc_status_interval, ms);
     #else
       constexpr bool need_debug_reporting = false;
     #endif

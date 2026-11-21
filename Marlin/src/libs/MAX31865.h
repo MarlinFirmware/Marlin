@@ -106,7 +106,7 @@ private:
   uint8_t lastFault = 0;
 
   #if DISABLED(MAX31865_USE_AUTO_MODE)
-    millis_t nextEventStamp;
+    MTimeout24 nextEventTimer;
     one_shot_event_t nextEvent;
   #endif
 

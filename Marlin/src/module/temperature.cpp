@@ -1632,14 +1632,14 @@ void Temperature::_temp_error(
     //  2: Kill the machine
     // >2: Do nothing
     const millis_t ms = millis();
-    static millis_t expire_ms;
+    static MTimeout24 expire_timer;
     switch (killed) {
       case 0:
-        expire_ms = ms + BOGUS_TEMPERATURE_GRACE_PERIOD;
+        expire_timer.start(BOGUS_TEMPERATURE_GRACE_PERIOD, ms);
         ++killed;
         break;
       case 1:
-        if (ELAPSED(ms, expire_ms)) ++killed;
+        if (expire_timer.elapsed(ms)) ++killed;
         break;
       case 2:
         loud_kill(lcd_msg, heater_id);
@@ -3734,14 +3734,14 @@ void Temperature::disable_all_heaters() {
     );
 
     static uint8_t max_tc_errors[MAX_TC_COUNT] = { 0 };
-    static millis_t next_max_tc_ms[MAX_TC_COUNT] = { 0 };
+    static MTimeout24 max_tc_timer[MAX_TC_COUNT];
 
     // Return last-read value between readings
     const millis_t ms = millis();
-    if (PENDING(ms, next_max_tc_ms[hindex]))
+    if (max_tc_timer[hindex].pending(ms))
       return THERMO_TEMP(hindex);
 
-    next_max_tc_ms[hindex] = ms + MAXTC_HEAT_INTERVAL;
+    max_tc_timer[hindex].start(MAXTC_HEAT_INTERVAL, ms);
 
     #if !HAS_MAXTC_LIBRARIES
       max_tc_temp = 0;
@@ -3859,12 +3859,12 @@ void Temperature::disable_all_heaters() {
     static max_tc_temp_t max_tc_temp = TEMP_SENSOR_BED_MAX_TC_TMAX;
 
     static uint8_t max_tc_errors = 0;
-    static millis_t next_max_tc_ms = 0;
+    static MTimeout24 max_tc_timer;
 
     // Return last-read value between readings
     const millis_t ms = millis();
-    if (PENDING(ms, next_max_tc_ms)) return max_tc_temp;
-    next_max_tc_ms = ms + MAXTC_HEAT_INTERVAL;
+    if (max_tc_timer.pending(ms)) return max_tc_temp;
+    max_tc_timer.start(MAXTC_HEAT_INTERVAL, ms);
 
     #if !HAS_MAXTC_LIBRARIES
       max_tc_temp = 0;
@@ -3968,7 +3968,7 @@ void Temperature::disable_all_heaters() {
 
     static raw_adc_t ads1118_temp_previous[2] = { 0, 0 };
     static uint8_t ads1118_errors[2] = { 0, 0 };
-    static millis_t next_ads1118_ms[2] = { 0, 0 };
+    static MTimeout24 ads1118_timer[2];
 
     static raw_adc_t ads_val = TEMP_SENSOR_0_ADS_TMAX;
 
@@ -3979,10 +3979,10 @@ void Temperature::disable_all_heaters() {
     const millis_t ms = millis();
     //SERIAL_ECHOPGM("ADS1118 elapsed: "); SERIAL_ECHOLN(ms- lastmillis);
     //lastmillis = ms;
-    if (PENDING(ms, next_ads1118_ms[hindex]) )  // || !ads1118.checkDataReady()
+    if (ads1118_timer[hindex].pending(ms))  // || !ads1118.checkDataReady()
       return ads1118_temp_previous[hindex];  // return cached value
 
-    next_ads1118_ms[hindex] = ms + ADS1118_HEAT_INTERVAL;
+    ads1118_timer[hindex].start(ADS1118_HEAT_INTERVAL, ms);
 
     // To do: If there are more hotends enabled, cycle through different channels
     int16_t raw;

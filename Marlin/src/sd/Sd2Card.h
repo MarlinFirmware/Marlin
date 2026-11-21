@@ -181,7 +181,7 @@ private:
   enum InitState : uint8_t { INIT_CMD0, INIT_CMD8, INIT_ACMD41 };
   InitState initState_;
   uint8_t initSckRateID_;
-  millis_t initTimeout_;
+  MTimeout24 initTimeout_;
   int8_t initFail(const uint8_t code);
 
   // private functions

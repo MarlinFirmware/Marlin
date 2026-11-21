@@ -218,7 +218,7 @@ void MAX31865::begin(max31865_numwires_t wires, const float zero_res, const floa
       lastRead = rtd;
       nextEvent = SETUP_BIAS_VOLTAGE;
       millis_t now = millis();
-      nextEventStamp = now + MAX31865_MIN_SAMPLING_TIME_MSEC;
+      nextEventTimer.start(MAX31865_MIN_SAMPLING_TIME_MSEC, now);
 
       TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
     }
@@ -377,7 +377,7 @@ uint16_t MAX31865::readRaw() {
 
     const millis_t ms = millis();
 
-    if (PENDING(ms, nextEventStamp)) {
+    if (nextEventTimer.pending(ms)) {
       DEBUG_ECHOLNPGM("MAX31865 waiting for event ", nextEvent);
       return lastRead;
     }
@@ -385,14 +385,14 @@ uint16_t MAX31865::readRaw() {
     switch (nextEvent) {
       case SETUP_BIAS_VOLTAGE:
         enableBias();
-        nextEventStamp = ms + 2; // wait at least 10.5*τ (τ = 100nF*430Ω max for PT100 / 10nF*4.3ΚΩ for PT1000 = 43μsec) + 1msec
+        nextEventTimer.start(2, ms); // wait at least 10.5*τ (τ = 100nF*430Ω max for PT100 / 10nF*4.3ΚΩ for PT1000 = 43μsec) + 1msec
         nextEvent = SETUP_1_SHOT_MODE;
         DEBUG_ECHOLNPGM("MAX31865 bias voltage enabled");
         break;
 
       case SETUP_1_SHOT_MODE:
         oneShot();
-        nextEventStamp = ms + TERN(MAX31865_50HZ_FILTER, 63, 52); // wait at least 52msec for 60Hz (63msec for 50Hz) before reading RTD register
+        nextEventTimer.start(TERN(MAX31865_50HZ_FILTER, 63, 52), ms); // wait at least 52msec for 60Hz (63msec for 50Hz) before reading RTD register
         nextEvent = READ_RTD_REG;
         DEBUG_ECHOLNPGM("MAX31865 1 shot mode enabled");
         break;
@@ -403,7 +403,7 @@ uint16_t MAX31865::readRaw() {
           resetFlags();
 
         nextEvent = SETUP_BIAS_VOLTAGE;
-        nextEventStamp = ms + (MAX31865_MIN_SAMPLING_TIME_MSEC); // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
+        nextEventTimer.start(MAX31865_MIN_SAMPLING_TIME_MSEC, ms); // next step should not occur within less than MAX31865_MIN_SAMPLING_TIME_MSEC from the last one
         break;
     }
 
