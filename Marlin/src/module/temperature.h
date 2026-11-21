@@ -1543,6 +1543,11 @@ class Temperature {
           millis_t variance_timer = 0;
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
+        #if ENABLED(THERMAL_PROTECTION_STUCK_HEATER)
+          millis_t stuck_timer = 0;
+          celsius_float_t stuck_low = 0.0;  // Lowest temperature seen while the heater is off (0 = not watching)
+          bool heater_stuck(const celsius_float_t current, const heater_id_t heater_id);
+        #endif
         void run(const celsius_float_t current, const celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
       } tr_state_machine_t;
 
