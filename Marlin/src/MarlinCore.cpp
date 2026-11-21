@@ -326,8 +326,7 @@ PGMSTR(M112_KILL_STR, "M112 Shutdown");
     UNUSED(no_sleep);
     KEEPALIVE_STATE(PAUSED_FOR_USER);
     wait_start();
-    if (ms) ms = next_millis(ms + millis()); // expire time
-    const MTimeout24 expiration(ms);
+    const MTimeout24 expiration(ms); // 0 = no timeout (cancelled timers are never pending)
     while (wait_for_user && (!ms || expiration.pending()))
       idle(TERN_(ADVANCED_PAUSE_FEATURE, no_sleep));
     user_resume();
@@ -577,6 +576,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     #define HAS_CUSTOM_USER_BUTTON(N) (PIN_EXISTS(BUTTON##N) && defined(BUTTON##N##_HIT_STATE) && defined(BUTTON##N##_GCODE))
     #define HAS_BETTER_USER_BUTTON(N) HAS_CUSTOM_USER_BUTTON(N) && defined(BUTTON##N##_DESC)
     #define _CHECK_CUSTOM_USER_BUTTON(N, CODE) do{                     \
+      constexpr millis_t CUB_DEBOUNCE_DELAY_##N = 250UL;               \
       static millis_t prev_cub_ms_##N;                                 \
       if (BUTTON##N##_HIT_STATE == READ(BUTTON##N##_PIN)               \
         && (ENABLED(BUTTON##N##_WHEN_PRINTING) || printer_not_busy)    \
@@ -783,9 +783,9 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
   }
 
   #if PIN_EXISTS(FET_SAFETY)
-    static millis_t prev_FET = 0;
-    if (ELAPSED(ms, prev_FET, FET_SAFETY_DELAY)) { // 2µs pulse every FET_SAFETY_DELAY mS
-      prev_FET = ms;
+    static MTimeout24 FET_timer;
+    if (FET_timer.elapsed(ms)) { // 2µs pulse every FET_SAFETY_DELAY mS
+      FET_timer.start(FET_SAFETY_DELAY, ms);
       OUT_WRITE(FET_SAFETY_PIN, !FET_SAFETY_INVERTED);
       DELAY_US(2);
       WRITE(FET_SAFETY_PIN, FET_SAFETY_INVERTED);
@@ -1272,7 +1272,7 @@ void setup() {
   MTimeout24(1000).wait_until([]{ return MYSERIAL1.connected(); });
 
   #if ANY(SOVOL_SV06_RTS, CREALITY_RTS)
-    LCD_SERIAL.begin(BAUDRATE);
+    LCD_SERIAL.begin(TERN(CREALITY_RTS, LCD_BAUDRATE, BAUDRATE));
     MTimeout24(1000).wait_until([]{ return LCD_SERIAL.connected(); });
   #endif
 

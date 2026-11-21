@@ -34,6 +34,9 @@
   #error "Unknown Touch Screen Type."
 #endif
 
+// Menu Navigation
+extern int8_t encoderTopLine, encoderLine, screen_items;
+
 enum TouchControlType : uint16_t {
   NONE = 0x0000,
   CALIBRATE,
@@ -50,9 +53,7 @@ enum TouchControlType : uint16_t {
   UBL,
   STOP,
   BUTTON,
-  CALLBACK,
-  GX_ACTION,    // NOVIN3DP galaxy UI action (data = action code, bit 15 = auto-repeat)
-  GX_SLIDER     // NOVIN3DP galaxy UI slider (data = slider id), follows the finger while held
+  CALLBACK
 };
 
 typedef struct __attribute__((__packed__)) {
@@ -72,9 +73,7 @@ typedef void (*touch_handler_t)(touch_event_t*);
 
 // Tall displays show the edit screen keypad together with the slider, steps and buttons.
 // Controls beyond this limit are ignored, so it must cover the busiest screen.
-#if ENABLED(NOVIN3DP_GALAXY_UI)
-  #define MAX_CONTROLS             52   // G-code keyboard: 44 keys + 4 buttons + header
-#elif TFT_HEIGHT >= 480
+#if TFT_HEIGHT >= 480
   #define MAX_CONTROLS             32
 #else
   #define MAX_CONTROLS             16
@@ -99,9 +98,8 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t time_to_hold, repeat_delay, nada_start_ms;
+    static millis_t next_touch_ms, time_to_hold, repeat_delay, nada_start_ms;
     static bool repeat_started;   // Pre-repeat delay elapsed, now repeating at the shorter interval
-    static MTimeout24 touch_timer;
     static TouchControlType touch_control_type;
 
     static bool get_point(int16_t * const x, int16_t * const y);

@@ -151,7 +151,7 @@ public:
     transfer_timeout.prime();
     switch (static_cast<FileTransfer>(packet_type)) {
       case FileTransfer::QUERY:
-        SERIAL_ECHO(F("PFT:version:"), version_major, C('.'), version_minor, C('.'), version_patch);
+        SERIAL_ECHO(F("PFT:version:"), VERSION_MAJOR, C('.'), VERSION_MINOR, C('.'), VERSION_PATCH);
         #if ENABLED(BINARY_STREAM_COMPRESSION)
           SERIAL_ECHOLN(F(":compression:heatshrink,"), HEATSHRINK_STATIC_WINDOW_BITS, C(','), HEATSHRINK_STATIC_LOOKAHEAD_BITS);
         #else
@@ -198,8 +198,6 @@ public:
         break;
     }
   }
-
-  static const uint16_t version_major = 0, version_minor = 1, version_patch = 0, timeout = 10000, idle_period = 1000;
 };
 
 class BinaryStream {
@@ -273,7 +271,7 @@ public:
   // whether the stream times out from data starvation
   // takes the data variable by reference in order to return status
   bool stream_read(uint8_t& data) {
-    if (stream_state != StreamState::PACKET_WAIT && packet.max_wait.pending()) {
+    if (stream_state != StreamState::PACKET_WAIT && packet.max_wait.elapsed()) {
       stream_state = StreamState::PACKET_TIMEOUT;
       return false;
     }
@@ -286,7 +284,7 @@ public:
   template<const size_t buffer_size>
   void receive(char (&buffer)[buffer_size]) {
     uint8_t data = 0;
-    const TDelay<rx_timeslice> transfer_window;
+    const TDelay<RX_TIMESLICE> transfer_window;
 
     #if HAS_MEDIA
       PORT_REDIRECT(SERIAL_PORTMASK(card.transfer_port_index));
@@ -329,7 +327,7 @@ public:
             if (packet.header.checksum == packet.header_checksum) {
               // The SYNC control packet is a special case in that it doesn't require the stream sync to be correct
               if (static_cast<Protocol>(packet.header.protocol()) == Protocol::CONTROL && static_cast<ProtocolControl>(packet.header.type()) == ProtocolControl::SYNC) {
-                  SERIAL_ECHOLN(F("ss"), sync, C(','), buffer_size, C(','), version_major, C('.'), version_minor, C('.'), version_patch);
+                  SERIAL_ECHOLN(F("ss"), sync, C(','), buffer_size, C(','), VERSION_MAJOR, C('.'), VERSION_MINOR, C('.'), VERSION_PATCH);
                   stream_state = StreamState::PACKET_RESET;
                   break;
               }
@@ -405,7 +403,7 @@ public:
           stream_state = StreamState::PACKET_RESET;
           break;
         case StreamState::PACKET_RESEND:
-          if (packet_retries < max_retries || max_retries == 0) {
+          if (packet_retries < MAX_RETRIES || MAX_RETRIES == 0) {
             packet_retries++;
             stream_state = StreamState::PACKET_RESET;
             SERIAL_ECHO_MSG("Resend request ", packet_retries);
@@ -453,7 +451,6 @@ public:
     SDFileTransferProtocol::idle();
   }
 
-  static const uint16_t packet_max_wait = 500, rx_timeslice = 20, max_retries = 0, version_major = 0, version_minor = 1, version_patch = 0;
   uint8_t  packet_retries, sync;
   uint16_t buffer_next_index;
   uint32_t bytes_received;

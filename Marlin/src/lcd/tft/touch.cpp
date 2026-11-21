@@ -38,10 +38,6 @@
 
 #include "tft.h"
 
-#if ENABLED(NOVIN3DP_GALAXY_UI)
-  #include "galaxy/gx_core.h"
-#endif
-
 Touch touch;
 
 bool Touch::enabled = true;
@@ -50,13 +46,11 @@ touch_control_t Touch::controls[];
 touch_control_t *Touch::current_control;
 touch_event_t Touch::touch_event;
 uint16_t Touch::controls_count;
-millis_t Touch::time_to_hold,
+millis_t Touch::next_touch_ms = 0,
+         Touch::time_to_hold,
          Touch::repeat_delay,
          Touch::nada_start_ms;
 bool Touch::repeat_started; // = false
-
-MTimeout24 Touch::touch_timer;
-
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
   millis_t Touch::next_sleep_ms; // = 0
@@ -89,8 +83,8 @@ void Touch::idle() {
 
   // Return if Touch::idle is called within the same millisecond
   const millis_t now = millis();
-  if (touch_timer.pending(now)) return;
-  touch_timer.start(0, now);
+  if (now == next_touch_ms) return;
+  next_touch_ms = now;
 
   // Get the point where the screen is touched
   int16_t _x, _y;
@@ -164,16 +158,13 @@ void Touch::idle() {
         auto &c = controls[i];
         if ((WITHIN(x, c.x, c.x + c.width) && WITHIN(y, c.y, c.y + c.height)) || TERN0(TOUCH_SCREEN_CALIBRATION, c.type == CALIBRATE)) {
           touch_control_type = c.type;
-          #if ALL(NOVIN3DP_GALAXY_UI, GALAXY_TOUCH_BEEP)
-            if (c.type != CALIBRATE) gx_touch_beep();  // One beep per new touch, not on auto-repeat
-          #endif
           touch(&c);
           break;
         }
       }
     }
 
-    if (!current_control) nada_start_ms = next_millis(now);
+    if (!current_control) nada_start_ms = now;
   }
 
   // Update previous point in continuing touch or drag
@@ -206,7 +197,7 @@ void Touch::touch(touch_control_t * const control) {
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       // Effectively ignore the touch until it is released
-      time_to_hold = touch_timer.end_ms + 2000;
+      time_to_hold = next_touch_ms + 2000;
       // fall thru
 
     // Tap to Continue. e.g., Anywhere on the whole screen.
@@ -224,13 +215,13 @@ void Touch::touch(touch_control_t * const control) {
 
     // Page Up button
     case PAGE_UP:
-      menuTopIndex = menuTopIndex > LCD_HEIGHT ? menuTopIndex - LCD_HEIGHT : 0;
+      encoderTopLine = encoderTopLine > LCD_HEIGHT ? encoderTopLine - LCD_HEIGHT : 0;
       ui.encoderPosition = ui.encoderPosition > LCD_HEIGHT ? ui.encoderPosition - LCD_HEIGHT : 0;
       ui.refresh();
       break;
     // Page Down button
     case PAGE_DOWN:
-      menuTopIndex = (menuTopIndex + 2 * LCD_HEIGHT < screen_items) ? menuTopIndex + LCD_HEIGHT : screen_items - LCD_HEIGHT;
+      encoderTopLine = (encoderTopLine + 2 * LCD_HEIGHT < screen_items) ? encoderTopLine + LCD_HEIGHT : screen_items - LCD_HEIGHT;
       ui.encoderPosition = ui.encoderPosition + LCD_HEIGHT < uint32_t(screen_items) ? ui.encoderPosition + LCD_HEIGHT : screen_items;
       ui.refresh();
       break;
@@ -351,17 +342,6 @@ void Touch::touch(touch_control_t * const control) {
       (touch_handler_t(control->data))(&touch_event);
       break;
 
-    #if ENABLED(NOVIN3DP_GALAXY_UI)
-      case GX_ACTION:
-        if (control->data & GX_REPEAT) hold(control, TOUCH_REPEAT_DELAY, true);
-        gx_touch(uint16_t(control->data & ~GX_REPEAT));
-        break;
-      case GX_SLIDER:
-        hold(control);   // Keep tracking the finger until the touch ends
-        gx_slider(uint8_t(control->data), uint16_t(uint32_t(constrain(x - int16_t(control->x), 0, int16_t(control->width))) * 1000UL / control->width));
-        break;
-    #endif
-
     default: break;
   }
 }
@@ -396,7 +376,7 @@ void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/, co
     else
       repeat_delay = _MAX(delay, millis_t(MIN_REPEAT_DELAY));
 
-    time_to_hold = touch_timer.end_ms + repeat_delay;
+    time_to_hold = next_touch_ms + repeat_delay;
   }
   ui.refresh();
 }
@@ -444,10 +424,10 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
+      next_touch_ms = millis() + 100;
       safe_delay(20);
-      touch_timer.start(80);
     }
-    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
+    next_sleep_ms = ui.sleep_timeout_minutes ? millis() + MIN_TO_MS(ui.sleep_timeout_minutes) : 0;
   }
 
   bool MarlinUI::display_is_asleep() { return touch.isSleeping(); }
