@@ -21,10 +21,46 @@
  */
 #pragma once
 
-#error "ENDSTOP_INTERRUPTS_FEATURE is not supported in this simulation environment."
+/**
+ * Endstop interrupts for the Simulator.
+ * MarlinSimUI provides attachInterrupt() for any pin, calling the handler on a pin level change.
+ */
+
+#include "../../module/endstops.h"
+
+// One ISR for all EXT-Interrupts
+void endstop_ISR() { endstops.update(); }
 
 void setup_endstop_interrupts() {
-  // This function is a stub for setting up endstop interrupts.
-  // Since this is a simulation environment, actual hardware interrupts
-  // are not applicable. Add any necessary simulation-specific logic here.
+  #define _ATTACH(P) attachInterrupt(P, endstop_ISR, CHANGE)
+  TERN_(USE_X_MAX,       _ATTACH(X_MAX_PIN));
+  TERN_(USE_X_MIN,       _ATTACH(X_MIN_PIN));
+  TERN_(USE_Y_MAX,       _ATTACH(Y_MAX_PIN));
+  TERN_(USE_Y_MIN,       _ATTACH(Y_MIN_PIN));
+  TERN_(USE_Z_MAX,       _ATTACH(Z_MAX_PIN));
+  TERN_(USE_Z_MIN,       _ATTACH(Z_MIN_PIN));
+  TERN_(USE_X2_MAX,      _ATTACH(X2_MAX_PIN));
+  TERN_(USE_X2_MIN,      _ATTACH(X2_MIN_PIN));
+  TERN_(USE_Y2_MAX,      _ATTACH(Y2_MAX_PIN));
+  TERN_(USE_Y2_MIN,      _ATTACH(Y2_MIN_PIN));
+  TERN_(USE_Z2_MAX,      _ATTACH(Z2_MAX_PIN));
+  TERN_(USE_Z2_MIN,      _ATTACH(Z2_MIN_PIN));
+  TERN_(USE_Z3_MAX,      _ATTACH(Z3_MAX_PIN));
+  TERN_(USE_Z3_MIN,      _ATTACH(Z3_MIN_PIN));
+  TERN_(USE_Z4_MAX,      _ATTACH(Z4_MAX_PIN));
+  TERN_(USE_Z4_MIN,      _ATTACH(Z4_MIN_PIN));
+  TERN_(USE_Z_MIN_PROBE, _ATTACH(Z_MIN_PROBE_PIN));
+  TERN_(USE_CALIBRATION, _ATTACH(CALIBRATION_PIN));
+  TERN_(USE_I_MAX,       _ATTACH(I_MAX_PIN));
+  TERN_(USE_I_MIN,       _ATTACH(I_MIN_PIN));
+  TERN_(USE_J_MAX,       _ATTACH(J_MAX_PIN));
+  TERN_(USE_J_MIN,       _ATTACH(J_MIN_PIN));
+  TERN_(USE_K_MAX,       _ATTACH(K_MAX_PIN));
+  TERN_(USE_K_MIN,       _ATTACH(K_MIN_PIN));
+  TERN_(USE_U_MAX,       _ATTACH(U_MAX_PIN));
+  TERN_(USE_U_MIN,       _ATTACH(U_MIN_PIN));
+  TERN_(USE_V_MAX,       _ATTACH(V_MAX_PIN));
+  TERN_(USE_V_MIN,       _ATTACH(V_MIN_PIN));
+  TERN_(USE_W_MAX,       _ATTACH(W_MAX_PIN));
+  TERN_(USE_W_MIN,       _ATTACH(W_MIN_PIN));
 }
