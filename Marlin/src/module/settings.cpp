@@ -766,6 +766,26 @@ MarlinSettings settings;
 
 uint16_t MarlinSettings::datasize() { return sizeof(SettingsData); }
 
+#if EEPROM_AUTOSAVE_AFTER > 0
+
+  static millis_t autosave_ms; // = 0 (no save pending)
+
+  // (Re)start the timer, so a burst of changes leads to a single save
+  void MarlinSettings::request_autosave() {
+    autosave_ms = millis() + (EEPROM_AUTOSAVE_AFTER);
+    if (!autosave_ms) autosave_ms = 1;
+  }
+
+  // Called from idle(). Wait for the delay to pass and for printing and motion to finish.
+  void MarlinSettings::autosave_task() {
+    if (!autosave_ms || PENDING(millis(), autosave_ms)) return;
+    if (marlin.printJobOngoing() || planner.has_blocks_queued()) return;
+    autosave_ms = 0;  // Clear first in case save() calls idle()
+    save();
+  }
+
+#endif
+
 /**
  * Post-process after Retrieve or Reset
  */
@@ -917,7 +937,7 @@ void MarlinSettings::postprocess() {
 
   bool MarlinSettings::validating;
   int MarlinSettings::eeprom_index;
-  uint16_t MarlinSettings::working_crc;
+  uint16_t MarlinSettings::working_crc, MarlinSettings::last_crc_value;
 
   EEPROM_Error MarlinSettings::size_error(const uint16_t size) {
     if (size != datasize()) {
@@ -1939,6 +1959,8 @@ void MarlinSettings::postprocess() {
         EEPROM_WRITE(build_hash);
       #endif
       EEPROM_WRITE(final_crc);
+
+      last_crc_value = final_crc;
 
       // Report storage size
       DEBUG_ECHO_MSG("Settings Stored (", eeprom_size, " bytes; crc ", (uint32_t)final_crc, ")");
@@ -3167,6 +3189,7 @@ void MarlinSettings::postprocess() {
         break;
       }
       else if (!validating) {
+        last_crc_value = working_crc;
         DEBUG_ECHO_START();
         DEBUG_ECHOLN(version_str, F(" stored settings retrieved ("), eeprom_total, F(" bytes; crc "), working_crc, C(')'));
         TERN_(HOST_EEPROM_CHITCHAT, hostui.notify(F("Stored settings retrieved")));
