@@ -67,6 +67,14 @@
   #include "probe.h"
 #endif
 
+#if ENABLED(ABORT_ON_ENDSTOP_HIT)
+  #include "printcounter.h" // for print_job_timer
+#endif
+
+#if ANY(SD_ABORT_ON_ENDSTOP_HIT, ABORT_ON_ENDSTOP_HIT) && HAS_CUTTER
+  #include "../feature/spindle_laser.h"
+#endif
+
 #define DEBUG_OUT ALL(USE_SENSORLESS, DEBUG_LEVELING_FEATURE)
 #include "../core/debug_out.h"
 
@@ -360,11 +368,32 @@ void Endstops::event_handler() {
         card.abortFilePrintNow();
         motion.quickstop_stepper();
         thermalManager.disable_all_heaters();
+        #if HAS_CUTTER
+          TERN_(SPINDLE_FEATURE, safe_delay(1000));
+          cutter.kill();
+        #endif
         #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
           queue.clear();
           queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
         #endif
         print_job_timer.stop();
+      }
+
+    #elif ENABLED(ABORT_ON_ENDSTOP_HIT)
+      if (planner.abort_on_endstop && TERN1(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, !z_probe_enabled) && TERN1(G38_PROBE_TARGET, !G38_move.type) && TERN1(CALIBRATION_GCODE, !calibration_probe_enabled)) {
+        motion.quickstop_stepper();
+        hit_on_purpose();
+        #if HAS_CUTTER
+          TERN_(SPINDLE_FEATURE, safe_delay(1000));
+          cutter.kill();
+        #endif
+        queue.clear();
+        motion.set_all_unhomed();
+        motion.report_position();
+        #ifdef SD_ABORT_ON_ENDSTOP_HIT_GCODE
+          queue.inject(F(SD_ABORT_ON_ENDSTOP_HIT_GCODE));
+        #endif
+        marlin.stop();
       }
     #endif
   }
