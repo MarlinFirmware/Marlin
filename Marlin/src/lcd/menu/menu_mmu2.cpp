@@ -50,7 +50,7 @@
 // Offer to preheat first, wait for the temperature (a click or M108 stops), then do the action.
 //
 
-enum MMUHotAction : uint8_t { MMU_HOT_LOAD_TO_NOZZLE, MMU_HOT_UNLOAD };
+enum MMUHotAction : uint8_t { MMU_HOT_LOAD_TO_NOZZLE, MMU_HOT_UNLOAD, MMU_HOT_UNLOAD_THEN_LOAD };  // THEN_LOAD: mmu_hot_tool is the slot, or EXTRUDERS for all
 static uint8_t mmu_hot_action, mmu_hot_tool;
 static bool mmu_hot_back_to_pause;  // Started from the Filament Change menu: return to it when done
 
@@ -83,7 +83,9 @@ static void _mmu2_unload_now() {
   ui.return_to_status();
   // The message needs a slot number. Without a known tool, show a plain message instead of "%i".
   const uint8_t tool = uint8_t(TERN(HAS_PRUSA_MMU3, mmu3, mmu2).get_current_tool());
-  if (tool < EXTRUDERS)
+  if (mmu_hot_action == MMU_HOT_UNLOAD_THEN_LOAD && mmu_hot_tool < EXTRUDERS)
+    ui.status_printf(0, GET_TEXT_F(MSG_MMU2_UNLOAD_THEN_LOAD), int(mmu_hot_tool + 1));  // Say that the Load follows
+  else if (tool < EXTRUDERS)
     ui.status_printf(0, GET_TEXT_F(MSG_MMU2_UNLOADING_FILAMENT), int(tool + 1));
   else
     LCD_MESSAGE(MSG_FILAMENTUNLOAD);
@@ -94,10 +96,24 @@ static void _mmu2_unload_now() {
   ui.reset_status();
 }
 
+void _mmu2_load_to_feeder(const uint8_t tool);
+void action_mmu2_load_all();
+
 static void _mmu2_run_hot_action() {
   switch (mmu_hot_action) {
     case MMU_HOT_LOAD_TO_NOZZLE: _mmu2_load_to_nozzle_now(mmu_hot_tool); break;
     case MMU_HOT_UNLOAD:         _mmu2_unload_now();                    break;
+    case MMU_HOT_UNLOAD_THEN_LOAD: {
+      const uint8_t tool = mmu_hot_tool;      // The Load below changes the state, so keep a copy
+      _mmu2_unload_now();                     // Runs until the Unload is done, and releases the action guard
+      #if HAS_PRUSA_MMU3
+        // The FINDA state comes with the MMU's next status reply, so it may still show the filament for a moment
+        // after the Unload ends. Wait for it to clear, or the Load below would stop on the same alert again.
+        const millis_t wait_end = millis() + 3000UL;
+        while (mmu3.findaDetectsFilament() && PENDING(millis(), wait_end)) { safe_delay(50); MMU3::marlin_idle(true); }
+      #endif
+      if (tool < EXTRUDERS) _mmu2_load_to_feeder(tool); else action_mmu2_load_all();
+    } break;
   }
 }
 
@@ -166,8 +182,45 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   _mmu2_hot_action(MMU_HOT_LOAD_TO_NOZZLE, tool);
 }
 
+#if HAS_PRUSA_MMU3
+
+  // The MMU refuses to load while its FINDA sees filament, so say so on a screen the user must answer.
+  // (A status message is easily missed, and a Load from the Filament Change menu returns to that menu at once.)
+  static bool mmu_already_loaded_from_pause;  // Opened from the Filament Change menu: Unload returns to it
+  static uint8_t mmu_already_loaded_slot;     // The slot that was asked for, or EXTRUDERS for all
+
+  // Unload, then do the Load that was asked for
+  static void _mmu2_unload_from_alert() {
+    _mmu2_hot_action(MMU_HOT_UNLOAD_THEN_LOAD, mmu_already_loaded_slot, mmu_already_loaded_from_pause);
+  }
+
+  static void menu_mmu2_already_loaded() {
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_MMU2_UNLOAD_FILAMENT), GET_TEXT_F(MSG_BUTTON_BACK),
+      _mmu2_unload_from_alert, nullptr,   // Back returns to the screen that was open
+      GET_TEXT_F(MSG_TITLE_FILAMENT_ALREADY_LOADED)
+    );
+  }
+
+  // Returns true if the alert was shown and the Load must not be sent.
+  static bool _mmu2_already_loaded(const uint8_t slot, const bool from_pause=false) {
+    if (!mmu3.findaDetectsFilament()) return false;
+    MarlinUI::completion_feedback(false);
+    SERIAL_ECHO_MSG("MMU3: ", GET_TEXT_F(MSG_DESC_FILAMENT_ALREADY_LOADED));
+    mmu_already_loaded_slot = slot;
+    mmu_already_loaded_from_pause = from_pause;
+    ui.push_current_screen();
+    ui.goto_screen(menu_mmu2_already_loaded);
+    return true;
+  }
+
+#else
+  static bool _mmu2_already_loaded(const uint8_t, const bool=false) { return false; }
+#endif
+
 void _mmu2_load_to_feeder(const uint8_t tool) {
   MMUActionGuard busy; if (!busy.ok) return;
+  if (_mmu2_already_loaded(tool)) return;
   ui.reset_status();
   ui.return_to_status();
   ui.status_printf(0, GET_TEXT_F(MSG_MMU2_LOADING_FILAMENT), int(tool + 1));
@@ -176,6 +229,7 @@ void _mmu2_load_to_feeder(const uint8_t tool) {
 }
 
 void action_mmu2_load_all() {
+  if (_mmu2_already_loaded(EXTRUDERS)) return;
   EXTRUDER_LOOP() _mmu2_load_to_feeder(e);
 }
 
@@ -473,6 +527,7 @@ static uint8_t pause_slot = 0xFF; // Slot in use when the Filament Change menu o
 
 static void _mmu2_pause_load(const uint8_t slot) {
   pause_slot = slot;
+  if (_mmu2_already_loaded(slot, true)) return;   // Alert; Back returns to the screen that was open
   _mmu2_load_to_feeder(slot);   // Shows what is happening on the Status Screen
   ui.goto_screen(menu_mmu2_pause);
 }
