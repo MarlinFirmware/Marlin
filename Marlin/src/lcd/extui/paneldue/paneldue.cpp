@@ -486,7 +486,7 @@ static void om_state(const bool live) {
     }
   }
   o_key(F("status")); o_char('"'); o_fstr(printer_status()); o_char('"');
-  o_key(F("upTime")); o_uint(millis() / 1000UL);
+  o_key(F("upTime")); o_uint(MS_TO_SEC(millis()));
   o_char('}');
 }
 

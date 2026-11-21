@@ -166,7 +166,7 @@ static bool ensure_safe_temperature(const bool wait=true, const PauseMode mode=P
   #if DISABLED(CREALITY_RTS)
     // Allow interruption by Emergency Parser M108
     marlin.wait_for_heatup = TERN1(PREVENT_COLD_EXTRUSION, !thermalManager.allow_cold_extrude);
-    while (marlin.is_heating() && ABS(thermalManager.wholeDegHotend(motion.extruder) - thermalManager.degTargetHotend(motion.extruder)) > (TEMP_WINDOW))
+    while (marlin.is_heating() && !thermalManager.hotendReachedTarget(motion.extruder))
       marlin.idle();
     marlin.heatup_done();
   #endif

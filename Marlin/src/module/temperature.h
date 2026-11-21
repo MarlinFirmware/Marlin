@@ -1057,11 +1057,18 @@ class Temperature {
       }
 
       static bool isHeatingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX);
       }
-
       static bool isCoolingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) > degTargetHotend(HOTEND_INDEX);
+      }
+      static bool hotendOnTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || WITHIN(t - degHotend(HOTEND_INDEX), -(TEMP_WINDOW), (TEMP_WINDOW));
+      }
+      static bool hotendReachedTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || t <= degHotend(HOTEND_INDEX) + (TEMP_WINDOW);
       }
 
       #if HAS_TEMP_HOTEND
@@ -1079,7 +1086,7 @@ class Temperature {
       }
 
       static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
+        return degTargetHotend(e) > (TEMP_HYSTERESIS) && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
@@ -1119,12 +1126,21 @@ class Temperature {
         #if PREHEAT_TIME_BED_MS > 0
           if (celsius == 0)
             reset_bed_preheat_time();
-          else if (temp_bed.target == 0)
+          else if (degTargetBed() == 0)
             start_bed_preheat_time();
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
+      }
+
+      static bool bedOnTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || WITHIN(t - degBed(), -(TEMP_BED_WINDOW), (TEMP_BED_WINDOW));
+      }
+      static bool bedReachedTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || t <= degBed() + (TEMP_BED_WINDOW);
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
@@ -1140,7 +1156,7 @@ class Temperature {
     #if HAS_TEMP_HOTEND || HAS_HEATED_BED
 
       // The current time in whole seconds (wrapping), as the heaters count their time in range
-      static uint16_t now_sec() { return uint16_t(millis() / 1000UL); }
+      static uint16_t now_sec() { return uint16_t(MS_TO_SEC(millis())); }
 
       #if HAS_TEMP_HOTEND
         static bool hotend_settled(const uint8_t E_NAME, const uint16_t secs) { return temp_hotend[HOTEND_INDEX].settled(now_sec(), secs); }
@@ -1197,6 +1213,15 @@ class Temperature {
       }
       // Start watching the Chamber to make sure it's really heating up
       static void start_watching_chamber() { OPTCODE(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())) }
+
+      static bool chamberOnTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || WITHIN(t - degChamber(), -(TEMP_CHAMBER_WINDOW), (TEMP_CHAMBER_WINDOW));
+      }
+      static bool chamberReachedTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || t <= degChamber() + (TEMP_CHAMBER_WINDOW);
+      }
     #endif
 
     #if HAS_TEMP_COOLER

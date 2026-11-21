@@ -1930,7 +1930,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
   void Temperature::manage_hotends(const millis_t &ms) {
     // Note when each hotend comes into range of its target, and when it leaves
     {
-      const uint16_t sec = uint16_t(ms / 1000UL);
+      const uint16_t sec = uint16_t(MS_TO_SEC(ms));
       HOTEND_LOOP() temp_hotend[e].track_range(sec, TEMP_SETTLE_BAND, TEMP_HYSTERESIS);
     }
 
@@ -1986,7 +1986,7 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
    * @param ms Current Time
    */
   void Temperature::manage_heated_bed(const millis_t &ms) {
-    temp_bed.track_range(uint16_t(ms / 1000UL), TEMP_BED_SETTLE_BAND, TEMP_BED_HYSTERESIS);
+    temp_bed.track_range(uint16_t(MS_TO_SEC(ms)), TEMP_BED_SETTLE_BAND, TEMP_BED_HYSTERESIS);
 
     #if ENABLED(THERMAL_PROTECTION_BED)
     {
@@ -5271,7 +5271,7 @@ void Temperature::isr() {
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+              s += long((TEMP_CHAMBER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
             else
               s += '?';
             s.echo();
@@ -5372,7 +5372,7 @@ void Temperature::isr() {
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
             if (residency_start_ms)
-              s += long((SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) - (now - residency_start_ms)) / 1000UL);
+              s += long((TEMP_COOLER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
             else
               s += '?';
             s.echo();
