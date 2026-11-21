@@ -880,7 +880,16 @@ namespace MMU3 {
           }
           if (ELAPSED(now, rejectedSinceMs + commandRejectedTimeout)) {
             LogError(PSTR("Command rejected too long"));
-            // Raise a printer error so the user sees a screen, instead of silently resending forever
+            // Raise a printer error so the user sees a screen, instead of silently resending forever.
+            // The MMU is answering, so don't blame the wiring. It refuses a Load when it believes filament is loaded.
+            if (rq.code == RequestMsgCodes::Load) {
+              // A refused Load won't succeed by resending it. Stop, and poll the MMU like in Idle, which lets the
+              // user's click or the MMU's buttons dismiss the error. (While resending, no button can be seen.)
+              SetPrinterError(ErrorCode::FILAMENT_ALREADY_LOADED);
+              rejectedSinceMs = 0; rejectedCount = 0;
+              SwitchToIdle();
+              break;
+            }
             SetPrinterError(ErrorCode::PROTOCOL_ERROR);
             rejectedSinceMs = 0; // keep resending, and report again after another interval if still rejected
           }
