@@ -26,7 +26,11 @@ if len(platform_packages) == 0:
     }
     platform_name = framewords[platform.__class__.__name__]
 else:
-    platform_name = PackageSpec(platform_packages[0]).name
+    spec = PackageSpec(platform_packages[0])
+    if spec.uri and '@' in spec.uri:
+        platform_name = spec.uri.split('@')[0]
+    else:
+        platform_name = spec.name
 
 if platform_name in [ "usb-host-msc", "usb-host-msc-cdc-msc", "tool-stm32duino" ]:
     platform_name = "framework-arduinoststm32"
