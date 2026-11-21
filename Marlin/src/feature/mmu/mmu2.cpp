@@ -675,7 +675,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
       // Attempt to load the filament, 1mm at a time, for 3s
       command(MMU_CMD_C0);
       stepper.enable_extruder();
-      const millis_t expire_ms = millis() + 3000;
+      const MTimeout load_timeout(3000);
       do {
         motion.position.e += 1;
         motion.goto_current_position(MMU_LOAD_FEEDRATE);
@@ -684,7 +684,7 @@ inline void beep_bad_cmd() { BUZZ(400, 40); }
         // successfully or an overload created pressure in the extruder.
         // Send (C0) to load more and move E_AXIS a little to release pressure.
         if ((fil_present = FILAMENT_PRESENT())) MMU2_SEND("A");
-      } while (!fil_present && PENDING(millis(), expire_ms));
+      } while (!fil_present && load_timeout.pending());
       stepper.disable_extruder();
       manage_response(true, true);
     }

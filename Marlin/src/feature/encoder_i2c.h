@@ -126,8 +126,8 @@ class I2CPositionEncoder {
               position;
 
     millis_t  lastPositionTime    = 0,
-              nextErrorCountTime  = 0,
               lastErrorTime;
+    MTimeout24 errorCountTimer;
 
     #if ENABLED(I2CPE_ERR_ROLLING_AVERAGE)
       uint8_t errIdx = 0, errPrstIdx = 0;

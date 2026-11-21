@@ -49,14 +49,14 @@ public:
     static float flowrate;                // Flow meter reading in liters-per-minute.
     static bool flowmeter;                // Flag to monitor the flow
     static volatile uint16_t flowpulses;  // Flowmeter IRQ pulse count
-    static millis_t flowmeter_next_ms;    // Next time at which to calculate flow
+    static MTimeout24 flowmeter_timer;    // Time at which to calculate flow
 
     static void set_flowmeter(const bool sflag) {
       if (flowmeter != sflag) {
         flowmeter = sflag;
         if (sflag) {
           flowpulses = 0;
-          flowmeter_next_ms = millis() + FLOWMETER_INTERVAL;
+          flowmeter_timer.start(FLOWMETER_INTERVAL);
         }
       }
     }
@@ -87,9 +87,9 @@ public:
     static void flowmeter_task(const millis_t ms=millis()) {
       if (!flowmeter)       // !! The flow meter must always be on !!
         flowmeter_enable(); // Init and prime
-      if (ELAPSED(ms, flowmeter_next_ms)) {
+      if (flowmeter_timer.elapsed(ms)) {
         calc_flowrate();
-        flowmeter_next_ms = ms + FLOWMETER_INTERVAL;
+        flowmeter_timer.start(FLOWMETER_INTERVAL, ms);
       }
     }
 

@@ -244,8 +244,7 @@ public:
      */
     static void report_buffer_statistics();
 
-    static uint8_t auto_buffer_report_interval;
-    static millis_t next_buffer_report_ms;
+    static MSeconds buffer_report_timer;
 
     public:
 
@@ -253,8 +252,7 @@ public:
 
     static void set_auto_report_interval(uint8_t v) {
       NOMORE(v, 60);
-      auto_buffer_report_interval = v;
-      next_buffer_report_ms = millis() + 1000UL * v;
+      buffer_report_timer.start(v);
     }
 
   #endif // BUFFER_MONITORING

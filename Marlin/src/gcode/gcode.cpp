@@ -1306,9 +1306,9 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
    */
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
-    static millis_t next_busy_signal_ms = 0;
+    static MTimeout24 busy_signal_timer;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
-      if (PENDING(ms, next_busy_signal_ms)) return;
+      if (busy_signal_timer.pending(ms)) return;
       PORT_REDIRECT(SerialMask::All);
       switch (busy_state) {
         case IN_HANDLER:
@@ -1328,7 +1328,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           break;
       }
     }
-    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
+    busy_signal_timer.start(SEC_TO_MS(host_keepalive_interval), ms);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE

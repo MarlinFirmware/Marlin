@@ -678,9 +678,9 @@ void Max7219::idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static uint8_t refresh_cnt; // = 0
     constexpr uint16_t refresh_limit = 5;
-    static millis_t next_blink = 0;
+    static MTimeout24 blink_timer;
     const millis_t ms = millis();
-    const bool do_blink = ELAPSED(ms, next_blink);
+    const bool do_blink = blink_timer.elapsed(ms);
   #else
     static uint16_t refresh_cnt; // = 0
     constexpr bool do_blink = true;
@@ -709,7 +709,7 @@ void Max7219::idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     if (do_blink) {
       led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1, &row_change_mask);
-      next_blink = ms + 1000;
+      blink_timer.start(1000, ms);
     }
   #endif
 

@@ -1566,10 +1566,10 @@ void Motion::restore_feedrate_and_scaling() {
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 
-FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
+FORCE_INLINE void segment_idle(MTimeout24 &idle_timer) {
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_idle_ms)) {
-    next_idle_ms = ms + 200UL;
+  if (idle_timer.elapsed(ms)) {
+    idle_timer.start(200, ms);
     return marlin.idle();
   }
   thermalManager.task();  // Returns immediately on most calls
@@ -1778,9 +1778,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     xyze_pos_t raw = position;
 
     // Calculate and execute the segments
-    millis_t next_idle_ms = millis() + 200UL;
+    MTimeout24 idle_timer(200);
     while (--segments) {
-      segment_idle(next_idle_ms);
+      segment_idle(idle_timer);
       raw += segment_distance;
       if (!planner.buffer_line(raw, scaled_fr_mm_s, extruder, hints))
         break;
@@ -1847,9 +1847,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       xyze_pos_t raw = position;
 
       // Calculate and execute the segments
-      millis_t next_idle_ms = millis() + 200UL;
+      MTimeout24 idle_timer(200);
       while (--segments) {
-        segment_idle(next_idle_ms);
+        segment_idle(idle_timer);
         raw += segment_distance;
         if (!planner.buffer_line(raw, fr_mm_s, extruder, hints))
           break;

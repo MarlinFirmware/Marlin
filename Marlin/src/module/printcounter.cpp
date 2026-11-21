@@ -237,9 +237,9 @@ void PrintCounter::tick() {
   if (!isRunning()) return;
 
   const millis_t now = millis();
-  static millis_t update_next; // = 0
-  if (ELAPSED(now, update_next)) {
-    update_next = now + updateInterval;
+  static MTimeout24 update_timer;
+  if (update_timer.elapsed(now)) {
+    update_timer.start(updateInterval, now);
 
     TERN_(DEBUG_PRINTCOUNTER, debug(PSTR("tick")));
 
@@ -258,9 +258,9 @@ void PrintCounter::tick() {
   }
 
   #if PRINTCOUNTER_SAVE_INTERVAL > 0
-    static millis_t eeprom_next; // = 0
-    if (ELAPSED(now, eeprom_next)) {
-      eeprom_next = now + saveInterval;
+    static MTimeout24 eeprom_timer;
+    if (eeprom_timer.elapsed(now)) {
+      eeprom_timer.start(saveInterval, now);
       saveStats();
     }
   #endif

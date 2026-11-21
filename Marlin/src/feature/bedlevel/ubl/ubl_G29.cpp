@@ -942,10 +942,10 @@ void set_message_with_feedback(FSTR_P const fstr) {
   bool _click_and_hold(const clickFunc_t func=nullptr) {
     if (ui.button_pressed()) {
       ui.quick_feedback(false);         // Preserve button state for click-and-hold
-      const millis_t nxt = millis() + 1500UL;
+      const MTimeout hold_timer(1500);
       while (ui.button_pressed()) {     // Loop while the encoder is pressed. Uses hardware flag!
         marlin.idle();                  // idle, of course
-        if (ELAPSED(millis(), nxt)) {   // After 1.5 seconds
+        if (hold_timer.elapsed()) {     // After 1.5 seconds
           ui.quick_feedback();
           if (func) (*func)();
           ui.wait_for_release();

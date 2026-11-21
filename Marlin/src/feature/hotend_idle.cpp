@@ -39,7 +39,7 @@
 
 HotendIdleProtection hotend_idle;
 
-millis_t HotendIdleProtection::next_protect_ms = 0;
+MTimeout24 HotendIdleProtection::protect_timer; // Disabled until a hotend is hot and idle
 hotend_idle_settings_t HotendIdleProtection::cfg; // Initialized by settings.load
 
 void HotendIdleProtection::check_hotends(const millis_t &ms) {
@@ -53,17 +53,17 @@ void HotendIdleProtection::check_hotends(const millis_t &ms) {
     }
   }
   if (!do_prot)
-    next_protect_ms = 0;                          // No hotends are hot so cancel timeout
-  else if (!next_protect_ms)                      // Timeout is possible?
-    next_protect_ms = next_millis(ms + 1000UL * cfg.timeout);  // Start timeout if not already set
+    protect_timer.cancel();                       // No hotends are hot so cancel timeout
+  else if (!protect_timer.enabled())              // Timeout is possible?
+    protect_timer.start(SEC_TO_MS(cfg.timeout), ms); // Start timeout if not already set
 }
 
 void HotendIdleProtection::check_e_motion(const millis_t &ms) {
   static float old_e_position = 0;
   if (old_e_position != motion.position.e) {
     old_e_position = motion.position.e;             // Track filament motion
-    if (next_protect_ms)                            // If some heater is on then...
-      next_protect_ms = next_millis(ms + 1000UL * cfg.timeout);  // ...delay the timeout till later
+    if (protect_timer.enabled())                    // If some heater is on then...
+      protect_timer.start(SEC_TO_MS(cfg.timeout), ms); // ...delay the timeout till later
   }
 }
 
@@ -74,13 +74,13 @@ void HotendIdleProtection::check() {
   check_e_motion(ms);                             // Motion will protect them
 
   // Hot and not moving for too long...
-  if (next_protect_ms && ELAPSED(ms, next_protect_ms))
+  if (protect_timer.on_elapsed(ms))
     timed_out();
 }
 
 // Lower (but don't raise) hotend / bed temperatures
 void HotendIdleProtection::timed_out() {
-  next_protect_ms = 0;
+  protect_timer.cancel();
   SERIAL_ECHOLNPGM("Hotend Idle Timeout");
   LCD_MESSAGE(MSG_HOTEND_IDLE_TIMEOUT);
   HOTEND_LOOP() {

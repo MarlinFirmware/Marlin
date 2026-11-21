@@ -74,9 +74,9 @@ void ControllerFan::setup() {
 void ControllerFan::update() {
   const millis_t ms = millis();
 
-  static millis_t nextFanCheck = 0;     // Last time the state was checked
-  if (PENDING(ms, nextFanCheck)) return;
-  nextFanCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+  static MTimeout24 fan_check_timer;    // Time of the next state check
+  if (fan_check_timer.pending(ms)) return;
+  fan_check_timer.start(2500, ms);      // Not a time critical function, so only check every 2.5s
 
   /**
    * If any triggers for the controller fan are true...
@@ -114,18 +114,18 @@ void ControllerFan::update() {
   // When the fan first starts up it can run at high power for a short period
   #if FAN_KICKSTART_TIME
 
-    static millis_t kick_end_ms = 0;
+    static MTimeout24 kick_timer;
 
     if (s > FAN_OFF_PWM) {                      // Is the fan turned on?
-      if (!kick_end_ms) {                       // No kickstart yet?
-        kick_end_ms = next_millis(ms + FAN_KICKSTART_TIME);  // Set a future time at which to stop
+      if (!kick_timer.enabled()) {              // No kickstart yet?
+        kick_timer.start(FAN_KICKSTART_TIME, ms); // Set a future time at which to stop
         s = FAN_KICKSTART_POWER;                // Override the power
       }
-      else if (PENDING(ms, kick_end_ms))        // Still waiting for end of kickstart time?
+      else if (kick_timer.pending(ms))          // Still waiting for end of kickstart time?
         s = FAN_KICKSTART_POWER;                // Override the power
     }
     else
-      kick_end_ms = 0;                          // Reset kick_end_ms for kickstart on next enable
+      kick_timer.cancel();                      // Reset kick_timer for kickstart on next enable
 
   #endif // FAN_KICKSTART_TIME
 

@@ -118,7 +118,7 @@ void cubic_b_spline(
   bez_target.set(position.x, position.y);
   float step = MAX_STEP;
 
-  millis_t next_idle_ms = millis() + 200UL;
+  MTimeout24 idle_timer(200);
 
   // Hints to help optimize the move
   PlannerHints hints;
@@ -126,9 +126,8 @@ void cubic_b_spline(
   for (float t = 0; t < 1;) {
 
     thermalManager.task();
-    millis_t now = millis();
-    if (ELAPSED(now, next_idle_ms)) {
-      next_idle_ms = now + 200UL;
+    if (idle_timer.elapsed()) {
+      idle_timer.start(200);
       marlin.idle();
     }
 

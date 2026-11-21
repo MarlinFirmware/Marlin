@@ -54,7 +54,7 @@ uint8_t KlipperCAN::query_unassigned(node_t nodes[], const uint8_t max, const mi
   if (!CANBus::send(frame)) return 0;
 
   uint8_t count = 0;
-  for (const millis_t end_ms = millis() + wait_ms; PENDING(millis(), end_ms);) {
+  for (const MTimeout timeout(wait_ms); timeout.pending();) {
     if (!CANBus::read(frame)) { marlin.idle(); continue; }
     if (frame.id != ADMIN_RESP_ID || frame.len < 7 || frame.data[0] != RESP_NEED_NODEID) continue;
     // Ignore repeated replies from the same node
@@ -88,8 +88,8 @@ bool KlipperCAN::send_block(const uint8_t nodeid, const uint8_t *payload, const 
   for (uint8_t pos = 0; pos < blen;) {
     frame.len = _MIN(blen - pos, 8);
     memcpy(frame.data, &block[pos], frame.len);
-    for (const millis_t end_ms = millis() + 50; !CANBus::send(frame);) {
-      if (ELAPSED(millis(), end_ms)) return false;
+    for (const MTimeout timeout(50); !CANBus::send(frame);) {
+      if (timeout.elapsed()) return false;
       marlin.idle();
     }
     pos += frame.len;
@@ -101,7 +101,7 @@ bool KlipperCAN::send_block(const uint8_t nodeid, const uint8_t *payload, const 
 // Bytes after the block stay in the buffer for the next call.
 uint8_t KlipperCAN::receive_block(const uint8_t nodeid, uint8_t (&block)[MESSAGE_MAX], const millis_t timeout_ms) {
   can_frame_t frame;
-  for (const millis_t end_ms = millis() + timeout_ms;;) {
+  for (const MTimeout timeout(timeout_ms);;) {
     // Drop bytes that can't start a block, then look for a whole block
     for (;;) {
       while (rx_have && (rx_buf[0] < MESSAGE_MIN || rx_buf[0] > MESSAGE_MAX)) memmove(rx_buf, rx_buf + 1, --rx_have);
@@ -116,7 +116,7 @@ uint8_t KlipperCAN::receive_block(const uint8_t nodeid, uint8_t (&block)[MESSAGE
       }
       memmove(rx_buf, rx_buf + 1, --rx_have);   // Bad block. Skip a byte and look again.
     }
-    if (ELAPSED(millis(), end_ms)) return 0;
+    if (timeout.elapsed()) return 0;
     if (!CANBus::read(frame)) { marlin.idle(); continue; }
     if (frame.id != rx_id(nodeid)) continue;
     for (uint8_t i = 0; i < frame.len && rx_have < sizeof(rx_buf); ++i) rx_buf[rx_have++] = frame.data[i];

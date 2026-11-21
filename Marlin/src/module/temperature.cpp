@@ -504,7 +504,7 @@ PGMSTR(str_t_heating_failed, STR_T_HEATING_FAILED);
 #if HAS_TEMP_CHAMBER
   chamber_info_t Temperature::temp_chamber; // = { 0 }
   #if HAS_HEATED_CHAMBER
-    millis_t next_cool_check_ms = 0;
+    MTimeout24 cool_check_timer;
     celsius_float_t old_temp = 9999;
     temp_raw_range_t Temperature::temp_sensor_range_chamber = { TEMP_SENSOR_CHAMBER_RAW_LO_TEMP, TEMP_SENSOR_CHAMBER_RAW_HI_TEMP };
     #if WATCH_CHAMBER
@@ -594,10 +594,10 @@ volatile bool Temperature::raw_temps_ready = false;
 #endif
 
 #if PREHEAT_TIME_HOTEND_MS > 0
-  millis_t Temperature::preheat_end_ms_hotend[HOTENDS]; // = { 0 };
+  MTimeout24 Temperature::preheat_timer_hotend[HOTENDS]; // Disabled
 #endif
 #if HAS_HEATED_BED && PREHEAT_TIME_BED_MS > 0
-  millis_t Temperature::preheat_end_ms_bed = 0;
+  MTimeout24 Temperature::preheat_timer_bed; // Disabled
 #endif
 
 #if HAS_FAN_LOGIC
@@ -2177,15 +2177,15 @@ void Temperature::mintemp_error(const heater_id_t heater_id OPTARG(ERR_INCLUDE_T
           if (!flag_chamber_excess_heat && temp_chamber.is_above_target(HIGH_EXCESS_HEAT_LIMIT)) {
             // Open vent after MIN_COOLING_SLOPE_TIME_CHAMBER_VENT seconds if the
             // temperature didn't drop at least MIN_COOLING_SLOPE_DEG_CHAMBER_VENT
-            if (next_cool_check_ms == 0 || ELAPSED(ms, next_cool_check_ms)) {
+            if (cool_check_timer.elapsed(ms)) {
               if (temp_chamber.celsius - old_temp > MIN_COOLING_SLOPE_DEG_CHAMBER_VENT)
                 flag_chamber_excess_heat = true; // the bed is heating the chamber too much
-              next_cool_check_ms = ms + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_CHAMBER_VENT);
+              cool_check_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME_CHAMBER_VENT), ms);
               old_temp = temp_chamber.celsius;
             }
           }
           else {
-            next_cool_check_ms = 0;
+            cool_check_timer.cancel();
             old_temp = 9999;
           }
           if (flag_chamber_excess_heat && temp_chamber.is_above_target(LOW_EXCESS_HEAT_LIMIT))
@@ -2979,7 +2979,7 @@ void Temperature::updateTemperaturesFromRawValues() {
       /**
       // DEBUG PREHEATING TIME
       SERIAL_ECHOLNPGM("\nExtruder = ", e, " Preheat On/Off = ", is_preheating(e));
-      const float test_is_preheating = (preheat_end_ms_hotend[HOTEND_INDEX] - millis()) * 0.001f;
+      const float test_is_preheating = preheat_timer_hotend[HOTEND_INDEX].remaining() * 0.001f;
       if (test_is_preheating < 31) SERIAL_ECHOLNPGM("Extruder = ", e, " Preheat remaining time = ", test_is_preheating, "s", "\n");
       //*/
 
@@ -4805,7 +4805,8 @@ void Temperature::isr() {
 
       bool wants_to_cool = false;
       celsius_float_t target_temp = -1.0, old_temp = 9999.0;
-      millis_t now, next_temp_ms = 0, cool_check_ms = 0;
+      millis_t now;
+      MTimeout24 temp_timer, cool_timer;
       for (marlin.heatup_start(); marlin.is_heating() && TEMP_CONDITIONS; ) {
         // Target temperature might be changed during the loop
         //if (!(++s_cnt % 200)) SERIAL_ECHOLN("wait_for_hotend");
@@ -4818,8 +4819,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { // Print temp & remaining time every 1s while waiting
-          next_temp_ms = now + 1000UL;
+        if (temp_timer.elapsed(now)) { // Print temp & remaining time every 1s while waiting
+          temp_timer.start(1000, now);
           print_heater_states(target_extruder);
           #if TEMP_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
@@ -4847,9 +4848,9 @@ void Temperature::isr() {
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG
-          if (!cool_check_ms || ELAPSED(now, cool_check_ms)) {
+          if (cool_timer.elapsed(now)) {
             if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG)) break;
-            cool_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME);
+            cool_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME), now);
             old_temp = temp;
           }
         }
@@ -4983,7 +4984,8 @@ void Temperature::isr() {
 
       bool wants_to_cool = false;
       celsius_float_t target_temp = -1, old_temp = 9999;
-      millis_t now, next_temp_ms = 0, cool_check_ms = 0;
+      millis_t now;
+      MTimeout24 temp_timer, cool_timer;
       marlin.heatup_start();
       do {
         //if (!(++s_cnt % 200)) SERIAL_ECHOLN("wait_for_bed");
@@ -4997,8 +4999,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { //Print Temp Reading every 1 second while heating up.
-          next_temp_ms = now + 1000UL;
+        if (temp_timer.elapsed(now)) { //Print Temp Reading every 1 second while heating up.
+          temp_timer.start(1000, now);
           print_heater_states(motion.extruder);
           #if TEMP_BED_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
@@ -5025,9 +5027,9 @@ void Temperature::isr() {
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_BED seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_BED
-          if (!cool_check_ms || ELAPSED(now, cool_check_ms)) {
+          if (cool_timer.elapsed(now)) {
             if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_BED)) break;
-            cool_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_BED);
+            cool_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME_BED), now);
             old_temp = temp;
           }
         }
@@ -5089,7 +5091,7 @@ void Temperature::isr() {
         KEEPALIVE_STATE(NOT_BUSY);
       #endif
 
-      millis_t next_temp_ms = 0;
+      MTimeout24 temp_timer;
       bool soak_started = false;
 
       marlin.heatup_start();
@@ -5097,8 +5099,8 @@ void Temperature::isr() {
         const millis_t now = millis();
 
         // Report every second: the heaters, and how long until all of them have settled
-        if (ELAPSED(now, next_temp_ms)) {
-          next_temp_ms = now + 1000UL;
+        if (temp_timer.elapsed(now)) {
+          temp_timer.start(1000, now);
 
           const uint16_t sec = now_sec();
           bool all_in_range = true;
@@ -5170,14 +5172,14 @@ void Temperature::isr() {
       #endif
 
       float old_temp = 9999;
-      millis_t next_temp_ms = 0, next_delta_check_ms = 0;
+      MTimeout24 temp_timer, delta_timer;
       marlin.heatup_start();
       while (will_wait && marlin.is_heating()) {
 
         // Print Temp Reading every 10 seconds while heating up.
         millis_t now = millis();
-        if (!next_temp_ms || ELAPSED(now, next_temp_ms)) {
-          next_temp_ms = now + 10000UL;
+        if (temp_timer.elapsed(now)) {
+          temp_timer.start(10000, now);
           print_heater_states(motion.extruder);
           SERIAL_EOL();
         }
@@ -5188,14 +5190,14 @@ void Temperature::isr() {
         // Break after MIN_DELTA_SLOPE_TIME_PROBE seconds if the temperature
         // did not drop at least MIN_DELTA_SLOPE_DEG_PROBE. This avoids waiting
         // forever as the probe is not actively heated.
-        if (!next_delta_check_ms || ELAPSED(now, next_delta_check_ms)) {
+        if (delta_timer.elapsed(now)) {
           const float temp = degProbe(),
                       delta_temp = old_temp > temp ? old_temp - temp : temp - old_temp;
           if (delta_temp < float(MIN_DELTA_SLOPE_DEG_PROBE)) {
             SERIAL_ECHOLNPGM("Timed out waiting for probe temperature.");
             break;
           }
-          next_delta_check_ms = now + SEC_TO_MS(MIN_DELTA_SLOPE_TIME_PROBE);
+          delta_timer.start(SEC_TO_MS(MIN_DELTA_SLOPE_TIME_PROBE), now);
           old_temp = temp;
         }
 
@@ -5247,7 +5249,8 @@ void Temperature::isr() {
 
       bool wants_to_cool = false;
       float target_temp = -1, old_temp = 9999;
-      millis_t now, next_temp_ms = 0, cool_check_ms = 0;
+      millis_t now;
+      MTimeout24 temp_timer, cool_timer;
       marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
@@ -5260,8 +5263,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
-          next_temp_ms = now + 1000UL;
+        if (temp_timer.elapsed(now)) { // Print Temp Reading every 1 second while heating up.
+          temp_timer.start(1000, now);
           print_heater_states(motion.extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
@@ -5300,9 +5303,9 @@ void Temperature::isr() {
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
-          if (!cool_check_ms || ELAPSED(now, cool_check_ms)) {
+          if (cool_timer.elapsed(now)) {
             if (old_temp - temp < float(MIN_COOLING_SLOPE_DEG_CHAMBER)) break;
-            cool_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_CHAMBER);
+            cool_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME_CHAMBER), now);
             old_temp = temp;
           }
         }
@@ -5348,7 +5351,8 @@ void Temperature::isr() {
 
       bool wants_to_cool = false;
       float target_temp = -1, previous_temp = 9999;
-      millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
+      millis_t now;
+      MTimeout24 temp_timer, cooling_timer;
       marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
@@ -5361,8 +5365,8 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
-          next_temp_ms = now + 1000UL;
+        if (temp_timer.elapsed(now)) { // Print Temp Reading every 1 second while heating up.
+          temp_timer.start(1000, now);
           print_heater_states(motion.extruder);
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
@@ -5401,9 +5405,9 @@ void Temperature::isr() {
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
-          if (!next_cooling_check_ms || ELAPSED(now, next_cooling_check_ms)) {
+          if (cooling_timer.elapsed(now)) {
             if (previous_temp - current_temp < float(MIN_COOLING_SLOPE_DEG_COOLER)) break;
-            next_cooling_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_COOLER);
+            cooling_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME_COOLER), now);
             previous_temp = current_temp;
           }
         }

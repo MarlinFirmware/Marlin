@@ -80,8 +80,7 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
            GCodeQueue::command_buffer_empty_at = 0,
            GCodeQueue::planner_buffer_empty_at = 0;
 
-  uint8_t GCodeQueue::auto_buffer_report_interval;
-  millis_t GCodeQueue::next_buffer_report_ms;
+  MSeconds GCodeQueue::buffer_report_timer;
 #endif
 
 /**
@@ -798,8 +797,8 @@ void GCodeQueue::advance() {
       NOLESS(max_planner_buffer_empty_duration, planner_buffer_empty_duration); // if it's longer than the currently tracked max duration, replace it
     }
 
-    if (auto_buffer_report_interval && ELAPSED(ms, next_buffer_report_ms)) {
-      next_buffer_report_ms = ms + 1000UL * auto_buffer_report_interval;
+    if (buffer_report_timer.on_elapsed(ms)) {
+      buffer_report_timer.prime(ms);
       PORT_REDIRECT(SerialMask::All);
       report_buffer_statistics();
       PORT_RESTORE();
