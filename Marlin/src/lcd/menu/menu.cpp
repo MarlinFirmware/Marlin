@@ -55,7 +55,7 @@
 #endif
 
 // Menu Navigation
-int8_t encoderTopLine, encoderLine, screen_items;
+int8_t menuTopIndex, menuIndex, screen_items;
 
 typedef struct {
   screenFunc_t menu_function;     // The screen's function
@@ -97,12 +97,11 @@ void MarlinUI::return_to_status() { goto_screen(status_screen); }
 
 void MarlinUI::push_current_screen() {
   if (screen_history_depth < COUNT(screen_history))
-    screen_history[screen_history_depth++] = { currentScreen, encoderPosition, encoderTopLine, screen_items OPTARG(HAS_SCREEN_TIMEOUT, screen_is_sticky()) };
+    screen_history[screen_history_depth++] = { currentScreen, encoderPosition, menuTopIndex, screen_items OPTARG(HAS_SCREEN_TIMEOUT, screen_is_sticky()) };
 }
 
 void MarlinUI::_goto_previous_screen(TERN_(TURBO_BACK_MENU_ITEM, const bool is_back/*=false*/)) {
   IF_DISABLED(TURBO_BACK_MENU_ITEM, constexpr bool is_back = false);
-  TERN_(HAS_TOUCH_BUTTONS, on_edit_screen = false);
   if (screen_history_depth > 0) {
     menuPosition &sh = screen_history[--screen_history_depth];
     goto_screen(sh.menu_function,
@@ -236,7 +235,7 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
   currentScreen = screen;
   encoderPosition = encoder;
-  encoderTopLine = top;
+  menuTopIndex = top;
   screen_items = items;
   if (on_status_screen()) {
     defer_status_screen(false);
@@ -258,6 +257,8 @@ void MarlinUI::goto_screen(screenFunc_t screen, const uint16_t encoder/*=0*/, co
 
   TERN_(HAS_MARLINUI_MENU, encoder_direction_normal());
   enable_encoder_multiplier(false);
+
+  TERN_(HAS_TOUCH_BUTTONS, on_edit_screen = false);
 
   set_selection(false);
 }
@@ -285,30 +286,65 @@ void MarlinUI::synchronize(FSTR_P const fmsg/*=nullptr*/) {
 }
 
 /**
+ * Static lines (STATIC_ITEM) can't be selected. A menu doesn't know which of its lines are
+ * static until it draws them, so the selection is moved when the drawing finds it on one:
+ *
+ *  - scroll_screen notes which way the encoder moved (menu_dir).
+ *  - A static line that is selected moves the selection one line on, in that direction.
+ *  - At the end of the pass, if that ran off the first or last line there was nothing
+ *    selectable that way, so the selection goes back to where it was (menu_good_line).
+ *
+ * Screens that have only static items (START_SCREEN) are not menus and scroll as a whole.
+ */
+static int8_t menu_dir = 1,           // The way the selection is moving (+1 down, -1 up)
+              menu_good_line = -1;    // The last selection that was not a static line
+static bool menu_is_menu = false,     // The screen is a menu (not a scrolling static screen)
+            menu_skipped = false,     // A static line was selected during this pass
+            menu_skip_ok = true;      // Skipping is on for this menu
+
+void menu_skip_static() {
+  if (!menu_is_menu || !menu_skip_ok) return;
+  menuIndex += menu_dir;
+  ui.encoderPosition += menu_dir > 0 ? (ENCODER_STEPS_PER_MENU_ITEM) : -(ENCODER_STEPS_PER_MENU_ITEM);
+  menu_skipped = true;
+}
+
+/**
  * Scrolling for menus and other line-based screens
  *
- *   encoderLine is the position based on the encoder
- *   encoderTopLine is the top menu line to display
- *   screen_items is the total number of items in the menu (after one call)
+ *   menuIndex is the position based on the encoder
+ *   menuTopIndex is the top menu line to display
+ *   screen_items is the total number of items in the menu (set in goto_screen or after one screen draw pass)
  */
 void scroll_screen(const uint8_t limit, const bool is_menu) {
-  ui.encoder_direction_menus();
-  if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;
-  if (ui.first_page) {
-    encoderLine = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM);
-    ui.screen_changed = false;
+  ui.encoder_direction_menus();                                     // Menus may have a customized direction
+  if (int32_t(ui.encoderPosition) < 0) ui.encoderPosition = 0;      // Negative encoder contrained to 0
+  if (ui.first_page) {                                              // Once-per-screen logic:
+    menu_is_menu = is_menu;                                         // Note whether this is a menu
+    const int8_t old_line = menuIndex;
+    menuIndex = ui.encoderPosition / (ENCODER_STEPS_PER_MENU_ITEM); // Proposed new menu index from the encodet
+    const bool new_screen = ui.screen_changed;
+    ui.screen_changed = false;                                      // Consume the flag
+    if (new_screen) {                                               // On a new screen:
+      menu_dir = 1;                                                 // - Assume the selection is moving down
+      menu_good_line = -1;                                          // - No known good line yet
+      menu_skip_ok = true;                                          // - Allow skipping static lines on this menu
+      menu_skipped = false;                                         // - No static line skipped yet
+    }
+    else if (menuIndex != old_line)                                 // On a new menu line:
+      menu_dir = menuIndex > old_line ? 1 : -1;                     // - Note the direction of travel
   }
-  if (screen_items > 0 && encoderLine >= screen_items - limit) {
-    encoderLine = _MAX(0, screen_items - limit);
-    ui.encoderPosition = encoderLine * (ENCODER_STEPS_PER_MENU_ITEM);
+  if (screen_items > 0 && menuIndex >= screen_items - limit) {      // Menu: limit to the last item. Screen: limit to the last page
+    menuIndex = _MAX(0, screen_items - limit);                      // Apply limit
+    ui.encoderPosition = menuIndex * (ENCODER_STEPS_PER_MENU_ITEM); // Apply back to the encoder
   }
   if (is_menu) {
-    NOMORE(encoderTopLine, encoderLine);
-    if (encoderLine >= encoderTopLine + LCD_HEIGHT)
-      encoderTopLine = encoderLine - LCD_HEIGHT + 1;
+    NOMORE(menuTopIndex, menuIndex);                                // Ensure top index < the selection
+    if (menuIndex >= menuTopIndex + LCD_HEIGHT)                     // If the menu index would be off the bottom
+      menuTopIndex = menuIndex - LCD_HEIGHT + 1;                    // Scroll the screen down to keep it in view
   }
   else
-    encoderTopLine = encoderLine;
+    menuTopIndex = menuIndex;                                       // Static screens scroll as a whole
 }
 
 /**
@@ -320,10 +356,30 @@ void scroll_screen(const uint8_t limit, const bool is_menu) {
  * at the bottom. Pull the view back onto the list and draw the screen again.
  */
 void scroll_screen_end() {
+  if (menu_skipped) {
+    // A static line was selected, and the selection has moved on. Draw again with it in its new place.
+    menu_skipped = false;
+    if (menuIndex < 0 || menuIndex >= screen_items) {
+      // Ran off the end: nothing to select that way. Stay on the last real selection.
+      if (menu_good_line >= 0 && menu_good_line < screen_items) {
+        menuIndex = menu_good_line;
+        ui.encoderPosition = menuIndex * (ENCODER_STEPS_PER_MENU_ITEM);
+      }
+      else {
+        menu_skip_ok = false;     // No selectable line at all: leave this menu alone
+        menuIndex = _MAX(0, _MIN(menuIndex, screen_items - 1));
+        ui.encoderPosition = menuIndex * (ENCODER_STEPS_PER_MENU_ITEM);
+      }
+    }
+    TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);
+    ui.refresh(LCDVIEW_CALL_REDRAW_NEXT);
+    return;
+  }
+  if (menu_is_menu) menu_good_line = menuIndex;
   if (screen_items <= 0) return;
   const int8_t top_max = _MAX(0, screen_items - (LCD_HEIGHT));
-  if (encoderTopLine <= top_max) return;
-  encoderTopLine = top_max;
+  if (menuTopIndex <= top_max) return;
+  menuTopIndex = top_max;
   // Abandon the frame in progress. A paged display would otherwise keep the
   // passes already drawn at the old offset and finish at the new one.
   TERN_(HAS_MARLINUI_U8GLIB, ui.drawing_screen = false);

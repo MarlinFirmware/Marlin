@@ -40,6 +40,7 @@
 
 #include "stepper.h" // Access stepper block queue function and abort status.
 #include "endstops.h"
+#include "../lcd/marlinui.h"  // For GET_TEXT_F with multiple languages
 
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../feature/powerloss.h"
@@ -419,6 +420,11 @@ bool FTMotion::plan_next_block() {
     #endif
     #if ENABLED(DISTINCT_E_FACTORS)
       block_extruder_axis = E_AXIS_N(current_block->extruder);
+    #endif
+
+    // Frames planned from this block step with this block's mix
+    #if ENABLED(MIXING_EXTRUDER)
+      MIXER_STEPPER_LOOP(i) stepping.plan_mix[i] = current_block->b_color[i];
     #endif
 
     const float totalLength = current_block->millimeters;

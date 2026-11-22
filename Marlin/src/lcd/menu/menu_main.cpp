@@ -331,7 +331,7 @@ void menu_main() {
           // Menu display issue on item removal with multi language selection menu
           #define M22_ITEM(T) do{ \
             ACTION_ITEM(T, []{ \
-              queue.inject(F("M22")); encoderTopLine -= (encoderTopLine > 0); ui.refresh(); \
+              queue.inject(F("M22")); menuTopIndex -= (menuTopIndex > 0); ui.refresh(); \
             }); \
           }while(0)
         #else

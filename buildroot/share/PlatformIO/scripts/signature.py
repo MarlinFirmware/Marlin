@@ -2,6 +2,7 @@
 #
 # signature.py
 #
+
 import schema, subprocess, re, json, hashlib
 from datetime import datetime
 from pathlib import Path

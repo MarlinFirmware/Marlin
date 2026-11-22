@@ -45,7 +45,7 @@
 #endif
 
 // Clock speed factors
-#if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__)
+#if !defined(CYCLES_PER_MICROSECOND) && !defined(__STM32F1__) && !defined(ARDUINO_ARCH_AT32)
   #define CYCLES_PER_MICROSECOND (F_CPU / 1000000UL) // 16 or 20 on AVR
 #endif
 
@@ -802,5 +802,6 @@
 #define _UI_E3S1PRO     107
 #define _UI_CR10SPROV2  108
 #define _UI_SERMOON_D1  109
+#define _UI_SERMOON_V1  111
 #define _DGUS_UI_IS(N) || (CAT(_UI_, DGUS_LCD_UI) == CAT(_UI_, N))
 #define DGUS_UI_IS(V...) (0 MAP(_DGUS_UI_IS, V))

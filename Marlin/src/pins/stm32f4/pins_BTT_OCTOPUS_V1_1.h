@@ -23,6 +23,8 @@
 
 #define BOARD_INFO_NAME "BTT OCTOPUS V1.1"
 
+#define HAS_OTG_USB_HOST_SUPPORT                  // USB Flash Drive support
+
 #define BOARD_LCD_SERIAL_PORT               1
 
 //

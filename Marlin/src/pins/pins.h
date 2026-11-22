@@ -231,6 +231,8 @@
   #include "ramps/pins_XTLW_MFF_V2.h"               // ATmega2560                           env:mega2560
 #elif MB(RUMBA_E3D)
   #include "ramps/pins_RUMBA_E3D.h"                 // ATmega2560                           env:mega2560
+#elif MB(RAMPS_PANCAKEBOT)
+  #include "ramps/pins_RAMPS_PANCAKEBOT.h"          // ATmega2560                           env:mega2560
 
 //
 // RAMBo and derivatives
@@ -834,6 +836,10 @@
   #include "stm32f4/pins_MKS_E3D_V2.h"              // STM32F4                              env:mks_e3d_v2
 #elif MB(PRUSA_BUDDY)
   #include "stm32f4/pins_PRUSA_BUDDY.h"             // STM32F4                              env:PRUSA_BUDDY env:PRUSA_BUDDY_no_bootloader
+#elif MB(LDO_LEVIATHAN_V1_2)
+  #include "stm32f4/pins_LDO_LEVIATHAN.h"           // STM32F4                              env:LDO_LEVIATHAN env:LDO_LEVIATHAN_no_bootloader env:LDO_LEVIATHAN_katapult
+#elif MB(CREALITY_V24S1_200)
+  #include "stm32f4/pins_CREALITY_V24S1_200.h"      // STM32F4                              env:STM32F401RC_creality
 
 //
 // Other ARM Cortex-M4
@@ -861,7 +867,7 @@
 #elif MB(BTT_OCTOPUS_MAX_EZ_V1_0)
   #include "stm32h7/pins_BTT_OCTOPUS_MAX_EZ.h"           // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_0_1)
-  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
+  #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_0_1.h"       // STM32H7                         env:STM32F446ZE_btt env:STM32F446ZE_btt_usb_flash_drive env:STM32F446ZE_btt_katapult env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_OCTOPUS_PRO_V1_1)
   #include "stm32h7/pins_BTT_OCTOPUS_PRO_V1_1.h"         // STM32H7                         env:STM32H723ZE_btt env:STM32H723ZE_btt_katapult
 #elif MB(BTT_MANTA_M8P_V2_0)
@@ -886,6 +892,8 @@
   #include "stm32h7/pins_BTT_SCYLLA_V1_0.h"              // STM32H7                         env:STM32H723VG_btt
 #elif MB(FYSETC_SPIDER_V3_H723)
   #include "stm32h7/pins_FYSETC_SPIDER_V3_H723.h"        // STM32H7                         env:STM32H723VG_fysetc
+#elif MB(LDO_LEVIATHAN_V1_3)
+  #include "stm32h7/pins_LDO_LEVIATHAN_V1_3.h"           // STM32H7                         env:LDO_LEVIATHAN_V13 env:LDO_LEVIATHAN_V13_no_bootloader env:LDO_LEVIATHAN_V13_katapult
 
 //
 // Espressif ESP32
@@ -968,6 +976,19 @@
   #include "gd32f3/pins_CREALITY_V422_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
 #elif MB(CREALITY_V427_GD32_MFL)
   #include "gd32f3/pins_CREALITY_V427_GD32_MFL.h"   // GD32F303RE                           env:GD32F303RE_creality_mfl
+#elif MB(TRIGORILLA_V401_GD32_MFL)
+  #include "gd32f3/pins_TRIGORILLA_V401_GD32_MFL.h" // GD32F303RG                           env:GD32F303RG_kobra2_neo_mfl
+
+//
+// AT32 ARM Cortex-M4
+//
+
+#elif MB(WANHAO_0327001)
+  #include "at32f4/pins_WANHAO_0327001.h"           // AT32F403                             env:WANHAO_0327001
+#elif MB(EASYTHREED_ET4000_PLUS)
+  #include "at32f4/pins_EASYTHREED_ET4000_PLUS.h"   // AT32F403                             env:EASYTHREED_ET4000_PLUS
+#elif MB(EASYTHREED_K7_REVB_AT32F407)
+  #include "at32f4/pins_EASYTHREED_K7_REVB_AT32F407.h" // AT32F407                          env:EASYTHREED_K7_REVB_AT32F407
 
 //
 // Raspberry Pi RP2040

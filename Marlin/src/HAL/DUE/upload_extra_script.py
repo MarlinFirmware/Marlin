@@ -4,6 +4,7 @@
 #  Windows: bossac.exe
 #  Other: leave unchanged
 #
+
 import pioutil
 if pioutil.is_pio_build():
     import platform

@@ -30,7 +30,7 @@
 #include "../module/planner.h"
 #include "../module/stepper.h" // for block_t
 #include "../gcode/queue.h"
-#include "pause.h" // for did_pause_print
+#include "pause.h" // for paused_for_filament_change
 
 #include "../inc/MarlinConfig.h"
 
@@ -63,7 +63,7 @@ typedef Flags<
         > runout_flags_t;
 
 void event_filament_runout(const uint8_t extruder);
-inline bool should_monitor_runout() { return did_pause_print || marlin.printingIsActive(); }
+inline bool should_monitor_runout() { return paused_for_filament_change || marlin.printingIsActive(); }
 
 inline bool active_filament_is_out() {
   #if MULTI_FILAMENT_SENSOR
@@ -457,7 +457,7 @@ class FilamentSensorBase {
       }
 
       static void filament_present(const uint8_t extruder) {
-        if (mm_countdown.runout[extruder] < runout_distance_mm || did_pause_print) {
+        if (mm_countdown.runout[extruder] < runout_distance_mm || paused_for_filament_change) {
           // Reset runout only if it is smaller than runout_distance or printing is paused.
           // On Bowden systems retract may be larger than runout_distance_mm, so if retract
           // was added leave it in place, or the following unretract will cause runout event.
@@ -476,7 +476,7 @@ class FilamentSensorBase {
       #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
         static void filament_motion_present(const uint8_t extruder) {
           // Same logic as filament_present
-          if (mm_countdown.motion[extruder] < motion_distance_mm || did_pause_print) {
+          if (mm_countdown.motion[extruder] < motion_distance_mm || paused_for_filament_change) {
             mm_countdown.motion[extruder] = motion_distance_mm;
             mm_countdown.motion_reset.clear(extruder);
           }

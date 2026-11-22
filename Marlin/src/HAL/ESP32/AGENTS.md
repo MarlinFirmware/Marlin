@@ -36,7 +36,7 @@ Because the framework is upstream, there is **no "mirror to installed package" s
 
 2. **`DELAY_CYCLES` can pause prints for ~17.9 s.** The cycle-delay loop in `HAL.h` reads the `ccount` cycle counter and is vulnerable to overflow if a long FreeRTOS preemption/ISR lands mid-delay (it re-loops until `ccount` passes `stop`). This has caused real, apparently-random print stalls. The code already guards the overflow case — preserve that logic; do not "simplify" it.
 
-3. **`MYSERIAL1` is `flushableSerial`, not the USB `Serial`.** `HAL.h` defines `MYSERIAL1 flushableSerial` (`FlushableHardwareSerial.h`). On ESP32 the bare `Serial` is USB/JTAG CDC; Marlin's G-code link is a hardware UART (Serial1 by default). Do not confuse the two. TMC HW-serial remaps Serial1/Serial2 to user pins in `HAL.cpp init_board()`.
+3. **`MYSERIAL1` is `flushableSerial`, not the USB `Serial`.** `HAL.h` defines `MYSERIAL1 flushableSerial` (`FlushableHardwareSerial.h`). On ESP32 the bare `Serial` is USB/JTAG CDC; Marlin's G-code link is a hardware UART (Serial1 by default). Do not confuse the two. `tmc_hw_serial_begin()` in `HAL.cpp` starts TMC HW-serial ports, on the board's `HARDWARE_SERIALn_RX/TX` pins if it sets them.
 
 4. **ADC2 is unusable while WiFi is active.** `HAL.cpp adc_init()` only configures ADC1 channels (`get_channel()` maps pins 32–39); ADC2 is shared with the WiFi radio and is intentionally left unconfigured (see comment at `HAL.cpp:253`). Keep thermistor pins on ADC1, or readings will fail when WiFi is up.
 

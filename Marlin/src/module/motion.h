@@ -534,7 +534,7 @@ public:
   static void goto_current_position(const feedRate_t fr_mm_s=feedrate_mm_s);
 
   #if HAS_EXTRUDERS
-    static void unscaled_e_move(const float length, const feedRate_t fr_mm_s);
+    static void unscaled_e_move(const float length, const feedRate_t fr_mm_s, const bool noreset=false);
   #endif
 
   static void prepare_line_to_destination();

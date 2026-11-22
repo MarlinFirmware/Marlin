@@ -104,7 +104,8 @@ class DWIN_ICO_File():
                       (count, entry.width, entry.height, entry.offset, entry.length, os.path.basename(outfilename)))
 
     def createFile(self, iconDir, filename):
-        """Create a new .ico file from the contents of iconDir.
+        """
+        Create a new .ico file from the contents of iconDir.
 
         The contents of iconDir are processed to get image
         resolution, and a new entry is created for each.

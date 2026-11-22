@@ -36,9 +36,6 @@
 #include "../../../module/printcounter.h"
 #include "../../../module/stepper.h"
 #include "../../../gcode/queue.h"
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../../../feature/pause.h"
-#endif
 #if ENABLED(POWER_LOSS_RECOVERY)
   #include "../../../feature/powerloss.h"
 #endif

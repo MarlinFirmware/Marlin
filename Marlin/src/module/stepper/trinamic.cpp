@@ -49,8 +49,8 @@ enum StealthIndex : uint8_t {
 //
 
 #if ENABLED(TMC_USE_SW_SPI)
-  #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
-  #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, TMC_SPI_MOSI, TMC_SPI_MISO, TMC_SPI_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_SPI_MOSI, ST##_SPI_MISO, ST##_SPI_SCK, ST##_CHAIN_POS)
+  #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, ST##_SPI_MOSI, ST##_SPI_MISO, ST##_SPI_SCK, ST##_CHAIN_POS)
 #else
   #define __TMC_SPI_RSENSE_DEFINE(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, float(ST##_RSENSE), ST##_CHAIN_POS)
   #define __TMC_SPI_DEFINE_TMC2240(IC, ST, L, LI, AI) TMCMarlin<IC##Stepper, L, LI, AI> stepper##ST(ST##_CS_PIN, ST##_CHAIN_POS)
@@ -606,8 +606,11 @@ enum StealthIndex : uint8_t {
         };
       } sp_helper;
 
+      #ifndef TMC_HW_SERIAL_BEGIN
+        #define TMC_HW_SERIAL_BEGIN(S, B) S.begin(B)
+      #endif
       #define HW_SERIAL_BEGIN(A) do{ if (!sp_helper.began(TMCAxis::A, &A##_HARDWARE_SERIAL)) \
-                                          A##_HARDWARE_SERIAL.begin(TMC_##A##_BAUD_RATE); }while(0)
+                                          TMC_HW_SERIAL_BEGIN(A##_HARDWARE_SERIAL, TMC_##A##_BAUD_RATE); }while(0)
     #endif
 
     #if AXIS_HAS_UART(X)

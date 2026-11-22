@@ -151,9 +151,7 @@ namespace ExtUI {
     void onPowerLoss() {
       // Called when power-loss state is detected
     }
-    void onPowerLossResume() {
-      // Called on resume from power-loss
-    }
+    void onPowerLossResume() { paneldue.power_loss_resume(); }
   #endif
 
   #if HAS_PID_HEATING

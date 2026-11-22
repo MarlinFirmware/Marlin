@@ -201,6 +201,7 @@ namespace LanguageNarrow_es {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. Controlador");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistores");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extrusores");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Versión firmw. MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baudios");                                  // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocolo");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luz cabina");                               // Case Light
@@ -1037,7 +1038,7 @@ namespace LanguageNarrow_es {
 
 namespace LanguageWide_es {
   using namespace LanguageNarrow_es;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Fusor"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Fusor ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Precalentar ") PREHEAT_1_LABEL _UxGT(" Ajustes"); // Preheat (PREHEAT_1_LABEL) Settings

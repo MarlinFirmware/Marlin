@@ -270,6 +270,7 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
@@ -282,6 +283,17 @@
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ *
+ *** DGUS_LCD_UI SERMOON_V1 / CREALITY_RTS ***
+ * M72   - Set Cloud Print filename. (Requires DGUS_LCD_UI SERMOON_V1 or CREALITY_RTS)
+ * M79   - Cloud Print. S0:connect; S1:start; S2:pause; S3:resume; S4:stop; S5:complete (Requires DGUS_LCD_UI SERMOON_V1)
+ * M79   - Creality Cloud WiFi board print status. (Requires CREALITY_RTS)
+ * M224  - LED On (Requires CREALITY_RTS)
+ * M225  - LED Off (Requires CREALITY_RTS)
+ * M2900 - Report Bed Leveling Grid and test result (Requires CREALITY_RTS)
+ *
+ * M194 - Wi-Fi Reset (Requires MENU_RESET_WIFI)
+ * M930 - Wi-Fi ON/OFF status (Requires CREALITY_WIFI)
  *
  *** PRUSA_MMU3 ***
  * M704 - Preload to MMU
@@ -326,6 +338,7 @@
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
+ * M960 - Report CAN bus state. List CAN nodes running Klipper or Katapult. (Requires CAN_BUS)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
@@ -344,6 +357,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * M7422 - Dump the Creality v4.2.x bootloader info page. (Requires CREALITY_BOOTLOADER_INFO_DUMP)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -730,6 +744,10 @@ private:
     static void M48();
   #endif
 
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+    static void M72();
+  #endif
+
   #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
@@ -740,6 +758,10 @@ private:
 
   #if ENABLED(PRINTCOUNTER)
     static void M78();
+  #endif
+
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+    static void M79();
   #endif
 
   #if ENABLED(PSU_CONTROL)
@@ -890,6 +912,10 @@ private:
     #endif
   #endif
 
+  #if ENABLED(MENU_RESET_WIFI)
+    static void M194();
+  #endif
+
   #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
@@ -948,6 +974,11 @@ private:
 
   #if HAS_EXTRUDERS
     static void M221();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M224();
+    static void M225();
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)
@@ -1182,6 +1213,11 @@ private:
     static void M575();
   #endif
 
+  #if ENABLED(MKS_WIFI_MODULE)
+    static void M587();
+    static void M587_report(const bool forReplay=true);
+  #endif
+
   #if ENABLED(NONLINEAR_EXTRUSION)
     static void M592();
     static void M592_report(const bool forReplay=true);
@@ -1314,12 +1350,20 @@ private:
     static void M928();
   #endif
 
+  #if ENABLED(CREALITY_WIFI)
+    static void M930();
+  #endif
+
   #if ENABLED(OTA_FIRMWARE_UPDATE)
     static void M936();
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     static void M951();
+  #endif
+
+  #if ENABLED(CAN_BUS)
+    static void M960();
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -1329,6 +1373,10 @@ private:
   #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
+  #endif
+
+  #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+    static void M7422();
   #endif
 
   #if ENABLED(PLATFORM_M997_SUPPORT)
@@ -1362,6 +1410,10 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M2900();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)

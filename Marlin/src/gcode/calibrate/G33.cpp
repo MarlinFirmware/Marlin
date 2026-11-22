@@ -104,7 +104,7 @@ void print_signed_float(FSTR_P const prefix, const float f) {
 /**
  * - Print the delta settings
  */
-static void print_calibration_settings(const bool end_stops, const bool tower_angles) {
+static void print_calibration_settings(const bool end_stops, const bool tower_angles, const bool diag_rod=false) {
   SERIAL_ECHOPGM(".Height:", delta_height);
   if (end_stops) {
     print_signed_float(F("Ex"), delta_endstop_adj.a);
@@ -123,6 +123,8 @@ static void print_calibration_settings(const bool end_stops, const bool tower_an
   }
   if (end_stops != tower_angles)
     SERIAL_ECHOPGM("  Radius:", delta_radius);
+
+  if (diag_rod) SERIAL_ECHOPGM("  Rod:", delta_diagonal_rod);
 
   SERIAL_EOL();
 }
@@ -355,6 +357,210 @@ static float auto_tune_a(const float dcr) {
   return a_fac;
 }
 
+#if ENABLED(DELTA_CALIBRATION_LEAST_SQUARES)
+
+/**
+ * Least-squares ("Minor Squares") calibration, after the method used by
+ * RepRapFirmware (David Crocker). Instead of the fixed convergence matrices
+ * above, the calibration factors are found with a Gauss-Newton fit that
+ * minimizes the sum of the squared probe height errors.
+ *
+ * The probe triggers when the nozzle touches the bed, so the carriage
+ * positions at each probe point are known. The solver finds corrections to
+ * the carriage heights (endstops), delta radius, tower angle trims, and
+ * diagonal rod such that forward kinematics of those carriage positions
+ * puts every probe point at Z=0.
+ */
+
+// Factors to solve for, in order. Only the first 'factors' are adjusted.
+constexpr uint8_t LSQ_FACTOR_E_A = 0,  // Carriage A, B, C offsets (endstops)
+                  LSQ_FACTOR_RAD = 3,  // Delta radius
+                  LSQ_FACTOR_T_A = 4,  // Tower angle trim A (C is the reference)
+                  LSQ_FACTOR_T_B = 5,  // Tower angle trim B
+                  LSQ_FACTOR_ROD = 6,  // Diagonal rod length
+                  LSQ_MAX_FACTORS = 7,
+                  LSQ_ITERATIONS = 2;  // Gauss-Newton passes per set of probe results
+
+constexpr float LSQ_PERTURB = 0.2f;    // Step (mm or degrees) for numerical derivatives
+
+// Delta kinematics state, so forward kinematics can be tried with perturbed settings
+struct lsq_kinematics_t {
+  xy_float_t tower[3];
+  abc_float_t rod_2;
+
+  void save() {
+    for (uint8_t i = 0; i < 3; i++) tower[i] = delta_tower[i];
+    rod_2 = delta_diagonal_rod_2_tower;
+  }
+
+  // Z position of the effector for the given carriage heights
+  float z_at(const abc_float_t &carriage) const {
+    for (uint8_t i = 0; i < 3; i++) delta_tower[i] = tower[i];
+    delta_diagonal_rod_2_tower = rod_2;
+    forward_kinematics(carriage);
+    return motion.cartes.z;
+  }
+};
+
+static void lsq_adjust(const uint8_t factor, const float amount) {
+  switch (factor) {
+    case LSQ_FACTOR_RAD: delta_radius += amount; break;
+    case LSQ_FACTOR_T_A: delta_tower_angle_trim.a += amount; break;
+    case LSQ_FACTOR_T_B: delta_tower_angle_trim.b += amount; break;
+    case LSQ_FACTOR_ROD: delta_diagonal_rod += amount; break;
+    default: break;
+  }
+}
+
+/**
+ * Solve the "normal equations" in the n x (n+1) matrix m (the last
+ * column is the right-hand side) by Gauss-Jordan elimination with
+ * partial pivoting. Returns false if the matrix is singular.
+ */
+static bool lsq_solve_normal(float m[LSQ_MAX_FACTORS][LSQ_MAX_FACTORS + 1], const uint8_t n, float x[LSQ_MAX_FACTORS]) {
+  for (uint8_t col = 0; col < n; col++) {
+    uint8_t pivot = col;
+    for (uint8_t row = col + 1; row < n; row++)
+      if (ABS(m[row][col]) > ABS(m[pivot][col])) pivot = row;
+    if (ABS(m[pivot][col]) < 1e-6f) return false;
+    if (pivot != col) for (uint8_t k = col; k <= n; k++) {
+      const float t = m[col][k];
+      m[col][k] = m[pivot][k];
+      m[pivot][k] = t;
+    }
+    const float inv = 1.0f / m[col][col];
+    for (uint8_t k = col; k <= n; k++) m[col][k] *= inv;
+    for (uint8_t row = 0; row < n; row++) {
+      if (row == col) continue;
+      const float f = m[row][col];
+      if (f) for (uint8_t k = col; k <= n; k++) m[row][k] -= f * m[col][k];
+    }
+  }
+  for (uint8_t i = 0; i < n; i++) x[i] = m[i][n];
+  return true;
+}
+
+/**
+ * Find the changes to the delta settings that best fit the probed heights.
+ *
+ * z_pt      - Probed heights at the calibration points
+ * factors   - Number of factors to adjust (3, 4, 6, or 7)
+ * four_pt   - 4-point calibration (CEN plus three points on the radius)
+ * towers    - For 4-point calibration, the points are on the towers
+ * dcr       - Calibration radius
+ *
+ * Results are returned as changes to apply to the endstop adjustments,
+ * delta radius, tower angle trims, and diagonal rod. Delta settings
+ * are left as they were found.
+ */
+static bool lsq_solve(float z_pt[NPP + 1], const uint8_t factors, const bool four_pt, const bool towers, const float dcr, abc_float_t &e_delta, float &r_delta, abc_float_t &t_delta, float &l_delta) {
+
+  // The points that were probed
+  uint8_t pt[NPP + 1], npts = 0;
+  pt[npts++] = CEN;
+  if (four_pt) {
+    pt[npts++] = towers ? __A : _AB;
+    pt[npts++] = towers ? __B : _BC;
+    pt[npts++] = towers ? __C : _CA;
+  }
+  else
+    LOOP_CAL_RAD(rad) pt[npts++] = rad;
+
+  // Carriage heights when each point was probed
+  abc_float_t carriage[NPP + 1];
+  reverse_kinematics_probe_points(z_pt, carriage, dcr);
+
+  const float r_start = delta_radius, l_start = delta_diagonal_rod;
+  const abc_float_t t_start = delta_tower_angle_trim;
+
+  abc_float_t offset{0};  // Total carriage change in order to make all the heights zero
+  bool ok = true;
+
+  for (uint8_t pass = 0; ok && pass < LSQ_ITERATIONS; pass++) {
+
+    // Kinematics for the current settings, and with each of
+    // the settings perturbed up and down for the derivatives.
+    lsq_kinematics_t now, up[LSQ_MAX_FACTORS], down[LSQ_MAX_FACTORS];
+    now.save();
+    const float r_now = delta_radius, l_now = delta_diagonal_rod;
+    const abc_float_t t_now = delta_tower_angle_trim;
+    for (uint8_t f = LSQ_FACTOR_RAD; f < factors; f++) {
+      lsq_adjust(f, +LSQ_PERTURB); recalc_delta_settings(); up[f].save();
+      delta_radius = r_now; delta_diagonal_rod = l_now; delta_tower_angle_trim = t_now;
+      lsq_adjust(f, -LSQ_PERTURB); recalc_delta_settings(); down[f].save();
+      delta_radius = r_now; delta_diagonal_rod = l_now; delta_tower_angle_trim = t_now;
+    }
+
+    // Build the normal equations (J'J x = -J'r) from the derivatives of Z at each point
+    float m[LSQ_MAX_FACTORS][LSQ_MAX_FACTORS + 1] = { { 0 } };
+    for (uint8_t p = 0; ok && p < npts; p++) {
+      const abc_float_t c = carriage[pt[p]] + offset;
+      const float err = now.z_at(c);
+      float d[LSQ_MAX_FACTORS];
+      for (uint8_t f = 0; f < factors; f++) {
+        if (f < LSQ_FACTOR_RAD) {
+          abc_float_t hi = c, lo = c;
+          hi[f] += LSQ_PERTURB; lo[f] -= LSQ_PERTURB;
+          d[f] = (now.z_at(hi) - now.z_at(lo)) / (2 * LSQ_PERTURB);
+        }
+        else
+          d[f] = (up[f].z_at(c) - down[f].z_at(c)) / (2 * LSQ_PERTURB);
+        if (isnan(d[f])) ok = false;
+      }
+      if (isnan(err)) ok = false;
+      for (uint8_t j = 0; j < factors; j++) {
+        for (uint8_t k = 0; k < factors; k++) m[j][k] += d[j] * d[k];
+        m[j][factors] -= d[j] * err;
+      }
+    }
+
+    // Restore the settings (used by the loop above) and solve
+    recalc_delta_settings();
+    float x[LSQ_MAX_FACTORS] = { 0 }, s[LSQ_MAX_FACTORS] = { 0 };
+    if (ok) {
+      // Scale so the diagonal is 1 to keep the different units comparable
+      for (uint8_t j = 0; j < factors; j++) {
+        if (m[j][j] <= 0) { ok = false; break; }
+        s[j] = 1.0f / SQRT(m[j][j]);
+      }
+      if (ok) {
+        for (uint8_t j = 0; j < factors; j++) {
+          for (uint8_t k = 0; k < factors; k++) m[j][k] *= s[j] * s[k];
+          m[j][factors] *= s[j];
+        }
+        ok = lsq_solve_normal(m, factors, x);
+      }
+    }
+    if (!ok) break;
+
+    // Apply the solution so the next pass starts from there
+    for (uint8_t f = 0; f < factors; f++) {
+      x[f] *= s[f];
+      if (isnan(x[f])) ok = false;
+    }
+    if (ok) {
+      LOOP_ABC(axis) offset[axis] += x[LSQ_FACTOR_E_A + axis];
+      for (uint8_t f = LSQ_FACTOR_RAD; f < factors; f++) lsq_adjust(f, x[f]);
+      recalc_delta_settings();
+    }
+  }
+
+  // Return the changes, and put the settings back as they were
+  e_delta = -offset;
+  r_delta = delta_radius - r_start;
+  t_delta.set(delta_tower_angle_trim.a - t_start.a, delta_tower_angle_trim.b - t_start.b, 0);
+  l_delta = delta_diagonal_rod - l_start;
+
+  delta_radius = r_start;
+  delta_diagonal_rod = l_start;
+  delta_tower_angle_trim = t_start;
+  recalc_delta_settings();
+
+  return ok;
+}
+
+#endif // DELTA_CALIBRATION_LEAST_SQUARES
+
 /**
  * G33: Delta Auto Calibration
  *
@@ -385,6 +591,14 @@ static float auto_tune_a(const float dcr) {
  *   E<bool>  Engage the probe for each point
  *
  *   O<bool>  Probe at probe-offset-relative positions instead of the required kinematic points
+ *
+ *   With DELTA_CALIBRATION_LEAST_SQUARES:
+ *   L<int>   Solve by least squares (as in RepRapFirmware) rather than by the convergence matrices.
+ *     Requires P2 or higher. The more factors, the more points needed.
+ *     L3      Adjust endstops (and height) only
+ *     L4      Adjust endstops and delta radius
+ *     L6      Adjust endstops, delta radius, and tower angles (P3-P10 without T)
+ *     L7      Adjust endstops, delta radius, tower angles, and diagonal rod (P3-P10 without T)
  *
  *   With HAS_DELTA_SENSORLESS_PROBING:
  *     Use these flags to calibrate stall sensitivity:
@@ -437,6 +651,25 @@ void GcodeSuite::G33() {
 
   const bool stow_after_each = parser.seen_test('E');
 
+  #if ENABLED(DELTA_CALIBRATION_LEAST_SQUARES)
+    const uint8_t lsq_factors = parser.byteval('L');
+    if (lsq_factors) {
+      // 4 points for P2, otherwise all 7 points
+      if (lsq_factors != 3 && lsq_factors != 4 && lsq_factors != 6 && lsq_factors != 7) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(L)east-squares factors must be 3, 4, 6, or 7."));
+        return;
+      }
+      if (probe_points < 2 || lsq_factors > (probe_points == 2 ? 4 : 7)) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(L)east-squares needs more (P)oints."));
+        return;
+      }
+      if (lsq_factors > 4 && !towers_set) {
+        SERIAL_ECHOLNPGM(GCODE_ERR_MSG("(L)east-squares tower angles conflict with (T)."));
+        return;
+      }
+    }
+  #endif
+
   #if HAS_DELTA_SENSORLESS_PROBING
     probe.test_sensitivity = { !parser.seen_test('X'), !parser.seen_test('Y'), !parser.seen_test('Z') };
     const bool do_save_offset_adj = parser.seen_test('S');
@@ -462,6 +695,11 @@ void GcodeSuite::G33() {
 
   abc_pos_t e_old = delta_endstop_adj, a_old = delta_tower_angle_trim;
 
+  #if ENABLED(DELTA_CALIBRATION_LEAST_SQUARES)
+    float l_old = delta_diagonal_rod;
+    const bool _rod_results = lsq_factors == 7;
+  #endif
+
   SERIAL_ECHOLNPGM("G33 Auto Calibrate");
 
   // Report settings
@@ -471,7 +709,7 @@ void GcodeSuite::G33() {
   SERIAL_EOL();
   ui.set_status(checkingac);
 
-  print_calibration_settings(_endstop_results, _angle_results);
+  print_calibration_settings(_endstop_results, _angle_results, TERN0(DELTA_CALIBRATION_LEAST_SQUARES, _rod_results));
 
   ac_setup(!_0p_calibration && !_1p_calibration);
 
@@ -524,10 +762,14 @@ void GcodeSuite::G33() {
         r_old = delta_radius;
         h_old = delta_height;
         a_old = delta_tower_angle_trim;
+        TERN_(DELTA_CALIBRATION_LEAST_SQUARES, l_old = delta_diagonal_rod);
       }
 
       abc_float_t e_delta = { 0.0f }, t_delta = { 0.0f };
       float r_delta = 0.0f;
+      #if ENABLED(DELTA_CALIBRATION_LEAST_SQUARES)
+        float l_delta = 0.0f;
+      #endif
 
       /**
        * Convergence matrices
@@ -550,6 +792,15 @@ void GcodeSuite::G33() {
       a_factor = auto_tune_a(dcr);
       if (_7p_9_center) dcr /= 0.9f;
 
+      #if ENABLED(DELTA_CALIBRATION_LEAST_SQUARES)
+        if (lsq_factors) {
+          if (!lsq_solve(z_at_pt, lsq_factors, _4p_calibration, towers_set, _7p_9_center ? dcr * 0.9f : dcr, e_delta, r_delta, t_delta, l_delta)) {
+            SERIAL_ECHOLNPGM(GCODE_ERR_MSG("Least-squares solution failed. Correct delta settings with M665 and M666."));
+            return ac_cleanup();
+          }
+        }
+        else
+      #endif
       switch (probe_points) {
         case 0:
           test_precision = 0.0f; // Forced end
@@ -591,6 +842,7 @@ void GcodeSuite::G33() {
       delta_endstop_adj += e_delta;
       delta_radius += r_delta;
       delta_tower_angle_trim += t_delta;
+      TERN_(DELTA_CALIBRATION_LEAST_SQUARES, delta_diagonal_rod += l_delta);
     }
     else if (zero_std_dev >= test_precision) {
       // Roll back
@@ -598,6 +850,7 @@ void GcodeSuite::G33() {
       delta_radius = r_old;
       delta_height = h_old;
       delta_tower_angle_trim = a_old;
+      TERN_(DELTA_CALIBRATION_LEAST_SQUARES, delta_diagonal_rod = l_old);
     }
 
     if (verbose_level != 0) { // !Dry-run
@@ -651,7 +904,7 @@ void GcodeSuite::G33() {
         else
           msg.appendf(F("%03i.x"), (int)LROUND(zero_std_dev_min));
         ui.set_status(msg);
-        print_calibration_settings(_endstop_results, _angle_results);
+        print_calibration_settings(_endstop_results, _angle_results, TERN0(DELTA_CALIBRATION_LEAST_SQUARES, _rod_results));
         SERIAL_ECHOLNPGM("Save with M500 and/or copy to Configuration.h");
       }
       else { // !end iterations
@@ -665,7 +918,7 @@ void GcodeSuite::G33() {
         SERIAL_ECHOLNPGM("std dev:", p_float_t(zero_std_dev, 3));
         ui.set_status(msg);
         if (verbose_level > 1)
-          print_calibration_settings(_endstop_results, _angle_results);
+          print_calibration_settings(_endstop_results, _angle_results, TERN0(DELTA_CALIBRATION_LEAST_SQUARES, _rod_results));
       }
     }
     else { // Dry-run

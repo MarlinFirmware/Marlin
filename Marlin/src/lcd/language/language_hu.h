@@ -198,6 +198,7 @@ namespace LanguageNarrow_hu {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Alaplap infó");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termisztorok");                             // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Adagolók");                                 // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU firmware verzió");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Átviteli sebesség");                        // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Munkalámpa");                               // Case Light
@@ -1037,7 +1038,7 @@ namespace LanguageNarrow_hu {
 
 namespace LanguageWide_hu {
   using namespace LanguageNarrow_hu;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" Fej");     // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" Fej ~");   // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Fűtés ") PREHEAT_1_LABEL _UxGT(" beállítások"); // Preheat (PREHEAT_1_LABEL) Settings

@@ -193,6 +193,7 @@ namespace LanguageNarrow_zh_CN {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("主板信息");                                     // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("温度计");                                      // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("挤出机");                                      // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU固件版本");                                  // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("波特率");                                      // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("协议");                                       // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("外壳灯");                                      // Case Light
@@ -1033,7 +1034,7 @@ namespace LanguageNarrow_zh_CN {
 
 namespace LanguageWide_zh_CN {
   using namespace LanguageNarrow_zh_CN;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热端");         // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 热端 ~");       // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("预热 ") PREHEAT_1_LABEL _UxGT(" 设置");         // Preheat (PREHEAT_1_LABEL) Settings

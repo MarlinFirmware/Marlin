@@ -527,6 +527,8 @@
   #define _LCD_CONTRAST_MAX  254
 #elif ENABLED(MAKRPANEL)
   #define _LCD_CONTRAST_INIT  17
+#elif ENABLED(PANCAKEBOT_PANEL)
+  #define _LCD_CONTRAST_INIT  40
 #elif ENABLED(MINIPANEL)
   #define _LCD_CONTRAST_INIT 150
 #elif ENABLED(ZONESTAR_12864OLED)
@@ -620,6 +622,11 @@
     #else
       #define NEED_SD2CARD_SPI 1
     #endif
+  #endif
+
+  // G-code thumbnails (embedded images in the SD file header)
+  #if ENABLED(CREALITY_RTS)
+    #define HAS_GCODE_THUMBNAIL 1
   #endif
 
 #else // !HAS_MEDIA
@@ -1591,12 +1598,12 @@
 
 // Flag the named hardware serial ports in use
 #define TMC_UART_IS(A,N) (defined(A##_HARDWARE_SERIAL) && (CAT(HW_,A##_HARDWARE_SERIAL) == HW_Serial##N || CAT(HW_,A##_HARDWARE_SERIAL) == HW_MSerial##N))
-#define ANY_SERIAL_IS(N) (  SERIAL_IN_USE(N) \
-                         || TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
-                         || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
-                         || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
-                         || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
-                         || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_TMC_UART_IS(N) (  TMC_UART_IS(X,  N) || TMC_UART_IS(Y , N) || TMC_UART_IS(Z , N) \
+                           || TMC_UART_IS(I,  N) || TMC_UART_IS(J , N) || TMC_UART_IS(K , N) \
+                           || TMC_UART_IS(U,  N) || TMC_UART_IS(V , N) || TMC_UART_IS(W , N) \
+                           || TMC_UART_IS(X2, N) || TMC_UART_IS(Y2, N) || TMC_UART_IS(Z2, N) || TMC_UART_IS(Z3, N) || TMC_UART_IS(Z4, N) \
+                           || TMC_UART_IS(E0, N) || TMC_UART_IS(E1, N) || TMC_UART_IS(E2, N) || TMC_UART_IS(E3, N) || TMC_UART_IS(E4, N) )
+#define ANY_SERIAL_IS(N) (SERIAL_IN_USE(N) || ANY_TMC_UART_IS(N))
 
 #define HW_Serial    501
 #define HW_Serial0   502
@@ -1655,6 +1662,29 @@
   #define USING_HW_SERIAL10 1
 #endif
 
+// Flag the Arduino SerialN ports named by TMC *_HARDWARE_SERIAL
+#if ANY_TMC_UART_IS(0)
+  #define USING_TMC_SERIAL0 1
+#endif
+#if ANY_TMC_UART_IS(1)
+  #define USING_TMC_SERIAL1 1
+#endif
+#if ANY_TMC_UART_IS(2)
+  #define USING_TMC_SERIAL2 1
+#endif
+#if ANY_TMC_UART_IS(3)
+  #define USING_TMC_SERIAL3 1
+#endif
+#if ANY_TMC_UART_IS(4)
+  #define USING_TMC_SERIAL4 1
+#endif
+#if ANY_TMC_UART_IS(5)
+  #define USING_TMC_SERIAL5 1
+#endif
+#if ANY_TMC_UART_IS(6)
+  #define USING_TMC_SERIAL6 1
+#endif
+
 #undef HW_Serial
 #undef HW_Serial0
 #undef HW_Serial1
@@ -1678,6 +1708,7 @@
 #undef _SERIAL_ID
 #undef _TMC_UART_IS
 #undef TMC_UART_IS
+#undef ANY_TMC_UART_IS
 #undef ANY_SERIAL_IS
 
 #if defined(__AVR_ARCH__) && defined(TMC_SPI_MISO) && defined(TMC_SPI_MOSI) && defined(TMC_SPI_SCK)
@@ -1685,6 +1716,212 @@
   // Otherwise we are forced to enable software SPI.
   #if TMC_SPI_MISO != MISO || TMC_SPI_MOSI != MOSI || TMC_SPI_SCK != SCK
     #define TMC_USE_SW_SPI
+  #endif
+#endif
+
+/**
+ * Default each axis to the global TMC software SPI bus. A pins file may override
+ * any of these to put a driver on its own bus, as needed by add-on driver boards
+ * wired to a different SPI peripheral than the onboard drivers.
+ */
+#if ENABLED(TMC_USE_SW_SPI)
+  #ifndef X_SPI_MOSI
+    #define X_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X_SPI_MISO
+    #define X_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X_SPI_SCK
+    #define X_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef X2_SPI_MOSI
+    #define X2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef X2_SPI_MISO
+    #define X2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef X2_SPI_SCK
+    #define X2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y_SPI_MOSI
+    #define Y_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y_SPI_MISO
+    #define Y_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y_SPI_SCK
+    #define Y_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Y2_SPI_MOSI
+    #define Y2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Y2_SPI_MISO
+    #define Y2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Y2_SPI_SCK
+    #define Y2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z_SPI_MOSI
+    #define Z_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z_SPI_MISO
+    #define Z_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z_SPI_SCK
+    #define Z_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z2_SPI_MOSI
+    #define Z2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z2_SPI_MISO
+    #define Z2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z2_SPI_SCK
+    #define Z2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z3_SPI_MOSI
+    #define Z3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z3_SPI_MISO
+    #define Z3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z3_SPI_SCK
+    #define Z3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef Z4_SPI_MOSI
+    #define Z4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef Z4_SPI_MISO
+    #define Z4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef Z4_SPI_SCK
+    #define Z4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef I_SPI_MOSI
+    #define I_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef I_SPI_MISO
+    #define I_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef I_SPI_SCK
+    #define I_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef J_SPI_MOSI
+    #define J_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef J_SPI_MISO
+    #define J_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef J_SPI_SCK
+    #define J_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef K_SPI_MOSI
+    #define K_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef K_SPI_MISO
+    #define K_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef K_SPI_SCK
+    #define K_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef U_SPI_MOSI
+    #define U_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef U_SPI_MISO
+    #define U_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef U_SPI_SCK
+    #define U_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef V_SPI_MOSI
+    #define V_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef V_SPI_MISO
+    #define V_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef V_SPI_SCK
+    #define V_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef W_SPI_MOSI
+    #define W_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef W_SPI_MISO
+    #define W_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef W_SPI_SCK
+    #define W_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E0_SPI_MOSI
+    #define E0_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E0_SPI_MISO
+    #define E0_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E0_SPI_SCK
+    #define E0_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E1_SPI_MOSI
+    #define E1_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E1_SPI_MISO
+    #define E1_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E1_SPI_SCK
+    #define E1_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E2_SPI_MOSI
+    #define E2_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E2_SPI_MISO
+    #define E2_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E2_SPI_SCK
+    #define E2_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E3_SPI_MOSI
+    #define E3_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E3_SPI_MISO
+    #define E3_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E3_SPI_SCK
+    #define E3_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E4_SPI_MOSI
+    #define E4_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E4_SPI_MISO
+    #define E4_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E4_SPI_SCK
+    #define E4_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E5_SPI_MOSI
+    #define E5_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E5_SPI_MISO
+    #define E5_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E5_SPI_SCK
+    #define E5_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E6_SPI_MOSI
+    #define E6_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E6_SPI_MISO
+    #define E6_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E6_SPI_SCK
+    #define E6_SPI_SCK TMC_SPI_SCK
+  #endif
+  #ifndef E7_SPI_MOSI
+    #define E7_SPI_MOSI TMC_SPI_MOSI
+  #endif
+  #ifndef E7_SPI_MISO
+    #define E7_SPI_MISO TMC_SPI_MISO
+  #endif
+  #ifndef E7_SPI_SCK
+    #define E7_SPI_SCK TMC_SPI_SCK
   #endif
 #endif
 
@@ -1949,18 +2186,27 @@
   #endif
 #endif
 
-#if HAS_REAL_BED_PROBE
-  #define HAS_Z_PROBE_STATE 1
-  // With SPI sensorless Z homing the Z_MIN pin is free for the probe.
-  #if NONE(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN, Z_SPI_SENSORLESS)
-    #define NEED_Z_MIN_PROBE_PIN 1
-    #if PIN_EXISTS(Z_MIN_PROBE)
-      #define USE_Z_MIN_PROBE 1
-    #endif
+/**
+ * USE_Z_MIN_PROBE
+ *   The probe state is read from Z_MIN_PROBE_PIN, giving it its own Z_MIN_PROBE endstop
+ *   bit. Otherwise Z_MIN_PROBE is an alias of Z_MIN (see endstops.h).
+ */
+#if HAS_Z_PROBE_STATE
+  #if ENABLED(Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN)
+    #define PROBE_IS_MIN_ENDSTOP 1
+  #elif PIN_EXISTS(Z_MIN_PROBE)
+    #define USE_Z_MIN_PROBE 1
   #endif
 #endif
 
-#if HAS_BED_PROBE && Z_HOME_TO_MIN && (!NEED_Z_MIN_PROBE_PIN || ENABLED(USE_PROBE_FOR_Z_HOMING))
+/**
+ * HOMING_Z_WITH_PROBE
+ *   Z homes toward MIN with the bed probe acting as the Z endstop, either because
+ *   USE_PROBE_FOR_Z_HOMING is enabled or because the probe shares the Z_MIN pin
+ *   (Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN) so there is no other Z endstop.
+ *   A probe on its own pin does not home Z by itself, and keeps any Z sensorless homing.
+ */
+#if HAS_BED_PROBE && Z_HOME_TO_MIN && ANY(USE_PROBE_FOR_Z_HOMING, PROBE_IS_MIN_ENDSTOP)
   #define HOMING_Z_WITH_PROBE 1
   // Disable Z axis sensorless homing if a probe is used to home the Z axis
   #if HAS_TRINAMIC_CONFIG
@@ -1971,6 +2217,8 @@
     #undef Z_SPI_SENSORLESS
   #endif
 #endif
+
+#undef PROBE_IS_MIN_ENDSTOP // not used further
 
 #if PIN_EXISTS(CALIBRATION)
   #define USE_CALIBRATION 1
@@ -2243,6 +2491,14 @@
 #if TEMP_SENSOR(BED)
   #define HAS_HEATED_BED 1
   #define HAS_TEMP_BED 1
+#endif
+
+// Heaters count time in range from when they come this close to their targets
+#if HAS_TEMP_HOTEND && !defined(TEMP_SETTLE_BAND)
+  #define TEMP_SETTLE_BAND TEMP_HYSTERESIS
+#endif
+#if HAS_HEATED_BED && !defined(TEMP_BED_SETTLE_BAND)
+  #define TEMP_BED_SETTLE_BAND TEMP_BED_HYSTERESIS
 #endif
 #if TEMP_SENSOR(CHAMBER)
   #define HAS_TEMP_CHAMBER 1
@@ -2887,7 +3143,7 @@
   #define HAS_TEMPERATURE 1
 #endif
 
-#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC)
+#if HAS_TEMPERATURE && ANY(HAS_MARLINUI_MENU, HAS_DWIN_E3V2, HAS_DGUS_LCD_CLASSIC, CREALITY_RTS)
   #ifdef PREHEAT_10_LABEL
     #define PREHEAT_COUNT 10
   #elif defined(PREHEAT_9_LABEL)
@@ -3056,7 +3312,7 @@
  * Advanced Pause - Filament Change
  */
 #if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
+  #if ANY(HAS_MARLINUI_MENU, EXTENSIBLE_UI, DWIN_CREALITY_LCD_JYERSUI, SOVOL_SV06_RTS, CREALITY_RTS) || ALL(EMERGENCY_PARSER, HOST_PROMPT_SUPPORT)
     #define M600_PURGE_MORE_RESUMABLE 1  // UI provides some way to Purge More / Resume
   #endif
   #ifndef FILAMENT_CHANGE_SLOW_LOAD_LENGTH
@@ -3066,6 +3322,17 @@
 
 #if HAS_MULTI_EXTRUDER && !defined(TOOLCHANGE_FS_EXTRA_PRIME)
   #define TOOLCHANGE_FS_EXTRA_PRIME 0
+#endif
+
+/**
+ * Switching Toolhead docks may be at either side of the Y axis.
+ * SWITCHING_TOOLHEAD_DOCK_DIR is the direction from the docks toward the work area:
+ *   +1 for docks at the low-Y side (front), -1 for docks at the high-Y side (rear).
+ * It is inferred from the half of the Y travel that SWITCHING_TOOLHEAD_Y_POS lies in.
+ * Y_SECURITY, Y_CLEAR and Y_RELEASE are distances from the dock toward the work area.
+ */
+#if ANY(SWITCHING_TOOLHEAD, MAGNETIC_SWITCHING_TOOLHEAD, ELECTROMAGNETIC_SWITCHING_TOOLHEAD)
+  #define SWITCHING_TOOLHEAD_DOCK_DIR ((SWITCHING_TOOLHEAD_Y_POS) < ((Y_MIN_POS) + (Y_MAX_POS)) * 0.5f ? 1 : -1)
 #endif
 
 /**
@@ -3362,6 +3629,10 @@
       #define LCD_HEIGHT TERN(IS_ULTIPANEL, 4, 2)
     #endif
   #endif
+  // Galaxy UI: TFT backlight brightness is set in the UI and saved with M500
+  #if ALL(NOVIN3DP_GALAXY_UI, TFT_COLOR_UI) && PIN_EXISTS(TFT_BACKLIGHT) && !defined(HAS_LCD_BRIGHTNESS)
+    #define HAS_LCD_BRIGHTNESS 1
+  #endif
   // Prepare the LCD to show the bootscreen early in setup
   #if ENABLED(SHOW_BOOTSCREEN) && ANY(HAS_LCD_CONTRAST, HAS_LCD_BRIGHTNESS)
     #define HAS_EARLY_LCD_SETTINGS 1
@@ -3399,7 +3670,7 @@
 #endif
 
 // Flag whether hex_print.cpp is needed
-#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID, I2C_SCANNER)
+#if ANY(AUTO_BED_LEVELING_UBL, M100_FREE_MEMORY_WATCHER, DEBUG_GCODE_PARSER, TMC_DEBUG, MARLIN_DEV_MODE, DEBUG_CARDREADER, M20_TIMESTAMP_SUPPORT, HAS_STM32_UID, I2C_SCANNER, CREALITY_BOOTLOADER_INFO_DUMP, CAN_BUS)
   #define NEED_HEX_PRINT 1
 #endif
 

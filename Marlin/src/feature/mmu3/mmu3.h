@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2.h
+ * mmu3.h
  */
 
 #include "mmu3_state.h"
@@ -91,6 +91,7 @@
       ParkExtruder = 1, // The extruder was parked.
       Cooldown = 2,   // The extruder was allowed to cool.
       CooldownPending = 4,
+      Saved = 8,      // Print state saved (and the head parked, if it was allowed to move); don't repeat that until resumed.
     };
 
     // Source of operation error
@@ -267,6 +268,10 @@
       printerButtonOperation = Buttons::NoButton;
     }
 
+    #if ENABLED(MMU_MENUS)
+      void set_return_to_pause_after_eject(bool value) { return_to_pause_after_eject = value; }
+    #endif
+
     static uint8_t cutter_mode;   // mode 0:disabled | 1:enabled | 2:always (EXPERIMENTAL)
     static int cutter_mode_addr;  // EEPROM addr for cutter enabled setting
     static uint8_t stealth_mode;  // stealth mode
@@ -317,7 +322,7 @@
     StepStatus logicStep(bool reportErrors);
 
     void filament_ramming();
-    void execute_extruder_sequence(const E_Step *sequence, uint8_t steps);
+    void execute_extruder_sequence(const E_Step *sequence, uint8_t steps, const float first_step_adjustment=0);
     void execute_load_to_nozzle_sequence();
 
     // Reports an error into attached ExtUIs
@@ -351,6 +356,9 @@
 
     // Resume hotend temperature, if it was cooled. Safe to call if we aren't saved.
     void resumeHotendTemp();
+
+    // Set the hotend target and wait for it, with the "Restoring temperature" screen
+    void reheatHotend(const int16_t temp);
 
     // Resume position, if the extruder was parked. Safe to all if state was not saved.
     void resumeUnpark();
@@ -393,12 +401,25 @@
     xyz_pos_t resume_position;
     int16_t resume_hotend_temp;
 
+    #if ENABLED(HOTEND_IDLE_TIMEOUT)
+      // Targets when the error began, to undo a Hotend Idle Timeout that hit while waiting for the user
+      bool error_temps_saved;
+      int16_t error_hotend_target;
+      #if HAS_HEATED_BED
+        int16_t error_bed_target;
+      #endif
+    #endif
+
     ProgressCode lastProgressCode = ProgressCode::OK;
     ErrorCode lastErrorCode = ErrorCode::MMU_NOT_RESPONDING;
     ErrorSource lastErrorSource = ErrorSource::ErrorSourceNone;
     Buttons lastButton = Buttons::NoButton;
     uint16_t lastReadRegisterValue = 0;
     Buttons printerButtonOperation = Buttons::NoButton;
+
+    #if ENABLED(MMU_MENUS)
+      bool return_to_pause_after_eject = false;
+    #endif
 
     StepStatus logicStepLastStatus;
 

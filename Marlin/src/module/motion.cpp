@@ -952,10 +952,18 @@ void Motion::goto_current_position(const feedRate_t fr_mm_s/*=feedrate_mm_s*/) {
 }
 
 #if HAS_EXTRUDERS
-  void Motion::unscaled_e_move(const float length, const feedRate_t fr_mm_s) {
-    TERN_(HAS_FILAMENT_SENSOR, runout.reset());
-    position.e += length / planner.e_factor[extruder];
-    goto_current_position(fr_mm_s);
+  /**
+   * Extrude (or retract) by an unscaled length, then wait for the move to finish.
+   * The move starts from the end of the planner queue so no other axis moves,
+   * whatever leveling is active or the last move was.
+   *
+   * @param noreset  Don't reset the runout sensor
+   */
+  void Motion::unscaled_e_move(const float length, const feedRate_t fr_mm_s, const bool noreset/*=false*/) {
+    TERN_(HAS_FILAMENT_SENSOR, if (!noreset) runout.reset());
+    const float de = length / planner.e_factor[extruder];
+    position.e += de;
+    planner.buffer_e_move(de, fr_mm_s, extruder);
     planner.synchronize();
   }
 #endif
@@ -1952,7 +1960,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             if (delayed_move_time != UINT32_MAX) {
               position = destination;
               NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_time = millis() + 1000UL;
+              delayed_move_time = next_millis(millis() + 1000UL);
               return true;
             }
           }

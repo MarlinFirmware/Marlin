@@ -170,7 +170,7 @@ void Power::power_off() {
 
   #if ENABLED(POWER_OFF_TIMER)
     millis_t Power::power_off_time = 0;
-    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = millis() + delay_ms; }
+    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = next_millis(millis() + delay_ms); }
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)

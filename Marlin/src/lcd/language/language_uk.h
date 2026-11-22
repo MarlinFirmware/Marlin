@@ -195,6 +195,7 @@ namespace LanguageNarrow_uk {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Про плату");                                // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Термістори");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Екструдери");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Версія прошивки MMU");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Бод");                                      // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Протокол");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Підсвітка");                                // Case Light
@@ -1031,7 +1032,7 @@ namespace LanguageNarrow_uk {
 
 namespace LanguageWide_uk {
   using namespace LanguageNarrow_uk;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" хотенд"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Нагрів ") PREHEAT_1_LABEL _UxGT(" хотенд ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Налаштування нагріву ") PREHEAT_1_LABEL;    // Preheat (PREHEAT_1_LABEL) Settings

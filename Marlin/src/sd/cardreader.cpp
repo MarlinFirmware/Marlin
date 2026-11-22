@@ -41,6 +41,10 @@
   #include "../lcd/sovol_rts/sovol_rts.h"
 #endif
 
+#if ENABLED(CREALITY_RTS)
+  #include "../lcd/rts/lcd_rts.h"
+#endif
+
 #include "../module/planner.h"        // for synchronize
 #include "../module/printcounter.h"
 #include "../gcode/queue.h"
@@ -117,7 +121,7 @@ int16_t CardReader::nrItems = -1;
       #if ENABLED(SDSORT_DYNAMIC_RAM)
         uint8_t *CardReader::isDir;
       #elif ENABLED(SDSORT_CACHE_NAMES) || DISABLED(SDSORT_USES_STACK)
-        uint8_t CardReader::isDir[(SDSORT_LIMIT+7)>>3];
+        uint8_t CardReader::isDir[(SDSORT_LIMIT + 7) >> 3];
       #endif
       #define IS_DIR(n) TEST(isDir[(n) >> 3], (n) & 0x07)
     #endif
@@ -516,6 +520,7 @@ static millis_t mount_settle_ms;
 
 void CardReader::mount(const bool alert/*=true*/) {
   mount_state = MOUNT_IDLE; // Cancel mount_async()
+  delay(5);
 
   flag.mounted = false;
   nrItems = -1;
@@ -733,7 +738,7 @@ void CardReader::manage_media() {
       // Not mounted? Leave the status unchanged to try again later
       if (!isMounted() && retries_left) {
         --retries_left;
-        next_retry_ms = millis() + mount_retry_ms;
+        next_retry_ms = next_millis(millis() + mount_retry_ms);
         prev_stat = old_stat;
         TERN_(HAS_MULTI_VOLUME, no_reenter = false);
         return;
@@ -845,7 +850,7 @@ void CardReader::startOrResumeFilePrinting() {
 // Run tasks upon finishing or aborting a file print.
 //
 void CardReader::endFilePrintNow(TERN_(SD_RESORT, const bool re_sort/*=false*/)) {
-  TERN_(ADVANCED_PAUSE_FEATURE, did_pause_print = 0);
+  TERN_(ADVANCED_PAUSE_FEATURE, paused_for_filament_change = 0);
   TERN_(DWIN_CREALITY_LCD, hmiFlag.print_finish = flag.sdprinting);
   flag.abort_sd_printing = false;
   if (isFileOpen()) myfile.close();
@@ -1786,6 +1791,8 @@ void CardReader::fileHasFinished() {
 
   flag.sdprintdone = true;          // Stop getting bytes from the SD card
   marlin.setState(MF_SD_COMPLETE);  // Tell Marlin to enqueue M1001 soon
+
+  TERN_(CREALITY_RTS, RTS_SDFileCompleted());
 }
 
 #if ENABLED(AUTO_REPORT_SD_STATUS)
@@ -1795,7 +1802,7 @@ void CardReader::fileHasFinished() {
 #if ENABLED(POWER_LOSS_RECOVERY)
 
   bool CardReader::jobRecoverFileExists() {
-    const bool exists = recovery.file.open(&root, recovery.filename, O_READ);
+    const bool exists = isMounted() && recovery.file.open(&root, recovery.filename, O_READ);
     if (exists) recovery.file.close();
     return exists;
   }

@@ -22,7 +22,7 @@
 #pragma once
 
 /**
- * mmu2_protocol_logic.h
+ * mmu3_protocol_logic.h
  */
 
 #include "../../MarlinCore.h"
@@ -75,6 +75,7 @@ namespace MMU3 {
   /*inline*/ constexpr uint32_t linkLayerTimeout = 2000;                  //!< Default link layer communication timeout
   /*inline*/ constexpr uint32_t dataLayerTimeout = linkLayerTimeout * 3;  //!< Data layer communication timeout
   /*inline*/ constexpr uint32_t heartBeatPeriod = linkLayerTimeout / 2;   //!< Period of heart beat messages (Q0)
+  /*inline*/ constexpr uint32_t commandRejectedTimeout = 30000;           //!< Give up resending a rejected command after this long
 
   static_assert(heartBeatPeriod < linkLayerTimeout && linkLayerTimeout < dataLayerTimeout, "Incorrect ordering of timeouts");
 
@@ -372,7 +373,12 @@ namespace MMU3 {
     uint16_t mmuFwVersionBuild;
 
     uint8_t retryAttempts;
+    bool commandErrorLogged = false; // The current Command Error has been reported (report each error once)
     bool inAutoRetry;
+
+    millis_t rejectedSinceMs = 0; //!< When the current run of rejected commands began (0 = none)
+    millis_t rejectedLoggedMs = 0; //!< When the current run of rejected commands was last logged
+    uint16_t rejectedCount = 0;    //!< How many times the current run of rejected commands was resent
 
     friend class MMU3;
   };

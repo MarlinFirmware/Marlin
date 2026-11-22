@@ -38,10 +38,6 @@
 #include "../../../module/temperature.h"
 #include "../../../module/printcounter.h"
 
-#if ENABLED(ADVANCED_PAUSE_FEATURE)
-  #include "../../../feature/pause.h"
-#endif
-
 #if HAS_MEDIA
   void DGUSTxHandler::setFileControlState(int16_t file, bool state) {
     DGUS_Control control;

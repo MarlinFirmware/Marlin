@@ -196,6 +196,7 @@ namespace LanguageNarrow_eu {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Txartelaren Info.");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistoreak");                             // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusoreak");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU firm. bertsioa");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baudioak");                                 // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoloa");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kabina Argia");                             // Case Light
@@ -1032,7 +1033,7 @@ namespace LanguageNarrow_eu {
 
 namespace LanguageWide_eu {
   using namespace LanguageNarrow_eu;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" Hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Berotu ") PREHEAT_1_LABEL _UxGT(" ezarpenak"); // Preheat (PREHEAT_1_LABEL) Settings

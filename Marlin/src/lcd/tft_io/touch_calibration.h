@@ -76,7 +76,7 @@ public:
   static bool need_calibration() { return !calibration.offset_x && !calibration.offset_y && !calibration.x && !calibration.y; }
 
   static calibrationState calibration_start() {
-    next_touch_update_ms = millis() + 750UL;
+    next_touch_update_ms = next_millis(millis() + 750UL);
     calibration = { 0, 0, 0, 0, TOUCH_ORIENTATION_NONE };
     calibration_state = CALIBRATION_TOP_LEFT;
     calibration_points[CALIBRATION_TOP_LEFT].x = 30;

@@ -36,7 +36,21 @@ namespace ExtUI {
 
   void onStartup() { EventLoop::setup(); }
 
-  void onIdle() { EventLoop::loop(); }
+  #if ENABLED(POWER_LOSS_RECOVERY)
+    static bool power_loss_prompt;
+    void onPowerLossResume() { power_loss_prompt = true; }
+  #endif
+
+  void onIdle() {
+    EventLoop::loop();
+    #if ENABLED(POWER_LOSS_RECOVERY)
+      // M1000 S can run during the boot screen, which would replace the dialog when it finishes
+      if (power_loss_prompt && current_screen.getScreen() != current_screen.lookupScreen(BootScreen::onRedraw)) {
+        power_loss_prompt = false;
+        GOTO_SCREEN(PowerLossResumeDialogBox);
+      }
+    #endif
+  }
 
   void onPrinterKilled(FSTR_P const error, FSTR_P const component) {
     char str[strlen_P(FTOP(error)) + strlen_P(FTOP(component)) + 3];

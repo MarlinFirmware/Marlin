@@ -99,7 +99,11 @@ void TFT_SPI::init() {
         __HAL_RCC_DMA2_CLK_ENABLE();
         DMAtx.Instance = DMA2_Stream3;
         DMAtx.Init.Channel = DMA_CHANNEL_3;
-        SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_4; // SPI1 clock on F1 and F4 is two times faster than SPI2 and SPI3 clock
+        #if ENABLED(GALAXY_FAST_SPI)
+          SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_2; // Twice as fast as the SPI2 and SPI3 rate, 42 MBit/s for F407
+        #else
+          SPIx.Init.BaudRatePrescaler  = SPI_BAUDRATEPRESCALER_4; // SPI1 clock on F1 and F4 is two times faster than SPI2 and SPI3 clock
+        #endif
       #elif defined(STM32H7xx)
         __HAL_RCC_DMA1_CLK_ENABLE();
         DMAtx.Instance = DMA1_Stream4;
@@ -197,7 +201,9 @@ uint32_t TFT_SPI::getID() {
 uint32_t TFT_SPI::readID(const uint16_t inReg) {
   uint32_t data = 0;
   #if PIN_EXISTS(TFT_MISO)
-    uint32_t BaudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    #if DISABLED(DEBUG_TFT_IO)
+      const uint32_t baudRatePrescaler = SPIx.Init.BaudRatePrescaler;
+    #endif
     SPIx.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
 
     dataTransferBegin(DATASIZE_8BIT);
@@ -232,7 +238,7 @@ uint32_t TFT_SPI::readID(const uint16_t inReg) {
 
     dataTransferEnd();
     #if DISABLED(DEBUG_TFT_IO)
-      SPIx.Init.BaudRatePrescaler = BaudRatePrescaler;
+      SPIx.Init.BaudRatePrescaler = baudRatePrescaler;
     #endif
   #endif
 

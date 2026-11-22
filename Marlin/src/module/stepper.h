@@ -481,10 +481,9 @@ class Stepper {
       static constexpr uint8_t steps_per_isr = 1; // Count of steps to perform per Stepper ISR call
     #else
       static uint8_t steps_per_isr;
-    #endif
-
-    #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
-      static hal_timer_t time_spent_in_isr, time_spent_out_isr;
+      #if DISABLED(OLD_ADAPTIVE_MULTISTEPPING)
+        static hal_timer_t time_spent_in_isr, time_spent_out_isr;
+      #endif
     #endif
 
     #if ENABLED(ADAPTIVE_STEP_SMOOTHING)
@@ -509,9 +508,9 @@ class Stepper {
     #endif
 
     #if ENABLED(S_CURVE_ACCELERATION)
-      static int32_t bezier_A,     // A coefficient in Bézier speed curve
-                     bezier_B,     // B coefficient in Bézier speed curve
-                     bezier_C;     // C coefficient in Bézier speed curve
+      static int32_t  bezier_A,    // A coefficient in Bézier speed curve
+                      bezier_B,    // B coefficient in Bézier speed curve
+                      bezier_C;    // C coefficient in Bézier speed curve
       static uint32_t bezier_F,    // F/free coefficient in Bézier speed curve
                       bezier_AV;   // AV coefficient in Bézier speed curve
       #ifdef __AVR__
@@ -561,7 +560,7 @@ class Stepper {
 
     static hal_timer_t ticks_nominal;
     #if DISABLED(S_CURVE_ACCELERATION)
-      static uint32_t acc_step_rate; // needed for deceleration start point
+      static uint32_t acc_step_rate; // Needed for deceleration start point
     #endif
 
     // Exact steps at which an endstop was triggered
@@ -746,7 +745,7 @@ class Stepper {
     #endif
 
     #if ENABLED(BABYSTEPPING)
-      static void do_babystep(const AxisEnum axis, const bool direction); // perform a short step with a single stepper motor, outside of any convention
+      static void do_babystep(const AxisEnum axis, const bool direction); // Perform a short step with a single stepper motor, outside of any convention
     #endif
 
     #if HAS_MOTOR_CURRENT_PWM

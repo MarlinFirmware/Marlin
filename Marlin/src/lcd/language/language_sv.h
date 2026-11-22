@@ -195,6 +195,7 @@ namespace LanguageNarrow_sv {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Styrkortsinfo");                            // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistorer");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderare");                              // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU-firmwareversion");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Datahastighet");                            // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokoll");                                // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kapslingsljus");                            // Case Light
@@ -1032,7 +1033,7 @@ namespace LanguageNarrow_sv {
 
 namespace LanguageWide_sv {
   using namespace LanguageNarrow_sv;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" munstycke"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" munstycke ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Förvärmning ") PREHEAT_1_LABEL _UxGT(" inställn."); // Preheat (PREHEAT_1_LABEL) Settings

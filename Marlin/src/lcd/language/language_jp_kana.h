@@ -195,6 +195,7 @@ namespace LanguageNarrow_jp_kana {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("セイギョケイジョウホウ");                              // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("サーミスター");                                   // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("エクストルーダースウ");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU ファームバージョン");                            // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("ボーレート");                                    // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("プロトコル");                                    // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("キョウタイナイショウメイ");                             // Case Light
@@ -1031,7 +1032,7 @@ namespace LanguageNarrow_jp_kana {
 
 namespace LanguageWide_jp_kana {
   using namespace LanguageNarrow_jp_kana;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = PREHEAT_1_LABEL _UxGT(" ヨネツ ノズル");                 // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = PREHEAT_1_LABEL _UxGT(" ヨネツ ノズル ~");               // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = PREHEAT_1_LABEL _UxGT(" ヨネツ セッテイ");                // Preheat (PREHEAT_1_LABEL) Settings

@@ -203,6 +203,7 @@ namespace LanguageNarrow_it {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info. scheda");                             // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistori");                               // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Estrusori");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Versione firm. MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocollo");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Luci case");                                // Case Light
@@ -1002,7 +1003,6 @@ namespace LanguageNarrow_it {
   LSTR MSG_BTN_UNLOAD                     = _UxGT("Scarica");                                  // Unload
   LSTR MSG_BTN_LOAD                       = _UxGT("Carica");                                   // Load
   LSTR MSG_BTN_EJECT                      = _UxGT("Espelli");                                  // Eject
-  LSTR MSG_BTN_STOP                       = _UxGT("Stop");                                     // Stop
   LSTR MSG_BTN_DISABLE_MMU                = _UxGT("Disabilita");                               // Disable
   LSTR MSG_BTN_MORE                       = _UxGT("Più info");                                 // More Info
   LSTR MSG_DONE                           = _UxGT("Eseguito");                                 // Done
@@ -1042,7 +1042,7 @@ namespace LanguageNarrow_it {
 
 namespace LanguageWide_it {
   using namespace LanguageNarrow_it;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" ugello ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preriscalda ") PREHEAT_1_LABEL _UxGT(" conf."); // Preheat (PREHEAT_1_LABEL) Settings

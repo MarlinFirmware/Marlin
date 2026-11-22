@@ -23,7 +23,7 @@ MMU3:>S2*10\n
 MMU3:<S2 A2*65\n
 ```
 
-This set of responses combines to indicate firmware version 3.0.2.
+This set of responses combines to indicate firmware version 3.0.2. Marlin requires major and minor to match (3.0) and accepts any patch level (3.0.0 and up).
 
 ## Startup sequence
 

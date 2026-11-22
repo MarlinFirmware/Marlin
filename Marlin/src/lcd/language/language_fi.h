@@ -195,6 +195,7 @@ namespace LanguageNarrow_fi {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Piirilevyn tiedot");                        // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistorit");                              // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruderit");                               // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU-firmware versio");                      // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokolla");                               // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Kotelon valo");                             // Case Light
@@ -1031,7 +1032,7 @@ namespace LanguageNarrow_fi {
 
 namespace LanguageWide_fi {
   using namespace LanguageNarrow_fi;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Esilämmitä ") PREHEAT_1_LABEL _UxGT(" suutin"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Esilämmitä ") PREHEAT_1_LABEL _UxGT(" suutin ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Esilämmitä ") PREHEAT_1_LABEL _UxGT(" asetukset"); // Preheat (PREHEAT_1_LABEL) Settings

@@ -176,6 +176,7 @@ uint32_t Planner::max_acceleration_steps_per_s2[DISTINCT_AXES]; // (steps/s^2) D
 #if HAS_EXTRUDERS
   int16_t Planner::flow_percentage[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(100); // Extrusion factor for each extruder
   float Planner::e_factor[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(1.0f); // The flow percentage and volumetric multiplier combine to scale E movement
+  float Planner::e_step_remainder[EXTRUDERS] = ARRAY_BY_EXTRUDERS1(0.0f); // Fraction of a step left over from scaling E, carried to the next block
 #endif
 
 #if HAS_VOLUMETRIC_EXTRUSION
@@ -1310,7 +1311,13 @@ void Planner::check_axes_activity() {
   // Update Fan speeds
   // Only if synchronous M106/M107 is disabled
   //
-  TERN_(HAS_TAIL_FAN_SPEED, if (fans_need_update) Fan::sync_speeds());
+  #if HAS_TAIL_FAN_SPEED
+    // A kickstarting fan needs a sync to drop to its speed when the kickstart time ends
+    #if FAN_KICKSTART_TIME
+      FANS_LOOP(i) if (fans[i].kicking) fans_need_update = true;
+    #endif
+    if (fans_need_update) Fan::sync_speeds();
+  #endif
 
   // Update hotend temperature based on extruder speed
   TERN_(AUTOTEMP, thermalManager.autotemp_task());
@@ -1879,7 +1886,18 @@ bool Planner::_populate_block(
   #if HAS_EXTRUDERS
     dm.e = (steps_dist.e > 0);
     const float esteps_float = steps_dist.e * e_factor[extruder];
-    const uint32_t esteps = ABS(esteps_float);
+
+    // The planner position moves by the whole unscaled E distance, so any part of the scaled E that doesn't make a whole step
+    // would be lost for good (with flow < 100% or volumetric extrusion, up to a step per block, which is most of the
+    // filament on short segments). Round to whole steps and carry the remainder into the next block.
+    int32_t esteps_whole = 0;
+    if (steps_dist.e) {
+      const float esteps_wanted = esteps_float + e_step_remainder[extruder];
+      esteps_whole = lroundf(esteps_wanted);
+      if ((esteps_whole < 0) != (steps_dist.e < 0)) esteps_whole = 0;  // Never step against the direction of the move
+      e_step_remainder[extruder] = esteps_wanted - float(esteps_whole);
+    }
+    const uint32_t esteps = ABS(esteps_whole);
   #else
     constexpr uint32_t esteps = 0;
   #endif
@@ -3056,6 +3074,30 @@ bool Planner::buffer_line(const xyze_pos_t &cart, const feedRate_t fr_mm_s
   #endif
 
 } // buffer_line()
+
+#if HAS_EXTRUDERS
+
+  bool Planner::buffer_e_move(const float de_mm, const feedRate_t fr_mm_s, const uint8_t extruder/*=motion.extruder*/) {
+
+    // Target the planner's end position in machine space (steps to mm), changing only E.
+    // 'position.e' is in steps of the last extruder, which may differ from 'extruder'.
+    abce_pos_t target;
+    LOOP_NUM_AXES(i) target[i] = position[i] * mm_per_step[i];
+    target.e = position.e * mm_per_step[E_AXIS_N(TERN(DISTINCT_E_FACTORS, last_extruder, extruder))] + de_mm;
+
+    #if HAS_DIST_MM_ARG
+      xyze_float_t cart_dist_mm = {};
+      cart_dist_mm.e = de_mm;
+    #endif
+
+    if (!buffer_segment(target OPTARG(HAS_DIST_MM_ARG, cart_dist_mm), fr_mm_s, extruder)) return false;
+
+    // Keep the cartesian E in step with the queued move
+    TERN_(IS_KINEMATIC, position_cart.e += de_mm);
+    return true;
+  }
+
+#endif // HAS_EXTRUDERS
 
 #if ENABLED(DIRECT_STEPPING)
 

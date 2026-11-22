@@ -200,6 +200,7 @@ namespace LanguageNarrow_id {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Info board");                               // Board Info
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Termistor");                                // Thermistors
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Ekstruder");                                // Extruders
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("Versi firmware MMU");                       // MMU Firmware Version
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");                                     // Baud
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protokol");                                 // Protocol
   LSTR MSG_CASE_LIGHT                     = _UxGT("Lampu casing");                             // Case Light
@@ -1036,7 +1037,7 @@ namespace LanguageNarrow_id {
 
 namespace LanguageWide_id {
   using namespace LanguageNarrow_id;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Panaskan ") PREHEAT_1_LABEL _UxGT(" hotend"); // Preheat (PREHEAT_1_LABEL) Hotend
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Panaskan ") PREHEAT_1_LABEL _UxGT(" hotend ~"); // Preheat (PREHEAT_1_LABEL) Hotend ~
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Pengaturan panas ") PREHEAT_1_LABEL;        // Preheat (PREHEAT_1_LABEL) Settings

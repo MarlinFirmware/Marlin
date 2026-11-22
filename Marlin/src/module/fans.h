@@ -77,6 +77,7 @@
   public:
     #if FAN_KICKSTART_TIME
       millis_t kick_end_ms = 0;       // Placed first to avoid ARM alignment padding
+      bool kicking = false;           // The last output was the kickstart power
       #if ENABLED(FAN_KICKSTART_LINEAR)
         uint8_t prev_fan_speed = 0;
       #endif
@@ -177,12 +178,15 @@
         if (speed > FAN_OFF_PWM) {
           const bool first_kick = kick_end_ms == 0 && TERN1(FAN_KICKSTART_LINEAR, speed > prev_fan_speed);
           if (first_kick)
-            kick_end_ms = ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (speed - prev_fan_speed) / 255);
-          if (first_kick || PENDING(ms, kick_end_ms))
+            kick_end_ms = next_millis(ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, (speed - prev_fan_speed) / 255));
+          if (first_kick || PENDING(ms, kick_end_ms)) {
+            kicking = true;
             return FAN_KICKSTART_POWER;
+          }
         }
         else
           kick_end_ms = 0;
+        kicking = false;
         TERN_(FAN_KICKSTART_LINEAR, prev_fan_speed = speed);
         return pwm();
       }

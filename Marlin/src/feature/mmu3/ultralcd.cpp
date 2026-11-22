@@ -154,7 +154,11 @@ FSTR_P const lcd_display_message_fullscreen(FSTR_P const fmsg) {
   // Disable update of the screen by the usual lcd_update(0) routine.
   #if HAS_WIRED_LCD
     //ui.lcdDrawUpdate = LCDViewAction::LCDVIEW_NONE;
-    ui.clear_lcd();
+    // A graphical LCD is cleared by its picture loop. Its clear_lcd() runs a loop of
+    // its own, which would break the picture loop this is normally called from.
+    #if !HAS_MARLINUI_U8GLIB
+      ui.clear_lcd();
+    #endif
     return lcd_display_message_fullscreen_async(fmsg);
   #else
     return fmsg
