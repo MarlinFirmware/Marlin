@@ -123,6 +123,7 @@ struct TTimeout24 : TTimerOps<TTimeout24<T>> {
   TTimeout24(const T interval, const T ms=millis()) { start(interval, ms); }
   FI void start(const T interval, const T ms=millis()) { end_ms = T(ms + interval); if (!end_ms) end_ms = 1; }
   FI void cancel() { end_ms = 0; }
+  FI void extend(const T interval) { if (enabled()) { end_ms += interval; if (!end_ms) end_ms = 1; } } // Push back a running end time
   FI bool enabled() const { return end_ms != 0; }
   FI S _remaining(const T ms=millis()) const { return S(end_ms - ms); }
   FI bool pending(const T ms=millis()) const { return enabled() && _remaining(ms) > 0; }
