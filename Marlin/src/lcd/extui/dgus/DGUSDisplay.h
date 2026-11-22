@@ -58,15 +58,23 @@ public:
   DGUSDisplay() = default;
 
   static void initDisplay();
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    static void resetDisplay();
+  #endif
 
   // Variable access.
-  static void writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
-  static void writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false);
+  static void writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false, const char fillChar=' ');
+  static void writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr=false, const char fillChar=' ');
   static void writeVariable(uint16_t adr, int16_t value);
   static void writeVariable(uint16_t adr, uint16_t value);
   static void writeVariable(uint16_t adr, uint8_t value);
   static void writeVariable(uint16_t adr, int8_t value);
   static void writeVariable(uint16_t adr, long value);
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    static void writeVariable(uint16_t adr, float value);
+    static void setVariableDisplayColor(uint16_t sp, uint16_t color);
+    static void setTouchScreenConfiguration(const bool enable_standby, const bool enable_sound, const uint8_t standby_brightness, const uint8_t active_brightness, const uint16_t standby_seconds);
+  #endif
 
   // Western PROGMEM string constant
   static void writeStringVar_P(uint16_t adr, PGM_P const pstr, uint8_t vallen=32) {
@@ -85,6 +93,11 @@ public:
     writeVariable(adr, (const void *)zhstr, vallen, true);
   }
 
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+    // Request a VP from the display. The reply arrives through processRx like an auto-upload.
+    static void readVariable(uint16_t adr);
+  #endif
+
   // Utility functions for bridging ui_api and dgus
   template<typename T, float(*Getter)(const T), T selector, typename WireType=uint16_t>
   static void setVariable(DGUS_VP_Variable &var) {
@@ -96,9 +109,6 @@ public:
     uint16_t newvalue = swap16(*(uint16_t*)val_ptr);
     Setter(newvalue, selector);
   }
-
-  // Until now I did not need to actively read from the display. That's why there is no ReadVariable
-  // (I extensively use the auto upload of the display)
 
   // Force display into another screen.
   // (And trigger update of containing VPs)
