@@ -25,6 +25,20 @@
 
 #include "sovol_rts.h"
 
+// Strings shown on the Information page. Override in Configuration.h if desired.
+#ifndef MARLINVERSION
+  #define MARLINVERSION SHORT_BUILD_VERSION
+#endif
+#ifndef MACVERSION
+  #define MACVERSION MACHINE_NAME
+#endif
+#ifndef SOFTVERSION
+  #define SOFTVERSION SHORT_BUILD_VERSION
+#endif
+#ifndef CORP_WEBSITE_E
+  #define CORP_WEBSITE_E "www.sovol3d.com"
+#endif
+
 DB RTS::recdat;
 DB RTS::snddat;
 uint8_t RTS::databuf[DATA_BUF_SIZE];
@@ -1598,7 +1612,13 @@ void RTS::onIdle() {
         static MTimeout24 remain_time_timer;
         if (remain_time_timer.elapsed(ms)) {
           if (thermalManager.degHotend(0) >= thermalManager.degTargetHotend(0) - 5) {
-            remain_time = ui.get_remaining_time();
+            #if ANY(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
+              remain_time = ui.get_remaining_time();
+            #else
+              // Same estimate as MarlinUI, which only provides it with a progress display
+              const uint32_t elapsed = print_job_timer.duration();
+              remain_time = job_percent ? elapsed * (100U - job_percent) / job_percent : 0;
+            #endif
             remain_time_timer.start(20 * 1000UL, ms);
             sendData(remain_time / 3600, PRINT_SURPLUS_TIME_HOUR_VP);
             sendData((remain_time % 3600) / 60, PRINT_SURPLUS_TIME_MIN_VP);
