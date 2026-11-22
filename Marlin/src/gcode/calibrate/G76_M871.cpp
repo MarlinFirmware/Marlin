@@ -95,17 +95,17 @@
   static void say_failed_to_calibrate()       { SERIAL_ECHOPGM("!Failed to calibrate"); }
 
   void GcodeSuite::G76() {
-    auto report_temps = [](millis_t &ntr, millis_t timeout=0) {
+    auto report_temps = [](MTimeout24 &ntr, const MTimeout24 &timeout=MTimeout24()) {
       marlin.idle_no_sleep();
       const millis_t ms = millis();
-      if (ELAPSED(ms, ntr)) {
-        ntr = ms + 1000;
+      if (ntr.elapsed(ms)) {
+        ntr.start(1000, ms);
         thermalManager.print_heater_states(motion.extruder);
       }
-      return (timeout && ELAPSED(ms, timeout));
+      return timeout.on_elapsed(ms);
     };
 
-    auto wait_for_temps = [&](const celsius_t tb, const celsius_t tp, millis_t &ntr, const millis_t timeout=0) {
+    auto wait_for_temps = [&](const celsius_t tb, const celsius_t tp, MTimeout24 &ntr, const MTimeout24 &timeout=MTimeout24()) {
       say_waiting_for(); SERIAL_ECHOLNPGM("bed and probe temperature.");
       while (thermalManager.wholeDegBed() != tb || thermalManager.wholeDegProbe() > tp)
         if (report_temps(ntr, timeout)) return true;
@@ -174,7 +174,7 @@
      ******************************************/
 
     // Report temperatures every second and handle heating timeouts
-    millis_t next_temp_report = millis() + 1000;
+    MTimeout24 next_temp_report(1000);
 
     auto report_targets = [&](const celsius_t tb, const celsius_t tp) {
       SERIAL_ECHOLNPGM("Target Bed:", tb, " Probe:", tp);
@@ -201,7 +201,7 @@
         motion.blocking_move(parkpos);
 
         // Wait for heatbed to reach target temp and probe to cool below target temp
-        if (wait_for_temps(target_bed, target_probe, next_temp_report, next_millis(millis() + MIN_TO_MS(15)))) {
+        if (wait_for_temps(target_bed, target_probe, next_temp_report, MTimeout24(MIN_TO_MS(15)))) {
           SERIAL_ECHOLNPGM("!Bed heating timeout.");
           break;
         }
@@ -262,9 +262,9 @@
 
         say_waiting_for_probe_heating();
         SERIAL_ECHOLNPGM(" Bed:", target_bed, " Probe:", target_probe);
-        const millis_t probe_timeout_ms = next_millis(millis() + MIN_TO_MS(15));
+        const MTimeout24 probe_timeout(MIN_TO_MS(15));
         while (thermalManager.degProbe() < target_probe) {
-          if (report_temps(next_temp_report, probe_timeout_ms)) {
+          if (report_temps(next_temp_report, probe_timeout)) {
             SERIAL_ECHOLNPGM("!Probe heating timed out.");
             timeout = true;
             break;

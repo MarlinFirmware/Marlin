@@ -5234,10 +5234,10 @@ void Temperature::isr() {
 
     bool Temperature::wait_for_chamber(const bool no_wait_for_cooling/*=true*/) {
       #if TEMP_CHAMBER_RESIDENCY_TIME > 0
-        millis_t residency_start_ms = 0;
+        MTimeout24 residency_timer; // Not running until the target is reached
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_CHAMBER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms, SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME)))
+        #define TEMP_CHAMBER_CONDITIONS (!residency_timer.enabled() || residency_timer.pending(now))
       #else
         // Loop until the temperature is very close target
         #define TEMP_CHAMBER_CONDITIONS (wants_to_cool ? isCoolingChamber() : isHeatingChamber())
@@ -5268,8 +5268,8 @@ void Temperature::isr() {
           print_heater_states(motion.extruder);
           #if TEMP_CHAMBER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
-            if (residency_start_ms)
-              s += long((TEMP_CHAMBER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
+            if (residency_timer.enabled())
+              s += long(MS_TO_SEC(residency_timer.remaining(now) + 999)); // Seconds left, rounded up
             else
               s += '?';
             s.echo();
@@ -5286,14 +5286,14 @@ void Temperature::isr() {
 
           const float temp_diff = ABS(target_temp - temp);
 
-          if (!residency_start_ms) {
+          if (!residency_timer.enabled()) {
             // Start the TEMP_CHAMBER_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_CHAMBER_WINDOW)
-              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) / 3 : 0);
+              residency_timer.start(SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) + (first_loop ? SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME) / 3 : 0), now);
           }
           else if (temp_diff > TEMP_CHAMBER_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
+            residency_timer.start(SEC_TO_MS(TEMP_CHAMBER_RESIDENCY_TIME), now);
           }
 
           first_loop = false;
@@ -5336,10 +5336,10 @@ void Temperature::isr() {
     bool Temperature::wait_for_cooler(const bool no_wait_for_cooling/*=true*/) {
 
       #if TEMP_COOLER_RESIDENCY_TIME > 0
-        millis_t residency_start_ms = 0;
+        MTimeout24 residency_timer; // Not running until the target is reached
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_COOLER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms, SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME)))
+        #define TEMP_COOLER_CONDITIONS (!residency_timer.enabled() || residency_timer.pending(now))
       #else
         // Loop until the temperature is very close target
         #define TEMP_COOLER_CONDITIONS (wants_to_cool ? isLaserHeating() : isLaserCooling())
@@ -5370,8 +5370,8 @@ void Temperature::isr() {
           print_heater_states(motion.extruder);
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
-            if (residency_start_ms)
-              s += long((TEMP_COOLER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
+            if (residency_timer.enabled())
+              s += long(MS_TO_SEC(residency_timer.remaining(now) + 999)); // Seconds left, rounded up
             else
               s += '?';
             s.echo();
@@ -5388,14 +5388,14 @@ void Temperature::isr() {
 
           const celsius_float_t temp_diff = ABS(target_temp - temp);
 
-          if (!residency_start_ms) {
+          if (!residency_timer.enabled()) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_COOLER_WINDOW)
-              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0);
+              residency_timer.start(SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0), now);
           }
           else if (temp_diff > TEMP_COOLER_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_start_ms = now;
+            residency_timer.start(SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME), now);
           }
 
           first_loop = false;

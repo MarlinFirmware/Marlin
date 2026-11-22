@@ -192,11 +192,11 @@ bool GT911::getFirstTouchPoint(int16_t *x, int16_t *y) {
 bool GT911::getRawPoint(int16_t * const x, int16_t * const y) {
   static bool touched = false;
   static int16_t read_x = 0, read_y = 0;
-  static millis_t next_time = 0;
+  static MTimeout24 poll_timer;
 
-  if (ELAPSED(millis(), next_time)) {
+  if (poll_timer.elapsed()) {
     touched = getFirstTouchPoint(&read_x, &read_y);
-    next_time = millis() + 20;
+    poll_timer.start(20);
   }
 
   *x = read_x;

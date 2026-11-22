@@ -154,8 +154,8 @@ void MarlinHAL::init() {
 
   TERN_(HAL_SD_HOST_DRIVE, MSC_SD_Init(0)); // Enable USB SD card access
 
-  const millis_t usb_timeout = millis() + 2000;
-  while (!USB_Configuration && PENDING(millis(), usb_timeout)) {
+  const MTimeout24 usb_timeout(2000);
+  while (!USB_Configuration && usb_timeout.pending()) {
     delay(50);
     idletask();
     #if PIN_EXISTS(LED)

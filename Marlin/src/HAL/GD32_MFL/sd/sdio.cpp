@@ -121,19 +121,19 @@ static bool SDIO_ReadWriteBlock_DMA(uint32_t block, const uint8_t* src, uint8_t*
     return false;
   }
 
-  millis_t timeout = millis() + SD_TIMEOUT;
+  MTimeout24 timeout(SD_TIMEOUT);
   while (CardDMA_I.get_state() != sdio::Operational_State::READY) {
-    if (ELAPSED(millis(), timeout)) {
+    if (timeout.elapsed()) {
       return false;
     }
   }
 
   CardDMA_I.check_dma_complete();
 
-  timeout = millis() + SD_TIMEOUT;
+  timeout.start(SD_TIMEOUT);
   do {
     result = CardDMA_I.get_card_state(&cardState);
-    if (ELAPSED(millis(), timeout)) {
+    if (timeout.elapsed()) {
       return false;
     }
   } while (result == SDIO_Error_Type::OK && cardState != sdio::Card_State::TRANSFER);

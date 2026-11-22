@@ -89,7 +89,8 @@ uint8_t MMU2::cmd, MMU2::cmd_arg, MMU2::last_cmd, MMU2::extruder;
 int8_t MMU2::state = 0;
 volatile int8_t MMU2::finda = 1;
 volatile bool MMU2::finda_runout_valid;
-millis_t MMU2::prev_request, MMU2::prev_P0_request;
+MTimeout MMU2::request_timer,    // Primed by each request (use age())
+         MMU2::P0_timer;         // Polling interval for FINDA
 char MMU2::rx_buffer[MMU_RX_SIZE], MMU2::tx_buffer[MMU_TX_SIZE];
 
 struct E_Step {
@@ -159,13 +160,13 @@ void MMU2::mmu_loop() {
 
     case -1:
       if (rx_start()) {
-        prev_P0_request = millis();   // Initialize finda sensor timeout
+        P0_timer.start(300);          // Initialize finda sensor timeout
         DEBUG_ECHOLNPGM("MMU => 'start'");
         DEBUG_ECHOLNPGM("MMU <= 'S1'");
         MMU2_SEND("S1");    // Read Version
         state = -2;
       }
-      else if (ELAPSED(millis(), prev_request, 30000)) { // 30sec after reset disable MMU
+      else if (request_timer.age() >= 30000) { // 30sec after reset disable MMU
         SERIAL_ECHOLNPGM("MMU not responding - DISABLED");
         state = 0;
       }
@@ -279,7 +280,7 @@ void MMU2::mmu_loop() {
         last_cmd = cmd;
         cmd = MMU_CMD_NONE;
       }
-      else if (ELAPSED(millis(), prev_P0_request, 300)) {
+      else if (P0_timer.elapsed()) {
         MMU2_SEND("P0");  // Read FINDA
         state = 2; // wait for response
       }
@@ -299,7 +300,7 @@ void MMU2::mmu_loop() {
         if (cmd == MMU_CMD_NONE) ready = true;
         state = 1;
       }
-      else if (ELAPSED(millis(), prev_request, MMU_P0_TIMEOUT)) // Resend request after timeout (3s)
+      else if (request_timer.age() >= MMU_P0_TIMEOUT) // Resend request after timeout (3s)
         state = 1;
 
       TERN_(HAS_PRUSA_MMU2S, check_filament());
@@ -340,7 +341,7 @@ void MMU2::mmu_loop() {
           last_cmd = MMU_CMD_NONE;
         }
       }
-      else if (ELAPSED(millis(), prev_request, MMU_CMD_TIMEOUT)) {
+      else if (request_timer.age() >= MMU_CMD_TIMEOUT) {
         // resend request after timeout
         if (last_cmd) {
           DEBUG_ECHOLNPGM("MMU retry");
@@ -403,7 +404,7 @@ void MMU2::tx_str(FSTR_P fstr) {
   clear_rx_buffer();
   PGM_P pstr = FTOP(fstr);
   while (const char c = pgm_read_byte(pstr)) { MMU_SERIAL.write(c); pstr++; }
-  prev_request = millis();
+  request_timer.prime();
 }
 
 /**
@@ -413,7 +414,7 @@ void MMU2::tx_printf(FSTR_P format, int argument = -1) {
   clear_rx_buffer();
   const uint8_t len = sprintf_P(tx_buffer, FTOP(format), argument);
   for (uint8_t i = 0; i < len; ++i) MMU_SERIAL.write(tx_buffer[i]);
-  prev_request = millis();
+  request_timer.prime();
 }
 
 /**
@@ -423,7 +424,7 @@ void MMU2::tx_printf(FSTR_P format, int argument1, int argument2) {
   clear_rx_buffer();
   const uint8_t len = sprintf_P(tx_buffer, FTOP(format), argument1, argument2);
   for (uint8_t i = 0; i < len; ++i) MMU_SERIAL.write(tx_buffer[i]);
-  prev_request = millis();
+  request_timer.prime();
 }
 
 /**
@@ -439,7 +440,7 @@ void MMU2::clear_rx_buffer() {
  */
 bool MMU2::rx_ok() {
   if (MMU2_RECV("ok")) {
-    prev_P0_request = millis();
+    P0_timer.start(300);
     return true;
   }
   return false;

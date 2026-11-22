@@ -177,8 +177,8 @@ bool SDIO_WriteBlock(uint32_t blockAddress, const uint8_t *data) {
 
   SDIO_CLEAR_FLAG(SDIO_ICR_CMD_FLAGS | SDIO_ICR_DATA_FLAGS);
 
-  uint32_t timeout = millis() + SDIO_WRITE_TIMEOUT;
-  while (timeout > millis()) {
+  const MTimeout24 timeout(SDIO_WRITE_TIMEOUT);
+  while (timeout.pending()) {
     if (SDIO_GetCardState() == SDIO_CARD_TRANSFER) {
       return true;
     }
