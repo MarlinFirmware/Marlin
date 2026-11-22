@@ -51,11 +51,11 @@ typedef enum {
 EncoderState encoderReceiveAnalyze();
 
 inline EncoderState get_encoder_state() {
-  static millis_t Encoder_ms = 0;
+  static MTimeout24 encoder_timer;
   const millis_t ms = millis();
-  if (PENDING(ms, Encoder_ms)) return ENCODER_DIFF_NO;
+  if (encoder_timer.pending(ms)) return ENCODER_DIFF_NO;
   const EncoderState state = encoderReceiveAnalyze();
-  if (state != ENCODER_DIFF_NO) Encoder_ms = ms + ENCODER_WAIT_MS;
+  if (state != ENCODER_DIFF_NO) encoder_timer.start(ENCODER_WAIT_MS, ms);
   return state;
 }
 

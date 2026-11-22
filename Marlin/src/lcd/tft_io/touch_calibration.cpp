@@ -41,7 +41,7 @@ touch_calibration_t TouchCalibration::calibration;
 calibrationState TouchCalibration::calibration_state = CALIBRATION_NONE;
 touch_calibration_point_t TouchCalibration::calibration_points[4];
 uint8_t TouchCalibration::failed_count;
-millis_t TouchCalibration::next_touch_update_ms; // = 0;
+MTimeout24 TouchCalibration::touch_update_timer;
 
 void TouchCalibration::validate_calibration() {
   #define VALIDATE_PRECISION(XY, A, B) validate_precision_##XY(CALIBRATION_##A, CALIBRATION_##B)
@@ -93,8 +93,8 @@ void TouchCalibration::validate_calibration() {
 bool TouchCalibration::handleTouch(const uint16_t x, const uint16_t y) {
   const millis_t now = millis();
 
-  if (next_touch_update_ms && PENDING(now, next_touch_update_ms)) return false;
-  next_touch_update_ms = next_millis(now + BUTTON_DELAY_MENU);
+  if (touch_update_timer.pending(now)) return false;
+  touch_update_timer.start(BUTTON_DELAY_MENU, now);
 
   if (calibration_state < CALIBRATION_SUCCESS) {
     calibration_points[calibration_state].raw_x = x;

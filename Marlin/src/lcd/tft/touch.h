@@ -87,7 +87,6 @@ typedef void (*touch_handler_t)(touch_event_t*);
 #define UBL_REPEAT_DELAY          125   // Repeat delay for a held control
 #define FREE_MOVE_RANGE            32   // Area around a control allowed before aborting a held control
 
-#define TSLP_SLEEPING 1
 
 class Touch {
   private:
@@ -99,7 +98,8 @@ class Touch {
     static touch_control_t *current_control;
     static uint16_t controls_count;
 
-    static millis_t next_touch_ms, time_to_hold, repeat_delay, nada_start_ms;
+    static millis_t next_touch_ms, repeat_delay;   // next_touch_ms is the last-run stamp, not an interval
+    static MTimeout24 hold_timer, nada_timer;
     static bool repeat_started;   // Pre-repeat delay elapsed, now repeating at the shorter interval
     static TouchControlType touch_control_type;
 
@@ -114,7 +114,7 @@ class Touch {
   public:
     static touch_event_t touch_event;
     static void init();
-    static void reset() { controls_count = 0; nada_start_ms = 0; current_control = nullptr; }
+    static void reset() { controls_count = 0; nada_timer.cancel(); current_control = nullptr; }
     static void clear() { controls_count = 0; }
     static void idle();
     static bool is_clicked() {
@@ -127,8 +127,9 @@ class Touch {
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
     #if HAS_DISPLAY_SLEEP
-      static millis_t next_sleep_ms;
-      static bool isSleeping() { return next_sleep_ms == TSLP_SLEEPING; }
+      static MTimeout24 sleep_timer;
+      static bool sleeping;
+      static bool isSleeping() { return sleeping; }
       static void sleepTimeout();
       static void wakeUp();
     #endif

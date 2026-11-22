@@ -38,7 +38,8 @@
 #endif
 
 #if HAS_DISPLAY_SLEEP
-  millis_t TouchButtons::next_sleep_ms;
+  MTimeout24 TouchButtons::sleep_timer;
+  bool TouchButtons::sleeping; // = false
 #endif
 
 #include "../buttons.h" // For EN_C bit mask
@@ -59,7 +60,7 @@ TouchButtons touchBt;
 void TouchButtons::init() {
   touchIO.init();
   #if HAS_DISPLAY_SLEEP
-    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
+    if (ui.sleep_timeout_minutes) sleep_timer.start(MIN_TO_MS(ui.sleep_timeout_minutes)); else sleep_timer.cancel();
   #endif
 }
 
@@ -75,7 +76,7 @@ uint8_t TouchButtons::read_buttons() {
       #if HAS_DISPLAY_SLEEP
         if (is_touched)
           wakeUp();
-        else if (next_sleep_ms && !isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+        else if (!isSleeping() && sleep_timer.on_elapsed() && ui.on_status_screen())
           sleepTimeout();
       #endif
 
@@ -139,7 +140,8 @@ uint8_t TouchButtons::read_buttons() {
     #elif PIN_EXISTS(TFT_BACKLIGHT)
       WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
-    next_sleep_ms = TSLP_SLEEPING;
+    sleeping = true;
+    sleep_timer.cancel();
   }
 
   void TouchButtons::wakeUp() {
@@ -150,7 +152,8 @@ uint8_t TouchButtons::read_buttons() {
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
     }
-    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
+    sleeping = false;
+    if (ui.sleep_timeout_minutes) sleep_timer.start(MIN_TO_MS(ui.sleep_timeout_minutes)); else sleep_timer.cancel();
   }
 
   bool MarlinUI::display_is_asleep() {

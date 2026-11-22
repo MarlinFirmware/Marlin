@@ -98,7 +98,7 @@ static celsius_t gx_pid_temp = 210;
 static uint8_t gx_pid_cycles = 8;
 static bool gx_aborted = false;
 static bool gx_was_printing = false, gx_show_done = false;
-static millis_t gx_start_deadline = 0;   // Print requested: it must start before this time
+static MTimeout24 gx_start_deadline;   // Print requested: it must start before this time
 // Brightness in percent, kept in ui.brightness so M500 saves it
 static uint8_t gx_brightness() {
   return TERN(HAS_LCD_BRIGHTNESS, uint8_t((uint16_t(ui.brightness) * 100 + 127) / 255), 100);
@@ -545,7 +545,7 @@ static void gx_command(const uint8_t c) {
         if (!gx_job_file_ok()) { gx_alert("File not found. Insert the media."); break; }
         gx_show_done = false;
         gx_aborted = false;
-        gx_start_deadline = millis() + 5000UL;
+        gx_start_deadline.start(5000);
         card.openAndPrintFile(gx_job_dosname());
         ui.return_to_status();
         break;
@@ -613,7 +613,7 @@ static void gx_command(const uint8_t c) {
         f.close();
         gx_thumb_set_job(gx_sel_dos, gx_sel_long);
         gx_aborted = false;
-        gx_start_deadline = millis() + 5000UL;
+        gx_start_deadline.start(5000);
         card.openAndPrintFile(gx_sel_dos);
         ui.return_to_status();
       } return;
@@ -764,9 +764,9 @@ static void done_draw(const bool full) {
 void gx_status_screen() {
   const bool printing = marlin.printingIsActive() || marlin.printingIsPaused();
   // A requested print that never started (M23 failed): tell the user
-  if (gx_start_deadline) {
-    if (printing) gx_start_deadline = 0;
-    else if (ELAPSED(millis(), gx_start_deadline)) { gx_start_deadline = 0; ui.set_status("Print did not start: file could not be opened"); gx_invalidate(); }
+  if (gx_start_deadline.enabled()) {
+    if (printing) gx_start_deadline.cancel();
+    else if (gx_start_deadline.elapsed()) { gx_start_deadline.cancel(); ui.set_status("Print did not start: file could not be opened"); gx_invalidate(); }
   }
   #if ENABLED(PRINTCOUNTER)
     // Only a print that really finished counts: also catches M524 / host aborts
@@ -783,12 +783,12 @@ void gx_status_screen() {
   const GxMode mode = printing ? GM_PRINT : (gx_show_done ? GM_DONE : GM_IDLE);
   // Print start switches heaters/motors on: their surge can corrupt the first frames.
   // Repaint the whole screen once, 1s after print start / print end.
-  static millis_t heal_at = 0;
+  static MTimeout24 heal_timer;
   if (mode != gx_mode) {
-    if (mode != GM_IDLE) heal_at = millis() + 1000UL;
+    if (mode != GM_IDLE) heal_timer.start(1000);
     gx_mode = mode; gx_clear_screen();
   }
-  else if (heal_at && ELAPSED(millis(), heal_at)) { heal_at = 0; gx_clear_screen(); }
+  else if (heal_timer.on_elapsed()) { heal_timer.cancel(); gx_clear_screen(); }
 
   const bool full = gx_full();
   gx_screen_begin();

@@ -109,8 +109,8 @@ static void _mmu2_run_hot_action() {
       #if HAS_PRUSA_MMU3
         // The FINDA state comes with the MMU's next status reply, so it may still show the filament for a moment
         // after the Unload ends. Wait for it to clear, or the Load below would stop on the same alert again.
-        const millis_t wait_end = millis() + 3000UL;
-        while (mmu3.findaDetectsFilament() && PENDING(millis(), wait_end)) { safe_delay(50); MMU3::marlin_idle(true); }
+        const MTimeout wait_timeout(3000);
+        while (mmu3.findaDetectsFilament() && wait_timeout.pending()) { safe_delay(50); MMU3::marlin_idle(true); }
       #endif
       if (tool < EXTRUDERS) _mmu2_load_to_feeder(tool); else action_mmu2_load_all();
     } break;
