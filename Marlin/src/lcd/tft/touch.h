@@ -127,7 +127,7 @@ class Touch {
     static void disable() { enabled = false; }
     static void enable() { enabled = true; }
     #if HAS_DISPLAY_SLEEP
-      static MTimeout24 sleep_timer;
+      static MTimeout24 sleep_timer, wake_lockout;
       static bool sleeping;
       static bool isSleeping() { return sleeping; }
       static void sleepTimeout();

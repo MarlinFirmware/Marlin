@@ -56,7 +56,7 @@ MTimeout24 Touch::hold_timer, Touch::nada_timer;
 bool Touch::repeat_started; // = false
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
-  MTimeout24 Touch::sleep_timer;
+  MTimeout24 Touch::sleep_timer, Touch::wake_lockout;
   bool Touch::sleeping; // = false
 #endif
 
@@ -107,6 +107,11 @@ void Touch::idle() {
   }
 
   // A new touch or a drag...
+
+  #if HAS_DISPLAY_SLEEP
+    // Ignore the touch that woke the display, and contact for a moment after
+    if (wake_lockout.pending(now)) return;
+  #endif
 
   #if HAS_RESUME_CONTINUE
     // UI is waiting for a click anywhere?
@@ -418,7 +423,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
   #if HAS_DISPLAY_SLEEP
     if (is_touched)
       wakeUp();
-    else if (!isSleeping() && sleep_timer.elapsed() && ui.on_status_screen())
+    else if (!isSleeping() && sleep_timer.on_elapsed() && ui.on_status_screen())
       sleepTimeout();
   #endif
 
@@ -443,7 +448,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
-      next_touch_ms = millis() + 100;
+      wake_lockout.start(100);
       safe_delay(20);
     }
     sleeping = false;
