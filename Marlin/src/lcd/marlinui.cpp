@@ -92,7 +92,7 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   MString<MAX_MESSAGE_BYTES> MarlinUI::status_message;
   uint8_t MarlinUI::alert_level; // = 0
   #if HAS_STATUS_MESSAGE_TIMEOUT
-    millis_t MarlinUI::status_message_expire_ms; // = 0
+    MTimeout24 MarlinUI::status_message_timer; // Disabled until a message with a timeout is set
   #endif
   statusResetFunc_t MarlinUI::status_reset_callback; // = nullptr
 #endif
@@ -218,11 +218,11 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
 
   bool MarlinUI::get_blink() {
     static uint8_t blink = 0;
-    static millis_t next_blink_ms = 0;
-    millis_t ms = millis();
-    if (ELAPSED(ms, next_blink_ms)) {
+    static MTimeout24 blink_timer;
+    const millis_t ms = millis();
+    if (blink_timer.elapsed(ms)) {
       blink ^= 0xFF;
-      next_blink_ms = ms + 1000 - (LCD_UPDATE_INTERVAL) / 2;
+      blink_timer.start(1000 - (LCD_UPDATE_INTERVAL) / 2, ms);
     }
     return blink != 0;
   }
@@ -247,10 +247,10 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
     constexpr uint8_t MarlinUI::backlight_timeout_minutes;
   #endif
   constexpr uint8_t MarlinUI::backlight_timeout_min, MarlinUI::backlight_timeout_max;
-  millis_t MarlinUI::backlight_off_ms = 0;
+  MTimeout24 MarlinUI::backlight_timer; // Disabled until refresh_backlight_timeout()
 
   void MarlinUI::refresh_backlight_timeout() {
-    backlight_off_ms = backlight_timeout_minutes ? next_millis(millis() + MIN_TO_MS(backlight_timeout_minutes)) : 0;
+    if (backlight_timeout_minutes) backlight_timer.start(MIN_TO_MS(backlight_timeout_minutes)); else backlight_timer.cancel();
     #ifdef NEOPIXEL_BKGD_INDEX_FIRST
       neo.reset_background_color();
       neo.show();
@@ -268,9 +268,9 @@ constexpr uint8_t epps = ENCODER_PULSES_PER_STEP;
   #endif
   constexpr uint8_t MarlinUI::sleep_timeout_min, MarlinUI::sleep_timeout_max;
 
-  millis_t MarlinUI::screen_timeout_ms = 0;
+  MTimeout24 MarlinUI::screen_timer; // Disabled until refresh_screen_timeout()
   void MarlinUI::refresh_screen_timeout() {
-    screen_timeout_ms = sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(sleep_timeout_minutes)) : 0;
+    if (sleep_timeout_minutes) screen_timer.start(MIN_TO_MS(sleep_timeout_minutes)); else screen_timer.cancel();
     wake_display();
   }
 
@@ -404,16 +404,16 @@ void MarlinUI::init() {
 
   #if HAS_SCREEN_TIMEOUT
     bool MarlinUI::defer_return_to_status;
-    millis_t MarlinUI::return_to_status_ms = 0;
+    MTimeout24 MarlinUI::return_to_status_timer;
   #endif
 
   uint8_t MarlinUI::lcd_status_update_delay = 1; // First update one loop delayed
 
   #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
-    millis_t MarlinUI::next_filament_display; // = 0
+    MTimeout24 MarlinUI::filament_display_timer;
   #endif
 
-  millis_t MarlinUI::next_button_update_ms; // = 0
+  MTimeout24 MarlinUI::button_update_timer;
 
   #if HAS_MARLINUI_U8GLIB
     bool MarlinUI::drawing_screen, MarlinUI::first_page; // = false
@@ -600,7 +600,7 @@ void MarlinUI::init() {
               else if (RRK(EN_KEYPAD_DOWN) || RRK(EN_KEYPAD_RIGHT)) encoderPosition += epps;
             #endif
           }
-          next_button_update_ms = millis() + ADC_MIN_KEY_DELAY;
+          button_update_timer.start(ADC_MIN_KEY_DELAY);
           return true;
         }
 
@@ -661,7 +661,7 @@ void MarlinUI::init() {
   #if HAS_BASIC_PROGRESS_BAR
     millis_t MarlinUI::progress_bar_ms; // = 0
     #if PROGRESS_MSG_EXPIRE > 0
-      millis_t MarlinUI::expire_status_ms; // = 0
+      MTimeout24 MarlinUI::expire_status_timer;
     #endif
   #endif
 
@@ -689,19 +689,19 @@ void MarlinUI::init() {
       #if PROGRESS_MSG_EXPIRE > 0
 
         // Handle message expire
-        if (expire_status_ms) {
+        if (expire_status_timer.enabled()) {
 
           // Expire the message if a job is active and the bar has ticks
           if (get_progress_percent() > 2 && !print_job_timer.isPaused()) {
-            if (ELAPSED(ms, expire_status_ms)) {
+            if (expire_status_timer.elapsed(ms)) {
               status_message.clear();
-              expire_status_ms = 0;
+              expire_status_timer.cancel();
             }
           }
           else {
             // Defer message expiration before bar appears
             // and during any pause (not just SD)
-            expire_status_ms = next_millis(expire_status_ms + LCD_UPDATE_INTERVAL);
+            expire_status_timer.extend(LCD_UPDATE_INTERVAL);
           }
         }
 
@@ -716,7 +716,7 @@ void MarlinUI::init() {
         #define GOT_MS
         const millis_t ms = millis();
       #endif
-      did_expire |= status_message_expire_ms && ELAPSED(ms, status_message_expire_ms);
+      did_expire |= status_message_timer.on_elapsed(ms);
     #endif
 
     if (did_expire) reset_status();
@@ -758,13 +758,13 @@ void MarlinUI::init() {
         motion.feedrate_percentage = new_frm;
         encoderPosition = 0;
         #if ALL(HAS_SOUND, BEEP_ON_FEEDRATE_CHANGE)
-          static millis_t next_beep;
+          static MTimeout24 beep_timer;
           #ifndef GOT_MS
             const millis_t ms = millis();
           #endif
-          if (ELAPSED(ms, next_beep)) {
+          if (beep_timer.elapsed(ms)) {
             BUZZ(FEEDRATE_CHANGE_BEEP_DURATION, FEEDRATE_CHANGE_BEEP_FREQUENCY);
-            next_beep = ms + 500UL;
+            beep_timer.start(500, ms);
           }
         #endif
       }
@@ -823,7 +823,7 @@ void MarlinUI::init() {
     #if HAS_ENCODER_ACTION
       if (clear_buttons)
         TERN_(HAS_ADC_BUTTONS, keypad_buttons =) buttons = 0;
-      next_button_update_ms = millis() + 500;
+      button_update_timer.start(500);
     #else
       UNUSED(clear_buttons);
     #endif
@@ -843,7 +843,7 @@ void MarlinUI::init() {
 
     ManualMove MarlinUI::manual_move{};
 
-    millis_t ManualMove::start_time = 0;
+    MTimeout24 ManualMove::start_timer;
     float ManualMove::menu_scale = 1;
     screenFunc_t ManualMove::screen_ptr;
     #if ALL(TFT_COLOR_UI, TOUCH_SCREEN)
@@ -869,12 +869,12 @@ void MarlinUI::init() {
      * has a space for it, then add a linear move to motion.position the planner.
      *
      * If any manual move needs to be interrupted, make sure to force a manual move
-     * by setting manual_move.start_time to millis() after updating motion.position.
+     * by restarting manual_move.start_timer after updating motion.position.
      *
      * To post a manual move:
      *   - Update motion.position to the new place you want to go.
      *   - Set manual_move.axis to an axis like X_AXIS. Use ALL_AXES_ENUM for diagonal moves.
-     *   - Set manual_move.start_time to a point in the future (in ms) when the move should be done.
+     *   - Start manual_move.start_timer with the delay (in ms) before the move should be done.
      *
      * For kinematic machines:
      *   - Set manual_move.offset to modify one axis and post the move.
@@ -885,7 +885,7 @@ void MarlinUI::init() {
       if (processing) return;   // Prevent re-entry from idle() calls
 
       // Add a manual move to the queue?
-      if (axis == NO_AXIS_ENUM || PENDING(millis(), start_time) || planner.is_full()) return;
+      if (axis == NO_AXIS_ENUM || start_timer.pending() || planner.is_full()) return;
 
       const feedRate_t fr_mm_s = (axis < LOGICAL_AXES) ? TERN(NOVIN3DP_GALAXY_UI, MMM_TO_MMS(gx_manual_feedrate_mm_m[axis]), manual_feedrate_mm_s[axis]) : PLANNER_XY_FEEDRATE_MM_S;
 
@@ -946,7 +946,7 @@ void MarlinUI::init() {
       OPTARG(MULTI_E_MANUAL, const int8_t eindex/*=motion.extruder*/)
     ) {
       TERN_(MULTI_E_MANUAL, if (move_axis == E_AXIS) e_index = eindex);
-      start_time = millis() + (menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
+      start_timer.start(menu_scale < 0.99f ? 0UL : 250UL); // delay for bigger moves
       axis = move_axis;
       //SERIAL_ECHOLNPGM("Post Move with Axis ", C(AXIS_CHAR(axis)), " soon.");
     }
@@ -999,7 +999,7 @@ void MarlinUI::init() {
    */
 
   LCDViewAction MarlinUI::lcdDrawUpdate = LCDVIEW_CLEAR_CALL_REDRAW;
-  millis_t next_lcd_update_ms;
+  MTimeout24 lcd_update_timer;
 
   inline bool can_encode() {
     return !BUTTON_PRESSED(ENC_EN); // Update encoder only when ENC_EN is not LOW (pressed)
@@ -1037,13 +1037,13 @@ void MarlinUI::init() {
         if (touch_buttons) {
           reset_status_timeout(ms);
           if (touch_buttons & (EN_A | EN_B)) {              // Menu arrows, in priority
-            if (ELAPSED(ms, next_button_update_ms)) {
+            if (button_update_timer.elapsed(ms)) {
               encoderDiff = (ENCODER_STEPS_PER_MENU_ITEM) * epps * encoderDirection;
               if (touch_buttons & EN_A) encoderDiff *= -1;
               TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
-              next_button_update_ms = ms + repeat_delay;    // Assume the repeat delay
+              button_update_timer.start(repeat_delay, ms);  // Assume the repeat delay
               if (!wait_for_unclick) {
-                next_button_update_ms += 250;               // Longer delay on first press
+                button_update_timer.extend(250);            // Longer delay on first press
                 wait_for_unclick = true;                    // Avoid Back/Select click while repeating
                 chirp();
               }
@@ -1081,12 +1081,12 @@ void MarlinUI::init() {
 
     #endif // HAS_MARLINUI_MENU
 
-    const bool lcd_update_ms_elapsed = ELAPSED(ms, next_lcd_update_ms);
+    const bool lcd_update_ms_elapsed = lcd_update_timer.elapsed(ms);
     if (lcd_update_ms_elapsed) {
-      next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL;
+      lcd_update_timer.start(LCD_UPDATE_INTERVAL, ms);
 
       #if HAS_TOUCH_BUTTONS
-        if (on_status_screen()) next_lcd_update_ms += (LCD_UPDATE_INTERVAL) * 2;
+        if (on_status_screen()) lcd_update_timer.extend((LCD_UPDATE_INTERVAL) * 2);
 
         TERN_(HAS_ENCODER_ACTION, touch_buttons = touchBt.read_buttons());
       #endif
@@ -1297,22 +1297,22 @@ void MarlinUI::init() {
         // Return to Status Screen after a timeout
         if (on_status_screen() || defer_return_to_status)
           reset_status_timeout(ms);
-        else if (ELAPSED(ms, return_to_status_ms))
+        else if (return_to_status_timer.elapsed(ms))
           return_to_status();
       #endif
 
       #if HAS_BACKLIGHT_TIMEOUT
-        if (backlight_off_ms && ELAPSED(ms, backlight_off_ms)) {
+        if (backlight_timer.on_elapsed(ms)) {
           #ifdef NEOPIXEL_BKGD_INDEX_FIRST
             neo.set_background_off();
             neo.show();
           #elif PIN_EXISTS(LCD_BACKLIGHT)
             WRITE(LCD_BACKLIGHT_PIN, LOW); // Backlight off
           #endif
-          backlight_off_ms = 0;
+          backlight_timer.cancel();
         }
       #elif HAS_DISPLAY_SLEEP
-        if (screen_timeout_ms && ELAPSED(ms, screen_timeout_ms))
+        if (screen_timer.on_elapsed(ms))
           sleep_display();
       #endif
 
@@ -1421,7 +1421,7 @@ void MarlinUI::init() {
 
       #endif
 
-      if (PENDING(now, next_button_update_ms)) return;
+      if (button_update_timer.pending(now)) return;
 
       #if HAS_DIGITAL_BUTTONS
 
@@ -1440,11 +1440,11 @@ void MarlinUI::init() {
 
           if (BUTTON_PRESSED(UP)) {
             encoderDiff = pulses * (ENCODER_STEPS_PER_MENU_ITEM);
-            next_button_update_ms = now + 300;
+            button_update_timer.start(300, now);
           }
           else if (BUTTON_PRESSED(DOWN)) {
             encoderDiff = pulses * -(ENCODER_STEPS_PER_MENU_ITEM);
-            next_button_update_ms = now + 300;
+            button_update_timer.start(300, now);
           }
           else if (BUTTON_PRESSED(LEFT)) {
             #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
@@ -1452,7 +1452,7 @@ void MarlinUI::init() {
             #else
               encoderDiff = -pulses;
             #endif
-            next_button_update_ms = now + 300;
+            button_update_timer.start(300, now);
           }
           else if (BUTTON_PRESSED(RIGHT)) {
             #if ENABLED(MIGHTYBOARD_BACK_STATUS_BUTTONS)
@@ -1460,7 +1460,7 @@ void MarlinUI::init() {
             #else
               encoderDiff = -pulses;
             #endif
-            next_button_update_ms = now + 300;
+            button_update_timer.start(300, now);
           }
 
         #endif // UP || DOWN || LEFT || RIGHT
@@ -1503,7 +1503,7 @@ void MarlinUI::init() {
       #endif
 
       #if IS_TFTGLCD_PANEL
-        next_button_update_ms = now + (LCD_UPDATE_INTERVAL / 2);
+        button_update_timer.start(LCD_UPDATE_INTERVAL / 2, now);
         buttons = slow_buttons;
         TERN_(AUTO_BED_LEVELING_UBL, external_encoder());
       #endif
@@ -1533,13 +1533,13 @@ void MarlinUI::init() {
       static enc_t enc;
       static enc_t old_live;
 
-      static millis_t en_A_bounce_ms;
-      if (old_live.a != live_enc.a) en_A_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-      else if (ELAPSED(now, en_A_bounce_ms)) enc.a = live_enc.a;
+      static MTimeout24 en_A_bounce;
+      if (old_live.a != live_enc.a) en_A_bounce.start(ENCODER_DEBOUNCE_MS, now);
+      else if (en_A_bounce.elapsed(now)) enc.a = live_enc.a;
 
-      static millis_t en_B_bounce_ms;
-      if (old_live.b != live_enc.b) en_B_bounce_ms = now + (ENCODER_DEBOUNCE_MS);
-      else if (ELAPSED(now, en_B_bounce_ms)) enc.b = live_enc.b;
+      static MTimeout24 en_B_bounce;
+      if (old_live.b != live_enc.b) en_B_bounce.start(ENCODER_DEBOUNCE_MS, now);
+      else if (en_B_bounce.elapsed(now)) enc.b = live_enc.b;
 
       old_live = live_enc;
 
@@ -1773,7 +1773,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     set_status_reset_fn();
 
-    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, status_message_expire_ms = persist ? 0 : next_millis(millis() + (STATUS_MESSAGE_TIMEOUT_SEC) * 1000UL));
+    TERN_(HAS_STATUS_MESSAGE_TIMEOUT, if (persist) status_message_timer.cancel(); else status_message_timer.start(SEC_TO_MS(STATUS_MESSAGE_TIMEOUT_SEC)));
 
     #if HAS_WIRED_LCD
 
@@ -1784,7 +1784,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       #if HAS_BASIC_PROGRESS_BAR
         progress_bar_ms = ms;
         #if PROGRESS_MSG_EXPIRE > 0
-          expire_status_ms = persist ? 0 : next_millis(ms + PROGRESS_MSG_EXPIRE);
+          if (persist) expire_status_timer.cancel(); else expire_status_timer.start(PROGRESS_MSG_EXPIRE, ms);
         #endif
       #endif
 
@@ -1942,8 +1942,8 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
      */
     void MarlinUI::screen_click(const uint8_t row, const uint8_t col, const uint8_t, const uint8_t) {
       const millis_t now = millis();
-      if (PENDING(now, next_button_update_ms)) return;
-      next_button_update_ms = now + repeat_delay;    // Assume the repeat delay
+      if (button_update_timer.pending(now)) return;
+      button_update_timer.start(repeat_delay, now);  // Assume the repeat delay
       const int8_t xdir = col < (LCD_WIDTH ) / 2 ? -1 : 1,
                    ydir = row < (LCD_HEIGHT) / 2 ? -1 : 1;
       if (on_edit_screen)
@@ -2069,7 +2069,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
 
     #if HAS_WIRED_LCD || HAS_LED_POWEROFF_TIMEOUT
       const millis_t ms = millis();
-      TERN_(HAS_WIRED_LCD, next_lcd_update_ms = ms + LCD_UPDATE_INTERVAL); // Delay LCD update for SD activity
+      TERN_(HAS_WIRED_LCD, lcd_update_timer.start(LCD_UPDATE_INTERVAL, ms)); // Delay LCD update for SD activity
       TERN_(HAS_LED_POWEROFF_TIMEOUT, leds.reset_timeout(ms));
     #endif
   }

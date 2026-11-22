@@ -146,7 +146,7 @@ typedef bool (*statusResetFunc_t)();
     #else
       static int8_t constexpr e_index = 0;
     #endif
-    static millis_t start_time;
+    static MTimeout24 start_timer;
     #if IS_KINEMATIC
       static xyze_pos_t all_axes_destination;
     #endif
@@ -318,7 +318,7 @@ public:
     #endif
     static constexpr uint8_t backlight_timeout_min = 0;
     static constexpr uint8_t backlight_timeout_max = 99;
-    static millis_t backlight_off_ms;
+    static MTimeout24 backlight_timer;
     static void refresh_backlight_timeout();
   #elif HAS_DISPLAY_SLEEP
     #if ENABLED(EDITABLE_DISPLAY_TIMEOUT)
@@ -328,7 +328,7 @@ public:
     #endif
     static constexpr uint8_t sleep_timeout_min = 0;
     static constexpr uint8_t sleep_timeout_max = 99;
-    static millis_t screen_timeout_ms;
+    static MTimeout24 screen_timer;
     static void refresh_screen_timeout();
   #endif
 
@@ -414,7 +414,7 @@ public:
     static uint8_t alert_level; // Higher levels block lower levels
 
     #if HAS_STATUS_MESSAGE_TIMEOUT
-      static millis_t status_message_expire_ms; // Reset some status messages after a timeout
+      static MTimeout24 status_message_timer;   // Reset some status messages after a timeout
     #endif
 
     #if ENABLED(STATUS_MESSAGE_SCROLLING)
@@ -569,7 +569,7 @@ public:
 
     #if HAS_WIRED_LCD
 
-      static millis_t next_button_update_ms;
+      static MTimeout24 button_update_timer;
 
       static LCDViewAction lcdDrawUpdate;
       FORCE_INLINE static bool should_draw() { return bool(lcdDrawUpdate); }
@@ -604,8 +604,8 @@ public:
         static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
         static void draw_progress_bar(const uint8_t percent);
         #if PROGRESS_MSG_EXPIRE > 0
-          static millis_t expire_status_ms; // = 0
-          FORCE_INLINE static void reset_progress_bar_timeout() { expire_status_ms = 0; }
+          static MTimeout24 expire_status_timer; // Disabled until a message is set
+          FORCE_INLINE static void reset_progress_bar_timeout() { expire_status_timer.cancel(); }
         #endif
       #endif
 
@@ -619,8 +619,8 @@ public:
       #endif
 
       #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
-        static millis_t next_filament_display;
-        static void pause_filament_display(const millis_t ms=millis()) { next_filament_display = ms + 5000UL; }
+        static MTimeout24 filament_display_timer;
+        static void pause_filament_display(const millis_t ms=millis()) { filament_display_timer.start(5000, ms); }
       #endif
 
       static void quick_feedback(const bool clear_buttons=true);
@@ -701,7 +701,7 @@ public:
    * Call this method whenever the user interacts to reset the timeout.
    */
   static void reset_status_timeout(const millis_t ms) {
-    TERN(HAS_SCREEN_TIMEOUT, return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS, UNUSED(ms));
+    TERN(HAS_SCREEN_TIMEOUT, return_to_status_timer.start(LCD_TIMEOUT_TO_STATUS, ms), UNUSED(ms));
   }
 
   #if ALL(HAS_MARLINUI_MENU, ENCODER_RATE_MULTIPLIER)
@@ -932,7 +932,7 @@ public:
 private:
 
   #if HAS_SCREEN_TIMEOUT
-    static millis_t return_to_status_ms;
+    static MTimeout24 return_to_status_timer;
     static bool defer_return_to_status;
   #else
     static constexpr bool defer_return_to_status = false;

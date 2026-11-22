@@ -1314,9 +1314,9 @@ void eachMomentUpdate() {
   const millis_t ms = millis();
 
   #if HAS_BACKLIGHT_TIMEOUT
-    if (ui.backlight_off_ms && ELAPSED(ms, ui.backlight_off_ms)) {
+    if (ui.backlight_timer.on_elapsed(ms)) {
       turnOffBacklight(); // Backlight off
-      ui.backlight_off_ms = 0;
+      ui.backlight_timer.cancel();
     }
   #endif
 
@@ -1350,7 +1350,7 @@ void eachMomentUpdate() {
 
   #if HAS_STATUS_MESSAGE_TIMEOUT
     bool did_expire = ui.status_reset_callback && (*ui.status_reset_callback)();
-    did_expire |= ui.status_message_expire_ms && ELAPSED(ms, ui.status_message_expire_ms);
+    did_expire |= ui.status_message_timer.on_elapsed(ms);
     if (did_expire) ui.reset_status();
   #endif
 

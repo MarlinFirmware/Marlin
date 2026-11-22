@@ -925,7 +925,7 @@ void MarlinUI::draw_status_screen() {
 
     #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
       // Alternate Status message and Filament display
-      if (ELAPSED(millis(), next_filament_display)) {
+      if (ui.filament_display_timer.elapsed()) {
         lcd_put_u8str(F(LCD_STR_FILAM_DIA));
         lcd_put_u8str(F(":"));
         lcd_put_u8str(wstring);
