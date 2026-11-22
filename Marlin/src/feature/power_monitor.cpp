@@ -42,7 +42,7 @@ uint8_t PowerMonitor::flags; // = 0
   pm_lpf_t<PowerMonitor::volts_adc_scale, PM_K_VALUE, PM_K_SCALE> PowerMonitor::volts;
 #endif
 
-millis_t PowerMonitor::display_item_ms;
+MTimeout24 PowerMonitor::display_item_timer;
 uint8_t PowerMonitor::display_item;
 
 PowerMonitor power_monitor; // Single instance - this calls the constructor

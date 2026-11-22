@@ -874,10 +874,10 @@ namespace Anycubic {
   }
 
   void DgusTFT::checkHeaters() {
-    static uint32_t time_next = 0;
+    static MTimeout24 heater_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, time_next)) return;
-    time_next = ms + 500;
+    if (heater_timer.pending(ms)) return;
+    heater_timer.start(500, ms);
 
     float temp = 0;
 
@@ -1129,10 +1129,10 @@ namespace Anycubic {
     }
 
     #if HAS_HOTEND || HAS_HEATED_BED
-      static millis_t flash_time = 0;
+      static MTimeout24 flash_timer;
       const millis_t ms = millis();
-      if (PENDING(ms, flash_time)) return;
-      flash_time = ms + 1500;
+      if (flash_timer.pending(ms)) return;
+      flash_timer.start(1500, ms);
 
       TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
       TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
@@ -1272,7 +1272,7 @@ namespace Anycubic {
   void DgusTFT::page3() {
     debugPage(3);
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
 
     switch (key_value) {
@@ -1296,7 +1296,7 @@ namespace Anycubic {
           pause_state = AC_paused_idle;
           resumePrint();
           changePageOfTFT(PAGE_STATUS2);        // show pause print
-          flash_time = ms + 1500;
+          flash_timer.start(1500, ms);
         }
         else
           setUserConfirmed();
@@ -1314,12 +1314,12 @@ namespace Anycubic {
         TERN_(HAS_HEATED_BED, sendValueToTFT(uint16_t(getTargetTemp_celsius(BED)), TXT_ADJUST_BED));
         feedrate_back = getFeedrate_percent();
         sendValueToTFT(uint16_t(feedrate_back), TXT_ADJUST_SPEED);
-        flash_time = ms + 1500;
+        flash_timer.start(1500, ms);
         break;
     }
 
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1500;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1500, ms);
 
     const uint16_t ifeedrate = uint16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
@@ -1387,10 +1387,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1500;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1500, ms);
 
     const uint16_t ifeedrate = uint16_t(getFeedrate_percent());
     if (feedrate_back != ifeedrate) {
@@ -1689,10 +1689,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1500;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1500, ms);
 
     sendValueToTFT(uint16_t(getActualTemp_celsius(E0)), TXT_HOTEND_NOW);
     sendValueToTFT(uint16_t(getActualTemp_celsius(BED)), TXT_BED_NOW);
@@ -1719,10 +1719,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1500;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1500, ms);
 
     sendValueToTFT(uint16_t(getActualFan_percent(FAN0)), TXT_FAN_SPEED_NOW);
     sendValueToTFT(uint16_t(getFeedrate_percent()), TXT_PRINT_SPEED_NOW);
@@ -1938,10 +1938,10 @@ namespace Anycubic {
           break;
       }
 
-      static millis_t flash_time = 0;
+      static MTimeout24 flash_timer;
       const millis_t ms = millis();
-      if (PENDING(ms, flash_time)) return;
-      flash_time = ms + 1500;
+      if (flash_timer.pending(ms)) return;
+      flash_timer.start(1500, ms);
 
       TERN_(HAS_HOTEND, send_temperature_hotend(TXT_PREHEAT_HOTEND));
       TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_PREHEAT_BED));
@@ -1954,7 +1954,7 @@ namespace Anycubic {
     void DgusTFT::page19() {       // Filament
       debugPage(19);
       static char filament_status = 0;
-      static millis_t flash_time  = 0;
+      static MTimeout24 flash_timer;
       switch (key_value) {
         case 0: break;
 
@@ -1993,8 +1993,8 @@ namespace Anycubic {
       }
 
       const millis_t ms = millis();
-      if (PENDING(ms, flash_time)) return;
-      flash_time = ms + 1500;
+      if (flash_timer.pending(ms)) return;
+      flash_timer.start(1500, ms);
 
       send_temperature_hotend(TXT_FILAMENT_TEMP);
 
@@ -2022,10 +2022,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page21() {
@@ -2041,10 +2041,10 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page22() {       // print finish
@@ -2061,10 +2061,10 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page23() {
@@ -2076,10 +2076,10 @@ namespace Anycubic {
       case 2: changePageOfTFT(page_index_last); break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page24() {
@@ -2091,10 +2091,10 @@ namespace Anycubic {
       case 2: changePageOfTFT(page_index_last); break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page25() {           // lack filament
@@ -2117,10 +2117,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page26() {
@@ -2132,10 +2132,10 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page27() {
@@ -2165,10 +2165,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page28() {
@@ -2180,10 +2180,10 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page29() {
@@ -2200,10 +2200,10 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page30() {       // Auto heat filament
@@ -2218,10 +2218,10 @@ namespace Anycubic {
         break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page31() {
@@ -2233,19 +2233,19 @@ namespace Anycubic {
       case 2: break;
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page32() {
     debugPage(32);
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   #if HAS_LEVELING
@@ -2267,20 +2267,20 @@ namespace Anycubic {
           break;
       }
 
-      static millis_t flash_time = 0;
+      static MTimeout24 flash_timer;
       const millis_t ms = millis();
-      if (PENDING(ms, flash_time)) return;
-      flash_time = ms + 1500;
+      if (flash_timer.pending(ms)) return;
+      flash_timer.start(1500, ms);
     }
 
     void DgusTFT::page34() {
       debugPage(34);
 
       #if HAS_HOTEND || HAS_HEATED_BED
-        static millis_t flash_time = 0;
+        static MTimeout24 flash_timer;
         const millis_t ms = millis();
-        if (PENDING(ms, flash_time)) return;
-        flash_time = ms + 1500;
+        if (flash_timer.pending(ms)) return;
+        flash_timer.start(1500, ms);
 
         TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
         TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
@@ -2313,10 +2313,10 @@ namespace Anycubic {
       case 7: injectCommands(F("M1024 S5")); break; // 0.1
     }
 
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     const millis_t ms = millis();
-    if (PENDING(ms, flash_time)) return;
-    flash_time = ms + 1000;
+    if (flash_timer.pending(ms)) return;
+    flash_timer.start(1000, ms);
   }
 
   void DgusTFT::page117() {  // Page CHS Mute handler
@@ -2469,10 +2469,10 @@ namespace Anycubic {
       debugPage(175);
 
       #if HAS_HOTEND || HAS_HEATED_BED
-        static millis_t flash_time = 0;
+        static MTimeout24 flash_timer;
         const millis_t ms = millis();
-        if (PENDING(ms, flash_time)) return;
-        flash_time = ms + 1500;
+        if (flash_timer.pending(ms)) return;
+        flash_timer.start(1500, ms);
 
         TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
         TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
@@ -2483,10 +2483,10 @@ namespace Anycubic {
       debugPage(176);
 
       #if HAS_HOTEND || HAS_HEATED_BED
-        static millis_t flash_time = 0;
+        static MTimeout24 flash_timer;
         const millis_t ms = millis();
-        if (PENDING(ms, flash_time)) return;
-        flash_time = ms + 1500;
+        if (flash_timer.pending(ms)) return;
+        flash_timer.start(1500, ms);
 
         TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
         TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
@@ -2562,8 +2562,7 @@ namespace Anycubic {
 
   void DgusTFT::page201() {  // probe precheck
     debugPage(201);
-    static millis_t probe_check_time   = 0;
-    static millis_t temperature_time   = 0;
+    static MTimeout24 probe_check_timer, temperature_timer;
     static uint8_t probe_check_counter = 0;
     static uint8_t probe_state_last    = 0;
     static bool probe_tare_flag        = 0;
@@ -2591,8 +2590,8 @@ namespace Anycubic {
       default: break;
     }
 
-    if (ELAPSED(millis(), probe_check_time)) {
-      probe_check_time = millis() + 300;
+    if (probe_check_timer.elapsed()) {
+      probe_check_timer.start(300);
 
       if (!probe_state_last && getProbeState()) {
         probe_check_counter = 0;
@@ -2609,8 +2608,8 @@ namespace Anycubic {
       }
     }
 
-    if (ELAPSED(millis(), temperature_time)) {
-      temperature_time = millis() + 1500;
+    if (temperature_timer.elapsed()) {
+      temperature_timer.start(1500);
       TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
       TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));
     }
@@ -2629,10 +2628,10 @@ namespace Anycubic {
     debugPage(203);
 
     #if HAS_HOTEND || HAS_HEATED_BED
-      static millis_t flash_time = 0;
+      static MTimeout24 flash_timer;
       const millis_t ms = millis();
-      if (PENDING(ms, flash_time)) return;
-      flash_time = ms + 1500;
+      if (flash_timer.pending(ms)) return;
+      flash_timer.start(1500, ms);
 
       TERN_(HAS_HOTEND, send_temperature_hotend(TXT_MAIN_HOTEND));
       TERN_(HAS_HEATED_BED, send_temperature_bed(TXT_MAIN_BED));

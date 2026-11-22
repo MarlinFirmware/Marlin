@@ -66,7 +66,7 @@ namespace {
 
   bool booted = false, recovery_pending = false;
   uint8_t boot_step = 0;
-  millis_t next_boot_ms = 0, next_update_ms = 0;
+  MTimeout24 boot_timer, update_timer;
 
   bool fan_on = false;
   celsius_t last_target_hotend = 0, last_target_bed = 0;
@@ -402,8 +402,8 @@ void RTS::onIdle() {
   }
 
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_update_ms)) {
-    next_update_ms = ms + RTS_UPDATE_INTERVAL;
+  if (update_timer.elapsed(ms)) {
+    update_timer.start(RTS_UPDATE_INTERVAL, ms);
     update();
   }
 }
@@ -411,8 +411,8 @@ void RTS::onIdle() {
 // The startup progress bar, then the language prompt, main page or power-loss prompt
 void RTS::bootAnimation() {
   const millis_t ms = millis();
-  if (PENDING(ms, next_boot_ms)) return;
-  next_boot_ms = ms + RTS_BOOT_STEP_MS;
+  if (boot_timer.pending(ms)) return;
+  boot_timer.start(RTS_BOOT_STEP_MS, ms);
 
   writeWord(VP_BOOT_PROGRESS, boot_step);
   if (++boot_step <= 100) return;

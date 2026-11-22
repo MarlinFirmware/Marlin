@@ -659,7 +659,7 @@ void MarlinUI::init() {
    */
 
   #if HAS_BASIC_PROGRESS_BAR
-    millis_t MarlinUI::progress_bar_ms; // = 0
+    MTimeout MarlinUI::progress_bar_timer;
     #if PROGRESS_MSG_EXPIRE > 0
       MTimeout24 MarlinUI::expire_status_timer;
     #endif
@@ -682,8 +682,8 @@ void MarlinUI::init() {
 
       // If the message will blink rather than expire...
       #if DISABLED(PROGRESS_MSG_ONCE)
-        if (ELAPSED(ms, progress_bar_ms, PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME))
-          progress_bar_ms = ms;
+        if (progress_bar_timer.age(ms) >= PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)
+          progress_bar_timer.prime(ms);
       #endif
 
       #if PROGRESS_MSG_EXPIRE > 0
@@ -1782,7 +1782,7 @@ uint8_t expand_u8str_P(char * const outstr, PGM_P const ptpl, const int8_t ind, 
       #endif
 
       #if HAS_BASIC_PROGRESS_BAR
-        progress_bar_ms = ms;
+        progress_bar_timer.prime(ms);
         #if PROGRESS_MSG_EXPIRE > 0
           if (persist) expire_status_timer.cancel(); else expire_status_timer.start(PROGRESS_MSG_EXPIRE, ms);
         #endif

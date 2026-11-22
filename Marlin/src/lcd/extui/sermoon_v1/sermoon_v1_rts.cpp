@@ -64,7 +64,7 @@ namespace {
 
   bool booted = false, recovery_pending = false;
   uint8_t boot_step = 0;
-  millis_t next_boot_ms = 0, next_update_ms = 0, next_position_ms = 0;
+  MTimeout24 boot_timer, update_timer, position_timer;
 
   celsius_t last_target_hotend = -1, last_target_bed = -1;
   int16_t last_feedrate = -1;
@@ -451,8 +451,8 @@ void RTS::onIdle() {
   }
 
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_update_ms)) {
-    next_update_ms = ms + RTS_UPDATE_INTERVAL;
+  if (update_timer.elapsed(ms)) {
+    update_timer.start(RTS_UPDATE_INTERVAL, ms);
     update();
   }
 }
@@ -460,8 +460,8 @@ void RTS::onIdle() {
 // The startup progress bar, then the main page or the power-loss prompt
 void RTS::bootAnimation() {
   const millis_t ms = millis();
-  if (PENDING(ms, next_boot_ms)) return;
-  next_boot_ms = ms + RTS_BOOT_STEP_MS;
+  if (boot_timer.pending(ms)) return;
+  boot_timer.start(RTS_BOOT_STEP_MS, ms);
 
   writeWord(VP_BOOT_PROGRESS, boot_step);
   if (++boot_step <= 100) return;
@@ -563,8 +563,8 @@ void RTS::update() {
   }
 
   // Keep the jog pages in step with moves made from elsewhere
-  if (WITHIN(current_page, PAGE_MOVE, PAGE_MOVE + 2) && ELAPSED(millis(), next_position_ms) && !isMoving()) {
-    next_position_ms = millis() + 2000;
+  if (WITHIN(current_page, PAGE_MOVE, PAGE_MOVE + 2) && position_timer.elapsed() && !isMoving()) {
+    position_timer.start(2000);
     sendPosition();
   }
 }

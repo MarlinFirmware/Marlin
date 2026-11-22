@@ -110,10 +110,10 @@ void AnycubicTFT::onSetup() {
 }
 
 void AnycubicTFT::onCommandScan() {
-  static millis_t nextStopCheck = 0; // used to slow the stopped print check down to reasonable times
+  static MTimeout24 stopCheckTimer; // used to slow the stopped print check down to reasonable times
   const millis_t ms = millis();
-  if (ELAPSED(ms, nextStopCheck)) {
-    nextStopCheck = ms + 1000UL;
+  if (stopCheckTimer.elapsed(ms)) {
+    stopCheckTimer.start(1000, ms);
     if (mediaPrintingState == AMPRINTSTATE_STOP_REQUESTED && isNozzleHomed()) {
       DEBUG_ECHOLNPGM("TFT Serial Debug: Finished stopping print, releasing motors ...");
       mediaPrintingState = AMPRINTSTATE_NOT_PRINTING;

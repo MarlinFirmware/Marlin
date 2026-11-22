@@ -585,7 +585,7 @@ void NextionTFT::panelAction(uint8_t req) {
 
 void NextionTFT::UpdateOnChange() {
   const millis_t ms = millis();
-  static millis_t next_event_ms = 0;
+  static MTimeout24 event_timer;
   static celsius_float_t last_degBed = 999, last_degHotend0 = 999, last_degHotend1 = 999,
                          last_degTargetBed = 999, last_degTargetHotend0 = 999, last_degTargetHotend1 = 999;
 
@@ -642,8 +642,8 @@ void NextionTFT::UpdateOnChange() {
   // tmppage Progress + Layer + Time
   if (isPrinting()) {
 
-    if (ELAPSED(ms, next_event_ms)) {
-      next_event_ms = ms + 1000;
+    if (event_timer.elapsed(ms)) {
+      event_timer.start(1000, ms);
       #if ENABLED(SHOW_REMAINING_TIME)
         const uint32_t remaining = getProgress_seconds_remaining();
         char remaining_str[10];
@@ -674,16 +674,16 @@ void NextionTFT::UpdateOnChange() {
   }
 
   if (!WITHIN(last_get_axis_position_mmX - getAxisPosition_mm(X), -0.1, 0.1)) {
-    if (ELAPSED(ms, next_event_ms)) {
-      next_event_ms = ms + 30;
+    if (event_timer.elapsed(ms)) {
+      event_timer.start(30, ms);
       SEND_VALasTXT("tmppage.x", getAxisPosition_mm(X));
       last_get_axis_position_mmX = getAxisPosition_mm(X);
     }
   }
 
   if (!WITHIN(last_get_axis_position_mmY - getAxisPosition_mm(Y), -0.1, 0.1)) {
-    if (ELAPSED(ms, next_event_ms)) {
-      next_event_ms = ms + 30;
+    if (event_timer.elapsed(ms)) {
+      event_timer.start(30, ms);
       SEND_VALasTXT("tmppage.y", getAxisPosition_mm(Y));
       last_get_axis_position_mmY = getAxisPosition_mm(Y);
     }

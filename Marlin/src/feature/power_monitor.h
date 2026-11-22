@@ -57,7 +57,7 @@ private:
 public:
   static uint8_t flags;  // M430 flags to display current
 
-  static millis_t display_item_ms;
+  static MTimeout24 display_item_timer;
   static uint8_t display_item;
 
   PowerMonitor() { reset(); }
@@ -120,7 +120,7 @@ public:
     #endif
 
     #if HAS_MEDIA
-      display_item_ms = 0;
+      display_item_timer.cancel();
       display_item = 0;
     #endif
   }

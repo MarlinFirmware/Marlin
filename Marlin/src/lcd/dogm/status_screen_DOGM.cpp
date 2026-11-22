@@ -161,8 +161,8 @@
 
     #if HAS_POWER_MONITOR_WATTS
       // Cycle between current, voltage, and power
-      if (ELAPSED(millis(), power_monitor.display_item_ms)) {
-        power_monitor.display_item_ms = millis() + 1000UL;
+      if (power_monitor.display_item_timer.elapsed()) {
+        power_monitor.display_item_timer.start(1000);
         ++power_monitor.display_item;
       }
     #elif ENABLED(POWER_MONITOR_CURRENT)

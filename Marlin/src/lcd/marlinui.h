@@ -601,7 +601,7 @@ public:
       #endif
 
       #if ENABLED(LCD_PROGRESS_BAR) && !HAS_MARLINUI_U8GLIB
-        static millis_t progress_bar_ms;  // Start time for the current progress bar cycle
+        static MTimeout progress_bar_timer; // Start time for the current progress bar cycle (use age())
         static void draw_progress_bar(const uint8_t percent);
         #if PROGRESS_MSG_EXPIRE > 0
           static MTimeout24 expire_status_timer; // Disabled until a message is set
