@@ -76,8 +76,8 @@ GcodeSuite gcode;
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
-millis_t GcodeSuite::previous_move_ms = 0,
-         GcodeSuite::max_inactive_time = 0;
+MTimeout GcodeSuite::move_timer;
+millis_t GcodeSuite::max_inactive_time = 0;
 
 #if HAS_DISABLE_IDLE_AXES
   millis_t GcodeSuite::stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_TIMEOUT_SEC);

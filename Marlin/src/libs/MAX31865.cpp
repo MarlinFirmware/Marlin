@@ -188,7 +188,7 @@ void MAX31865::begin(max31865_numwires_t wires, const float zero_res, const floa
     else {
       DEBUG_ECHOLNPGM("RTD MSB:", (rtd >> 8), "  RTD LSB:", (rtd & 0x00FF));
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = millis());
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadTimer.start(1000));
     }
 
   #else
@@ -220,7 +220,7 @@ void MAX31865::begin(max31865_numwires_t wires, const float zero_res, const floa
       millis_t now = millis();
       nextEventTimer.start(MAX31865_MIN_SAMPLING_TIME_MSEC, now);
 
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = now);
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadTimer.start(1000, now));
     }
 
   #endif // MAX31865_USE_AUTO_MODE
@@ -346,7 +346,7 @@ inline uint16_t MAX31865::readRawImmediate() {
   }
   else {
     TERN_(MAX31865_USE_READ_ERROR_DETECTION, const millis_t ms = millis());
-    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(int(lastRead - rtd)) > 500 && PENDING(ms, lastReadStamp, 1000UL))) {
+    if (TERN0(MAX31865_USE_READ_ERROR_DETECTION, ABS(int(lastRead - rtd)) > 500 && lastReadTimer.pending(ms))) {
       // If 2 readings within 1s differ too much (~20°C) it's a read error.
       lastFault = 0x01;
       lastRead |= 1;
@@ -354,7 +354,7 @@ inline uint16_t MAX31865::readRawImmediate() {
     }
     else {
       lastRead = rtd;
-      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadStamp = ms);
+      TERN_(MAX31865_USE_READ_ERROR_DETECTION, lastReadTimer.start(1000, ms));
     }
   }
 

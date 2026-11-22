@@ -144,7 +144,7 @@ Endstops::endstop_mask_t Endstops::live_state = 0;
 // StallGuard Debounce
 //
 #if ENABLED(IMPROVE_HOMING_RELIABILITY)
-  millis_t sg_guard_start_ms; // = 0
+  MTimeout sg_guard_timer; // Not running at start
 #endif
 
 /**

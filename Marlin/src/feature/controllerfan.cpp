@@ -85,7 +85,7 @@ void ControllerFan::update() {
    *   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
    *   - TEMP_SENSOR_SOC is reporting >= CONTROLLER_FAN_MIN_SOC_TEMP
    */
-  static millis_t lastComponentOn = 0;  // Last time a stepper, heater, etc. was turned on
+  static MTimeout24 componentTimer;     // Runs after a stepper, heater, etc. was turned on
   const ena_mask_t axis_mask = TERN(CONTROLLER_FAN_USE_Z_ONLY, _BV(Z_AXIS), (ena_mask_t)~TERN0(CONTROLLER_FAN_IGNORE_Z, _BV(Z_AXIS)));
   if ( (stepper.axis_enabled.bits & axis_mask)
     #if ALL(HAS_HEATED_BED, CONTROLLER_FAN_BED_HEATING)
@@ -97,14 +97,14 @@ void ControllerFan::update() {
     #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
       || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
     #endif
-  ) lastComponentOn = next_millis(ms); //... set time to NOW so the fan will turn on
+  ) componentTimer.start(SEC_TO_MS(settings.duration), ms); //... restart so the fan will turn on
 
   /**
    * Fan Settings. Set fan > 0:
    *  - If AutoMode is on and hot components have been powered for CONTROLLERFAN_IDLE_TIME seconds.
    *  - If System is on idle and idle fan speed settings is activated.
    */
-  uint8_t s = settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn, SEC_TO_MS(settings.duration))
+  uint8_t s = settings.auto_mode && componentTimer.pending(ms)
     ? settings.active_speed
     : settings.idle_speed;
 

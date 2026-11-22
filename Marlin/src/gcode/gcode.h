@@ -452,16 +452,17 @@ public:
     static bool select_coordinate_system(const int8_t _new);
   #endif
 
-  static millis_t previous_move_ms, max_inactive_time;
+  static MTimeout move_timer;   // Primed at the last move (use age())
+  static millis_t max_inactive_time;
   FORCE_INLINE static bool stepper_max_timed_out(const millis_t ms=millis()) {
-    return max_inactive_time && ELAPSED(ms, previous_move_ms, max_inactive_time);
+    return max_inactive_time && move_timer.age(ms) >= max_inactive_time;
   }
-  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { previous_move_ms = ms; }
+  FORCE_INLINE static void reset_stepper_timeout(const millis_t ms=millis()) { move_timer.prime(ms); }
 
   #if HAS_DISABLE_IDLE_AXES
     static millis_t stepper_inactive_time;
     FORCE_INLINE static bool stepper_inactive_timeout(const millis_t ms=millis()) {
-      return ELAPSED(ms, previous_move_ms, stepper_inactive_time);
+      return move_timer.age(ms) >= stepper_inactive_time;
     }
   #else
     static bool stepper_inactive_timeout(const millis_t) { return false; }

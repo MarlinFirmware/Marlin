@@ -1921,7 +1921,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   bool Motion::idex_mirrored_mode           = false;                        // Used in mode 3
   xyz_pos_t Motion::raised_parked_position;                                 // Used in mode 1
   bool Motion::active_extruder_parked       = false;                        // Used in mode 1, 2 & 3
-  millis_t Motion::delayed_move_start_ms    = 0;                            // Used in mode 1
+  MTimeout Motion::delayed_move_timer;                                      // Used in mode 1
   uint16_t Motion::delayed_move_interval    = 0;                            // Used in mode 1
   celsius_t Motion::duplicate_extruder_temp_offset = 0;                     // Used in mode 2 & 3
 
@@ -1961,7 +1961,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             if (delayed_move_interval != 1) {
               position = destination;
               NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_start_ms = millis();
+              delayed_move_timer.prime();
               delayed_move_interval = 1000;
               return true;
             }
@@ -2258,7 +2258,7 @@ void Motion::prepare_line_to_destination() {
         default: break;
       }
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_start_ms = millis());
+      TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_timer.start(default_sg_guard_duration));
 
       return stealth_states;
     }

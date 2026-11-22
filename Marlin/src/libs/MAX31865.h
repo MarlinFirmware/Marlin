@@ -99,7 +99,7 @@ private:
   float resNormalizer, refRes, wireRes;
 
   #if ENABLED(MAX31865_USE_READ_ERROR_DETECTION)
-    millis_t lastReadStamp = 0;
+    MTimeout24 lastReadTimer; // Running for 1s after each good read
   #endif
 
   uint16_t lastRead = 0;
