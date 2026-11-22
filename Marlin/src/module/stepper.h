@@ -794,7 +794,7 @@ class Stepper {
 
     #define  ENABLE_EXTRUDER(N)  enable_extruder(E_TERN_(N))
     #define DISABLE_EXTRUDER(N) disable_extruder(E_TERN_(N))
-    #define AXIS_IS_ENABLED(N,V...) axis_is_enabled(N E_OPTARG(#V))
+    #define AXIS_IS_ENABLED(N,V...) axis_is_enabled(N E_OPTARG(V+0))
 
     static void enable_all_steppers();
     static void disable_all_steppers();
