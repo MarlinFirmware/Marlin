@@ -4506,9 +4506,9 @@ void JyersDWIN::fileControl() {
       if (!card.flag.filenameIsDir)
         while (pos && filename[pos] != '.') pos--;
       if (pos > MENU_CHAR_LIMIT) {
-        static millis_t time = 0;
-        if (PENDING(millis(), time)) return;
-        time = millis() + 200;
+        static MTimeout24 scroll_timer;
+        if (scroll_timer.pending()) return;
+        scroll_timer.start(200);
         Scroller::Buffer buf;
         const char* const name = scroller.scroll(pos, buf, filename);
         dwinDrawRectangle(1, COLOR_BG_BLACK, LBLX, MBASE(selection - scrollpos) - 14, 271, MBASE(selection - scrollpos) + 28);
@@ -4948,22 +4948,22 @@ void JyersDWIN::stateUpdate() {
 
 void JyersDWIN::screenUpdate() {
   const millis_t ms = millis();
-  static millis_t scrltime = 0;
-  if (ELAPSED(ms, scrltime)) {
-    scrltime = ms + 200;
+  static MTimeout24 scroll_timer;
+  if (scroll_timer.elapsed(ms)) {
+    scroll_timer.start(200, ms);
     updateStatusBar();
     if (process == Proc_Print) drawPrintFilename();
   }
 
-  static millis_t statustime = 0;
-  if (ELAPSED(ms, statustime)) {
-    statustime = ms + 500;
+  static MTimeout24 status_timer;
+  if (status_timer.elapsed(ms)) {
+    status_timer.start(500, ms);
     drawStatusArea();
   }
 
-  static millis_t printtime = 0;
-  if (ELAPSED(ms, printtime)) {
-    printtime = ms + 1000;
+  static MTimeout24 print_timer;
+  if (print_timer.elapsed(ms)) {
+    print_timer.start(1000, ms);
     if (process == Proc_Print) {
       drawPrintProgressBar();
       drawPrintProgressElapsed();

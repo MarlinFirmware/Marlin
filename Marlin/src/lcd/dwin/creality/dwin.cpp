@@ -1846,7 +1846,7 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
 
   char shift_name[LONG_FILENAME_BYTES + 1];
   int8_t shift_amt; // = 0
-  millis_t shift_ms; // = 0
+  MTimeout24 shift_timer; // Disabled when no scrolling is needed
 
   // Init the shift name based on the highlighted item
   void initShiftName() {
@@ -1862,8 +1862,10 @@ void MarlinUI::kill_screen(FSTR_P const lcd_error, FSTR_P const) {
 
   void initSDItemShift() {
     shift_amt = 0;
-    shift_ms  = select_file.now != CASE_BACK && strlen(shift_name) > MENU_CHAR_LIMIT
-           ? millis() + 750UL : 0;
+    if (select_file.now != CASE_BACK && strlen(shift_name) > MENU_CHAR_LIMIT)
+      shift_timer.start(750);
+    else
+      shift_timer.cancel();
   }
 
 #endif
@@ -2167,16 +2169,16 @@ void hmiSelectFile() {
 
   if (encoder_diffState == ENCODER_DIFF_NO) {
     #if ENABLED(SCROLL_LONG_FILENAMES)
-      if (shift_ms && select_file.now >= 1 + hasUpDir) {
+      if (shift_timer.enabled() && select_file.now >= 1 + hasUpDir) {
         // Scroll selected filename every second
         const millis_t ms = millis();
-        if (ELAPSED(ms, shift_ms)) {
+        if (shift_timer.elapsed(ms)) {
           const bool was_reset = shift_amt < 0;
-          shift_ms = ms + 375UL + was_reset * 250UL;  // ms per character
+          shift_timer.start(375UL + was_reset * 250UL, ms); // ms per character
           uint8_t shift_new = shift_amt + 1;          // Try to shift by...
           drawSDItemShifted(shift_new);               // Draw the item
           if (!was_reset && shift_new == 0)           // Was it limited to 0?
-            shift_ms = 0;                             // No scrolling needed
+            shift_timer.cancel();                     // No scrolling needed
           else if (shift_new == shift_amt)            // Scroll reached the end
             shift_new = -1;                           // Reset
           shift_amt = shift_new;                      // Set new scroll
@@ -2194,7 +2196,7 @@ void hmiSelectFile() {
   if (encoder_diffState == ENCODER_DIFF_CW && fullCnt) {
     if (select_file.inc(1 + fullCnt)) {
       const uint8_t itemnum = select_file.now - 1;              // -1 for "Back"
-      if (TERN0(SCROLL_LONG_FILENAMES, shift_ms)) {             // If line was shifted
+      if (TERN0(SCROLL_LONG_FILENAMES, shift_timer.enabled())) {             // If line was shifted
         eraseMenuText(itemnum + MROWS - index_file);            // Erase and
         drawSDItem(itemnum - 1);                                // redraw
       }
@@ -2213,7 +2215,7 @@ void hmiSelectFile() {
   else if (encoder_diffState == ENCODER_DIFF_CCW && fullCnt) {
     if (select_file.dec()) {
       const uint8_t itemnum = select_file.now - 1;              // -1 for "Back"
-      if (TERN0(SCROLL_LONG_FILENAMES, shift_ms)) {             // If line was shifted
+      if (TERN0(SCROLL_LONG_FILENAMES, shift_timer.enabled())) {             // If line was shifted
         eraseMenuText(select_file.now + 1 + MROWS - index_file); // Erase and
         drawSDItem(itemnum + 1);                                // redraw
       }
@@ -2222,7 +2224,7 @@ void hmiSelectFile() {
         scrollMenu(DWIN_SCROLL_DOWN);
         if (index_file == MROWS) {
           drawBackFirst();
-          TERN_(SCROLL_LONG_FILENAMES, shift_ms = 0);
+          TERN_(SCROLL_LONG_FILENAMES, shift_timer.cancel());
         }
         else
           drawSDItem(itemnum, 0);                               // Draw the item (and init shift name)
@@ -4104,16 +4106,16 @@ void dwinInitScreen() {
 }
 
 void eachMomentUpdate() {
-  static millis_t next_var_update_ms = 0, next_rts_update_ms = 0;
+  static MTimeout24 var_update_timer, rts_update_timer;
 
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_var_update_ms)) {
-    next_var_update_ms = ms + DWIN_VAR_UPDATE_INTERVAL;
+  if (var_update_timer.elapsed(ms)) {
+    var_update_timer.start(DWIN_VAR_UPDATE_INTERVAL, ms);
     updateVariable();
   }
 
-  if (PENDING(ms, next_rts_update_ms)) return;
-  next_rts_update_ms = ms + DWIN_SCROLL_UPDATE_INTERVAL;
+  if (rts_update_timer.pending(ms)) return;
+  rts_update_timer.start(DWIN_SCROLL_UPDATE_INTERVAL, ms);
 
   if (checkkey == ID_PrintProcess) {
     // if print done
@@ -4173,10 +4175,10 @@ void eachMomentUpdate() {
     }
 
     // Estimate remaining time every 20 seconds
-    static millis_t next_remain_time_update = 0;
-    if (_card_percent > 1 && ELAPSED(ms, next_remain_time_update) && !hmiFlag.heat_flag) {
+    static MTimeout24 remain_time_timer;
+    if (_card_percent > 1 && remain_time_timer.elapsed(ms) && !hmiFlag.heat_flag) {
       _remain_time = (elapsed.value - dwin_heat_time) / (_card_percent * 0.01f) - (elapsed.value - dwin_heat_time);
-      next_remain_time_update += DWIN_REMAIN_TIME_UPDATE_INTERVAL;
+      remain_time_timer.start(DWIN_REMAIN_TIME_UPDATE_INTERVAL, ms);
       drawPrintProgressRemain();
     }
   }

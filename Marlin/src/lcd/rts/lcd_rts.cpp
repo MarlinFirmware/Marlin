@@ -111,7 +111,7 @@ bool print_preheat_check = false;
 bool probe_offset_flag = false;
 
 float ChangeFilamentTemp = 200;
-millis_t next_rts_update_ms = 0;
+MTimeout24 rts_update_timer;
 millis_t next_shutdown_update_ms = 0;
 millis_t next_wifireset_update_ms = 0;
 unsigned int count_ms = 0;
@@ -298,7 +298,7 @@ void RTS::sdCardInit() {
 bool RTS::sdDetected() {
   static bool last, state;
   static bool flag_stable;
-  static uint32_t stable_point_time;
+  static MTimeout24 stable_timer;
 
   bool tmp = card.isSDCardInserted();
 
@@ -306,10 +306,10 @@ bool RTS::sdDetected() {
     flag_stable = false;
   else if (!flag_stable) {
     flag_stable = true;
-    stable_point_time = millis() + 30;
+    stable_timer.start(30);
   }
 
-  if (flag_stable && ELAPSED(millis(), stable_point_time))
+  if (flag_stable && stable_timer.elapsed())
     state = tmp;
 
   last = tmp;
@@ -768,9 +768,9 @@ void RTS::sendText(const char string[], unsigned long addr, uint8_t textSize) {
 
   // Discard the screen's reply to a write: 5A A5 03 82 4F 4B ("OK")
   static void wait_preview_ack() {
-    const millis_t timeout = millis() + PREVIEW_ACK_MS;
+    const MTimeout timeout(PREVIEW_ACK_MS);
     uint32_t tail = 0;
-    while (PENDING(millis(), timeout)) {
+    while (timeout.pending()) {
       if (LCD_SERIAL.available()) {
         tail = (tail << 8) | uint8_t(LCD_SERIAL.read());
         if (tail == 0x03824F4B) break;
@@ -2632,7 +2632,7 @@ void RTS::eachMomentUpdate() {
   else
     wifiresetcount_ms = 0;
 
-  if (ms > next_rts_update_ms) {
+  if (rts_update_timer.elapsed(ms)) {
     // print the file before the power is off.
     if (!power_off_type_yes && lcd_sd_status && recovery.recovery_flag) {
       sendData(ExchangePageBase, ExchangepageAddr);
@@ -2789,7 +2789,7 @@ void RTS::eachMomentUpdate() {
 
     TERN_(FILAMENT_RUNOUT_SENSOR, sendData(runout.filament_ran_out ? 0 : 1, FILAMENT_LOAD_ICON_VP));
 
-    next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + update_time_value;
+    rts_update_timer.start(RTS_UPDATE_INTERVAL + update_time_value, ms);
   }
 }
 
