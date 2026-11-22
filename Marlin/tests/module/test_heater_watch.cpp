@@ -35,7 +35,7 @@ MARLIN_TEST(heater_watch, zero_deadline_stays_armed) {
   HeaterWatch<2, 4, 40> watch{};
   const millis_t now = millis_t(0) - SEC_TO_MS(40);
   watch.restart(20, 200, now);
-  TEST_ASSERT_EQUAL_UINT32(1, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(1, watch.timer.end_ms);
   TEST_ASSERT_FALSE(watch.elapsed(millis_t(0)));
   TEST_ASSERT_TRUE(watch.elapsed(millis_t(1)));
 }
@@ -43,14 +43,14 @@ MARLIN_TEST(heater_watch, zero_deadline_stays_armed) {
 MARLIN_TEST(heater_watch, bed_zero_deadline_stays_armed) {
   HeaterWatch<2, 2, 180> watch{};
   watch.restart(20, 60, millis_t(0) - SEC_TO_MS(180));
-  TEST_ASSERT_EQUAL_UINT32(1, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(1, watch.timer.end_ms);
   TEST_ASSERT_TRUE(watch.elapsed(millis_t(1)));
 }
 
 MARLIN_TEST(heater_watch, ordinary_deadline_and_temperature_rise) {
   HeaterWatch<2, 4, 40> watch{};
   watch.restart(20, 200, 1000);
-  TEST_ASSERT_EQUAL_UINT32(41000, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(41000, watch.timer.end_ms);
   TEST_ASSERT_FALSE(watch.elapsed(millis_t(40999)));
   TEST_ASSERT_TRUE(watch.elapsed(millis_t(41000)));
   TEST_ASSERT_FALSE(watch.check(21));
@@ -60,7 +60,7 @@ MARLIN_TEST(heater_watch, ordinary_deadline_and_temperature_rise) {
 MARLIN_TEST(heater_watch, wrapped_nonzero_deadline) {
   HeaterWatch<2, 4, 40> watch{};
   watch.restart(20, 200, millis_t(0) - 1000);
-  TEST_ASSERT_EQUAL_UINT32(39000, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(39000, watch.timer.end_ms);
   TEST_ASSERT_FALSE(watch.elapsed(millis_t(38999)));
   TEST_ASSERT_TRUE(watch.elapsed(millis_t(39000)));
 }
@@ -69,10 +69,10 @@ MARLIN_TEST(heater_watch, off_and_near_target_disarm) {
   HeaterWatch<2, 4, 40> watch{};
   watch.restart(20, 200, 1000);
   watch.restart(20, 0, 1000);
-  TEST_ASSERT_EQUAL_UINT32(0, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(0, watch.timer.end_ms);
   TEST_ASSERT_FALSE(watch.elapsed(millis_t(41000)));
   watch.restart(196, 200, 1000);
-  TEST_ASSERT_EQUAL_UINT32(0, watch.next_ms);
+  TEST_ASSERT_EQUAL_UINT32(0, watch.timer.end_ms);
 }
 
 #endif
