@@ -54,28 +54,46 @@
   #include "BluetoothSerialPort.h"
 #endif
 
-#if SERIAL_PORT == -2
+#if HAS_NATIVE_USB_SERIAL
+  #include "NativeUSBSerial.h"
+#endif
+
+// The WiFi serial port: G-code from ESP3D, or from the WebSocket at /ws
+#if ENABLED(ESP3D_WIFISUPPORT)
+  typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
+  extern DefaultSerial1 MSerial0;
+  #define WIFI_HOST_SERIAL MSerial0
+#elif ENABLED(WIFISUPPORT)
+  #define WIFI_HOST_SERIAL webSocketSerial
+#endif
+
+// Serial port -1 is the native USB port (ESP32-S2, ESP32-S3), -2 is Bluetooth (ESP32), -3 is the WiFi serial port
+#if SERIAL_PORT == -3
+  #define MYSERIAL1 WIFI_HOST_SERIAL
+#elif SERIAL_PORT == -2
   #define MYSERIAL1 btSerial
+#elif SERIAL_PORT == -1
+  #define MYSERIAL1 nativeUSBSerial
 #else
   #define MYSERIAL1 flushableSerial
 #endif
 
-#if SERIAL_PORT_2 == -2
+#if SERIAL_PORT_2 == -3
+  #define MYSERIAL2 WIFI_HOST_SERIAL
+#elif SERIAL_PORT_2 == -2
   #define MYSERIAL2 btSerial
-#elif ENABLED(ESP3D_WIFISUPPORT)
-  typedef ForwardSerial1Class< decltype(Serial2Socket) > DefaultSerial1;
-  extern DefaultSerial1 MSerial0;
-  #define MYSERIAL2 MSerial0
-#elif ENABLED(WIFISUPPORT)
-  #define MYSERIAL2 webSocketSerial
-#endif
-
-#if SERIAL_PORT_2 == 2
+#elif SERIAL_PORT_2 == -1
+  #define MYSERIAL2 nativeUSBSerial
+#elif SERIAL_PORT_2 == 2
   #define MYSERIAL2 flushableSerial2
 #endif
 
-#if SERIAL_PORT_3 == -2
+#if SERIAL_PORT_3 == -3
+  #define MYSERIAL3 WIFI_HOST_SERIAL
+#elif SERIAL_PORT_3 == -2
   #define MYSERIAL3 btSerial
+#elif SERIAL_PORT_3 == -1
+  #define MYSERIAL3 nativeUSBSerial
 #endif
 
 #if LCD_SERIAL_PORT == 2
@@ -89,8 +107,18 @@
 #define HAL_CAN_SET_PWM_FREQ   // This HAL supports PWM Frequency adjustment
 #define PWM_FREQUENCY  1000U   // Default PWM frequency when set_pwm_duty() is called without set_pwm_frequency()
 #define PWM_RESOLUTION   10U   // Default PWM bit resolution
-#define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
-#define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
+#if ESP32_CLASSIC
+  #define CHANNEL_MAX_NUM  15U   // max PWM channel # to allocate (7 to only use low speed, 15 to use low & high)
+  #define MAX_PWM_IOPIN    33U   // hardware pwm pins < 34
+#else
+  #include <soc/soc_caps.h>
+  #define CHANNEL_MAX_NUM  (SOC_LEDC_CHANNEL_NUM - 1U)  // max PWM channel # to allocate
+  #if CONFIG_IDF_TARGET_ESP32S2
+    #define MAX_PWM_IOPIN  45U                          // GPIO 46 is input only
+  #else
+    #define MAX_PWM_IOPIN  (SOC_GPIO_PIN_COUNT - 1U)    // all GPIOs can output PWM
+  #endif
+#endif
 #ifndef MAX_EXPANDER_BITS
   #define MAX_EXPANDER_BITS 32 // I2S expander bit width (max 32)
 #endif
@@ -125,6 +153,12 @@ void tmc_hw_serial_begin(HardwareSerial &serial, const uint32_t baud);
 #define TMC_HW_SERIAL_BEGIN(S, B) tmc_hw_serial_begin(S, B)
 
 void analogWrite(const pin_t pin, const uint16_t value, const uint32_t freq=PWM_FREQUENCY, const uint16_t res=8);
+
+// M997 restarts the firmware
+#ifndef PLATFORM_M997_SUPPORT
+  #define PLATFORM_M997_SUPPORT
+#endif
+void flashFirmware(const int16_t);
 
 //
 // Pin Mapping for M42, M43, M226
@@ -214,9 +248,17 @@ public:
 
   // Interrupts
   static portMUX_TYPE spinlock;
-  static bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
-  static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
-  static void isr_off() { portENTER_CRITICAL(&spinlock); }
+  #if CONFIG_FREERTOS_UNICORE
+    // A single-core build doesn't set the spinlock owner, so count the isr_off() calls
+    static volatile uint8_t isr_off_count;
+    static bool isr_state() { return !isr_off_count; }
+    static void isr_on()  { if (isr_off_count) { isr_off_count--; portEXIT_CRITICAL(&spinlock); } }
+    static void isr_off() { portENTER_CRITICAL(&spinlock); isr_off_count++; }
+  #else
+    static bool isr_state() { return spinlock.owner == portMUX_FREE_VAL; }
+    static void isr_on()  { if (spinlock.owner != portMUX_FREE_VAL) portEXIT_CRITICAL(&spinlock); }
+    static void isr_off() { portENTER_CRITICAL(&spinlock); }
+  #endif
 
   static void delay_ms(const int ms) { delay(ms); }
 
