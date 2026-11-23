@@ -3437,7 +3437,7 @@ void Temperature::init() {
       }
       SERIAL_ECHOLNPGM(
         " ; sizeof(running_temp):", sizeof(running_temp),
-        " ;  State:", state, " ;  Timer:", timer, " ;  Temperature:", current, " ;  Target Temp:", target
+        " ;  State:", state, " ;  Timer:", timer.end_ms, " ;  Temperature:", current, " ;  Target Temp:", target
         #if HEATER_IDLE_HANDLER
           , " ;  Idle Timeout:", heater_idle[idle_index].timed_out
         #endif
@@ -3456,7 +3456,7 @@ void Temperature::init() {
         variance += ABS(current - last_temp); // No need for detection window now, a single change in variance is enough
         last_temp = current;
         if (variance > 0.25f) {               // Require meaningful temperature change, not just ADC noise
-          variance_timer = millis() + SEC_TO_MS(VARIANCE_WINDOW);
+          variance_timer.start(SEC_TO_MS(VARIANCE_WINDOW));
           variance = 0.0;
           state = TRStable;                   // Resume from where we detected the problem
         }
@@ -3468,12 +3468,12 @@ void Temperature::init() {
       if (TERN0(HEATER_IDLE_HANDLER, heater_idle[idle_index].timed_out)) {
         state = TRInactive;
         running_temp = 0;
-        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
+        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer.cancel());
       }
       else if (running_temp != target) { // If the target temperature changes, restart
         running_temp = target;
         state = target > 0 ? TRFirstHeating : TRInactive;
-        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer = 0);
+        TERN_(THERMAL_PROTECTION_VARIANCE_MONITOR, variance_timer.cancel());
       }
     }
 
@@ -3520,26 +3520,26 @@ void Temperature::init() {
         const millis_t now = millis();
 
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-          if (PENDING(now, variance_timer)) {
+          if (variance_timer.pending(now)) {
             variance += ABS(current - last_temp);
             last_temp = current;
           }
           else {
-            if (NEAR_ZERO(variance) && variance_timer) { // valid variance monitoring window
+            if (NEAR_ZERO(variance) && variance_timer.enabled()) { // valid variance monitoring window
               state = TRMalfunction;
               break;
             }
-            variance_timer = now + SEC_TO_MS(VARIANCE_WINDOW);
+            variance_timer.start(SEC_TO_MS(VARIANCE_WINDOW), now);
             variance = 0.0;
             last_temp = current;
           }
         #endif
 
         if (rdiff <= hysteresis_degc) {
-          timer = now + SEC_TO_MS(period_seconds);
+          timer.start(SEC_TO_MS(period_seconds), now);
           break;
         }
-        else if (PENDING(now, timer)) break;
+        else if (timer.pending(now)) break;
         state = TRRunaway;
 
       } // fall through

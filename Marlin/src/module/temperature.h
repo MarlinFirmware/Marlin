@@ -1529,11 +1529,11 @@ class Temperature {
       };
 
       typedef struct {
-        millis_t timer = 0;
+        MTimeout24 timer;     // Runaway window. Not running until the temperature first settles.
         TRState state = TRInactive;
         celsius_float_t running_temp;
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-          millis_t variance_timer = 0;
+          MTimeout24 variance_timer; // Variance window. Not running until the first window starts.
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
         void run(const celsius_float_t current, const celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);
