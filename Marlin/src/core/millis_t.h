@@ -119,7 +119,7 @@ template<typename T=millis_t>
 struct TTimeout24 : TTimerOps<TTimeout24<T>> {
   typedef typename TSigned<T>::type S;
   T end_ms = 0;
-  TTimeout24() {}
+  constexpr TTimeout24() {}
   TTimeout24(const T interval, const T ms=millis()) { start(interval, ms); }
   FI void start(const T interval, const T ms=millis()) { end_ms = T(ms + interval); if (!end_ms) end_ms = 1; }
   FI void cancel() { end_ms = 0; }
@@ -143,7 +143,7 @@ struct TTimeout24 : TTimerOps<TTimeout24<T>> {
 template<typename T=millis_t>
 struct TTimeout : TTimerOps<TTimeout<T>> {
   T start_ms = 0, delay_ms = 0;
-  TTimeout() {}
+  constexpr TTimeout() {}
   TTimeout(const T interval, const T ms=millis()) { start(interval, ms); }
   FI void prime(const T ms=millis()) { start_ms = ms; }
   FI void cancel() { delay_ms = 0; }
@@ -164,7 +164,7 @@ struct TTimeout : TTimerOps<TTimeout<T>> {
 struct MSeconds : TTimerOps<MSeconds> {
   millis_t start_ms = 0;
   uint16_t delay_sec = 0;
-  MSeconds() {}
+  constexpr MSeconds() {}
   MSeconds(const uint16_t seconds, const millis_t ms=millis()) { start(seconds, ms); }
   FI void prime(const millis_t ms=millis()) { start_ms = ms; }
   FI void cancel() { delay_sec = 0; }
