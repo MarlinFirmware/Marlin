@@ -5336,10 +5336,10 @@ void Temperature::isr() {
     bool Temperature::wait_for_cooler(const bool no_wait_for_cooling/*=true*/) {
 
       #if TEMP_COOLER_RESIDENCY_TIME > 0
-        MTimeout24 residency_timer; // Not running until the target is reached
+        millis_t residency_start_ms = 0;
         bool first_loop = true;
         // Loop until the temperature has stabilized
-        #define TEMP_COOLER_CONDITIONS (!residency_timer.enabled() || residency_timer.pending(now))
+        #define TEMP_COOLER_CONDITIONS (!residency_start_ms || PENDING(now, residency_start_ms, SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME)))
       #else
         // Loop until the temperature is very close target
         #define TEMP_COOLER_CONDITIONS (wants_to_cool ? isLaserHeating() : isLaserCooling())
@@ -5351,8 +5351,7 @@ void Temperature::isr() {
 
       bool wants_to_cool = false;
       float target_temp = -1, previous_temp = 9999;
-      millis_t now;
-      MTimeout24 temp_timer, cooling_timer;
+      millis_t now, next_temp_ms = 0, next_cooling_check_ms = 0;
       marlin.heatup_start();
       do {
         // Target temperature might be changed during the loop
@@ -5365,13 +5364,13 @@ void Temperature::isr() {
         }
 
         now = millis();
-        if (temp_timer.elapsed(now)) { // Print Temp Reading every 1 second while heating up.
-          temp_timer.start(1000, now);
+        if (ELAPSED(now, next_temp_ms)) { // Print Temp Reading every 1 second while heating up.
+          next_temp_ms = now + 1000UL;
           print_heater_states(motion.extruder);
           #if TEMP_COOLER_RESIDENCY_TIME > 0
             SString<20> s(F(" W:"));
-            if (residency_timer.enabled())
-              s += long(MS_TO_SEC(residency_timer.remaining(now) + 999)); // Seconds left, rounded up
+            if (residency_start_ms)
+              s += long((TEMP_COOLER_RESIDENCY_TIME) - MS_TO_SEC(now - residency_start_ms));
             else
               s += '?';
             s.echo();
@@ -5388,14 +5387,14 @@ void Temperature::isr() {
 
           const celsius_float_t temp_diff = ABS(target_temp - temp);
 
-          if (!residency_timer.enabled()) {
+          if (!residency_start_ms) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.
             if (temp_diff < TEMP_COOLER_WINDOW)
-              residency_timer.start(SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0), now);
+              residency_start_ms = now + (first_loop ? SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME) / 3 : 0);
           }
           else if (temp_diff > TEMP_COOLER_HYSTERESIS) {
             // Restart the timer whenever the temperature falls outside the hysteresis.
-            residency_timer.start(SEC_TO_MS(TEMP_COOLER_RESIDENCY_TIME), now);
+            residency_start_ms = now;
           }
 
           first_loop = false;
@@ -5405,9 +5404,9 @@ void Temperature::isr() {
         if (wants_to_cool) {
           // Break after MIN_COOLING_SLOPE_TIME_CHAMBER seconds
           // if the temperature did not drop at least MIN_COOLING_SLOPE_DEG_CHAMBER
-          if (cooling_timer.elapsed(now)) {
+          if (!next_cooling_check_ms || ELAPSED(now, next_cooling_check_ms)) {
             if (previous_temp - current_temp < float(MIN_COOLING_SLOPE_DEG_COOLER)) break;
-            cooling_timer.start(SEC_TO_MS(MIN_COOLING_SLOPE_TIME_COOLER), now);
+            next_cooling_check_ms = now + SEC_TO_MS(MIN_COOLING_SLOPE_TIME_COOLER);
             previous_temp = current_temp;
           }
         }
@@ -5424,7 +5423,6 @@ void Temperature::isr() {
 
       return false;
     }
-
   #endif // HAS_COOLER
 
 #endif // HAS_TEMP_SENSOR
