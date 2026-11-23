@@ -89,7 +89,7 @@
       SERIAL_ECHOLNPGM(
         "  M200 S", parser.volumetric_enabled, " D", LINEAR_UNIT(planner.filament_size[0])
         #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-          , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[0])
+          , " L", planner.volumetric_extruder_limit[0]
         #endif
       );
     }
@@ -100,7 +100,7 @@
         SERIAL_ECHOLNPGM(
           "  M200 T", e, " D", LINEAR_UNIT(planner.filament_size[e])
           #if ENABLED(VOLUMETRIC_EXTRUDER_LIMIT)
-            , " L", LINEAR_UNIT(planner.volumetric_extruder_limit[e])
+            , " L", planner.volumetric_extruder_limit[e]
           #endif
         );
       }
@@ -366,7 +366,7 @@ void GcodeSuite::M205_report(const bool forReplay/*=true*/) {
     ")"
   ));
   SERIAL_ECHOLNPGM_P(
-      PSTR("  M205 " M205_MIN_SEG_TIME_STR), LINEAR_UNIT(planner.settings.min_segment_time_us)
+      PSTR("  M205 " M205_MIN_SEG_TIME_STR), planner.settings.min_segment_time_us
     , PSTR(" S"), LINEAR_UNIT(planner.settings.min_feedrate_mm_s)
     , SP_T_STR, LINEAR_UNIT(planner.settings.min_travel_feedrate_mm_s)
     #if HAS_JUNCTION_DEVIATION
