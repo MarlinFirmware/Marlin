@@ -741,6 +741,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     if (thermalManager.degHotend(motion.extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms, SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
+      && !paused_for_filament_change  // Don't extrude while filament is being changed
     ) {
       const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, motion.extruder / 2, motion.extruder);
       const bool e_off = !stepper.AXIS_IS_ENABLED(E_AXIS, e_stepper);
