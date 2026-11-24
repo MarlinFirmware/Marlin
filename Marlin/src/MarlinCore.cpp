@@ -1415,6 +1415,11 @@ void setup() {
   // Some HAL need precise delay adjustment
   calibrate_delay_loop();
 
+  // Start the I2C bus before other I2C features
+  #if ENABLED(EXPERIMENTAL_I2CBUS)
+    SETUP_RUN(i2c.init());
+  #endif
+
   // Init buzzer pin(s)
   #if HAS_BEEPER
     SETUP_RUN(buzzer.init());

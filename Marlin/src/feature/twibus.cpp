@@ -32,7 +32,7 @@
 
 TWIBus i2c;
 
-TWIBus::TWIBus() {
+void TWIBus::init() {
   #if I2C_SLAVE_ADDRESS == 0
 
     #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
