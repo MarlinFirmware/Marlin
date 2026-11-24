@@ -5387,7 +5387,7 @@ void Temperature::isr() {
 
         #if TEMP_COOLER_RESIDENCY_TIME > 0
 
-          const celsius_float_t temp_diff = ABS(target_temp - temp);
+          const celsius_float_t temp_diff = ABS(target_temp - current_temp);
 
           if (!residency_start_ms) {
             // Start the TEMP_COOLER_RESIDENCY_TIME timer when we reach target temp for the first time.
