@@ -495,16 +495,38 @@ void HAL_HardwareSerial::flush() {
 
   void HAL_HardwareSerial::Serial_DMA_Read_Enable() {
 
-    if (RX_DMA.DMA_ID == 1)
-      __HAL_RCC_DMA1_CLK_ENABLE(); // enable DMA1 clock
-    else
-      __HAL_RCC_DMA2_CLK_ENABLE(); // enable DMA2 clock
+    #ifdef __HAL_RCC_DMA2_CLK_ENABLE
+      if (RX_DMA.DMA_ID == 1)
+        __HAL_RCC_DMA1_CLK_ENABLE(); // enable DMA1 clock
+      else
+        __HAL_RCC_DMA2_CLK_ENABLE(); // enable DMA2 clock
+    #else
+      __HAL_RCC_DMA1_CLK_ENABLE();   // STM32F070/F072 have DMA1 only
+    #endif
+
+    #if defined(STM32F0xx) && defined(SYSCFG_CFGR1_USART1RX_DMA_RMP)
+      // STM32F0: USART1_RX requests go to DMA1 channel 3 by default; channel 5 (used here, as on
+      // the F1) needs the remap bit, otherwise the DMA never sees a byte
+      if (RX_DMA.uart == USART1) {
+        __HAL_RCC_SYSCFG_CLK_ENABLE();
+        SYSCFG->CFGR1 |= SYSCFG_CFGR1_USART1RX_DMA_RMP;
+      }
+    #endif
 
     RX_DMA.dma_channelRX->CCR &= ~USART_CR1_UE;                   // DMA stream clear/disable
     while (RX_DMA.dma_channelRX->CCR & DMA_CCR_EN) { /* just wait for DMA to complete */ }
 
     // Clear/disable UART and DMA
     RX_DMA.uart->CR1             = 0;                             // UART clear CR1, disable DMA
+
+    #ifdef STM32F0xx
+      // No overrun stop and no error interrupt: an error interrupt makes the core's handler
+      // restart interrupt reception (RXNEIE), which then takes bytes away from the DMA.
+      // OVRDIS can only be written with the UART disabled (UE = 0, just done)
+      RX_DMA.uart->CR3          |= USART_CR3_OVRDIS;
+      RX_DMA.uart->CR3          &= ~USART_CR3_EIE;
+      RX_DMA.uart->ICR           = USART_ICR_ORECF | USART_ICR_FECF | USART_ICR_NCF | USART_ICR_PECF;
+    #endif
 
     // Configure DMA
 
