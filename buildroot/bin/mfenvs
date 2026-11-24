@@ -8,6 +8,8 @@
 [[ -d Marlin/src ]] || { echo "Please 'cd' to the Marlin repo root." ; exit 1 ; }
 which pio >/dev/null || { echo "Make sure 'pio' is in your execution PATH." ; exit 1 ;  }
 
+HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 errout() { echo -e "\033[0;31m$1\033[0m" ; }
 
 case $(uname | tr '[:upper:]' '[:lower:]') in
@@ -27,7 +29,7 @@ MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
 BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
 BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
 [[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
-ENVS=( $( grep -EA1 "MB\(.*\b$MB\b.*\)" Marlin/src/pins/pins.h | grep -E "#include.+//.+(env|$SYS):[^ ]+" | grep -oE "(env|$SYS):[^ ]+" | sed -E "s/(env|$SYS)://" ) )
+ENVS=( $( awk -v MB="$MB" -v SYS="$SYS" -f "$HERE/mfenvs.awk" Marlin/src/pins/pins.h ) )
 [[ "$1" = "-n" ]] && ENVS=( $(printf "%s\n" "${ENVS[@]}" | grep -v "_xfer$") )
 [[ -z $ENVS ]] && { errout "Error - Can't find target(s) for $MB ($BNUM)." ; exit 1 ; }
 ECOUNT=${#ENVS[*]}
