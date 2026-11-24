@@ -82,10 +82,10 @@ class TWIBus {
     uint8_t addr = 0;
 
     /**
-     * @brief Class constructor
-     * @details Initialize the TWI bus and clear the buffer
+     * @brief Initialize the TWI bus and clear the buffer
+     * @details Call from setup(). Wire may not be constructed before then.
      */
-    TWIBus();
+    void init();
 
     /**
      * @brief Reset the buffer
