@@ -368,8 +368,7 @@ static bool sanitizeName(const char * const unsanitizedName, char * const saniti
         WIFISERIAL.end();
         for (uint16_t i = 0; i < 65535; i++) hal.watchdog_refresh();
         WIFISERIAL.begin(WIFI_BAUDRATE);
-        millis_t serial_connect_timeout = millis() + 1000UL;
-        while (PENDING(millis(), serial_connect_timeout)) hal.watchdog_refresh();
+        MTimeout(1000).run([]{ hal.watchdog_refresh(); });
       }
       else {
         WIFISERIAL.end();
@@ -632,8 +631,7 @@ static bool sanitizeName(const char * const unsanitizedName, char * const saniti
         WIFISERIAL.end();
         for (uint16_t i = 0; i < 65535; i++) hal.watchdog_refresh();
         WIFISERIAL.begin(WIFI_BAUDRATE);
-        uint32_t serial_connect_timeout = millis() + 1000UL;
-        while (PENDING(millis(), serial_connect_timeout)) hal.watchdog_refresh();
+        MTimeout(1000).run([]{ hal.watchdog_refresh(); });
       }
       else {
         WIFISERIAL.end();

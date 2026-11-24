@@ -78,7 +78,7 @@
 #define CMD58 (58)        // READ_OCR
 
 static volatile DSTATUS Stat = STA_NOINIT;  // Physical drive status
-static volatile UINT timeout;
+static MTimeout24 timeout; // Shared by the wait loops below
 static BYTE CardType;                       // Card type flags
 
 /*-----------------------------------------------------------------------*/
@@ -121,11 +121,11 @@ static int wait_ready ( // 1:Ready, 0:Timeout
   UINT wt               // Timeout [ms]
 ) {
   BYTE d;
-  timeout = millis() + wt;
+  timeout.start(wt);
   do {
     d = xchg_spi(0xFF);
     // This loop takes a while. Insert rot_rdq() here for multitask environment.
-  } while (d != 0xFF && (timeout > millis()));  // Wait for card goes ready or timeout
+  } while (d != 0xFF && timeout.pending());  // Wait for card goes ready or timeout
 
   return (d == 0xFF) ? 1 : 0;
 }
@@ -182,11 +182,11 @@ static int rcvr_datablock (   // 1:OK, 0:Error
 ) {
   BYTE token;
 
-  timeout = millis() + 200;
+  timeout.start(200);
   do {                            // Wait for DataStart token in timeout of 200ms
     token = xchg_spi(0xFF);
                                   // This loop will take a while. Insert rot_rdq() here for multitask environment.
-  } while ((token == 0xFF) && (timeout > millis()));
+  } while ((token == 0xFF) && timeout.pending());
   if (token != 0xFE) return 0;    // Function fails if invalid DataStart token or timeout
 
   rcvr_spi_multi(buff, btr);      // Store trailing data to the buffer
@@ -290,12 +290,12 @@ DSTATUS disk_initialize (
 
   ty = 0;
   if (send_cmd(CMD0, 0) == 1) {                                       // Put the card SPI state
-    timeout = millis() + 1000;                                        // Initialization timeout = 1 sec
+    timeout.start(1000);                                              // Initialization timeout = 1 sec
     if (send_cmd(CMD8, 0x1AA) == 1) {                                 // Is the catd SDv2?
       for (n = 0; n < 4; n++) ocr[n] = xchg_spi(0xFF);                // Get 32 bit return value of R7 resp
       if (ocr[2] == 0x01 && ocr[3] == 0xAA) {                         // Does the card support 2.7-3.6V?
-        while ((timeout > millis()) && send_cmd(ACMD41, 1UL << 30));  // Wait for end of initialization with ACMD41(HCS)
-        if ((timeout > millis()) && send_cmd(CMD58, 0) == 0) {        // Check CCS bit in the OCR
+        while (timeout.pending() && send_cmd(ACMD41, 1UL << 30));  // Wait for end of initialization with ACMD41(HCS)
+        if (timeout.pending() && send_cmd(CMD58, 0) == 0) {        // Check CCS bit in the OCR
           for (n = 0; n < 4; n++) ocr[n] = xchg_spi(0xFF);
           ty = (ocr[0] & 0x40) ? CT_SD2 | CT_BLOCK : CT_SD2;          // Check if the card is SDv2
         }
@@ -308,8 +308,8 @@ DSTATUS disk_initialize (
       else {
         ty = CT_MMC; cmd = CMD1;                                      // MMCv3 (CMD1(0))
       }
-      while ((timeout > millis()) && send_cmd(cmd, 0));               // Wait for the card leaves idle state
-      if (!(timeout > millis()) || send_cmd(CMD16, 512) != 0)         // Set block length: 512
+      while (timeout.pending() && send_cmd(cmd, 0));               // Wait for the card leaves idle state
+      if (!timeout.pending() || send_cmd(CMD16, 512) != 0)         // Set block length: 512
         ty = 0;
     }
   }

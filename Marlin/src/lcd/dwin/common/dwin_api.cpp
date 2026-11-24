@@ -51,8 +51,8 @@ bool dwinHandshake() {
     #define LCD_BAUDRATE 115200
   #endif
   LCD_SERIAL.begin(LCD_BAUDRATE);
-  const millis_t serial_connect_timeout = millis() + 1000UL;
-  while (!LCD_SERIAL.connected() && PENDING(millis(), serial_connect_timeout)) { /*nada*/ }
+  const MTimeout serial_connect_timeout(1000);
+  while (!LCD_SERIAL.connected() && serial_connect_timeout.pending()) { /*nada*/ }
 
   size_t i = 0;
   dwinByte(i, 0x00);

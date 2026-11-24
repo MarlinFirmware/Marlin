@@ -110,12 +110,12 @@ float BDS_Leveling::read() {
 
 void BDS_Leveling::process() {
   if (config_state == BDS_IDLE && marlin.printingIsActive()) return;
-  static millis_t next_check_ms = 0; // starting at T=0
+  static MTimeout24 check_timer; // Elapsed on first run
   static float zpos = 0.0f;
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_check_ms)) { // timed out (or first run)
+  if (check_timer.elapsed(ms)) { // timed out (or first run)
     // Check at 1KHz, 5Hz, or 20Hz
-    next_check_ms = ms + (config_state == BDS_HOMING_Z ? 1 : (config_state < BDS_IDLE ? 200 : 50));
+    check_timer.start(config_state == BDS_HOMING_Z ? 1 : (config_state < BDS_IDLE ? 200 : 50), ms);
 
     uint16_t tmp = 0;
     const float cur_z = planner.get_axis_position_mm(Z_AXIS) - pos_zero_offset;

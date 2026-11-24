@@ -1310,18 +1310,18 @@ void hmiInit() {
 }
 
 void eachMomentUpdate() {
-  static millis_t next_var_update_ms = 0, next_rts_update_ms = 0, next_status_update_ms = 0;
+  static MTimeout24 var_update_timer, rts_update_timer, status_update_timer;
   const millis_t ms = millis();
 
   #if HAS_BACKLIGHT_TIMEOUT
-    if (ui.backlight_off_ms && ELAPSED(ms, ui.backlight_off_ms)) {
+    if (ui.backlight_timer.on_elapsed(ms)) {
       turnOffBacklight(); // Backlight off
-      ui.backlight_off_ms = 0;
+      ui.backlight_timer.cancel();
     }
   #endif
 
-  if (ELAPSED(ms, next_var_update_ms)) {
-    next_var_update_ms = ms + DWIN_VAR_UPDATE_INTERVAL;
+  if (var_update_timer.elapsed(ms)) {
+    var_update_timer.start(DWIN_VAR_UPDATE_INTERVAL, ms);
     FLIP(blink);
     updateVariable();
     #if HAS_ESDIAG
@@ -1350,20 +1350,20 @@ void eachMomentUpdate() {
 
   #if HAS_STATUS_MESSAGE_TIMEOUT
     bool did_expire = ui.status_reset_callback && (*ui.status_reset_callback)();
-    did_expire |= ui.status_message_expire_ms && ELAPSED(ms, ui.status_message_expire_ms);
+    did_expire |= ui.status_message_timer.on_elapsed(ms);
     if (did_expire) ui.reset_status();
   #endif
 
-  if (ELAPSED(ms, next_status_update_ms)) {
-    next_status_update_ms = ms + DWIN_VAR_UPDATE_INTERVAL;
+  if (status_update_timer.elapsed(ms)) {
+    status_update_timer.start(DWIN_VAR_UPDATE_INTERVAL, ms);
     dwinDrawStatusMessage();
     #if ENABLED(SCROLL_LONG_FILENAMES)
       if (isMenu(fileMenu)) fileMenuIdle();
     #endif
   }
 
-  if (ELAPSED(ms, next_rts_update_ms)) {
-    next_rts_update_ms = ms + DWIN_UPDATE_INTERVAL;
+  if (rts_update_timer.elapsed(ms)) {
+    rts_update_timer.start(DWIN_UPDATE_INTERVAL, ms);
 
     if (!hmiFlag.home_flag) {
       if (hmiFlag.printing_flag != isPrinting()) {

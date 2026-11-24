@@ -74,9 +74,9 @@ void ControllerFan::setup() {
 void ControllerFan::update() {
   const millis_t ms = millis();
 
-  static millis_t nextFanCheck = 0;     // Last time the state was checked
-  if (PENDING(ms, nextFanCheck)) return;
-  nextFanCheck = ms + 2500UL; // Not a time critical function, so only check every 2.5s
+  static MTimeout24 fan_check_timer;    // Time of the next state check
+  if (fan_check_timer.pending(ms)) return;
+  fan_check_timer.start(2500, ms);      // Not a time critical function, so only check every 2.5s
 
   /**
    * If any triggers for the controller fan are true...
@@ -85,7 +85,7 @@ void ControllerFan::update() {
    *   - TEMP_SENSOR_BOARD is reporting >= CONTROLLER_FAN_MIN_BOARD_TEMP
    *   - TEMP_SENSOR_SOC is reporting >= CONTROLLER_FAN_MIN_SOC_TEMP
    */
-  static millis_t lastComponentOn = 0;  // Last time a stepper, heater, etc. was turned on
+  static MTimeout24 componentTimer;     // Runs after a stepper, heater, etc. was turned on
   const ena_mask_t axis_mask = TERN(CONTROLLER_FAN_USE_Z_ONLY, _BV(Z_AXIS), (ena_mask_t)~TERN0(CONTROLLER_FAN_IGNORE_Z, _BV(Z_AXIS)));
   if ( (stepper.axis_enabled.bits & axis_mask)
     #if ALL(HAS_HEATED_BED, CONTROLLER_FAN_BED_HEATING)
@@ -97,14 +97,14 @@ void ControllerFan::update() {
     #ifdef CONTROLLER_FAN_MIN_SOC_TEMP
       || thermalManager.wholeDegSoc() >= CONTROLLER_FAN_MIN_SOC_TEMP
     #endif
-  ) lastComponentOn = next_millis(ms); //... set time to NOW so the fan will turn on
+  ) componentTimer.start(SEC_TO_MS(settings.duration), ms); //... restart so the fan will turn on
 
   /**
    * Fan Settings. Set fan > 0:
    *  - If AutoMode is on and hot components have been powered for CONTROLLERFAN_IDLE_TIME seconds.
    *  - If System is on idle and idle fan speed settings is activated.
    */
-  uint8_t s = settings.auto_mode && lastComponentOn && PENDING(ms, lastComponentOn, SEC_TO_MS(settings.duration))
+  uint8_t s = settings.auto_mode && componentTimer.pending(ms)
     ? settings.active_speed
     : settings.idle_speed;
 
@@ -114,18 +114,18 @@ void ControllerFan::update() {
   // When the fan first starts up it can run at high power for a short period
   #if FAN_KICKSTART_TIME
 
-    static millis_t kick_end_ms = 0;
+    static MTimeout24 kick_timer;
 
     if (s > FAN_OFF_PWM) {                      // Is the fan turned on?
-      if (!kick_end_ms) {                       // No kickstart yet?
-        kick_end_ms = next_millis(ms + FAN_KICKSTART_TIME);  // Set a future time at which to stop
+      if (!kick_timer.enabled()) {              // No kickstart yet?
+        kick_timer.start(FAN_KICKSTART_TIME, ms); // Set a future time at which to stop
         s = FAN_KICKSTART_POWER;                // Override the power
       }
-      else if (PENDING(ms, kick_end_ms))        // Still waiting for end of kickstart time?
+      else if (kick_timer.pending(ms))          // Still waiting for end of kickstart time?
         s = FAN_KICKSTART_POWER;                // Override the power
     }
     else
-      kick_end_ms = 0;                          // Reset kick_end_ms for kickstart on next enable
+      kick_timer.cancel();                      // Reset kick_timer for kickstart on next enable
 
   #endif // FAN_KICKSTART_TIME
 

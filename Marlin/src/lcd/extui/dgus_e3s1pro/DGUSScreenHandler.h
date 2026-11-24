@@ -79,8 +79,8 @@ private:
     static size_t pageMaxControlLen;
   #endif
 
-  static millis_t status_expire;
-  static millis_t eeprom_save;
+  static MTimeout24 status_expire;
+  static MTimeout24 eeprom_save;
 
 public:
   DGUSScreenHandler() = default;

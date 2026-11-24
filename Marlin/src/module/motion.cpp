@@ -1566,10 +1566,10 @@ void Motion::restore_feedrate_and_scaling() {
 
 #endif // !HAS_SOFTWARE_ENDSTOPS
 
-FORCE_INLINE void segment_idle(millis_t &next_idle_ms) {
+FORCE_INLINE void segment_idle(MTimeout24 &idle_timer) {
   const millis_t ms = millis();
-  if (ELAPSED(ms, next_idle_ms)) {
-    next_idle_ms = ms + 200UL;
+  if (idle_timer.elapsed(ms)) {
+    idle_timer.start(200, ms);
     return marlin.idle();
   }
   thermalManager.task();  // Returns immediately on most calls
@@ -1778,9 +1778,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
     xyze_pos_t raw = position;
 
     // Calculate and execute the segments
-    millis_t next_idle_ms = millis() + 200UL;
+    MTimeout24 idle_timer(200);
     while (--segments) {
-      segment_idle(next_idle_ms);
+      segment_idle(idle_timer);
       raw += segment_distance;
       if (!planner.buffer_line(raw, scaled_fr_mm_s, extruder, hints))
         break;
@@ -1847,9 +1847,9 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
       xyze_pos_t raw = position;
 
       // Calculate and execute the segments
-      millis_t next_idle_ms = millis() + 200UL;
+      MTimeout24 idle_timer(200);
       while (--segments) {
-        segment_idle(next_idle_ms);
+        segment_idle(idle_timer);
         raw += segment_distance;
         if (!planner.buffer_line(raw, fr_mm_s, extruder, hints))
           break;
@@ -1921,7 +1921,8 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   bool Motion::idex_mirrored_mode           = false;                        // Used in mode 3
   xyz_pos_t Motion::raised_parked_position;                                 // Used in mode 1
   bool Motion::active_extruder_parked       = false;                        // Used in mode 1, 2 & 3
-  millis_t Motion::delayed_move_time        = 0;                            // Used in mode 1
+  MTimeout Motion::delayed_move_timer;                                      // Used in mode 1
+  uint16_t Motion::delayed_move_interval    = 0;                            // Used in mode 1
   celsius_t Motion::duplicate_extruder_temp_offset = 0;                     // Used in mode 2 & 3
 
   void Motion::set_extruder_duplication(const bool dupe, const int8_t tool_index/*=-1*/) {
@@ -1936,7 +1937,7 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
   }
 
   void Motion::idex_set_parked(const bool park/*=true*/) {
-    delayed_move_time = 0;
+    delayed_move_interval = 0;
     active_extruder_parked = park;
     if (park) raised_parked_position = position;  // Remember current raised toolhead position for use by unpark
   }
@@ -1957,10 +1958,11 @@ float Motion::get_move_distance(const xyze_pos_t &diff OPTARG(HAS_ROTATIONAL_AXE
             // This is a travel move (with no extrusion)
             // Skip it, but keep track of the current position
             // (so it can be used as the start of the next non-travel move)
-            if (delayed_move_time != UINT32_MAX) {
+            if (delayed_move_interval != 1) {
               position = destination;
               NOLESS(raised_parked_position.z, destination.z);
-              delayed_move_time = next_millis(millis() + 1000UL);
+              delayed_move_timer.prime();
+              delayed_move_interval = 1000;
               return true;
             }
           }
@@ -2256,7 +2258,7 @@ void Motion::prepare_line_to_destination() {
         default: break;
       }
 
-      TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_period = millis() + default_sg_guard_duration);
+      TERN_(IMPROVE_HOMING_RELIABILITY, sg_guard_timer.start(default_sg_guard_duration));
 
       return stealth_states;
     }

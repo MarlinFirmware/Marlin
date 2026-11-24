@@ -129,9 +129,9 @@ Joystick joystick;
     static constexpr millis_t timer_limit_ms = millis_t(seg_time * 500); // 25 ms minimum delay between insertions
 
     // The planner can merge/collapse small moves, so the movement queue is unreliable to control the lag
-    static millis_t next_run = 0;
-    if (PENDING(millis(), next_run)) return;
-    next_run = millis() + timer_limit_ms;
+    static MTimeout24 run_timer;
+    if (run_timer.pending()) return;
+    run_timer.start(timer_limit_ms);
 
     // Only inject a command if the planner has fewer than 5 moves and there are no unparsed commands
     if (planner.movesplanned() >= QUEUE_DEPTH || queue.has_commands_queued())

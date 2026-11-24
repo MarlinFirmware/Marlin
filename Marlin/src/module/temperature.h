@@ -543,8 +543,8 @@ struct PIDHeaterInfo : public HeaterInfo {
 template <int INCREASE, int HYSTERESIS, millis_t PERIOD>
 struct HeaterWatch {
   celsius_t target;
-  millis_t next_ms;
-  inline bool elapsed(const millis_t &ms) { return next_ms && ELAPSED(ms, next_ms); }
+  MTimeout24 timer;
+  inline bool elapsed(const millis_t &ms) { return timer.on_elapsed(ms); }
   inline bool elapsed() { return elapsed(millis()); }
 
   inline bool check(const celsius_t curr) { return curr >= target; }
@@ -553,10 +553,10 @@ struct HeaterWatch {
   inline void restart(const celsius_t curr, const celsius_t tgt, const millis_t now=millis()) {
     if (tgt && curr < tgt - HYSTERESIS) {
       target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
-      next_ms = next_millis(now + SEC_TO_MS(PERIOD));
+      timer.start(SEC_TO_MS(PERIOD), now);
     }
     else
-      next_ms = 0;
+      timer.cancel();
   }
 };
 
@@ -764,11 +764,11 @@ class Temperature {
 
       // Heater idle handling. Marlin creates one per hotend and one for the heated bed.
       typedef struct {
-        millis_t timeout_ms;
+        MTimeout24 timeout;
         bool timed_out;
-        inline void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
-        inline void start(const millis_t &ms) { timeout_ms = next_millis(millis() + ms); timed_out = false; }
-        inline void reset() { timeout_ms = 0; timed_out = false; }
+        inline void update(const millis_t &ms) { if (!timed_out && timeout.on_elapsed(ms)) timed_out = true; }
+        inline void start(const millis_t &interval) { timeout.start(interval); timed_out = false; }
+        inline void reset() { timeout.cancel(); timed_out = false; }
         inline void expire() { start(0); }
       } heater_idle_t;
 
@@ -823,18 +823,12 @@ class Temperature {
       #if WATCH_BED
         static bed_watch_t watch_bed;
       #endif
-      #if DISABLED(PIDTEMPBED)
-        static millis_t next_bed_check_ms;
-      #endif
       static temp_raw_range_t temp_sensor_range_bed;
     #endif
 
     #if HAS_HEATED_CHAMBER
       #if WATCH_CHAMBER
         static chamber_watch_t watch_chamber;
-      #endif
-      #if DISABLED(PIDTEMPCHAMBER)
-        static millis_t next_chamber_check_ms;
       #endif
       static temp_raw_range_t temp_sensor_range_chamber;
     #endif
@@ -843,7 +837,6 @@ class Temperature {
       #if WATCH_COOLER
         static cooler_watch_t watch_cooler;
       #endif
-      static millis_t next_cooler_check_ms, cooler_fan_flush_ms;
       static temp_raw_range_t temp_sensor_range_cooler;
     #endif
 
@@ -983,15 +976,15 @@ class Temperature {
      * Preheating hotends & bed
      */
     #if PREHEAT_TIME_HOTEND_MS > 0
-      static millis_t preheat_end_ms_hotend[HOTENDS];
+      static MTimeout24 preheat_timer_hotend[HOTENDS];
       static bool is_hotend_preheating(const uint8_t E_NAME) {
-        return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
+        return preheat_timer_hotend[HOTEND_INDEX].pending();
       }
       static void start_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_end_ms_hotend[HOTEND_INDEX] = next_millis(millis() + PREHEAT_TIME_HOTEND_MS);
+        preheat_timer_hotend[HOTEND_INDEX].start(PREHEAT_TIME_HOTEND_MS);
       }
       static void reset_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_end_ms_hotend[HOTEND_INDEX] = 0;
+        preheat_timer_hotend[HOTEND_INDEX].cancel();
       }
     #else
       static bool is_hotend_preheating(const uint8_t) { return false; }
@@ -999,15 +992,15 @@ class Temperature {
 
     #if HAS_HEATED_BED
       #if PREHEAT_TIME_BED_MS > 0
-        static millis_t preheat_end_ms_bed;
+        static MTimeout24 preheat_timer_bed;
         static bool is_bed_preheating() {
-          return preheat_end_ms_bed && PENDING(millis(), preheat_end_ms_bed);
+          return preheat_timer_bed.pending();
         }
         static void start_bed_preheat_time() {
-          preheat_end_ms_bed = next_millis(millis() + PREHEAT_TIME_BED_MS);
+          preheat_timer_bed.start(PREHEAT_TIME_BED_MS);
         }
         static void reset_bed_preheat_time() {
-          preheat_end_ms_bed = 0;
+          preheat_timer_bed.cancel();
         }
       #else
         static bool is_bed_preheating() { return false; }
@@ -1536,11 +1529,11 @@ class Temperature {
       };
 
       typedef struct {
-        millis_t timer = 0;
+        MTimeout24 timer;     // Runaway window. Not running until the temperature first settles.
         TRState state = TRInactive;
         celsius_float_t running_temp;
         #if ENABLED(THERMAL_PROTECTION_VARIANCE_MONITOR)
-          millis_t variance_timer = 0;
+          MTimeout24 variance_timer; // Variance window. Not running until the first window starts.
           celsius_float_t last_temp = 0.0, variance = 0.0;
         #endif
         void run(const celsius_float_t current, const celsius_float_t target, const heater_id_t heater_id, const uint16_t period_seconds, const celsius_float_t hysteresis_degc);

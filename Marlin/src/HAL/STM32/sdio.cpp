@@ -356,10 +356,10 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
       return false;
     }
 
-    millis_t timeout = millis() + SD_TIMEOUT;
+    MTimeout24 timeout(SD_TIMEOUT);
     // Wait the transfer
     while (hsd.State != HAL_SD_STATE_READY) {
-      if (ELAPSED(millis(), timeout)) {
+      if (timeout.elapsed()) {
         HAL_DMA_Abort_IT(&hdma_sdio);
         HAL_DMA_DeInit(&hdma_sdio);
         return false;
@@ -372,8 +372,8 @@ void HAL_SD_MspInit(SD_HandleTypeDef *hsd) {
     HAL_DMA_Abort_IT(&hdma_sdio);
     HAL_DMA_DeInit(&hdma_sdio);
 
-    timeout = millis() + SD_TIMEOUT;
-    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) if (ELAPSED(millis(), timeout)) return false;
+    timeout.start(SD_TIMEOUT);
+    while (HAL_SD_GetCardState(&hsd) != HAL_SD_CARD_TRANSFER) if (timeout.elapsed()) return false;
 
     // The HAL also sets State=READY when a transfer is aborted on error
     // (e.g., RX overrun, data CRC fail, data timeout). Without this check a

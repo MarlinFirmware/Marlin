@@ -114,17 +114,17 @@ static xyze_pos_t resume_position;
 
     if (TERN0(HAS_MARLINUI_MENU, pause_mode == PAUSE_MODE_PAUSE_PRINT)) return;
 
-    static millis_t next_buzz = 0;
+    static MTimeout24 buzz_timer;
     static int8_t runout_beep = 0;
 
-    if (restart) next_buzz = runout_beep = 0;
+    if (restart) { buzz_timer.cancel(); runout_beep = 0; }
 
     const bool always = max_beep_count < 0;
 
     const millis_t ms = millis();
-    if (ELAPSED(ms, next_buzz)) {
+    if (buzz_timer.elapsed(ms)) {
       if (always || runout_beep < max_beep_count + 5) { // Only beep as long as we're supposed to
-        next_buzz = ms + ((always || runout_beep < max_beep_count) ? 1000 : 500);
+        buzz_timer.start((always || runout_beep < max_beep_count) ? 1000 : 500, ms);
         BUZZ(50, 880 - (runout_beep & 1) * 220);
         runout_beep++;
       }
@@ -600,7 +600,7 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
     // Old filament may still be in the sensor, so wait for it to stay clear before
     // treating "filament present" as a new insert. This also rides out switch bounce.
     constexpr millis_t clear_ms = 500;
-    millis_t last_present_ms = millis();
+    MTimeout24 absent_timer(clear_ms); // Restarted whenever the filament is present
     bool cleared = false;
   #endif
 
@@ -611,12 +611,12 @@ void wait_for_confirmation(const bool is_reload/*=false*/, const int8_t max_beep
       if (is_reload) {
         const millis_t ms = millis();
         if (active_filament_is_out()) {
-          if (ELAPSED(ms, last_present_ms + clear_ms)) cleared = true;
+          if (absent_timer.elapsed(ms)) cleared = true;
         }
         else if (cleared)
           marlin.user_resume();
         else
-          last_present_ms = ms;
+          absent_timer.start(clear_ms, ms);
       }
     #endif
 

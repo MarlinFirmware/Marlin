@@ -232,10 +232,10 @@ public:
 
   #if HAS_LED_POWEROFF_TIMEOUT
     private:
-      static millis_t led_off_time;
+      static MTimeout24 led_off_timer;
     public:
       static void reset_timeout(const millis_t &ms) {
-        led_off_time = ms + LED_POWEROFF_TIMEOUT;
+        led_off_timer.start(LED_POWEROFF_TIMEOUT, ms);
         if (!lights_on) update();
       }
       static void update_timeout(const bool power_on);

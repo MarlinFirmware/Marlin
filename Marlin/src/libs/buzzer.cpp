@@ -55,15 +55,15 @@ void Buzzer::tone(const uint16_t duration, const uint16_t frequency/*=0*/) {
 }
 
 void Buzzer::tick() {
-  if (state.endtime) {
-    if (ELAPSED(millis(), state.endtime)) reset();
+  if (state.timeout.enabled()) {
+    if (state.timeout.elapsed()) reset();
     return;
   }
 
   if (buffer.isEmpty()) return;
 
   state.tone = buffer.dequeue();
-  state.endtime = next_millis(millis() + state.tone.duration);
+  state.timeout.start(state.tone.duration);
 
   if (state.tone.frequency > 0) {
     #if ENABLED(EXTENSIBLE_UI) && DISABLED(EXTUI_LOCAL_BEEPER)

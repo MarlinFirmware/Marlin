@@ -516,7 +516,7 @@ void CardReader::printSelectedFilename() {
 // State of mount_async()
 enum MountState : uint8_t { MOUNT_IDLE, MOUNT_SETTLE, MOUNT_INIT, MOUNT_INIT_LCD };
 static MountState mount_state = MOUNT_IDLE;
-static millis_t mount_settle_ms;
+static MTimeout24 mount_settle_timer;
 
 void CardReader::mount(const bool alert/*=true*/) {
   mount_state = MOUNT_IDLE; // Cancel mount_async()
@@ -545,12 +545,12 @@ bool CardReader::mount_async(const bool alert) {
 
     case MOUNT_IDLE:
       if (isMounted()) return true;           // Mounted some other way, e.g., M21
-      mount_settle_ms = millis() + 500;       // Time for inserted media to settle
+      mount_settle_timer.start(500);          // Time for inserted media to settle
       mount_state = MOUNT_SETTLE;
       break;
 
     case MOUNT_SETTLE:
-      if (PENDING(millis(), mount_settle_ms)) break;
+      if (mount_settle_timer.pending()) break;
       flag.mounted = false;
       nrItems = -1;
       if (root.isOpen()) root.close();
@@ -671,15 +671,12 @@ void CardReader::manage_media() {
   constexpr uint8_t mount_retries = 2;
   constexpr millis_t mount_retry_ms = 1000;
   static uint8_t retries_left = mount_retries;
-  static millis_t next_retry_ms = 0;
+  static MTimeout24 retry_timer;
   if (stat == INSERT_NONE) {
     retries_left = mount_retries;
     mount_state = MOUNT_IDLE;       // Media removed while mounting
   }
-  if (next_retry_ms) {
-    if (PENDING(millis(), next_retry_ms)) return;
-    next_retry_ms = 0;
-  }
+  if (retry_timer.pending()) return;
 
   if (stat == prev_stat) return;    // Already checked and still no change?
 
@@ -738,7 +735,7 @@ void CardReader::manage_media() {
       // Not mounted? Leave the status unchanged to try again later
       if (!isMounted() && retries_left) {
         --retries_left;
-        next_retry_ms = next_millis(millis() + mount_retry_ms);
+        retry_timer.start(mount_retry_ms);
         prev_stat = old_stat;
         TERN_(HAS_MULTI_VOLUME, no_reenter = false);
         return;

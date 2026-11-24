@@ -36,7 +36,7 @@ Cooler cooler;
 
 #if ENABLED(LASER_COOLANT_FLOW_METER)
   bool Cooler::flowmeter = false;
-  millis_t Cooler::flowmeter_next_ms; // = 0
+  MTimeout24 Cooler::flowmeter_timer;
   volatile uint16_t Cooler::flowpulses;
   float Cooler::flowrate;
   #if ENABLED(FLOWMETER_SAFETY)

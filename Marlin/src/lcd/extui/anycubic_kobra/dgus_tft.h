@@ -392,7 +392,7 @@ namespace Anycubic {
 
     static void Page123_124_Settings(uint16_t &feedrate_last);
 
-    static void Page123_124_End(millis_t &flash_time, uint8_t &progress_last,
+    static void Page123_124_End(MTimeout24 &flash_timer, uint8_t &progress_last,
                                 uint16_t &feedrate_last);
 
     static void page123_handle(void);

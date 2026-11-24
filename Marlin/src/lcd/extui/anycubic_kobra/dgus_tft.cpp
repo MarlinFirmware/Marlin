@@ -1164,7 +1164,7 @@ namespace Anycubic {
 
   // MainPage
   void DgusTFT::page121_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     //  char str_buf[20];
 
     switch (key_value) {
@@ -1211,10 +1211,10 @@ namespace Anycubic {
     }
   #endif
 
-    if (millis() < (flash_time + 1500)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1500);
   }
 
   // File Listing for Printing
@@ -1382,13 +1382,13 @@ namespace Anycubic {
     SendValueToTFT(feedrate_last, TXT_ADJUST_SPEED);
   }
 
-  void DgusTFT::Page123_124_End(millis_t &flash_time, uint8_t &progress_last,
+  void DgusTFT::Page123_124_End(MTimeout24 &flash_timer, uint8_t &progress_last,
                                 uint16_t &feedrate_last) {
     char str_buf[20];
-    if (millis() < (flash_time + 1500)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1500);
 
     if (feedrate_last != (uint16_t)getFeedrate_percent()) {
       feedrate_last = (uint16_t)getFeedrate_percent();
@@ -1411,7 +1411,7 @@ namespace Anycubic {
 
   // Printing Page (Paused)
   void DgusTFT::page123_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     static uint8_t progress_last = 0;
     static uint16_t feedrate_last = 0;
 
@@ -1439,7 +1439,7 @@ namespace Anycubic {
           SERIAL_ECHOLN("Resuming Print 2");
   #endif
           ChangePageOfTFT(PAGE_STATUS2);
-          flash_time = millis();
+          flash_timer.start(1500);
 
         } else {
           setUserConfirmed();
@@ -1456,12 +1456,12 @@ namespace Anycubic {
         break;
     }
 
-    Page123_124_End(flash_time, progress_last, feedrate_last);
+    Page123_124_End(flash_timer, progress_last, feedrate_last);
   }
 
   // Printing Page (Printing)
   void DgusTFT::page124_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     static uint8_t progress_last = 0;
     static uint16_t feedrate_last = 0;
 
@@ -1492,7 +1492,7 @@ namespace Anycubic {
         Page123_124_Settings(feedrate_last);
         break;
     }
-    Page123_124_End(flash_time, progress_last, feedrate_last);
+    Page123_124_End(flash_timer, progress_last, feedrate_last);
   }
 
   void DgusTFT::page125_SaveAndBack(bool z_change) {
@@ -1722,7 +1722,7 @@ namespace Anycubic {
 
   // Temperature Page
   void DgusTFT::page129_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
 
     switch (key_value) {
       case 0:
@@ -1776,10 +1776,10 @@ namespace Anycubic {
         break;
     }
 
-    if (millis() < (flash_time + 1500)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1500);
 
     SendValueToTFT((uint16_t)getActualTemp_celsius(E0), TXT_HOTNED_NOW);
     SendValueToTFT((uint16_t)getActualTemp_celsius(BED), TXT_BED_NOW);
@@ -1787,7 +1787,7 @@ namespace Anycubic {
 
   // Speed Page
   void DgusTFT::page130_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     switch (key_value) {
       case 0:
         break;
@@ -1829,10 +1829,10 @@ namespace Anycubic {
         break;
     }
 
-    if (millis() < (flash_time + 1500)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1500);
 
     SendValueToTFT((uint16_t)getActualFan_percent(FAN0), TXT_FAN_SPEED_NOW);
     SendValueToTFT((uint16_t)getFeedrate_percent(), TXT_PRINT_SPEED_NOW);
@@ -2019,7 +2019,7 @@ namespace Anycubic {
 
   // PreHeat Page
   void DgusTFT::page138_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     char str_buf[16];
 
     switch (key_value) {
@@ -2043,10 +2043,10 @@ namespace Anycubic {
         break;
     }
 
-    if (millis() < (flash_time + 1500)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1500);
 
     sprintf(str_buf, "%u/%u", (uint16_t)getActualTemp_celsius(E0),
             (uint16_t)getTargetTemp_celsius(E0));
@@ -2066,7 +2066,7 @@ namespace Anycubic {
 
     char str_buf[20];
     static filament_cmd_t filament_cmd = FILA_NO_ACT;
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
     switch (key_value) {
       case 0:
         break;
@@ -2113,10 +2113,10 @@ namespace Anycubic {
         break;
     }
 
-    if (millis() < (flash_time + 1000)) {
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(1000);
 
     sprintf(str_buf, "%u/%u", (uint16_t)getActualTemp_celsius(E0),
             (uint16_t)getTargetTemp_celsius(E0));
@@ -2357,10 +2357,10 @@ namespace Anycubic {
 
   // Paused waiting for command to complete
   void DgusTFT::page152_handle(void) {
-    static millis_t flash_time = 0;
+    static MTimeout24 flash_timer;
 
-    if (millis() < (flash_time + 1000)) return;
-    flash_time = millis();
+    if (flash_timer.pending()) return;
+    flash_timer.start(1000);
   }
 
   // Auto-leveling Confirm page
@@ -2457,11 +2457,11 @@ namespace Anycubic {
 
   // Probe Preheating
   void DgusTFT::page175_176_handle(void) {
-    static millis_t flash_time = 0;
-    if (millis() < (flash_time + 500)) {
+    static MTimeout24 flash_timer;
+    if (flash_timer.pending()) {
       return;
     }
-    flash_time = millis();
+    flash_timer.start(500);
 
     #if ENABLED(PREHEAT_BEFORE_LEVELING)
     if (abs(getActualTemp_celsius(E0) - LEVELING_NOZZLE_TEMP) < 2 &&
@@ -2492,7 +2492,7 @@ namespace Anycubic {
 
   // Probe Pre Check
   void DgusTFT::page204_handle(void) {
-    static millis_t probe_check_time = 0;
+    static MTimeout24 probe_check_timer;
     static uint8_t probe_check_counter = 0;
     static uint8_t probe_state_last = 0;
     static bool probe_tare_flag = 0;
@@ -2520,8 +2520,8 @@ namespace Anycubic {
         break;
     }
 
-    if (millis() >= (probe_check_time + 300)) {
-      probe_check_time = millis();
+    if (probe_check_timer.elapsed()) {
+      probe_check_timer.start(300);
 
       if (!probe_state_last && PROBE_TRIGGERED()) {
         probe_check_counter = 0;

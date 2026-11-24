@@ -161,8 +161,8 @@
 
     #if HAS_POWER_MONITOR_WATTS
       // Cycle between current, voltage, and power
-      if (ELAPSED(millis(), power_monitor.display_item_ms)) {
-        power_monitor.display_item_ms = millis() + 1000UL;
+      if (power_monitor.display_item_timer.elapsed()) {
+        power_monitor.display_item_timer.start(1000);
         ++power_monitor.display_item;
       }
     #elif ENABLED(POWER_MONITOR_CURRENT)
@@ -925,7 +925,7 @@ void MarlinUI::draw_status_screen() {
 
     #if ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
       // Alternate Status message and Filament display
-      if (ELAPSED(millis(), next_filament_display)) {
+      if (ui.filament_display_timer.elapsed()) {
         lcd_put_u8str(F(LCD_STR_FILAM_DIA));
         lcd_put_u8str(F(":"));
         lcd_put_u8str(wstring);

@@ -119,7 +119,7 @@ void probe_offset_wizard_menu() {
 // Keep a stage notice up at least this long. The move to the probing position
 // can be over in a blink, leaving a message no one had a chance to read.
 #define WIZ_NOTICE_MIN_MS 1500
-static millis_t wizard_notice_until;
+static MTimeout24 wizard_notice_timer;
 
 // Draw the notice that says what this stage is waiting for
 static void wizard_draw_notice(FSTR_P const fmsg) {
@@ -277,14 +277,14 @@ static void wizard_move_screen() {
   // Start the move on the first pass, then poll for it
   if (!ui.wait_for_move) {
     ui.wait_for_move = true;
-    wizard_notice_until = millis() + (WIZ_NOTICE_MIN_MS);
+    wizard_notice_timer.start(WIZ_NOTICE_MIN_MS);
     motion.position += probe.offset_xy;
     motion.goto_current_position(XY_PROBE_FEEDRATE_MM_S);
     return;
   }
 
   // Wait for the move to land, and for the notice to have been readable
-  if (planner.busy() || PENDING(millis(), wizard_notice_until)) return;
+  if (planner.busy() || wizard_notice_timer.pending()) return;
 
   ui.wait_for_move = false;
   motion.set_soft_endstop_loose(true);  // Disable soft endstops for free Z movement

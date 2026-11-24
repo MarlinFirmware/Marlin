@@ -48,7 +48,7 @@
 
       typedef struct {
         tone_t   tone;
-        uint32_t endtime;
+        MTimeout24 timeout;  // Enabled from the start of a tone until reset()
       } state_t;
 
     private:
@@ -69,7 +69,7 @@
        */
       static void reset() {
         off();
-        state.endtime = 0;
+        state.timeout.cancel();
       }
 
     public:
@@ -113,7 +113,7 @@
       static void tick();
 
       // True while a tone is sounding or waiting in the queue
-      static bool is_active() { return state.endtime || !buffer.isEmpty(); }
+      static bool is_active() { return state.timeout.enabled() || !buffer.isEmpty(); }
   };
 
   // Provide a buzzer instance

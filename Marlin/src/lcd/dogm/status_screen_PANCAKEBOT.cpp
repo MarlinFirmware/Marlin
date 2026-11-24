@@ -59,23 +59,23 @@ static_assert(sizeof(pancakebot_bottle_empty_bmp) == (PANCAKEBOT_ICON_BYTEWIDTH)
 
 void MarlinUI::draw_status_screen() {
   static int16_t old_feedrate = 100;
-  static millis_t speed_view_end_ms = 0;
+  static MTimeout24 speed_view_timer;
 
   // Notice when the speed is changed, and show it for a while
   if (first_page) {
     const millis_t ms = millis();
     if (old_feedrate != motion.feedrate_percentage) {
       old_feedrate = motion.feedrate_percentage;
-      speed_view_end_ms = ms + (PB_SPEED_VIEW_MS);
+      speed_view_timer.start(PB_SPEED_VIEW_MS, ms);
     }
-    else if (speed_view_end_ms && ELAPSED(ms, speed_view_end_ms))
-      speed_view_end_ms = 0;
+    else if (speed_view_timer.on_elapsed(ms))
+      speed_view_timer.cancel();
   }
 
   set_font(FONT_STATUSMENU);
 
   // Speed view
-  if (speed_view_end_ms) {
+  if (speed_view_timer.enabled()) {
     lcd_moveto(0, 14);
     lcd_put_u8str(GET_TEXT_F(MSG_SPEED));
     lcd_moveto(0, 30);

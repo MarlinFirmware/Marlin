@@ -43,7 +43,7 @@ public:
   static void check();
   static hotend_idle_settings_t cfg;
 private:
-  static millis_t next_protect_ms;
+  static MTimeout24 protect_timer;
   static void check_hotends(const millis_t &ms);
   static void check_e_motion(const millis_t &ms);
   static void timed_out();

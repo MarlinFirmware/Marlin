@@ -229,7 +229,8 @@ public:
                  duplicate_extruder_x_offset;         // Used in mode 2 & 3
 
     static bool active_extruder_parked;               // Used in mode 1, 2 & 3
-    static millis_t delayed_move_time;                // Used in mode 1
+    static MTimeout delayed_move_timer;               // Used in mode 1 (use age())
+    static uint16_t delayed_move_interval;            // Used in mode 1
     static celsius_t duplicate_extruder_temp_offset;  // Used in mode 2 & 3
 
     static bool idex_mirrored_mode;                   // Used in mode 3

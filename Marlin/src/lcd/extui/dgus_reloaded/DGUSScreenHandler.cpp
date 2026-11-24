@@ -72,9 +72,9 @@ uint8_t DGUSScreenHandler::language = 0;
   uint16_t DGUSScreenHandler::jam_length = DGUS_DEFAULT_JAM_LEN;
 #endif
 
-millis_t DGUSScreenHandler::status_expire = 0;
+MTimeout24 DGUSScreenHandler::status_expire;
 char DGUSScreenHandler::standing_status[] = "";
-millis_t DGUSScreenHandler::eeprom_save = 0;
+MTimeout24 DGUSScreenHandler::eeprom_save;
 
 void DGUSScreenHandler::init() {
   dgus.init();
@@ -93,7 +93,7 @@ void DGUSScreenHandler::loop() {
     return;
 
   const millis_t ms = ExtUI::safe_millis();
-  static millis_t next_event_ms = 0;
+  static MTimeout24 event_timer;
 
   if (new_screenID != DGUS_ScreenID::BOOT) {
     const DGUS_ScreenID screenID = new_screenID;
@@ -116,8 +116,8 @@ void DGUSScreenHandler::loop() {
     return;
   }
 
-  if (ELAPSED(ms, next_event_ms) || full_update) {
-    next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
+  if (event_timer.elapsed(ms) || full_update) {
+    event_timer.start(DGUS_UPDATE_INTERVAL_MS, ms);
 
     if (!sendScreenVPData(current_screenID, full_update))
       DEBUG_ECHOLNPGM("sendScreenVPData failed");
@@ -141,13 +141,13 @@ void DGUSScreenHandler::loop() {
     return;
   }
 
-  if (status_expire > 0 && ELAPSED(ms, status_expire)) {
+  if (status_expire.on_elapsed(ms)) {
     setStatusMessage(standing_status, 0); // Back to Marlin's own status
     return;
   }
 
-  if (eeprom_save > 0 && ELAPSED(ms, eeprom_save) && isPrinterIdle()) {
-    eeprom_save = 0;
+  if (eeprom_save.on_elapsed(ms) && isPrinterIdle()) {
+    eeprom_save.cancel();
     queue.enqueue_now(F("M500"));
     return;
   }
@@ -382,12 +382,12 @@ void DGUSScreenHandler::setMessageLine_P(PGM_P const msg, const uint8_t line) {
 
 void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duration) {
   dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, msg, DGUS_STATUS_LEN, true, false, false);
-  status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
+  if (duration > 0) status_expire.start(duration, ExtUI::safe_millis()); else status_expire.cancel();
 }
 
 void DGUSScreenHandler::setStatusMessage(FSTR_P const fmsg, const millis_t duration) {
   dgus.writeString((uint16_t)DGUS_Addr::MESSAGE_Status, fmsg, DGUS_STATUS_LEN, true, false, false);
-  status_expire = (duration > 0 ? ExtUI::safe_millis() + duration : 0);
+  if (duration > 0) status_expire.start(duration, ExtUI::safe_millis()); else status_expire.cancel();
 }
 
 static PGMSTR(k_machine_name, MACHINE_NAME);
@@ -433,7 +433,7 @@ void DGUSScreenHandler::triggerFullUpdate() {
 }
 
 void DGUSScreenHandler::triggerEEPROMSave() {
-  eeprom_save = ExtUI::safe_millis() + 500;
+  eeprom_save.start(500, ExtUI::safe_millis());
 }
 
 bool DGUSScreenHandler::isPrinterIdle() {
@@ -506,10 +506,10 @@ bool DGUSScreenHandler::sendScreenVPData(const DGUS_ScreenID screenID, bool comp
     if (!complete_update && !(vp.flags & VPFLAG_AUTOUPLOAD)) continue; // Unnecessary VP
 
     uint8_t expected_tx = 6 + vp.size; // 6 bytes header + payload.
-    const millis_t try_until = ExtUI::safe_millis() + 1000;
+    const MTimeout try_timeout(1000, ExtUI::safe_millis());
 
     while (expected_tx > dgus.getFreeTxBuffer()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+      if (try_timeout.elapsed(ExtUI::safe_millis())) return false; // Stop trying after 1 second
 
       dgus.flushTx(); // Flush the TX buffer
       delay(50);

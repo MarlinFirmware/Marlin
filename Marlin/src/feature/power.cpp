@@ -61,11 +61,11 @@ bool Power::psu_on;
     #include "spindle_laser.h"
   #endif
 
-  millis_t Power::lastPowerOn;
+  MTimeout24 Power::powerTimer;
 #endif
 
 #if PSU_TRACK_STATE_MS
-  millis_t Power::last_state_change_ms = 0;
+  MTimeout Power::state_change_timer(PS_EDM_RESPONSE, 0); // Settle time from startup
 #endif
 
 /**
@@ -84,8 +84,7 @@ void Power::init() {
  */
 void Power::power_on() {
   #if ENABLED(AUTO_POWER_CONTROL)
-    const millis_t now = millis();
-    lastPowerOn = now + !now;
+    powerTimer.start(SEC_TO_MS(POWER_TIMEOUT));
   #endif
 
   if (psu_on) return;
@@ -98,7 +97,7 @@ void Power::power_on() {
   #if ENABLED(PSU_OFF_REDUNDANT)
     OUT_WRITE(PS_ON1_PIN, TERN_(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+  TERN_(PSU_TRACK_STATE_MS, state_change_timer.start(PS_EDM_RESPONSE));
 
   psu_on = true;
   safe_delay(PSU_POWERUP_DELAY);
@@ -137,7 +136,7 @@ void Power::power_off() {
   #if ENABLED(PSU_OFF_REDUNDANT)
     OUT_WRITE(PS_ON1_PIN, IF_DISABLED(PSU_OFF_REDUNDANT_INVERTED, !)PSU_ACTIVE_STATE);
   #endif
-  TERN_(PSU_TRACK_STATE_MS, last_state_change_ms = millis());
+  TERN_(PSU_TRACK_STATE_MS, state_change_timer.start(PS_EDM_RESPONSE));
 
   psu_on = false;
 
@@ -169,8 +168,8 @@ void Power::power_off() {
 #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
 
   #if ENABLED(POWER_OFF_TIMER)
-    millis_t Power::power_off_time = 0;
-    void Power::setPowerOffTimer(const millis_t delay_ms) { power_off_time = next_millis(millis() + delay_ms); }
+    MSeconds Power::power_off_timer; // Disabled until started
+    void Power::setPowerOffTimer(const uint16_t delay_sec) { power_off_timer.start(delay_sec); }
   #endif
 
   #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
@@ -179,14 +178,14 @@ void Power::power_off() {
   #endif
 
   void Power::cancelAutoPowerOff() {
-    TERN_(POWER_OFF_TIMER, power_off_time = 0);
+    TERN_(POWER_OFF_TIMER, power_off_timer.cancel());
     TERN_(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown = false);
   }
 
   void Power::checkAutoPowerOff() {
-    if (TERN1(POWER_OFF_TIMER, !power_off_time) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
+    if (TERN1(POWER_OFF_TIMER, !power_off_timer.enabled()) && TERN1(POWER_OFF_WAIT_FOR_COOLDOWN, !power_off_on_cooldown)) return;
     if (TERN0(POWER_OFF_WAIT_FOR_COOLDOWN, power_off_on_cooldown && is_cooling_needed())) return;
-    if (TERN0(POWER_OFF_TIMER, power_off_time && PENDING(millis(), power_off_time))) return;
+    if (TERN0(POWER_OFF_TIMER, power_off_timer.pending())) return;
     power_off();
   }
 
@@ -246,21 +245,23 @@ void Power::power_off() {
    * @param pause  pause the 'timer'
    */
   void Power::check(const bool pause) {
-    static millis_t nextPowerCheck = 0;
+    static MTimeout24 lastPowerCheck;
     const millis_t now = millis();
+
     #if POWER_TIMEOUT > 0
       static bool _pause = false;
       if (pause != _pause) {
-        lastPowerOn = now + !now;
+        powerTimer.start(SEC_TO_MS(POWER_TIMEOUT), now);
         _pause = pause;
       }
       if (pause) return;
     #endif
-    if (ELAPSED(now, nextPowerCheck)) {
-      nextPowerCheck = now + 2500UL;
+
+    if (lastPowerCheck.elapsed(now)) {
+      lastPowerCheck.start(2500);
       if (is_power_needed())
         power_on();
-      else if (!lastPowerOn || (POWER_TIMEOUT > 0 && ELAPSED(now, lastPowerOn, SEC_TO_MS(POWER_TIMEOUT))))
+      else if (!powerTimer.enabled() || (POWER_TIMEOUT > 0 && powerTimer.elapsed(now)))
         power_off();
     }
   }
@@ -271,7 +272,7 @@ void Power::power_off() {
      * Power off with a delay. Power off is triggered by check() after the delay.
      */
     void Power::power_off_soon() {
-      lastPowerOn = millis() - SEC_TO_MS(POWER_TIMEOUT) + SEC_TO_MS(POWER_OFF_DELAY);
+      powerTimer.start(SEC_TO_MS(POWER_OFF_DELAY));
     }
 
   #endif

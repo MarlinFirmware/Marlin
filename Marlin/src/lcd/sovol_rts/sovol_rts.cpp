@@ -25,6 +25,20 @@
 
 #include "sovol_rts.h"
 
+// Strings shown on the Information page. Override in Configuration.h if desired.
+#ifndef MARLINVERSION
+  #define MARLINVERSION SHORT_BUILD_VERSION
+#endif
+#ifndef MACVERSION
+  #define MACVERSION MACHINE_NAME
+#endif
+#ifndef SOFTVERSION
+  #define SOFTVERSION SHORT_BUILD_VERSION
+#endif
+#ifndef CORP_WEBSITE_E
+  #define CORP_WEBSITE_E "www.sovol3d.com"
+#endif
+
 DB RTS::recdat;
 DB RTS::snddat;
 uint8_t RTS::databuf[DATA_BUF_SIZE];
@@ -77,7 +91,7 @@ bool sdcard_pause_check = true;
 float change_filament_temp_0 = 200;
 
 int16_t heatway = 0;
-millis_t next_rts_update_ms = 0;
+MTimeout24 rts_update_timer;
 
 int8_t waitway = 0;
 int16_t recnum = 0;
@@ -182,17 +196,17 @@ void RTS::sdCardInit() {
 
 bool RTS::sdDetected() {
   static bool state = false, stable = false, was_present = false;
-  static millis_t stable_ms = 0;
+  static MTimeout24 stable_timer;
 
   const bool present = card.isInserted();
   if (present != was_present)
     stable = false;
   else if (!stable) {
     stable = true;
-    stable_ms = millis() + 30;
+    stable_timer.start(30);
   }
 
-  if (stable && ELAPSED(millis(), stable_ms))
+  if (stable && stable_timer.elapsed())
     state = present;
 
   was_present = present;
@@ -1548,7 +1562,7 @@ void RTS::updateFan0() {
 
 void RTS::onIdle() {
   const millis_t ms = millis();
-  if (PENDING(ms, next_rts_update_ms)) return;
+  if (rts_update_timer.pending(ms)) return;
 
   // Print the file before the power is off.
   if (!power_off_type_yes) {
@@ -1581,7 +1595,7 @@ void RTS::onIdle() {
     return;
   }
 
-  next_rts_update_ms = ms + RTS_UPDATE_INTERVAL + update_time_value;
+  rts_update_timer.start(RTS_UPDATE_INTERVAL + update_time_value, ms);
 
   // TODO: optimize the following
   if (print_job_timer.duration() != 0) {
@@ -1595,11 +1609,17 @@ void RTS::onIdle() {
         job_percent = ui.get_progress_percent();
         if (job_percent <= 100) sendData(uint8_t(job_percent), PRINT_PROCESS_ICON_VP);
         // Estimate remaining time every 20 seconds
-        static millis_t next_remain_time_update = 0;
-        if (ELAPSED(ms, next_remain_time_update)) {
+        static MTimeout24 remain_time_timer;
+        if (remain_time_timer.elapsed(ms)) {
           if (thermalManager.degHotend(0) >= thermalManager.degTargetHotend(0) - 5) {
-            remain_time = ui.get_remaining_time();
-            next_remain_time_update += 20 * 1000UL;
+            #if ANY(SHOW_REMAINING_TIME, SET_PROGRESS_MANUALLY)
+              remain_time = ui.get_remaining_time();
+            #else
+              // Same estimate as MarlinUI, which only provides it with a progress display
+              const uint32_t elapsed = print_job_timer.duration();
+              remain_time = job_percent ? elapsed * (100U - job_percent) / job_percent : 0;
+            #endif
+            remain_time_timer.start(20 * 1000UL, ms);
             sendData(remain_time / 3600, PRINT_SURPLUS_TIME_HOUR_VP);
             sendData((remain_time % 3600) / 60, PRINT_SURPLUS_TIME_MIN_VP);
           }

@@ -138,13 +138,14 @@ typedef struct {
 static n3_settings_t n3_settings;
 
 static uint8_t rx_state, rx_len, rx_count, rx_buf[26];
-static millis_t rx_ms;
+static MTimeout24 rx_timer; // Restarted on every received byte
 
 static N3Wait wait_for = WAIT_NONE;
-static millis_t wait_ms;
+static MTimeout24 wait_timer;
+constexpr millis_t N3_WAIT_MS = 3000;
 static bool auto_confirm, auto_resume;  // Answer a prompt once Marlin is waiting for it
 static uint8_t boot_step;   // 0 = not started, 1-101 = animating, 102 = done
-static millis_t next_boot_ms, next_update_ms;
+static MTimeout24 boot_timer, update_timer;
 static bool homing, leveling, print_started, heat_wait;
 TERN_(POWER_LOSS_RECOVERY, static bool plr_pending);
 
@@ -163,7 +164,7 @@ static struct {
   MediaFile file;
   bool active;
   uint8_t records;
-  millis_t next_ms;
+  MTimeout24 timer;
   char buf[1024];
 } preview;
 
@@ -281,11 +282,11 @@ void Neptune3TFT::sendMaterialValues() {
 
 void Neptune3TFT::readData() {
   // Drop a partial frame that has stalled
-  if (rx_state && ELAPSED(millis(), rx_ms + 100)) rx_state = 0;
+  if (rx_state && rx_timer.elapsed()) rx_state = 0;
 
   while (LCD_SERIAL.available()) {
     const uint8_t c = LCD_SERIAL.read();
-    rx_ms = millis();
+    rx_timer.start(100);
     switch (rx_state) {
       case 0: if (c == 0x5A) rx_state = 1; break;
       case 1: rx_state = c == 0xA5 ? 2 : c == 0x5A ? 1 : 0; break;
@@ -331,7 +332,7 @@ void Neptune3TFT::startup() {
   #endif
 
   boot_step = 1;
-  next_boot_ms = millis();
+  boot_timer.start(0);
 }
 
 void Neptune3TFT::idleLoop() {
@@ -350,15 +351,15 @@ void Neptune3TFT::idleLoop() {
 
   // Boot animation, then show the main page or offer to resume
   if (WITHIN(boot_step, 1, 101)) {
-    if (ELAPSED(ms, next_boot_ms)) {
+    if (boot_timer.elapsed(ms)) {
       SENDF("boot.j0.val=%d", boot_step - 1);
-      next_boot_ms = ms + N3_BOOT_STEP_MS;
+      boot_timer.start(N3_BOOT_STEP_MS, ms);
       if (++boot_step > 101) {
         #if ENABLED(POWER_LOSS_RECOVERY)
           if (plr_pending) powerLossResume(); else
         #endif
         SEND("page main");
-        next_update_ms = ms;
+        update_timer.start(0, ms);
       }
     }
     return;
@@ -367,8 +368,8 @@ void Neptune3TFT::idleLoop() {
   previewStep();
   checkWaitState();
 
-  if (ELAPSED(ms, next_update_ms)) {
-    next_update_ms = ms + N3_UPDATE_MS;
+  if (update_timer.elapsed(ms)) {
+    update_timer.start(N3_UPDATE_MS, ms);
     periodicUpdate();
   }
 }
@@ -395,7 +396,7 @@ void Neptune3TFT::checkWaitState() {
   const bool busy = planner.has_blocks_queued() || queue.has_commands_queued();
 
   // Don't leave the screen locked if a homing or leveling command ends without completing
-  if (wait_for != WAIT_NONE && (busy || homing || leveling)) wait_ms = millis();
+  if (wait_for != WAIT_NONE && (busy || homing || leveling)) wait_timer.start(N3_WAIT_MS);
 
   switch (wait_for) {
     case WAIT_PAUSE:
@@ -414,7 +415,7 @@ void Neptune3TFT::checkWaitState() {
       break;
     case WAIT_NONE: break;
     default:
-      if (ELAPSED(millis(), wait_ms + 3000)) wait_for = WAIT_NONE;
+      if (wait_timer.elapsed()) wait_for = WAIT_NONE;
       break;
   }
 
@@ -503,7 +504,7 @@ void Neptune3TFT::startPrint(const int8_t index) {
 }
 
 void Neptune3TFT::stopPrint() {
-  wait_for = WAIT_STOP; wait_ms = millis();
+  wait_for = WAIT_STOP; wait_timer.start(N3_WAIT_MS);
   preview.active = false;
   preview.file.close();
   clearPreview();
@@ -527,11 +528,11 @@ void Neptune3TFT::startPreview(const int8_t index) {
   MediaFile root = card.getroot();
   preview.active = preview.file.open(&root, file_short[index], O_READ);
   preview.records = 0;
-  preview.next_ms = millis();
+  preview.timer.start(0);
 }
 
 void Neptune3TFT::previewStep() {
-  if (!preview.active || PENDING(millis(), preview.next_ms)) return;
+  if (!preview.active || preview.timer.pending()) return;
 
   const int16_t n = preview.file.read(preview.buf, sizeof(preview.buf));
   const bool last = n > 9 && !strncmp_P(preview.buf, PSTR(";;simage:"), 9),
@@ -550,7 +551,7 @@ void Neptune3TFT::previewStep() {
   }
 
   if (more && preview.records < N3_PREVIEW_MAX) {
-    preview.next_ms = millis() + N3_PREVIEW_MS;
+    preview.timer.start(N3_PREVIEW_MS);
     return;
   }
 
@@ -667,7 +668,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
     case KEY_PAUSE_PRINT:
       if (value == 0xF1) {
         SEND("page wait");
-        wait_for = WAIT_PAUSE; wait_ms = millis();
+        wait_for = WAIT_PAUSE; wait_timer.start(N3_WAIT_MS);
         pausePrint();
       }
       else if (value == 1 && isPrintingFromMedia())
@@ -805,7 +806,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
         case 2: axis_unit = 1.0f; break;
         case 3: axis_unit = 10.0f; break;
         case 4:
-          wait_for = WAIT_HOME_MOVE; wait_ms = millis();
+          wait_for = WAIT_HOME_MOVE; wait_timer.start(N3_WAIT_MS);
           injectCommands(F("G28"));
           SEND("page autohome");
           break;
@@ -818,7 +819,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
     case KEY_SETTINGS:
       switch (value) {
         case 1:
-          wait_for = WAIT_HOME_LEVEL; wait_ms = millis();
+          wait_for = WAIT_HOME_LEVEL; wait_timer.start(N3_WAIT_MS);
           injectCommands(F("G28\nG1F200Z0"));
           SEND("page autohome");
           SENDF("leveling.va1.val=%d", N3_MODEL);
@@ -873,7 +874,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
     case KEY_BED_LEVEL:
       switch (value) {
         case 1:
-          wait_for = WAIT_HOME_LEVEL; wait_ms = millis();
+          wait_for = WAIT_HOME_LEVEL; wait_timer.start(N3_WAIT_MS);
           injectCommands(F("G28Z\nG1F200Z0"));
           break;
         case 2: case 3:
@@ -887,7 +888,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
         case 7: status_led1 = !status_led1; SENDF("status_led1=%d", status_led1); break;
         case 8: toggleCaseLight(); break;
         case 9:
-          wait_for = WAIT_LEVEL; wait_ms = millis();
+          wait_for = WAIT_LEVEL; wait_timer.start(N3_WAIT_MS);
           injectCommands(F("G28\nG29"));
           break;
         case 10: sendPrintInfo(); break;
@@ -959,7 +960,7 @@ void Neptune3TFT::handleKey(const uint16_t addr, const uint16_t value) {
         case 8: filament_length = 10; break;
         case 9:
           SEND("page wait");
-          wait_for = WAIT_PAUSE; wait_ms = millis();
+          wait_for = WAIT_PAUSE; wait_timer.start(N3_WAIT_MS);
           pausePrint();
           break;
         case 10: if (!isMoving()) SEND("page main"); break;

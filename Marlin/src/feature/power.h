@@ -41,13 +41,13 @@ class Power {
     static void power_off();
 
     #if PSU_TRACK_STATE_MS
-      static millis_t last_state_change_ms;
+      static MTimeout state_change_timer; // Started at each state change, for the EDM response
     #endif
 
     #if ANY(POWER_OFF_TIMER, POWER_OFF_WAIT_FOR_COOLDOWN)
       #if ENABLED(POWER_OFF_TIMER)
-        static millis_t power_off_time;
-        static void setPowerOffTimer(const millis_t delay_ms);
+        static MSeconds power_off_timer;
+        static void setPowerOffTimer(const uint16_t delay_sec);
       #endif
       #if ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)
         static bool power_off_on_cooldown;
@@ -67,7 +67,7 @@ class Power {
       static void check(const bool pause);
 
       private:
-        static millis_t lastPowerOn;
+        static MTimeout24 powerTimer; // Power off when this elapses (not running when already off)
         static bool is_power_needed();
         static bool is_cooling_needed();
     #elif ENABLED(POWER_OFF_WAIT_FOR_COOLDOWN)

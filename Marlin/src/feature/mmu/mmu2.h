@@ -104,7 +104,7 @@ private:
   static int8_t state;
   static volatile int8_t finda;
   static volatile bool finda_runout_valid;
-  static millis_t prev_request, prev_P0_request;
+  static MTimeout request_timer, P0_timer;
   static char rx_buffer[MMU_RX_SIZE], tx_buffer[MMU_TX_SIZE];
 
   static void set_runout_valid(const bool valid) {

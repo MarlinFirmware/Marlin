@@ -375,10 +375,10 @@ bool DGUSScreenHandler::loop() {
   dgus.loop();
 
   const millis_t ms = millis();
-  static millis_t next_event_ms = 0;
+  static MTimeout24 event_timer;
 
-  if (!isScreenComplete() || ELAPSED(ms, next_event_ms)) {
-    next_event_ms = ms + DGUS_UPDATE_INTERVAL_MS;
+  if (!isScreenComplete() || event_timer.elapsed(ms)) {
+    event_timer.start(DGUS_UPDATE_INTERVAL_MS, ms);
     updateScreenVPData();
   }
 

@@ -204,7 +204,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
   // We don't check isStillPrinting here so a save may occur during a pause
 
   #if SAVE_INFO_INTERVAL_MS > 0
-    static millis_t next_save_ms; // = 0
+    static MTimeout24 save_timer;
     millis_t ms = millis();
   #endif
 
@@ -216,7 +216,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
   if (force
     #if DISABLED(SAVE_EACH_CMD_MODE)      // Always save state when enabled
       #if SAVE_INFO_INTERVAL_MS > 0       // Save if interval is elapsed
-        || ELAPSED(ms, next_save_ms)
+        || save_timer.elapsed(ms)
       #endif
       // Save if Z is above the last-saved position by some minimum height
       || motion.position.z > info.current_position.z + POWER_LOSS_MIN_Z_CHANGE
@@ -224,7 +224,7 @@ void PrintJobRecovery::save(const bool force/*=false*/, const float zraise/*=POW
   ) {
 
     #if SAVE_INFO_INTERVAL_MS > 0
-      next_save_ms = ms + SAVE_INFO_INTERVAL_MS;
+      save_timer.start(SAVE_INFO_INTERVAL_MS, ms);
     #endif
 
     // Set Head and Foot to matching non-zero values

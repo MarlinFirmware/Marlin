@@ -64,7 +64,7 @@ GCodeQueue::SerialState GCodeQueue::serial_state[NUM_SERIAL] = { 0 };
 GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
 
 #if NO_TIMEOUTS > 0
-  static millis_t last_command_time = 0;
+  static MTimeout last_command_timer(NO_TIMEOUTS, 0); // Restarted by each command
 #endif
 
 /**
@@ -80,8 +80,7 @@ GCodeQueue::RingBuffer GCodeQueue::ring_buffer = { 0 };
            GCodeQueue::command_buffer_empty_at = 0,
            GCodeQueue::planner_buffer_empty_at = 0;
 
-  uint8_t GCodeQueue::auto_buffer_report_interval;
-  millis_t GCodeQueue::next_buffer_report_ms;
+  MSeconds GCodeQueue::buffer_report_timer;
 #endif
 
 /**
@@ -258,7 +257,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
 void GCodeQueue::RingBuffer::ok_to_send() {
   #if NO_TIMEOUTS > 0
     // Start counting from the last command's execution
-    last_command_time = millis();
+    last_command_timer.start(NO_TIMEOUTS);
   #endif
   CommandLine &command = commands[index_r];
   #if HAS_MULTI_SERIAL
@@ -444,9 +443,9 @@ void GCodeQueue::get_serial_commands() {
   // send "wait" to indicate Marlin is still waiting.
   #if NO_TIMEOUTS > 0
     const millis_t ms = millis();
-    if (ring_buffer.empty() && !any_serial_data_available() && ELAPSED(ms, last_command_time, NO_TIMEOUTS)) {
+    if (ring_buffer.empty() && !any_serial_data_available() && last_command_timer.elapsed(ms)) {
       SERIAL_ECHOLNPGM(STR_WAIT);
-      last_command_time = ms;
+      last_command_timer.start(NO_TIMEOUTS, ms);
     }
   #endif
 
@@ -561,7 +560,7 @@ void GCodeQueue::get_serial_commands() {
         }
 
         #if NO_TIMEOUTS > 0
-          last_command_time = ms;
+          last_command_timer.start(NO_TIMEOUTS, ms);
         #endif
 
         // Add the command to the queue
@@ -798,8 +797,8 @@ void GCodeQueue::advance() {
       NOLESS(max_planner_buffer_empty_duration, planner_buffer_empty_duration); // if it's longer than the currently tracked max duration, replace it
     }
 
-    if (auto_buffer_report_interval && ELAPSED(ms, next_buffer_report_ms)) {
-      next_buffer_report_ms = ms + 1000UL * auto_buffer_report_interval;
+    if (buffer_report_timer.on_elapsed(ms)) {
+      buffer_report_timer.prime(ms);
       PORT_REDIRECT(SerialMask::All);
       report_buffer_statistics();
       PORT_RESTORE();

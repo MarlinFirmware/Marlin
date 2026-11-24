@@ -42,7 +42,7 @@ bool gx_full_redraw = true;
 xyze_feedrate_t gx_manual_feedrate_mm_m = MANUAL_FEEDRATE;
 void gx_reset_manual_feedrate() { gx_manual_feedrate_mm_m = MANUAL_FEEDRATE; }
 static uint16_t gx_refresh_ms = 0;
-static millis_t gx_next_refresh = 0;
+static MTimeout24 gx_refresh_timer;
 
 static uint8_t gauss8(const int16_t v, const int16_t m, const float s, const float a) {
   const float d = float(v - m);
@@ -269,13 +269,13 @@ void gx_clear_screen() {
 }
 
 void gx_set_refresh(const uint16_t ms) {
-  if (gx_refresh_ms != ms) gx_next_refresh = millis() + ms;
+  if (gx_refresh_ms != ms) gx_refresh_timer.start(ms);
   gx_refresh_ms = ms;
 }
 
 void gx_idle() {
-  if (gx_refresh_ms && ELAPSED(millis(), gx_next_refresh)) {
-    gx_next_refresh = millis() + gx_refresh_ms;
+  if (gx_refresh_ms && gx_refresh_timer.elapsed()) {
+    gx_refresh_timer.start(gx_refresh_ms);
     if (!ui.should_draw()) ui.refresh(LCDVIEW_REDRAW_NOW);
   }
 }
@@ -376,11 +376,11 @@ static const char* gx_temp_pair(const celsius_t cur, const celsius_t tgt) {
 }
 
 static const char *gx_alert_msg = nullptr;
-static millis_t gx_alert_until = 0;
-void gx_alert(const char *msg) { gx_alert_msg = msg; gx_alert_until = millis() + 4000UL; ui.set_status(msg); gx_invalidate(); }
+static MTimeout24 gx_alert_timer;
+void gx_alert(const char *msg) { gx_alert_msg = msg; gx_alert_timer.start(4000); ui.set_status(msg); gx_invalidate(); }
 
 void gx_footer_temps() {
-  if (gx_alert_msg && PENDING(millis(), gx_alert_until)) { gx_footer_msg(gx_alert_msg, GXI_WARNING, GX_C_HOT); return; }
+  if (gx_alert_msg && gx_alert_timer.pending()) { gx_footer_msg(gx_alert_msg, GXI_WARNING, GX_C_HOT); return; }
   gx_alert_msg = nullptr;
   gx_footer_frame();
   #if HAS_HOTEND

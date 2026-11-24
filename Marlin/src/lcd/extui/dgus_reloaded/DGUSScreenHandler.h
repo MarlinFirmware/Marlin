@@ -136,9 +136,9 @@ private:
 
   static DGUS_ScreenID wait_return_screenID;
 
-  static millis_t status_expire;
+  static MTimeout24 status_expire;
   static char standing_status[DGUS_STATUS_LEN + 1];
-  static millis_t eeprom_save;
+  static MTimeout24 eeprom_save;
 
   typedef struct {
     bool initialized;

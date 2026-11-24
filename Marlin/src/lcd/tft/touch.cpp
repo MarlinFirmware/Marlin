@@ -51,13 +51,13 @@ touch_control_t *Touch::current_control;
 touch_event_t Touch::touch_event;
 uint16_t Touch::controls_count;
 millis_t Touch::next_touch_ms = 0,
-         Touch::time_to_hold,
-         Touch::repeat_delay,
-         Touch::nada_start_ms;
+         Touch::repeat_delay;
+MTimeout24 Touch::hold_timer, Touch::nada_timer;
 bool Touch::repeat_started; // = false
 TouchControlType Touch::touch_control_type = NONE;
 #if HAS_DISPLAY_SLEEP
-  millis_t Touch::next_sleep_ms; // = 0
+  MTimeout24 Touch::sleep_timer, Touch::wake_lockout;
+  bool Touch::sleeping; // = false
 #endif
 
 // Called again by reinit_lcd(), so don't reset calibration here. That would
@@ -98,15 +98,20 @@ void Touch::idle() {
   if (!is_touched) {
     x = y = 0;
     current_control = nullptr;
-    nada_start_ms = 0;
+    nada_timer.cancel();
     touch_control_type = NONE;
-    time_to_hold = 0;
+    hold_timer.cancel();
     repeat_delay = MINIMUM_HOLD_TIME;
     repeat_started = false;
     return;
   }
 
   // A new touch or a drag...
+
+  #if HAS_DISPLAY_SLEEP
+    // Ignore the touch that woke the display, and contact for a moment after
+    if (wake_lockout.pending(now)) return;
+  #endif
 
   #if HAS_RESUME_CONTINUE
     // UI is waiting for a click anywhere?
@@ -120,24 +125,24 @@ void Touch::idle() {
 
   ui.reset_status_timeout(now);
 
-  // If nada_start_ms is set, a touch outside of controls is being held down.
+  // If nada_timer is running, a touch outside of controls is being held down.
   // With TOUCH_SCREEN_CALIBRATION a long hold (2.5s by default) opens to the calibration screen.
   // As long as this non-action touch is still held down, return.
-  if (nada_start_ms) {
+  if (nada_timer.enabled()) {
     #if ENABLED(TOUCH_SCREEN_CALIBRATION)
-      if (touch_control_type == NONE && ELAPSED(now, nada_start_ms, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS) && ui.on_status_screen())
+      if (touch_control_type == NONE && nada_timer.elapsed(now) && ui.on_status_screen())
         ui.goto_screen(touch_screen_calibration);
     #endif
     return;
   }
 
   // First time touched, ignore the control for a tiny interval as a debounce
-  if (time_to_hold == 0) time_to_hold = now + MINIMUM_HOLD_TIME;
+  if (!hold_timer.enabled()) hold_timer.start(MINIMUM_HOLD_TIME, now);
 
   // For a held control ignore the continuing touch until time elapses
   // to prevent spamming controls.
   // This timestamp will be updated as controls are held down.
-  if (PENDING(now, time_to_hold)) return;
+  if (hold_timer.pending(now)) return;
 
   // Was a previous point recorded? Then we are dragging, maybe in a control.
   if (x != 0 && y != 0) {
@@ -171,7 +176,7 @@ void Touch::idle() {
       }
     }
 
-    if (!current_control) nada_start_ms = next_millis(now);
+    if (!current_control) nada_timer.start(TERN(TOUCH_SCREEN_CALIBRATION, TOUCH_SCREEN_HOLD_TO_CALIBRATE_MS, 0), now);
   }
 
   // Update previous point in continuing touch or drag
@@ -204,7 +209,7 @@ void Touch::touch(touch_control_t * const control) {
     case MENU_CLICK:
       TERN_(SINGLE_TOUCH_NAVIGATION, ui.encoderPosition = control->data);
       // Effectively ignore the touch until it is released
-      time_to_hold = next_touch_ms + 2000;
+      hold_timer.start(2000, next_touch_ms);
       // fall thru
 
     // Tap to Continue. e.g., Anywhere on the whole screen.
@@ -394,7 +399,7 @@ void Touch::hold(touch_control_t * const control, const millis_t delay/*=0*/, co
     else
       repeat_delay = _MAX(delay, millis_t(MIN_REPEAT_DELAY));
 
-    time_to_hold = next_touch_ms + repeat_delay;
+    hold_timer.start(repeat_delay, next_touch_ms);
   }
   ui.refresh();
 }
@@ -418,7 +423,7 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
   #if HAS_DISPLAY_SLEEP
     if (is_touched)
       wakeUp();
-    else if (!isSleeping() && ELAPSED(millis(), next_sleep_ms) && ui.on_status_screen())
+    else if (!isSleeping() && sleep_timer.on_elapsed() && ui.on_status_screen())
       sleepTimeout();
   #endif
 
@@ -433,7 +438,8 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
     #elif PIN_EXISTS(TFT_BACKLIGHT)
       WRITE(TFT_BACKLIGHT_PIN, LOW);
     #endif
-    next_sleep_ms = TSLP_SLEEPING;
+    sleeping = true;
+    sleep_timer.cancel();
   }
   void Touch::wakeUp() {
     if (isSleeping()) {
@@ -442,10 +448,11 @@ bool Touch::get_point(int16_t * const x, int16_t * const y) {
       #elif PIN_EXISTS(TFT_BACKLIGHT)
         WRITE(TFT_BACKLIGHT_PIN, HIGH);
       #endif
-      next_touch_ms = millis() + 100;
+      wake_lockout.start(100);
       safe_delay(20);
     }
-    next_sleep_ms = ui.sleep_timeout_minutes ? next_millis(millis() + MIN_TO_MS(ui.sleep_timeout_minutes)) : 0;
+    sleeping = false;
+    if (ui.sleep_timeout_minutes) sleep_timer.start(MIN_TO_MS(ui.sleep_timeout_minutes)); else sleep_timer.cancel();
   }
 
   bool MarlinUI::display_is_asleep() { return touch.isSleeping(); }

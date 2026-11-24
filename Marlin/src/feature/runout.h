@@ -423,10 +423,9 @@ class FilamentSensorBase {
 
       static void run() {
         #if ENABLED(FILAMENT_RUNOUT_SENSOR_DEBUG)
-          static millis_t t = 0;
-          const millis_t ms = millis();
-          if (PENDING(ms, t)) return;
-          t = ms + 1000UL;
+          static MTimeout24 debug_timer;
+          if (debug_timer.pending()) return;
+          debug_timer.start(1000);
           PORT_REDIRECT(SerialMask::All);
           for (uint8_t i = 0; i < NUM_RUNOUT_SENSORS; ++i)
             SERIAL_ECHO(i ? F(", ") : F("Runout remaining mm: "), mm_countdown.runout[i]);

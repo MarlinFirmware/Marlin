@@ -241,14 +241,14 @@ void LEDLights::set_color(const LED1Color_t &incol
 
 #if HAS_LED_POWEROFF_TIMEOUT
 
-  millis_t LEDLights::led_off_time; // = 0
+  MTimeout24 LEDLights::led_off_timer; // Elapsed until started
 
   void LEDLights::update_timeout(const bool power_on) {
     if (lights_on) {
       const millis_t ms = millis();
       if (power_on)
         reset_timeout(ms);
-      else if (ELAPSED(ms, led_off_time))
+      else if (led_off_timer.elapsed(ms))
         set_off();
     }
   }

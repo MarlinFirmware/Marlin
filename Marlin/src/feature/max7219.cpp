@@ -515,10 +515,10 @@ void Max7219::register_setup() {
     int8_t sweep_count, sweepx, sweep_dir;
 
     void Max7219::run_test_pattern() {
-      static millis_t next_pattern_ms = 0;
+      static MTimeout24 pattern_timer;
       const millis_t ms = millis();
-      if (PENDING(ms, next_pattern_ms)) return;
-      next_pattern_ms = ms + pattern_delay;
+      if (pattern_timer.pending(ms)) return;
+      pattern_timer.start(pattern_delay, ms);
       set_column(sweepx, patt_on ? 0xFFFFFFFF : 0x00000000);
       sweepx += sweep_dir;
       if (!WITHIN(sweepx, 0, MAX7219_X_LEDS - 1)) {
@@ -529,7 +529,7 @@ void Max7219::register_setup() {
         else
           sweepx -= MAX7219_X_LEDS * sweep_dir;
         FLIP(patt_on);
-        next_pattern_ms += 100;
+        pattern_timer.extend(100);
         if (++test_mode > 4) test_mode = 0;
       }
     }
@@ -678,9 +678,9 @@ void Max7219::idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     static uint8_t refresh_cnt; // = 0
     constexpr uint16_t refresh_limit = 5;
-    static millis_t next_blink = 0;
+    static MTimeout24 blink_timer;
     const millis_t ms = millis();
-    const bool do_blink = ELAPSED(ms, next_blink);
+    const bool do_blink = blink_timer.elapsed(ms);
   #else
     static uint16_t refresh_cnt; // = 0
     constexpr bool do_blink = true;
@@ -709,7 +709,7 @@ void Max7219::idle_tasks() {
   #if ENABLED(MAX7219_DEBUG_PRINTER_ALIVE)
     if (do_blink) {
       led_toggle(MAX7219_X_LEDS - 1, MAX7219_Y_LEDS - 1, &row_change_mask);
-      next_blink = ms + 1000;
+      blink_timer.start(1000, ms);
     }
   #endif
 

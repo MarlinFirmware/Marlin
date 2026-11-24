@@ -76,8 +76,8 @@ GcodeSuite gcode;
 #include "../MarlinCore.h" // for idle, kill
 
 // Inactivity shutdown
-millis_t GcodeSuite::previous_move_ms = 0,
-         GcodeSuite::max_inactive_time = 0;
+MTimeout GcodeSuite::move_timer;
+millis_t GcodeSuite::max_inactive_time = 0;
 
 #if HAS_DISABLE_IDLE_AXES
   millis_t GcodeSuite::stepper_inactive_time = SEC_TO_MS(DEFAULT_STEPPER_TIMEOUT_SEC);
@@ -252,8 +252,7 @@ void GcodeSuite::get_destination_from_command() {
  * Dwell waits immediately. It does not synchronize.
  */
 void GcodeSuite::dwell(const millis_t time) {
-  const millis_t start_ms = millis();
-  while (PENDING(millis(), start_ms, time)) marlin.idle();
+  MTimeout(time).idle();
 }
 
 /**
@@ -1307,9 +1306,9 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
    */
   void GcodeSuite::host_keepalive() {
     const millis_t ms = millis();
-    static millis_t next_busy_signal_ms = 0;
+    static MTimeout24 busy_signal_timer;
     if (!autoreport_paused && host_keepalive_interval && busy_state != NOT_BUSY) {
-      if (PENDING(ms, next_busy_signal_ms)) return;
+      if (busy_signal_timer.pending(ms)) return;
       PORT_REDIRECT(SerialMask::All);
       switch (busy_state) {
         case IN_HANDLER:
@@ -1329,7 +1328,7 @@ void GcodeSuite::process_subcommands_now(char * gcode) {
           break;
       }
     }
-    next_busy_signal_ms = ms + SEC_TO_MS(host_keepalive_interval);
+    busy_signal_timer.start(SEC_TO_MS(host_keepalive_interval), ms);
   }
 
 #endif // HOST_KEEPALIVE_FEATURE

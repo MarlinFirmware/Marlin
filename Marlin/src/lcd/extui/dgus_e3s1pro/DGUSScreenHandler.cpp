@@ -65,8 +65,8 @@ uint8_t DGUSScreenHandler::angry_beeps = 0;
   size_t DGUSScreenHandler::pageMaxControlLen = 0;
 #endif
 
-millis_t DGUSScreenHandler::status_expire = 0;
-millis_t DGUSScreenHandler::eeprom_save = 0;
+MTimeout24 DGUSScreenHandler::status_expire;
+MTimeout24 DGUSScreenHandler::eeprom_save;
 
 void DGUSScreenHandler::init() {
   dgus.init();
@@ -82,7 +82,7 @@ void DGUSScreenHandler::ready() {
 
 void DGUSScreenHandler::loop() {
   const millis_t ms = ExtUI::safe_millis();
-  static millis_t next_event_ms = 0, next_beep_ms = 0;
+  static MTimeout24 event_timer, beep_timer;
   static bool wasLeveling = isLeveling;
 
   if (new_screen != DGUS_ScreenID::BOOT) {
@@ -116,8 +116,8 @@ void DGUSScreenHandler::loop() {
     }
   #endif
 
-  if (ELAPSED(ms, next_event_ms) || full_update) {
-    next_event_ms = ms + (booted ? DGUS_UPDATE_INTERVAL_MS : 50);
+  if (event_timer.elapsed(ms) || full_update) {
+    event_timer.start(booted ? DGUS_UPDATE_INTERVAL_MS : 50, ms);
 
     #if ENABLED(DGUS_SOFTWARE_AUTOSCROLL)
       currentScrollIndex += 1;
@@ -136,8 +136,8 @@ void DGUSScreenHandler::loop() {
     return;
   }
 
-  if (ELAPSED(ms, next_beep_ms)) {
-    next_beep_ms = ms + 300;
+  if (beep_timer.elapsed(ms)) {
+    beep_timer.start(300, ms);
 
     if (angry_beeps) {
       --angry_beeps;
@@ -158,13 +158,13 @@ void DGUSScreenHandler::loop() {
 
   if (!settings_ready && booted) return;
 
-  if (status_expire > 0 && ELAPSED(ms, status_expire)) {
+  if (status_expire.on_elapsed(ms)) {
     setStatusMessage(FPSTR(NUL_STR), 0);
     return;
   }
 
-  if (eeprom_save > 0 && ELAPSED(ms, eeprom_save) && isPrinterIdle()) {
-    eeprom_save = 0;
+  if (eeprom_save.on_elapsed(ms) && isPrinterIdle()) {
+    eeprom_save.cancel();
     ExtUI::injectCommands(F("M500"));
     return;
   }
@@ -399,7 +399,7 @@ void DGUSScreenHandler::setStatusMessage(FSTR_P msg, const millis_t duration) {
 void DGUSScreenHandler::setStatusMessage(const char* msg, const millis_t duration) {
   homeStatusMessage[0] = '\0';
   strncat(homeStatusMessage, msg, sizeof(homeStatusMessage) / sizeof(char) - 1);
-  status_expire = duration ? ExtUI::safe_millis() + duration : 0;
+  if (duration) status_expire.start(duration, ExtUI::safe_millis()); else status_expire.cancel();
 }
 
 DGUS_ScreenID DGUSScreenHandler::getCurrentScreen() { return current_screen; }
@@ -451,7 +451,7 @@ void DGUSScreenHandler::triggerFullUpdate() {
 }
 
 void DGUSScreenHandler::triggerEEPROMSave() {
-  eeprom_save = ExtUI::safe_millis() + 500;
+  eeprom_save.start(500, ExtUI::safe_millis());
 }
 
 bool DGUSScreenHandler::isPrinterIdle() {
@@ -513,10 +513,10 @@ bool DGUSScreenHandler::sendScreenVPData(DGUS_ScreenID screen, bool complete_upd
     ) continue; // Unnecessary VP
 
     uint8_t expected_tx = 6 + vp.size; // 6 bytes header + payload.
-    const millis_t try_until = ExtUI::safe_millis() + 1000;
+    const MTimeout try_timeout(1000, ExtUI::safe_millis());
 
     while (expected_tx > dgus.getFreeTxBuffer()) {
-      if (ELAPSED(ExtUI::safe_millis(), try_until)) return false; // Stop trying after 1 second
+      if (try_timeout.elapsed(ExtUI::safe_millis())) return false; // Stop trying after 1 second
 
       dgus.flushTx(); // Flush the TX buffer
       delay(50);

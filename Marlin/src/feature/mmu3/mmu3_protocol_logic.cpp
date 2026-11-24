@@ -723,7 +723,7 @@ namespace MMU3 {
   }
 
   bool ProtocolLogic::Elapsed(uint32_t timeout) const {
-    return ELAPSED(_millis(), lastUARTActivityMs + timeout);
+    return ELAPSED(_millis(), lastUARTActivityMs, timeout);
   }
 
   void ProtocolLogic::RecordUARTActivity() {
@@ -873,12 +873,12 @@ namespace MMU3 {
           if (!rejectedSinceMs) { rejectedSinceMs = now ?: 1; rejectedCount = 0; }
           // The MMU is resent the command right away, so a busy MMU can refuse it hundreds of times.
           // Log the first rejection, then one line per second with the count so far.
-          if (++rejectedCount == 1 || ELAPSED(now, rejectedLoggedMs + 1000)) {
+          if (++rejectedCount == 1 || ELAPSED(now, rejectedLoggedMs, 1000)) {
             rejectedLoggedMs = now;
             LogError(PSTR("Command rejected"));
             if (rejectedCount > 1) SERIAL_ECHO_MSG("MMU3: Command rejected ", rejectedCount, " times so far");
           }
-          if (ELAPSED(now, rejectedSinceMs + commandRejectedTimeout)) {
+          if (ELAPSED(now, rejectedSinceMs, commandRejectedTimeout)) {
             LogError(PSTR("Command rejected too long"));
             // Raise a printer error so the user sees a screen, instead of silently resending forever
             SetPrinterError(ErrorCode::PROTOCOL_ERROR);

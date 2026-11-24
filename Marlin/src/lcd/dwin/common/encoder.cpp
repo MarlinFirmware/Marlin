@@ -56,9 +56,9 @@ EncoderState encoderReceiveAnalyze() {
 
   EncoderState temp_diffState = ENCODER_DIFF_NO;
   if (BUTTON_PRESSED(ENC)) {
-    static millis_t next_click_update_ms;
-    if (ELAPSED(now, next_click_update_ms)) {
-      next_click_update_ms = millis() + 300;
+    static MTimeout24 click_update_timer;
+    if (click_update_timer.elapsed(now)) {
+      click_update_timer.start(300);
       Encoder_tick();
       #if PIN_EXISTS(LCD_LED)
         //LED_Action();

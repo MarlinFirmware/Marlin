@@ -467,7 +467,7 @@ bool MarlinUI::detected() {
         #endif
       );
       #if ENABLED(LCD_I2C_VIKI)
-        if ((slow_bits & (B_MI | B_RI)) && PENDING(millis(), next_button_update_ms)) // LCD clicked
+        if ((slow_bits & (B_MI | B_RI)) && button_update_timer.pending()) // LCD clicked
           slow_bits &= ~(B_MI | B_RI); // Disable LCD clicked buttons if screen is updated
       #endif
       return slow_bits;
@@ -764,7 +764,7 @@ void MarlinUI::draw_status_message(const bool blink) {
 
     // Draw the progress bar if the message has shown long enough
     // or if there is no message set.
-    if (ELAPSED(millis(), progress_bar_ms, PROGRESS_BAR_MSG_TIME) || !has_status()) {
+    if (progress_bar_timer.age() >= PROGRESS_BAR_MSG_TIME || !has_status()) {
       const uint8_t progress = get_progress_percent();
       if (progress > 2) return draw_progress_bar(progress);
     }
@@ -772,7 +772,7 @@ void MarlinUI::draw_status_message(const bool blink) {
   #elif ALL(FILAMENT_LCD_DISPLAY, HAS_MEDIA)
 
     // Alternate Status message and Filament display
-    if (ELAPSED(millis(), next_filament_display)) {
+    if (filament_display_timer.elapsed()) {
       lcd_put_u8str(F("Dia "));
       lcd_put_u8str(ftostr12ns(filwidth.measured_mm));
       lcd_put_u8str(F(" V"));
