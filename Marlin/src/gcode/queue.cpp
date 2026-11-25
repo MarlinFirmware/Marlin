@@ -243,6 +243,7 @@ void GCodeQueue::enqueue_now_P(PGM_P const pgcode) {
     enqueue_one_now(cmd);
     if (!c) break;
     p += i + 1;
+    i = 0;
   }
 }
 
