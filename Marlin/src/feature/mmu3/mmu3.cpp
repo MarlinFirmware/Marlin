@@ -67,6 +67,10 @@
 
 #define MMU2_NO_TOOL 99
 
+#if HAS_WIRED_LCD && ENABLED(MMU_MENUS)
+  bool mmu3_load_timeout_select(); // defined in menu_mmu2.cpp
+#endif
+
 MMU3::MMU3 mmu3;
 
 namespace MMU3 {
@@ -941,6 +945,11 @@ namespace MMU3 {
 
     Stopwatch nozzle_timer;
 
+    // Track the last reported progress so a responsive MMU that never finishes a
+    // command (e.g., a Load that can't reach the FINDA) can be given up on.
+    ProgressCode no_progress_code = logic.Progress();
+    millis_t    no_progress_since = millis();
+
     for (;;) {
       // in our new implementation, we know the exact state of the MMU at any moment, we do not have to wait for a timeout
       // So in this case we should decide if the operation is:
@@ -1011,6 +1020,27 @@ namespace MMU3 {
           resumeUnpark();
           break;
         case Processing: // Wait for the MMU to respond
+          // The MMU is answering but the current command isn't advancing (a Load that
+          // can't reach the FINDA, for instance). Give the user a Retry or Abort choice
+          // instead of waiting forever.
+          {
+            const ProgressCode pc = logic.Progress();
+            if (pc != no_progress_code) {
+              no_progress_code = pc;
+              no_progress_since = millis();
+            }
+            else if (ELAPSED(millis(), no_progress_since + 30000UL)) {
+              no_progress_since = millis(); // Re-arm a later Retry the same way
+              // Stop the stuck command first, or the MMU will keep feeding (and the
+              // idler keep wrenching) while the user reads the screen and decides.
+              logic.ResetMMU();
+              #if HAS_WIRED_LCD && ENABLED(MMU_MENUS)
+                if (mmu3_load_timeout_select()) return false; // Retry: caller re-sends on the clean MMU
+              #endif
+              return true;  // Abort (or no screen to ask): the command ended; don't resend it.
+            }
+          }
+          break;
         default: break;
       }
     }
