@@ -1022,7 +1022,7 @@ namespace MMU3 {
         case Processing: // Wait for the MMU to respond
           // The MMU is answering but the current command isn't advancing (a Load that
           // can't reach the FINDA, for instance). Give the user a Retry or Abort choice
-          // instead of waiting forever. Retry keeps waiting for the running command.
+          // instead of waiting forever.
           {
             const ProgressCode pc = logic.Progress();
             if (pc != no_progress_code) {
@@ -1031,12 +1031,13 @@ namespace MMU3 {
             }
             else if (ELAPSED(millis(), no_progress_since + 30000UL)) {
               no_progress_since = millis(); // Re-arm a later Retry the same way
-              #if HAS_WIRED_LCD && ENABLED(MMU_MENUS)
-                if (mmu3_load_timeout_select()) break;   // Retry: keep waiting
-              #endif
-              // Abort (or no screen to ask): stop the stuck command rather than hang.
+              // Stop the stuck command first, or the MMU will keep feeding (and the
+              // idler keep wrenching) while the user reads the screen and decides.
               logic.ResetMMU();
-              return true; // Command ended by abort; don't let the caller resend it.
+              #if HAS_WIRED_LCD && ENABLED(MMU_MENUS)
+                if (mmu3_load_timeout_select()) return false; // Retry: caller re-sends on the clean MMU
+              #endif
+              return true;  // Abort (or no screen to ask): the command ended; don't resend it.
             }
           }
           break;

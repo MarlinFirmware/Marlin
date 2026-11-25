@@ -218,9 +218,9 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   static bool _mmu2_already_loaded(const uint8_t, const bool=false) { return false; }
 #endif
 
-// An MMU command (e.g. a Load) is running but making no progress toward its goal
-// (say, filament that can't reach the FINDA). The MMU is still running it, so Retry
-// keeps waiting for it to finish, and Abort tells the caller to reset the MMU.
+// An MMU command (e.g. a Load) was running but making no progress toward its goal
+// (say, filament that can't reach the FINDA). The caller has already stopped the
+// command, so Retry re-sends it on the clean MMU and Abort ends the operation.
 #if HAS_WIRED_LCD
   static bool load_timeout_retry = true; // Retry is the default choice
   static bool load_timeout_done;
