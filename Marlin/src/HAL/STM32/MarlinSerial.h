@@ -58,6 +58,16 @@
 
 #else // Arduino non-DMA
 
+  /**
+   * The core's HardwareSerial::write() queues the data, then starts the UART if it is idle.
+   * An interrupt between those steps (e.g., the stepper ISR) can delay the main loop until
+   * the UART has sent the data and gone idle, and write() then sends it again from an empty
+   * queue, corrupting the output. To start the UART the core also masks the UART interrupt,
+   * and an interrupt at that point leaves reception off until it returns, losing characters.
+   * Seen in all core versions up to 3.1.0. Limit this by STM32_CORE_VERSION when one is fixed.
+   */
+  #define STM32_ATOMIC_SERIAL_WRITE 1
+
   typedef void (*usart_rx_callback_t)(serial_t * obj);
 
   struct MarlinSerial : public HardwareSerial {
@@ -79,11 +89,7 @@
     // few bit-times after the request, so switch back to receive as soon as
     // the transmit completes instead of waiting for the next read().
     using HardwareSerial::write;
-    size_t write(const uint8_t *buffer, size_t size) override {
-      const size_t n = HardwareSerial::write(buffer, size);
-      if (isHalfDuplex()) enableHalfDuplexRx();
-      return n;
-    }
+    size_t write(const uint8_t *buffer, size_t size) override;
 
     void _rx_complete_irq(serial_t *obj);
     FORCE_INLINE static uint8_t buffer_overruns() { return 0; } // Not implemented. Void to avoid platform-dependent code.

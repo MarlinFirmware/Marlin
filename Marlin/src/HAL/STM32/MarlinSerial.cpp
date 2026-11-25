@@ -106,6 +106,29 @@ void MarlinSerial::begin(unsigned long baud, uint8_t config) {
 
 #if DISABLED(SERIAL_DMA)
 
+  size_t MarlinSerial::write(const uint8_t *buffer, size_t size) {
+    #if STM32_ATOMIC_SERIAL_WRITE
+      // Wait for space with interrupts enabled, then queue no more than
+      // fits and start the UART as one step, with interrupts disabled.
+      size_t n = 0;
+      while (size) {
+        int space;
+        while (!(space = availableForWrite())) { /* The TX interrupt frees up space */ }
+        const size_t len = _MIN(size, size_t(space));
+        const uint32_t primask = __get_PRIMASK();
+        __disable_irq();
+        n += HardwareSerial::write(buffer, len);
+        __set_PRIMASK(primask);
+        buffer += len;
+        size -= len;
+      }
+    #else
+      const size_t n = HardwareSerial::write(buffer, size);
+    #endif
+    if (isHalfDuplex()) enableHalfDuplexRx();
+    return n;
+  }
+
   // This function Copyright (c) 2006 Nicholas Zambetti.
   void MarlinSerial::_rx_complete_irq(serial_t *obj) {
     // No Parity error, read byte and store it in the buffer if there is room
