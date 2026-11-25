@@ -225,9 +225,9 @@ const char* ftostr41ns(const float f) {
 
 // Convert float to fixed-length string with 12.34 / _2.34 / -2.34 or -23.45 / 123.45 format
 const char* ftostr42_52(const float f) {
-  if (f <= -10 || f >= 100) return ftostr52(f); // -23.45 / 123.45
-  long i = INTFLOAT(f, 2);
-  conv[3] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
+  long i = INTFLOAT(f, 2); // Check the rounded value, as 9.999 rounds to 10.00
+  if (i <= -1000 || i >= 10000) return ftostr52(f); // -23.45 / 123.45
+  conv[3] = WITHIN(i, 0, 999) ? ' ' : MINUSOR(i, DIGIMOD(i, 1000));
   conv[4] = DIGIMOD(i, 100);
   conv[5] = '.';
   conv[6] = DIGIMOD(i, 10);
@@ -249,9 +249,9 @@ const char* ftostr52(const float f) {
 
 // Convert float to fixed-length string with 12.345 / _2.345 / -2.345 or -23.45 / 123.45 format
 const char* ftostr53_63(const float f) {
-  if (f <= -10 || f >= 100) return ftostr63(f); // -23.456 / 123.456
-  long i = INTFLOAT(f, 3);
-  conv[2] = (f >= 0 && f < 10) ? ' ' : MINUSOR(i, DIGIMOD(i, 10000));
+  long i = INTFLOAT(f, 3); // Check the rounded value, as 9.9999 rounds to 10.000
+  if (i <= -10000 || i >= 100000) return ftostr63(f); // -23.456 / 123.456
+  conv[2] = WITHIN(i, 0, 9999) ? ' ' : MINUSOR(i, DIGIMOD(i, 10000));
   conv[3] = DIGIMOD(i, 1000);
   conv[4] = '.';
   conv[5] = DIGIMOD(i, 100);

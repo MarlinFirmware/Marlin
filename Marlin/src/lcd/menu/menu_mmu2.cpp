@@ -218,6 +218,33 @@ inline void action_mmu2_load_to_nozzle(const uint8_t tool) {
   static bool _mmu2_already_loaded(const uint8_t, const bool=false) { return false; }
 #endif
 
+// An MMU command (e.g. a Load) was running but making no progress toward its goal
+// (say, filament that can't reach the FINDA). The caller has already stopped the
+// command, so Retry re-sends it on the clean MMU and Abort ends the operation.
+#if HAS_WIRED_LCD
+  static bool load_timeout_retry = true; // Retry is the default choice
+  static bool load_timeout_done;
+
+  static void menu_load_timeout() {
+    MenuItem_confirm::select_screen(
+      GET_TEXT_F(MSG_BTN_RETRY), GET_TEXT_F(MSG_MMU2_LOAD_ERROR_ABORT),
+      []{ load_timeout_retry = true;  load_timeout_done = true; ui.return_to_status(); },
+      []{ load_timeout_retry = false; load_timeout_done = true; ui.return_to_status(); },
+      GET_TEXT_F(MSG_MMU2_LOAD_ERROR_TITLE)
+    );
+  }
+
+  bool mmu3_load_timeout_select() {
+    load_timeout_retry = true;   // Retry is the default
+    load_timeout_done = false;
+    MarlinUI::completion_feedback();
+    ui.defer_status_screen();
+    ui.goto_screen(menu_load_timeout);
+    while (!load_timeout_done) marlin.idle();
+    return load_timeout_retry;
+  }
+#endif
+
 void _mmu2_load_to_feeder(const uint8_t tool) {
   MMUActionGuard busy; if (!busy.ok) return;
   if (_mmu2_already_loaded(tool)) return;
