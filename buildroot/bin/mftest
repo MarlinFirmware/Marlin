@@ -14,6 +14,9 @@ perror() { echo -e "$0: \033[0;31m$1 -- $2\033[0m" ; }
 errout() { echo -e "\033[0;31m$1\033[0m" ; }
 bugout() { ((DEBUG)) && echo -e "\033[0;32m$1\033[0m" ; }
 
+# shellcheck source=mfboard
+. "$(dirname "$0")/mfboard"
+
 usage() {
   echo "
 Usage: mftest [-a|--autobuild]
@@ -173,12 +176,18 @@ if ((AUTO_BUILD)); then
   echo ; echo -n "Auto " ; ((AUTO_BUILD == 2)) && echo "Upload..." || echo "Build..."
 
   #
-  # Get the MOTHERBOARD define value from the .h file and strip off the "BOARD_" prefix
+  # Get the active MOTHERBOARD from the .h file, following #if/#ifdef,
+  # and strip off the "BOARD_" prefix
   #
-  ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
-  MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
-  [[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
+  MB=$(mfboard Marlin/Configuration.h)
+  MBOARD_RC=$?
+  [[ -z $MB ]] && { MB=$(mfboard Marlin/Config.h) ; MBOARD_RC=$? ; }
   [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
+  if [[ $MBOARD_RC == 2 ]] ; then
+    errout "Error - MOTHERBOARD is ambiguous in this configuration: $MB"
+    errout "Pick one of these boards in Configuration.h and try again."
+    exit 1
+  fi
   BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
   BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
   BDESC=$( sed -E 's/^.+\/\/ *(.+)$/\1/' <<<"$BLINE" )

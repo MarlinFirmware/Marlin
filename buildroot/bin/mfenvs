@@ -10,6 +10,9 @@ which pio >/dev/null || { echo "Make sure 'pio' is in your execution PATH." ; ex
 
 errout() { echo -e "\033[0;31m$1\033[0m" ; }
 
+# shellcheck source=mfboard
+. "$(dirname "$0")/mfboard"
+
 case $(uname | tr '[:upper:]' '[:lower:]') in
   darwin) SYS='mac' ;;
   *linux) SYS='lin' ;;
@@ -20,10 +23,16 @@ case $(uname | tr '[:upper:]' '[:lower:]') in
        *) SYS='uni' ;;
 esac
 
-ACODE='/^[[:space:]]*#define[[:space:]]MOTHERBOARD[[:space:]]/ { sub(/^BOARD_/, "", $3); print $3 }'
-MB=$(awk "$ACODE" Marlin/Configuration.h 2>/dev/null)
-[[ -z $MB ]] && MB=$(awk "$ACODE" Marlin/Config.h 2>/dev/null)
+# Read the active MOTHERBOARD, following #if/#ifdef when the config picks a board
+MB=$(mfboard Marlin/Configuration.h)
+MBOARD_RC=$?
+[[ -z $MB ]] && { MB=$(mfboard Marlin/Config.h) ; MBOARD_RC=$? ; }
 [[ -z $MB ]] && { echo "Error - Can't read MOTHERBOARD setting." ; exit 1 ; }
+if [[ $MBOARD_RC == 2 ]] ; then
+  errout "Error - MOTHERBOARD is ambiguous in this configuration: $MB"
+  errout "Pick one of these boards in Configuration.h and try again."
+  exit 1
+fi
 BLINE=$( grep -E "define\s+BOARD_$MB\b" Marlin/src/core/boards.h )
 BNUM=$( sed -E 's/^.+BOARD_[^ ]+ +([0-9]+).+$/\1/' <<<"$BLINE" )
 [[ -z $BNUM ]] && { echo "Error - Can't find BOARD_$MB in core/boards.h." ; exit 1 ; }
