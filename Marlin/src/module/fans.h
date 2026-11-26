@@ -173,12 +173,12 @@
     #endif
 
     #if FAN_KICKSTART_TIME
-      // Return the kickstart-adjusted PWM value without mutating speed.
-      uint8_t kick_out(const millis_t &ms) {
-        if (speed > FAN_OFF_PWM) {
-          const bool first_kick = kick_end_ms == 0 && TERN1(FAN_KICKSTART_LINEAR, speed > prev_fan_speed);
+      // Return the kickstart-adjusted PWM value for the target speed.
+      uint8_t kick_out(const millis_t &ms, const uint8_t target) {
+        if (target > FAN_OFF_PWM) {
+          const bool first_kick = kick_end_ms == 0 && TERN1(FAN_KICKSTART_LINEAR, target > prev_fan_speed);
           if (first_kick)
-            kick_end_ms = next_millis(ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, millis_t(speed - prev_fan_speed) / 255));
+            kick_end_ms = next_millis(ms + TERN(FAN_KICKSTART_LINEAR, millis_t(FAN_KICKSTART_TIME) * (target - prev_fan_speed) / 255, FAN_KICKSTART_TIME));
           if (first_kick || (kick_end_ms && PENDING(ms, kick_end_ms))) {
             kicking = true;
             return FAN_KICKSTART_POWER;
@@ -189,12 +189,12 @@
         kicking = false;
         #if ENABLED(FAN_KICKSTART_LINEAR)
           kick_end_ms = 0;              // Allow another kick when the speed increases
-          prev_fan_speed = speed;
+          prev_fan_speed = target;
         #endif
-        return pwm();
+        return pwm(target);
       }
     #else
-      uint8_t kick_out(const millis_t&) { return pwm(); }
+      uint8_t kick_out(const millis_t&, const uint8_t target) { return pwm(target); }
     #endif
 
     #if ENABLED(EXTRA_FAN_SPEED)
@@ -216,16 +216,18 @@
     uint8_t scaled_speed() const { return scaled_speed(speed); }
     uint8_t speed_pct_scaled() const { return ui8_to_percent(scaled_speed()); }
 
-    uint8_t pwm() {
+    static uint8_t pwm(const uint8_t target) {
       #if FAN_MIN_PWM != 0 || FAN_MAX_PWM != 255
-        return speed ? map(speed, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM;
+        return target ? map(target, 1, 255, FAN_MIN_PWM, FAN_MAX_PWM) : FAN_OFF_PWM;
       #else
-        return speed ?: FAN_OFF_PWM;
+        return target ?: FAN_OFF_PWM;
       #endif
     }
 
+    template<bool use_tail_speed>
     void sync(const millis_t &ms, const pin_t pin) {
-      const uint8_t out = kick_out(ms);
+      const uint8_t target = TERN(HAS_TAIL_FAN_SPEED, use_tail_speed ? tail_speed : speed, speed);
+      const uint8_t out = kick_out(ms, target);
       #if ENABLED(FAN_SOFT_PWM)
         UNUSED(pin);
         soft_pwm_amount = out;
@@ -234,43 +236,44 @@
       #endif
     }
 
+    template<bool use_tail_speed = false>
     static void sync_speeds() {
       const millis_t ms = millis();
       #if HAS_FAN0
-        fans[0].sync(ms, pin_t(PART_COOLING_FAN0_PIN));
+        fans[0].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN0_PIN));
       #endif
       #if HAS_FAN1
-        fans[1].sync(ms, pin_t(PART_COOLING_FAN1_PIN));
+        fans[1].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN1_PIN));
       #endif
       #if HAS_FAN2
-        fans[2].sync(ms, pin_t(PART_COOLING_FAN2_PIN));
+        fans[2].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN2_PIN));
       #endif
       #if HAS_FAN3
-        fans[3].sync(ms, pin_t(PART_COOLING_FAN3_PIN));
+        fans[3].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN3_PIN));
       #endif
       #if HAS_FAN4
-        fans[4].sync(ms, pin_t(PART_COOLING_FAN4_PIN));
+        fans[4].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN4_PIN));
       #endif
       #if HAS_FAN5
-        fans[5].sync(ms, pin_t(PART_COOLING_FAN5_PIN));
+        fans[5].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN5_PIN));
       #endif
       #if HAS_FAN6
-        fans[6].sync(ms, pin_t(PART_COOLING_FAN6_PIN));
+        fans[6].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN6_PIN));
       #endif
       #if HAS_FAN7
-        fans[7].sync(ms, pin_t(PART_COOLING_FAN7_PIN));
+        fans[7].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN7_PIN));
       #endif
       #if HAS_FAN8
-        fans[8].sync(ms, pin_t(PART_COOLING_FAN8_PIN));
+        fans[8].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN8_PIN));
       #endif
       #if HAS_FAN9
-        fans[9].sync(ms, pin_t(PART_COOLING_FAN9_PIN));
+        fans[9].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN9_PIN));
       #endif
       #if HAS_FAN10
-        fans[10].sync(ms, pin_t(PART_COOLING_FAN10_PIN));
+        fans[10].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN10_PIN));
       #endif
       #if HAS_FAN11
-        fans[11].sync(ms, pin_t(PART_COOLING_FAN11_PIN));
+        fans[11].sync<use_tail_speed>(ms, pin_t(PART_COOLING_FAN11_PIN));
       #endif
     }
     static void sync_speeds(uint8_t (&fanspeed)[FAN_COUNT]) {
