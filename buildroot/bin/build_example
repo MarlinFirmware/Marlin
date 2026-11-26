@@ -182,6 +182,7 @@ BNAME=("-name" "firmware*.hex" \
   "-o" "-name" "project*.bin" \
   "-o" "-name" "Robin*.bin" \
   "-o" "-name" "mksLite*.bin" \
+  "-o" "-name" "ZNP*.bin" \
   "-o" "-name" "update.cbd" \
   "-o" "-name" "main_*.bin" \
   "-o" "-name" "MarlinSimulator*")
