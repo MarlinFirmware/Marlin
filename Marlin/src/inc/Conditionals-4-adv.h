@@ -1511,6 +1511,11 @@
   #endif
 #endif
 
+// If serial needs to be redirected to SD for any reason
+#if ENABLED(EXPORT_SETTINGS)
+  #define SERIAL_2_FILE   // Dump serial output to file
+#endif
+
 // Flag if an EEPROM type is pre-selected
 #if ENABLED(EEPROM_SETTINGS) && NONE(I2C_EEPROM, SPI_EEPROM, QSPI_EEPROM, FLASH_EEPROM_EMULATION, SRAM_EEPROM_EMULATION, SDCARD_EEPROM_EMULATION)
   #define NO_EEPROM_SELECTED 1

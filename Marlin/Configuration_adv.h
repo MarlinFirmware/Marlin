@@ -1,4 +1,3 @@
-
 /**
  * Marlin 3D Printer Firmware
  * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
@@ -2024,6 +2023,11 @@
    * See docs/ConfigEmbedding.md for details on how to use 'mc-apply.py'.
    */
   //#define CONFIGURATION_EMBEDDING
+
+  #if HAS_MARLINUI_MENU && DISABLED(DISABLE_M503, SDCARD_READONLY)
+    // Write settings to the SD card root as M503.gc. Replay to restore settings.
+    //#define EXPORT_SETTINGS
+  #endif
 
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
@@ -4856,11 +4860,3 @@
 
 // Shrink the build for smaller boards by sacrificing some serial feedback
 //#define MARLIN_SMALL_BUILD
-
-#if ALL(HAS_MEDIA, HAS_MARLINUI_MENU) && DISABLED(SDCARD_READONLY)
-  #define EXPORT_SETTINGS // Export memory settings to file M503.gc in SD card root for replay
-#endif
-
-#if ENABLED(EXPORT_SETTINGS)
-  #define SERIAL_2_FILE   // Dump serial output to file, needed for export settings
-#endif

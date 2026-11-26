@@ -2790,6 +2790,15 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
 #endif
 
 /**
+ * Can't export without the settings print routine
+ */
+#if ENABLED(EXPORT_SETTINGS)
+  #if ENABLED(DISABLE_M503)
+    #error "EXPORT_SETTINGS requires M503 to be enabled."
+  #endif
+#endif
+
+/**
  * Make sure features that need to write to the SD card can
  */
 #if ENABLED(SDCARD_READONLY)
