@@ -73,6 +73,13 @@ enum MarlinImage : uint8_t {
   imgBtn39Rounded,      // BtnRounded_42x39x4
   imgTimeElapsed,       // Time_Elapsed_32x32x4
   imgTimeRemaining,     // Time_Remaining_32x32x4
+  #if ENABLED(NOVIN3DP_GALAXY_UI)
+    imgNOVINBIG,        // NOVINBIG_200x24x1
+  #endif
+  #if HAS_CUTTER
+    imgCutter,          // Cutter_64x64x4
+    imgCutterOn,        // Cutter_On_64x64x4
+  #endif
   // Special values - must be at the end!
   imgCount,
   noImage = imgCount,
@@ -157,6 +164,11 @@ extern const tImage Refresh_32x32x4;
 extern const tImage Leveling_32x32x4;
 extern const tImage Time_Elapsed_32x32x4;
 extern const tImage Time_Remaining_32x32x4;
+extern const tImage NOVINBIG_200x24x1;
+#if HAS_CUTTER
+  extern const tImage Cutter_64x64x4;
+  extern const tImage Cutter_On_64x64x4;
+#endif
 
 extern const tImage Slider8x16x4;
 

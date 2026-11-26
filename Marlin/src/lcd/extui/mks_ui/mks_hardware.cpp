@@ -99,7 +99,9 @@
     constexpr static bool endstopz4_sta = true;
   #endif
 
-  #define LOWSTATE(S) (READ(S##_PIN) == LOW)
+  // Expand S first so TERN() arguments resolve to a pin name before pasting
+  #define _LOWSTATE(S) (READ(S##_PIN) == LOW)
+  #define LOWSTATE(S) _LOWSTATE(S)
 
   void test_gpio_readlevel_L() {
     #if PIN_EXISTS(WIFI_IO0)
@@ -261,7 +263,7 @@
 
     void mks_hardware_test() {
       if (millis() % 2000 < 1000) {
-        thermalManager.fan_speed[0] = 255;
+        fans[0].speed = 255;
         #if HAS_X_AXIS
           WRITE(X_DIR_PIN, LOW);
         #endif
@@ -288,7 +290,7 @@
         #endif
       }
       else {
-        thermalManager.fan_speed[0] = 0;
+        fans[0].speed = 0;
         #if HAS_X_AXIS
           WRITE(X_DIR_PIN, HIGH);
         #endif

@@ -35,6 +35,28 @@
 
 namespace ExtUI {
 
+  #if DGUS_LCD_UI_CREALITY_TOUCH
+
+    // The CR-6 touch screen has dedicated screens for some errors
+    static DGUS_ScreenID killScreenFor(FSTR_P const error) {
+      PGM_P const err = FTOP(error);
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_MAXTEMP)) == 0 || strcmp_P(err, GET_TEXT(MSG_ERR_THERMAL_RUNAWAY)) == 0)
+        return DGUS_SCREEN_THERMAL_RUNAWAY;
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_HEATING_FAILED)) == 0)
+        return DGUS_SCREEN_HEATING_FAILED;
+      if (strcmp_P(err, GET_TEXT(MSG_ERR_MINTEMP)) == 0)
+        return DGUS_SCREEN_THERMISTOR_ERROR;
+      return DGUS_SCREEN_KILL;
+    }
+
+    // Confirm without a popup, e.g. while in the feed (load filament) workflow
+    static void onCrealityUserConfirmed() {
+      TERN_(M600_PURGE_MORE_RESUMABLE, setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT));
+      setUserConfirmed();
+    }
+
+  #endif
+
   void onStartup() {
     dgus.initDisplay();
     screen.updateScreenVPData();
@@ -45,11 +67,18 @@ namespace ExtUI {
   void onPrinterKilled(FSTR_P const error, FSTR_P const) {
     #if DGUS_LCD_UI_MKS
       screen.sendInfoScreenMKS(GET_TEXT_F(MSG_HALTED), error, nullptr, GET_TEXT_F(MSG_PLEASE_RESET), mks_language_index);
+    #elif DGUS_LCD_UI_CREALITY_TOUCH
+      screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, GET_TEXT_F(MSG_PLEASE_RESET), FPSTR(NUL_STR));
     #else
       screen.sendInfoScreen(GET_TEXT_F(MSG_HALTED), error, FPSTR(NUL_STR), GET_TEXT_F(MSG_PLEASE_RESET));
     #endif
 
-    screen.gotoScreen(DGUS_SCREEN_KILL);
+    #if DGUS_LCD_UI_CREALITY_TOUCH
+      screen.gotoScreen(killScreenFor(error));
+      screen.killScreenCalled();
+    #else
+      screen.gotoScreen(DGUS_SCREEN_KILL);
+    #endif
     while (!screen.loop());  // Wait while anything is left to be sent
   }
 
@@ -57,28 +86,34 @@ namespace ExtUI {
   void onMediaError()   { TERN_(HAS_MEDIA, screen.sdCardError()); }
   void onMediaRemoved() { TERN_(HAS_MEDIA, screen.sdCardRemoved()); }
 
-  void onHeatingError(const heater_id_t header_id) {}
-  void onMinTempError(const heater_id_t header_id) {}
-  void onMaxTempError(const heater_id_t header_id) {}
-
-  void onPlayTone(const uint16_t frequency, const uint16_t duration/*=0*/) {}
-  void onPrintTimerStarted() {}
-  void onPrintTimerPaused() {}
-  void onPrintTimerStopped() {}
-  void onFilamentRunout(const extruder_t extruder) {}
-
   void onUserConfirmRequired(const char * const msg) {
     if (msg) {
-      #if DGUS_LCD_UI_MKS
-        screen.sendInfoScreenMKS(F("Please confirm."), nullptr, msg, nullptr, mks_language_index);
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        // In the feed (load filament) workflow assume immediate confirmation
+        if (screen.getCurrentScreen() == DGUS_SCREEN_FEED) {
+          onCrealityUserConfirmed();
+          return;
+        }
+        // The screen change hook confirms when the popup is closed
+        screen.setStatusMessage(msg);
+        screen.sendInfoScreen_P(PSTR("Confirmation required"), msg, NUL_STR, PSTR("Ok"), true, false, true, true);
+        screen.gotoScreen(screen.isPrintJobActive() ? DGUS_SCREEN_PRINT_PAUSED : DGUS_SCREEN_POPUP);
       #else
-        screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, false, false, false);
+        #if DGUS_LCD_UI_MKS
+          screen.sendInfoScreenMKS(F("Please confirm."), nullptr, msg, nullptr, mks_language_index);
+        #else
+          screen.sendInfoScreen(F("Please confirm."), nullptr, msg, nullptr, true, false, false, false);
+        #endif
+        screen.setupConfirmAction(setUserConfirmed);
+        screen.gotoScreen(DGUS_SCREEN_POPUP);
       #endif
-      screen.setupConfirmAction(setUserConfirmed);
-      screen.gotoScreen(DGUS_SCREEN_POPUP);
     }
     else if (screen.getCurrentScreen() == DGUS_SCREEN_POPUP) {
-      screen.setupConfirmAction(nullptr);
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        screen.setStatusMessage_P(nullptr);
+      #else
+        screen.setupConfirmAction(nullptr);
+      #endif
       screen.popToOldScreen();
     }
   }
@@ -95,91 +130,40 @@ namespace ExtUI {
     void onPauseMode(
       const PauseMessage message,
       const PauseMode mode/*=PAUSE_MODE_SAME*/,
-      const uint8_t extruder/*=active_extruder*/
+      const uint8_t extruder/*=motion.extruder*/
     ) {
-      stdOnPauseMode(message, mode, extruder);
+      if (message == PAUSE_MESSAGE_OPTION) {
+        #if M600_PURGE_MORE_RESUMABLE && DGUS_LCD_UI_CREALITY_TOUCH
+          // Offer "Purge More / Resume" on the Confirm page after a filament change, but not
+          // when loading from the Feed page
+          const PauseMode pm = getPauseMode(); // M600 ends up as PAUSE_PRINT or CHANGE_FILAMENT; M701 / M702 loads are not offered
+          if (pm != PAUSE_MODE_LOAD_FILAMENT && pm != PAUSE_MODE_UNLOAD_FILAMENT && screen.getCurrentScreen() != DGUS_SCREEN_FEED) {
+            screen.showPurgeMorePrompt();
+            return;
+          }
+        #endif
+        // This UI has no "Purge More / Resume" choice, so don't wait for one
+        setPauseMenuResponse(PAUSE_RESPONSE_RESUME_PRINT);
+      }
+      else
+        stdOnPauseMode(message, mode, extruder);
     }
   #endif
 
   void onStatusChanged(const char * const msg) { screen.setStatusMessage(msg); }
 
-  void onHomingStart() {}
-  void onHomingDone() {}
-
-  void onPrintDone() {}
-
-  void onFactoryReset() {}
-
-  void onStoreSettings(char *buff) {
-    // Called when saving to EEPROM (i.e. M500). If the ExtUI needs
-    // permanent data to be stored, it can write up to eeprom_data_size bytes
-    // into buff.
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
-    //  memcpy(buff, &myDataStruct, sizeof(myDataStruct));
-  }
-
-  void onLoadSettings(const char *buff) {
-    // Called while loading settings from EEPROM. If the ExtUI
-    // needs to retrieve data, it should copy up to eeprom_data_size bytes
-    // from buff
-
-    // Example:
-    //  static_assert(sizeof(myDataStruct) <= eeprom_data_size);
-    //  memcpy(&myDataStruct, buff, sizeof(myDataStruct));
-  }
-
-  void onPostprocessSettings() {
-    // Called after loading or resetting stored settings
-  }
-
-  void onSettingsStored(const bool success) {
-    // Called after the entire EEPROM has been written,
-    // whether successful or not.
-  }
-
-  void onSettingsLoaded(const bool success) {
-    // Called after the entire EEPROM has been read,
-    // whether successful or not.
-  }
-
-  #if HAS_LEVELING
-    void onLevelingStart() {}
-    void onLevelingDone() {}
-    #if ENABLED(PREHEAT_BEFORE_LEVELING)
-      celsius_t getLevelingBedTemp() { return LEVELING_BED_TEMP; }
-    #endif
-  #endif
-
-  #if HAS_MESH
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const float zval) {
-      // Called when any mesh points are updated
-    }
-
-    void onMeshUpdate(const int8_t xpos, const int8_t ypos, const probe_state_t state) {
-      // Called to indicate a special condition
-    }
-  #endif
-
-  #if ENABLED(PREVENT_COLD_EXTRUSION)
-    void onSetMinExtrusionTemp(const celsius_t) {}
-  #endif
-
   #if ENABLED(POWER_LOSS_RECOVERY)
-    void onSetPowerLoss(const bool onoff) {
-      // Called when power-loss is enabled/disabled
-    }
-    void onPowerLoss() {
-      // Called when power-loss state is detected
-    }
     void onPowerLossResume() {
       // Called on resume from power-loss
-      IF_DISABLED(DGUS_LCD_UI_MKS, screen.gotoScreen(DGUS_SCREEN_POWER_LOSS));
+      #if DGUS_LCD_UI_CREALITY_TOUCH
+        screen.onPowerLossResume();
+      #else
+        IF_DISABLED(DGUS_LCD_UI_MKS, screen.gotoScreen(DGUS_SCREEN_POWER_LOSS));
+      #endif
     }
   #endif
 
-  #if HAS_PID_HEATING
+  #if HAS_PID_HEATING && DISABLED(DGUS_LCD_UI_CREALITY_TOUCH)
     void onPIDTuning(const pidresult_t rst) {
       // Called for temperature PID tuning result
       switch (rst) {
@@ -203,9 +187,6 @@ namespace ExtUI {
       }
       screen.gotoScreen(DGUS_SCREEN_MAIN);
     }
-    void onStartM303(const int count, const heater_id_t hid, const celsius_t temp) {
-      // Called by M303 to update the UI
-    }
   #endif
 
   #if ENABLED(MPC_AUTOTUNE)
@@ -228,15 +209,6 @@ namespace ExtUI {
       screen.gotoScreen(DGUS_SCREEN_MAIN);
     }
   #endif
-
-  #if ENABLED(PLATFORM_M997_SUPPORT)
-    void onFirmwareFlash() {}
-  #endif
-
-  void onSteppersDisabled() {}
-  void onSteppersEnabled() {}
-  void onAxisDisabled(const axis_t) {}
-  void onAxisEnabled(const axis_t) {}
 }
 
 #endif // HAS_DGUS_LCD_CLASSIC

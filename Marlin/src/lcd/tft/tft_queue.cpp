@@ -28,6 +28,10 @@
 #include "tft.h"
 #include "tft_image.h"
 
+#if ALL(TFT_COLOR_UI, AUTO_BED_LEVELING_UBL)
+  #include "ui_common.h"   // HAS_TFT_TINY_FONT
+#endif
+
 uint8_t TFT_Queue::queue[];
 uint8_t *TFT_Queue::end_of_queue = queue;
 uint8_t *TFT_Queue::current_task = nullptr;
@@ -120,8 +124,17 @@ void TFT_Queue::canvas(queueTask_t *task) {
       case CANVAS_ADD_TEXT: {
         parametersCanvasText_t *p_text = (parametersCanvasText_t *)item;
         uint16_t *str = (uint16_t*)(item + sizeof(parametersCanvasText_t));
+        TERN_(NOVIN3DP_GALAXY_UI, TFT_String::use_font(p_text->font));
         tftCanvas.addText(p_text->x, p_text->y, p_text->color, str, p_text->maxWidth);
       } break;
+
+      #if HAS_TFT_TINY_FONT
+        case CANVAS_ADD_TINY_TEXT: {
+          parametersCanvasText_t *p_text = (parametersCanvasText_t *)item;
+          uint16_t *str = (uint16_t*)(item + sizeof(parametersCanvasText_t));
+          tftCanvas.addTinyText(p_text->x, p_text->y, p_text->color, str);
+        } break;
+      #endif
 
       case CANVAS_ADD_IMAGE: {
         parametersCanvasImage_t *p_img = (parametersCanvasImage_t *)item;
@@ -139,9 +152,29 @@ void TFT_Queue::canvas(queueTask_t *task) {
         parametersCanvasRectangle_t *p_rect = (parametersCanvasRectangle_t *)item;
         tftCanvas.addRect(p_rect->x, p_rect->y, p_rect->width, p_rect->height, p_rect->color);
       } break;
+      #if ENABLED(NOVIN3DP_GALAXY_UI)
+        case CANVAS_SET_GALAXY:
+          tftCanvas.setGalaxyBackground();
+          break;
+        case CANVAS_ADD_PANEL: {
+          const parametersCanvasPanel_t *p = (parametersCanvasPanel_t *)item;
+          tftCanvas.addPanel(p->x, p->y, p->width, p->height, p->fill, p->border, p->radius, p->flags);
+        } break;
+        case CANVAS_ADD_BITMAP: {
+          const parametersCanvasBitmap_t *p = (parametersCanvasBitmap_t *)item;
+          tftCanvas.addBitmap(p->x, p->y, p->width, p->height, p->data, p->color);
+        } break;
+        case CANVAS_ADD_CUSTOM: {
+          const parametersCanvasCustom_t *p = (parametersCanvasCustom_t *)item;
+          tftCanvas.addCustom(p->x, p->y, (canvasCustomFunc_t)p->fn, item + sizeof(parametersCanvasCustom_t));
+        } break;
+      #endif
     }
     item = ((parametersCanvasBackground_t *)item)->nextParameter;
   }
+
+  // Text items may switch fonts while rendering; composing code always expects the base font
+  TERN_(NOVIN3DP_GALAXY_UI, TFT_String::use_font(TFT_String::base_font));
 
   if (tftCanvas.toScreen()) task->state = TASK_STATE_COMPLETED;
 }
@@ -219,7 +252,7 @@ void TFT_Queue::handle_queue_overflow(uint16_t sizeNeeded) {
   }
 }
 
-void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth) {
+void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *string, uint16_t maxWidth, const CanvasSubtype type/*=CANVAS_ADD_TEXT*/) {
   handle_queue_overflow(sizeof(parametersCanvasText_t) + maxWidth);
   parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
   parametersCanvasText_t *parameters = (parametersCanvasText_t *)end_of_queue;
@@ -227,12 +260,13 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint8_t *
 
   const uint8_t *pointer = string;
 
-  parameters->type = CANVAS_ADD_TEXT;
+  parameters->type = type;
   parameters->x = x;
   parameters->y = y;
   parameters->color = ENDIAN_COLOR(color);
   parameters->stringLength = 0;
   parameters->maxWidth = maxWidth;
+  TERN_(NOVIN3DP_GALAXY_UI, parameters->font = TFT_String::current_font());
 
   end_of_queue += sizeof(parametersCanvasText_t);
 
@@ -265,6 +299,7 @@ void TFT_Queue::add_text(uint16_t x, uint16_t y, uint16_t color, const uint16_t 
   parameters->color = ENDIAN_COLOR(color);
   parameters->stringLength = 0;
   parameters->maxWidth = maxWidth;
+  TERN_(NOVIN3DP_GALAXY_UI, parameters->font = TFT_String::current_font());
 
   end_of_queue += sizeof(parametersCanvasText_t);
 
@@ -388,5 +423,81 @@ void TFT_Queue::add_rectangle(uint16_t x, uint16_t y, uint16_t width, uint16_t h
   task_parameters->count++;
   parameters->nextParameter = end_of_queue;
 }
+
+#if ENABLED(NOVIN3DP_GALAXY_UI)
+
+  void TFT_Queue::set_galaxy_background() {
+    handle_queue_overflow(sizeof(parametersCanvasGalaxy_t));
+    parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+    parametersCanvasGalaxy_t *parameters = (parametersCanvasGalaxy_t *)end_of_queue;
+    last_parameter = end_of_queue;
+
+    parameters->type = CANVAS_SET_GALAXY;
+
+    end_of_queue += sizeof(parametersCanvasGalaxy_t);
+    task_parameters->count++;
+    parameters->nextParameter = end_of_queue;
+  }
+
+  void TFT_Queue::add_panel(int16_t x, int16_t y, uint16_t width, uint16_t height, uint16_t fill, uint16_t border, uint8_t radius, uint8_t flags) {
+    handle_queue_overflow(sizeof(parametersCanvasPanel_t));
+    parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+    parametersCanvasPanel_t *parameters = (parametersCanvasPanel_t *)end_of_queue;
+    last_parameter = end_of_queue;
+
+    parameters->type = CANVAS_ADD_PANEL;
+    parameters->x = x;
+    parameters->y = y;
+    parameters->width = width;
+    parameters->height = height;
+    parameters->fill = fill;
+    parameters->border = border;
+    parameters->radius = radius;
+    parameters->flags = flags;
+
+    end_of_queue += sizeof(parametersCanvasPanel_t);
+    task_parameters->count++;
+    parameters->nextParameter = end_of_queue;
+  }
+
+  void TFT_Queue::add_bitmap(int16_t x, int16_t y, uint8_t width, uint8_t height, const uint8_t *data, uint16_t color) {
+    handle_queue_overflow(sizeof(parametersCanvasBitmap_t));
+    parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+    parametersCanvasBitmap_t *parameters = (parametersCanvasBitmap_t *)end_of_queue;
+    last_parameter = end_of_queue;
+
+    parameters->type = CANVAS_ADD_BITMAP;
+    parameters->x = x;
+    parameters->y = y;
+    parameters->width = width;
+    parameters->height = height;
+    parameters->color = color;
+    parameters->data = data;
+
+    end_of_queue += sizeof(parametersCanvasBitmap_t);
+    task_parameters->count++;
+    parameters->nextParameter = end_of_queue;
+  }
+
+  void TFT_Queue::add_custom(int16_t x, int16_t y, void *fn, const void *payload, uint16_t size) {
+    handle_queue_overflow(sizeof(parametersCanvasCustom_t) + size);
+    parametersCanvas_t *task_parameters = (parametersCanvas_t *)(((uint8_t *)last_task) + sizeof(queueTask_t));
+    parametersCanvasCustom_t *parameters = (parametersCanvasCustom_t *)end_of_queue;
+    last_parameter = end_of_queue;
+
+    parameters->type = CANVAS_ADD_CUSTOM;
+    parameters->x = x;
+    parameters->y = y;
+    parameters->fn = fn;
+    parameters->size = size;
+
+    end_of_queue += sizeof(parametersCanvasCustom_t);
+    memcpy(end_of_queue, payload, size);
+    end_of_queue += size;
+    task_parameters->count++;
+    parameters->nextParameter = end_of_queue;
+  }
+
+#endif // NOVIN3DP_GALAXY_UI
 
 #endif // HAS_GRAPHICAL_TFT

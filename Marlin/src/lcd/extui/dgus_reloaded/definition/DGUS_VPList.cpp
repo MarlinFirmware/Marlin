@@ -148,6 +148,11 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_RX(DGUS_Addr::WAIT_Abort, &DGUSRxHandler::waitAbort),
   VP_HELPER_RX_NODATA(DGUS_Addr::WAIT_Continue, &DGUSRxHandler::waitContinue),
 
+  #if HAS_FILAMENT_SENSOR
+    VP_HELPER_RX(DGUS_Addr::FILAMENT_SENSOR_Toggle, &DGUSRxHandler::filamentSensorToggle),
+    VP_HELPER_RX_NODATA(DGUS_Addr::FILAMENT_SENSOR_Save, &DGUSRxHandler::filamentSensorSave),
+  #endif
+
   // WRITE-ONLY VARIABLES
 
   #if HAS_MEDIA
@@ -188,7 +193,7 @@ const struct DGUS_VP vp_list[] PROGMEM = {
   VP_HELPER_TX(DGUS_Addr::STATUS_Icons, &DGUSTxHandler::statusIcons),
 
   VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Feedrate,
-                    &feedrate_percentage,
+                    &motion.feedrate_percentage,
                     &DGUSTxHandler::extraToInteger<int16_t>),
   VP_HELPER_TX_AUTO(DGUS_Addr::ADJUST_Flowrate_CUR,
                     nullptr,
@@ -255,13 +260,13 @@ const struct DGUS_VP vp_list[] PROGMEM = {
                      &DGUSTxHandler::extraToInteger<uint16_t>),
 
   VP_HELPER_TX_AUTO(DGUS_Addr::MOVE_CurrentX,
-                    &current_position.x,
+                    &motion.position.x,
                     (&DGUSTxHandler::extraToFixedPoint<float, 1>)),
   VP_HELPER_TX_AUTO(DGUS_Addr::MOVE_CurrentY,
-                    &current_position.y,
+                    &motion.position.y,
                     (&DGUSTxHandler::extraToFixedPoint<float, 1>)),
   VP_HELPER_TX_AUTO(DGUS_Addr::MOVE_CurrentZ,
-                    &current_position.z,
+                    &motion.position.z,
                     (&DGUSTxHandler::extraToFixedPoint<float, 1>)),
   VP_HELPER_TX_EXTRA(DGUS_Addr::MOVE_StepIcons,
                      &DGUSScreenHandler::move_steps,
@@ -318,6 +323,10 @@ const struct DGUS_VP vp_list[] PROGMEM = {
 
   VP_HELPER_TX(DGUS_Addr::WAIT_Icons, &DGUSTxHandler::waitIcons),
 
+  #if HAS_FILAMENT_SENSOR
+    VP_HELPER_TX(DGUS_Addr::FILAMENT_SENSOR_Icons, &DGUSTxHandler::filamentSensorIcons),
+  #endif
+
   // READ-WRITE VARIABLES
 
   VP_HELPER(DGUS_Addr::FAN0_Speed,
@@ -354,6 +363,22 @@ const struct DGUS_VP vp_list[] PROGMEM = {
             nullptr,
             &DGUSRxHandler::brightness,
             &DGUSTxHandler::brightness),
+
+  #if ENABLED(FILAMENT_SWITCH_AND_MOTION)
+    VP_HELPER(DGUS_Addr::FILAMENT_SENSOR_Jam,
+              2,
+              VPFLAG_AUTOUPLOAD,
+              nullptr,
+              &DGUSRxHandler::filamentSensorJam,
+              &DGUSTxHandler::filamentSensorJam),
+  #endif
+
+  VP_HELPER(DGUS_Addr::LANGUAGE,
+            2,
+            VPFLAG_AUTOUPLOAD,
+            nullptr,
+            &DGUSRxHandler::language,
+            &DGUSTxHandler::language),
 
   // SPECIAL CASES
 

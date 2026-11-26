@@ -65,6 +65,9 @@
 #ifndef CUSTOM_MENU_MAIN_TITLE
   #define CUSTOM_MENU_MAIN_TITLE ""
 #endif
+#if HAS_PRUSA_MMU3
+  #include "../../feature/mmu3/mmu3_supported_version.h"  // MMU_VERSION
+#endif
 #ifndef MMU_VERSION
   #define MMU_VERSION ""
 #endif
@@ -129,7 +132,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_NOZZLE_N                       = _UxGT("Nozzle ~");
   LSTR MSG_BED                            = _UxGT("Bed");
   LSTR MSG_FAN_SPEED                      = _UxGT("Fan Speed");
-  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan Speed ~");
+  LSTR MSG_FAN_SPEED_N                    = _UxGT("Fan ~ Speed");
   LSTR MSG_FLOW                           = _UxGT("Flow");
   LSTR MSG_FLOW_N                         = _UxGT("Flow ~");
   LSTR MSG_CONTROL                        = _UxGT("Control");
@@ -225,6 +228,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_INFO_BOARD_MENU                = _UxGT("Board Info");
   LSTR MSG_INFO_THERMISTOR_MENU           = _UxGT("Thermistors");
   LSTR MSG_INFO_EXTRUDERS                 = _UxGT("Extruders");
+  LSTR MSG_INFO_MMUFWVERSION              = _UxGT("MMU Firmware Version");
   LSTR MSG_INFO_BAUDRATE                  = _UxGT("Baud");
   LSTR MSG_INFO_PROTOCOL                  = _UxGT("Protocol");
   LSTR MSG_CASE_LIGHT                     = _UxGT("Case Light");
@@ -266,6 +270,16 @@ namespace LanguageNarrow_en {
   LSTR MSG_USB_FD_USB_FAILED              = _UxGT("USB start failed");
   LSTR MSG_LCD_SOFT_ENDSTOPS              = _UxGT("Soft Endstops");
   LSTR MSG_ADVANCED_SETTINGS              = _UxGT("Advanced Settings");
+  LSTR MSG_MKS_WIFI                       = _UxGT("WiFi Module");
+  LSTR MSG_MKS_WIFI_SSID                  = _UxGT("Network");
+  LSTR MSG_MKS_WIFI_IP                    = _UxGT("IP");
+  LSTR MSG_MKS_WIFI_CONNECTED             = _UxGT("WiFi: Connected");
+  LSTR MSG_MKS_WIFI_CONNECTING            = _UxGT("WiFi: Connecting");
+  LSTR MSG_MKS_WIFI_BUSY                  = _UxGT("WiFi: Transferring");
+  LSTR MSG_MKS_WIFI_OFFLINE               = _UxGT("WiFi: Not configured");
+  LSTR MSG_MKS_WIFI_EXCEPTION             = _UxGT("WiFi: Error");
+  LSTR MSG_MKS_WIFI_MODE_STA              = _UxGT("Mode: Station");
+  LSTR MSG_MKS_WIFI_MODE_AP               = _UxGT("Mode: Access point");
   LSTR MSG_CONFIGURATION                  = _UxGT("Configuration");
   LSTR MSG_AUTO_Z_ALIGN                   = _UxGT("Auto Z-Align");
   LSTR MSG_Z_FADE_HEIGHT                  = _UxGT("Fade Height");
@@ -389,7 +403,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_CHAMBER                        = _UxGT("Enclosure");
   LSTR MSG_STORED_FAN_N                   = _UxGT("Stored Fan ~");
   LSTR MSG_EXTRA_FAN_SPEED                = _UxGT("Extra Fan Speed");
-  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Fan Speed ~");
+  LSTR MSG_EXTRA_FAN_SPEED_N              = _UxGT("Extra Fan ~ Speed");
   LSTR MSG_PID_AUTOTUNE                   = _UxGT("PID Autotune");
   LSTR MSG_PID_AUTOTUNE_E                 = _UxGT("Autotune * PID");
   LSTR MSG_JERK                           = _UxGT("Jerk");
@@ -416,6 +430,10 @@ namespace LanguageNarrow_en {
   LSTR MSG_MEDIA_UPDATE                   = MEDIA_TYPE_EN _UxGT(" Update");
   LSTR MSG_RESET_PRINTER                  = _UxGT("Reset Printer");
   LSTR MSG_START_PRINT                    = _UxGT("Start Print");
+  LSTR MSG_PREVIEW_TIME                   = _UxGT("Print time");
+  LSTR MSG_PREVIEW_LAYER                  = _UxGT("Layer");
+  LSTR MSG_PREVIEW_SIZE                   = _UxGT("Size");
+  LSTR MSG_PREVIEW_NO_THUMBNAIL           = _UxGT("No thumbnail");
   LSTR MSG_BUTTON_NEXT                    = _UxGT("Next");
   LSTR MSG_BUTTON_INIT                    = _UxGT("Init");
   LSTR MSG_BUTTON_STOP                    = _UxGT("Stop");
@@ -456,7 +474,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_BLTOUCH_MODE_STORE             = _UxGT("Mode-Store");
   LSTR MSG_BLTOUCH_MODE_STORE_5V          = _UxGT("Set BLTouch to 5V");
   LSTR MSG_BLTOUCH_MODE_STORE_OD          = _UxGT("Set BLTouch to OD");
-  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Drain");
+  LSTR MSG_BLTOUCH_MODE_ECHO              = _UxGT("Report Mode");
   LSTR MSG_BLTOUCH_MODE_CHANGE            = _UxGT("DANGER: Bad settings can cause damage! Proceed anyway?");
   LSTR MSG_TOUCHMI_PROBE                  = _UxGT("TouchMI");
   LSTR MSG_TOUCHMI_INIT                   = _UxGT("Init TouchMI");
@@ -475,11 +493,20 @@ namespace LanguageNarrow_en {
   LSTR MSG_DELTA_DIAG_ROD                 = _UxGT("Diag Rod");
   LSTR MSG_DELTA_HEIGHT                   = _UxGT("Height");
   LSTR MSG_DELTA_RADIUS                   = _UxGT("Radius");
+  LSTR MSG_KINEMATICS_SETTINGS            = _UxGT("Kinematics Settings");
+  LSTR MSG_DELTA_TOWER_ANGLE_TRIM_N       = _UxGT("@ Tower Trim");
+  LSTR MSG_DELTA_ROD_TRIM_A               = _UxGT("A Rod Trim");
+  LSTR MSG_DELTA_ROD_TRIM_B               = _UxGT("B Rod Trim");
+  LSTR MSG_DELTA_ROD_TRIM_C               = _UxGT("C Rod Trim");
+  LSTR MSG_SCARA_P_OFFSET                 = _UxGT("P Offset");
+  LSTR MSG_SCARA_T_OFFSET                 = _UxGT("T Offset");
+  LSTR MSG_SCARA_Z_OFFSET                 = _UxGT("Z Offset");
   LSTR MSG_3POINT_LEVELING                = _UxGT("3-Point Leveling");
   LSTR MSG_LINEAR_LEVELING                = _UxGT("Linear Leveling");
   LSTR MSG_BILINEAR_LEVELING              = _UxGT("Bilinear Leveling");
   LSTR MSG_UBL_LEVELING                   = _UxGT("Unified Bed Leveling");
   LSTR MSG_MESH_LEVELING                  = _UxGT("Mesh Leveling");
+  LSTR MSG_MESH_SETTINGS                  = _UxGT("Mesh Settings");
   LSTR MSG_INFO_RUNAWAY_OFF               = _UxGT("Runaway Watch: OFF");
   LSTR MSG_INFO_RUNAWAY_ON                = _UxGT("Runaway Watch: ON");
   LSTR MSG_CASE_LIGHT_BRIGHTNESS          = _UxGT("Light Brightness");
@@ -494,6 +521,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENT_CHANGE_NOZZLE         = _UxGT("  Nozzle: ");
   LSTR MSG_RUNOUT_SENSOR                  = _UxGT("Runout Sensor");
   LSTR MSG_RUNOUT_DISTANCE_MM             = _UxGT("Runout Dist mm");
+  LSTR MSG_RUNOUT_TRIGGERED               = _UxGT("Runout triggered");
   LSTR MSG_KILL_HOMING_FAILED             = _UxGT("Homing Failed");
   LSTR MSG_LCD_PROBING_FAILED             = _UxGT("Probing Failed");
   LSTR MSG_MMU2_CHOOSE_FILAMENT_HEADER    = _UxGT("CHOOSE FILAMENT");
@@ -511,6 +539,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_MMU2_LOADING_FILAMENT          = _UxGT("Filament %i Load...");
   LSTR MSG_MMU2_EJECTING_FILAMENT         = _UxGT("Filament %i Eject...");
   LSTR MSG_MMU2_UNLOADING_FILAMENT        = _UxGT("Filament %i Unload...");
+  LSTR MSG_MMU2_UNLOAD_THEN_LOAD          = _UxGT("Unload, then Load %i");
+  LSTR MSG_MMU2_LOAD_ERROR_TITLE          = _UxGT("LOAD DIDN'T COMPLETE");
+  LSTR MSG_MMU2_LOAD_ERROR_ABORT          = _UxGT("Abort");
   LSTR MSG_MMU2_ALL                       = _UxGT("All");
   LSTR MSG_MMU2_FILAMENT_N                = _UxGT("Filament ~");
   LSTR MSG_MMU2_RESET                     = _UxGT("Reset MMU");
@@ -518,6 +549,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_MMU2_EJECT_RECOVER             = _UxGT("Eject Recover");
   LSTR MSG_MIX                            = _UxGT("Mix");
   LSTR MSG_MIX_COMPONENT_N                = _UxGT("Component {");
+  LSTR MSG_MIX_IN_USE                     = _UxGT("In Use");
+  LSTR MSG_MIX_EVEN_SPLIT                 = _UxGT("Even Split");
   LSTR MSG_MIXER                          = _UxGT("Mixer");
   LSTR MSG_GRADIENT                       = _UxGT("Gradient");
   LSTR MSG_FULL_GRADIENT                  = _UxGT("Full Gradient");
@@ -546,6 +579,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_TMC_DRIVERS                    = _UxGT("TMC Drivers");
   LSTR MSG_TMC_CURRENT                    = _UxGT("Driver Current");
   LSTR MSG_TMC_HYBRID_THRS                = _UxGT("Hybrid Threshold");
+  LSTR MSG_TMC_HOMING_HYBRID_THRS         = _UxGT("Homing Hybrid Thrs");
   LSTR MSG_TMC_HOMING_THRS                = _UxGT("Sensorless Homing");
   LSTR MSG_TMC_STEPPING_MODE              = _UxGT("Stepping Mode");
   LSTR MSG_TMC_STEALTHCHOP                = _UxGT("StealthChop");
@@ -605,7 +639,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_MESH_MAX_Y                     = _UxGT("Mesh Y Maximum");
   LSTR MSG_MESH_AMAX                      = _UxGT("Maximize Area");
   LSTR MSG_MESH_CENTER                    = _UxGT("Center Area");
-  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh cancelled");
+  LSTR MSG_MESH_CANCEL                    = _UxGT("Mesh canceled");
   LSTR MSG_M48_OUT_OF_BOUNDS              = _UxGT("Probe out of bounds");
   LSTR MSG_IDEX_DUPE_GAP                  = _UxGT("Duplicate X-Gap");
   LSTR MSG_UBL_TILT_MESH                  = _UxGT("Tilt Mesh");
@@ -698,6 +732,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ZPROBE_SETTINGS                = _UxGT("Probe Settings");
   LSTR MSG_ZPROBE_OFFSETS                 = _UxGT("Probe Offsets");
   LSTR MSG_ZPROBE_MARGIN                  = _UxGT("Probe Margin");
+  LSTR MSG_ZPROBE_MULTIPLE                = _UxGT("Multiple Probing");
   LSTR MSG_Z_FEED_RATE                    = _UxGT("Z Feedrate");
   LSTR MSG_ENABLE_HS_MODE                 = _UxGT("Enable HS mode");
   LSTR MSG_MOVE_NOZZLE_TO_BED             = _UxGT("Move Nozzle to Bed");
@@ -705,6 +740,7 @@ namespace LanguageNarrow_en {
   LSTR MSG_ERR_COOLING_FAILED             = _UxGT("Cooling Failed");
   LSTR MSG_PLEASE_WAIT                    = _UxGT("Please wait...");
   LSTR MSG_PREHEATING                     = _UxGT("Preheating...");
+  LSTR MSG_HEAT_SOAK                      = _UxGT("Heat Soak");
   LSTR MSG_PROBE_HEATING                  = _UxGT("Probe Heating...");
   LSTR MSG_PROBE_COOLING                  = _UxGT("Probe Cooling...");
   LSTR MSG_LASER_COOLING                  = _UxGT("Laser Cooling...");
@@ -837,6 +873,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_TRAPEZOIDAL                = _UxGT("Trapezoidal");
   LSTR MSG_FTM_POLY5                      = _UxGT("5th Order");
   LSTR MSG_FTM_POLY6                      = _UxGT("6th Order");
+  LSTR MSG_FTM_CONSTANT_JOLT              = _UxGT("Constant Jolt");
+  LSTR MSG_FTM_JOLT                       = _UxGT("Jolt (m/s3)");
   LSTR MSG_FTM_TRAJECTORY                 = _UxGT("Trajectory: $");
   LSTR MSG_FILAMENT_EN                    = _UxGT("Filament *");
   LSTR MSG_SEGMENTS_PER_SECOND            = _UxGT("Segments/Sec");
@@ -849,6 +887,9 @@ namespace LanguageNarrow_en {
   LSTR MSG_ADVANCE_TAU                    = _UxGT("Advance Tau");
   LSTR MSG_ADVANCE_TAU_E                  = _UxGT("Advance Tau *");
   LSTR MSG_NLE_ON                         = _UxGT("NLE enabled");
+  LSTR MSG_NLE_A                          = _UxGT("-Quadratic");
+  LSTR MSG_NLE_B                          = _UxGT("-Linear");
+  LSTR MSG_NLE_C                          = _UxGT("-Constant");
   LSTR MSG_HOTEND_TEMP_GRAPH              = _UxGT("Hotend Temp Graph");
   LSTR MSG_BED_TEMP_GRAPH                 = _UxGT("Bed Temp Graph");
   LSTR MSG_EEPROM_INITIALIZED             = _UxGT("EEPROM Initialized");
@@ -932,13 +973,13 @@ namespace LanguageNarrow_en {
   LSTR MSG_FTM_SMOOTH_TIME_N              = _UxGT("@ Smoothing Time");
   LSTR MSG_FTM_POLY6_OVERSHOOT            = _UxGT("@ Poly6 Overshoot");
   LSTR MSG_FTM_CONFIGURE_AXIS_N           = _UxGT("Configure @ Axis");
-  LSTR MSG_FTM_RESONANCE_TEST             = _UxGT("Resonance Test");
-  LSTR MSG_FTM_RT_RUNNING                 = _UxGT("Res. Test Running...");
-  LSTR MSG_FTM_RT_START_N                 = _UxGT("Start @ Axis Test");
-  LSTR MSG_FTM_RT_STOP                    = _UxGT("Abort Test");
-  LSTR MSG_FTM_RETRIEVE_FREQ              = _UxGT("Calc. Res. Freq.");
-  LSTR MSG_FTM_RESONANCE_FREQ             = _UxGT("Resonance Freq.");
-  LSTR MSG_FTM_TIMELINE_FREQ              = _UxGT("Timeline (s)");
+  LSTR MSG_RESONANCE_TEST                 = _UxGT("Resonance Test");
+  LSTR MSG_RT_RUNNING                     = _UxGT("Res. Test Running...");
+  LSTR MSG_RT_START_N                     = _UxGT("Start @ Axis Test");
+  LSTR MSG_RT_STOP                        = _UxGT("Abort Test");
+  LSTR MSG_RETRIEVE_FREQ                  = _UxGT("Calc. Res. Freq.");
+  LSTR MSG_RESONANCE_FREQ                 = _UxGT("Resonance Freq.");
+  LSTR MSG_TIMELINE_FREQ                  = _UxGT("Timeline (s)");
   LSTR MSG_TOUCH_CALIBRATION              = _UxGT("Touch Calibration");
   LSTR MSG_MARLIN                         = _UxGT("Marlin");
   LSTR MSG_PID_P                          = _UxGT("PID-P");
@@ -984,14 +1025,15 @@ namespace LanguageNarrow_en {
   LSTR MSG_TITLE_SELECTOR_CANNOT_HOME     = _UxGT("SELECTOR CANNOT HOME");
   LSTR MSG_TITLE_IDLER_CANNOT_MOVE        = _UxGT("IDLER CANNOT MOVE");
   LSTR MSG_TITLE_IDLER_CANNOT_HOME        = _UxGT("IDLER CANNOT HOME");
-  LSTR MSG_TITLE_TMC_WARNING_TMC_TOO_HOT  = _UxGT("WARNING TMC TOO HOT");
+  LSTR MSG_TITLE_WARNING_TMC_TOO_HOT      = _UxGT("WARNING TMC TOO HOT");
   LSTR MSG_TITLE_TMC_OVERHEAT_ERROR       = _UxGT("TMC OVERHEAT ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_ERROR         = _UxGT("TMC DRIVER ERROR");
   LSTR MSG_TITLE_TMC_DRIVER_RESET         = _UxGT("TMC DRIVER RESET");
   LSTR MSG_TITLE_TMC_UNDERVOLTAGE_ERROR   = _UxGT("TMC UNDERVOLTAGE ERR");
   LSTR MSG_TITLE_TMC_DRIVER_SHORTED       = _UxGT("TMC DRIVER SHORTED");
   LSTR MSG_TITLE_SELFTEST_FAILED          = _UxGT("MMU SELFTEST FAILED");
-  LSTR MSG_TITLE_MMU_MCU_ERROR            = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_POWER_ERROR      = _UxGT("MMU MCU ERROR");
+  LSTR MSG_TITLE_MMU_MCU_UNDERVOLTAGE_VCC = _UxGT("MMU MCU UNDERPOWER");
   LSTR MSG_TITLE_MMU_NOT_RESPONDING       = _UxGT("MMU NOT RESPONDING");
   LSTR MSG_TITLE_COMMUNICATION_ERROR      = _UxGT("COMMUNICATION ERROR");
   LSTR MSG_TITLE_FILAMENT_ALREADY_LOADED  = _UxGT("FIL. ALREADY LOADED");
@@ -1015,6 +1057,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_DESC_CANNOT_MOVE               = _UxGT("Can't move Selector or Idler.");
   LSTR MSG_DESC_IDLER_CANNOT_HOME         = _UxGT("The Idler cannot home properly. Check for anything blocking its movement.");
   LSTR MSG_DESC_TMC                       = _UxGT("More details online.");
+  LSTR MSG_DESC_MMU_MCU_POWER_ERROR       = _UxGT("MMU detected a power-related issue. Check the wiring and connectors. If the issue persists, contact support.");
+  LSTR MSG_DESC_MMU_MCU_UNDERVOLTAGE_VCC  = _UxGT("MMU MCU detected a 5V undervoltage. There might be an issue with the electronics. Check the wiring and connectors.");
   LSTR MSG_DESC_MMU_NOT_RESPONDING        = _UxGT("MMU not responding. Check the wiring and connectors.");
   LSTR MSG_DESC_COMMUNICATION_ERROR       = _UxGT("MMU not responding correctly. Check the wiring and connectors.");
   LSTR MSG_DESC_FILAMENT_ALREADY_LOADED   = _UxGT("Cannot perform the action, filament is already loaded. Unload it first.");
@@ -1031,7 +1075,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_BTN_UNLOAD                     = _UxGT("Unload");
   LSTR MSG_BTN_LOAD                       = _UxGT("Load");
   LSTR MSG_BTN_EJECT                      = _UxGT("Eject");
-  LSTR MSG_BTN_STOP                       = _UxGT("Stop");
   LSTR MSG_BTN_DISABLE_MMU                = _UxGT("Disable");
   LSTR MSG_BTN_MORE                       = _UxGT("More Info");
   LSTR MSG_DONE                           = _UxGT("Done");
@@ -1071,7 +1114,7 @@ namespace LanguageNarrow_en {
 
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
-  #if LCD_WIDTH > 20 || HAS_DWIN_E3V2
+  #if LCD_WIDTH > 21 || HAS_DWIN_E3V2
     LSTR MSG_PREHEAT_1_END                = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend");
     LSTR MSG_PREHEAT_1_END_E              = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Hotend ~");
     LSTR MSG_PREHEAT_1_SETTINGS           = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Settings");
@@ -1094,14 +1137,15 @@ namespace LanguageWide_en {
     LSTR MSG_PLEASE_PREHEAT               = _UxGT("Please preheat the hot end.");
     LSTR MSG_MEDIA_NOT_INSERTED           = _UxGT("No media inserted.");
     LSTR MSG_INFO_PRINT_COUNT_RESET       = _UxGT("Reset Print Count");
+    LSTR MSG_ZERO_MESH                    = _UxGT("Zero Current Point");
     LSTR MSG_HOMING_FEEDRATE_N            = _UxGT("@ Homing Feedrate");
     LSTR MSG_PREHEAT_1_CHAMBER            = _UxGT("Preheat ") PREHEAT_1_LABEL _UxGT(" Chamber");
     LSTR MSG_PREHEAT_M_CHAMBER            = _UxGT("Preheat $ Chamber");
     LSTR MSG_EEPROM_INITIALIZED           = _UxGT("Default Settings Restored");
     LSTR MSG_MEDIA_MENU_SD                = _UxGT("Select from SD Card");
     LSTR MSG_MEDIA_MENU_USB               = _UxGT("Select from USB Drive");
-    LSTR MSG_FTM_RT_RUNNING               = _UxGT("Resonance Test Running...");
-    LSTR MSG_FTM_RESONANCE_FREQ           = _UxGT("Resonance frequency");
+    LSTR MSG_RT_RUNNING                   = _UxGT("Resonance Test Running...");
+    LSTR MSG_RESONANCE_FREQ               = _UxGT("Resonance frequency");
     LSTR MSG_HOMING_FEEDRATE_X            = _UxGT("X Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Y            = _UxGT("Y Homing Feedrate");
     LSTR MSG_HOMING_FEEDRATE_Z            = _UxGT("Z Homing Feedrate");

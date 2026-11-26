@@ -39,7 +39,7 @@
 #include <WString.h>
 
 ExtUI::FileList FileNavigator::filelist;                // ExtUI file API
-char      FileNavigator::currentDirPath[MAX_PATH_LEN];  // Current folder path
+char      FileNavigator::currentDirPath[MAX_PATH_LEN + 1];  // Current folder path
 uint16_t  FileNavigator::lastindex;
 uint8_t   FileNavigator::folderdepth;
 uint16_t  FileNavigator::currentindex;                  // override the panel request

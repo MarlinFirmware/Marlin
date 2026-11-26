@@ -4,7 +4,7 @@
 # Used by Makefile tests-single-local, tests-single-ci, tests-all-local
 #
 # Usage:
-#  run_tests path target "[only this title]"
+#  run_tests path target "[index|string]"
 #
 # With make:
 #  make tests-single-local TEST_TARGET=mega2560 ONLY_TEST=2
@@ -13,18 +13,20 @@ HERE="$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )"
 TESTS="$HERE/../tests"
 export PATH="$HERE:$TESTS:$PATH"
 
+get_desc() {
+  local file="$1"
+  awk '
+  /^# Test:/ { found=1; next }
+  found && /^#$/ { found=2; next }
+  found==2 && /^# / { print substr($0,3); exit }
+  ' "$file"
+}
+
 # exit on first failure
 set -e
 
 exec_test () {
   printf "\n\033[0;32m[Test $2] \033[0m$3...\n"
-  # Check to see if we should skip tests
-  if [[ -n "$4" ]] ; then
-    if [[ ! "$3" =~ $4 ]] ; then
-      printf "\033[1;33mSkipped\033[0m\n"
-      return 0
-    fi
-  fi
   if [[ -z "$VERBOSE_PLATFORMIO" ]] ; then
     silent="--silent"
   else
@@ -61,24 +63,46 @@ if [[ $2 = "ALL" ]]; then
   done
 else
   exec_test $1 "$2 --target clean" "Setup Build Environment"
-  test_name="$3"
-  # If the test name is 1 or 2 digits, treat it as an index
-  if [[ "$test_name" =~ ^[0-9][0-9]?$ ]] ; then
-    # Find the test name that corresponds to that index
-    test_name="$(cat $TESTS/$2 | grep -e '^exec_test' | sed -n "$3p" | sed "s/.*\$1 \$2 \"\([^\"]*\).*/\1/g")"
-    if [[ -z "$test_name" ]] ; then
-      # Fail if none matches
-      printf "\033[0;31mCould not find test \033[0m#$3\033[0;31m in \033[0mbuildroot/tests/$2\n"
-      exit 1
-    else
-      printf "\033[0;32mMatching test \033[0m#$3\033[0;32m: '\033[0m$test_name\033[0;32m'\n"
-    fi
-  fi
-  "$TESTS/$2" $1 $2 "$test_name"
-  if [[ $GIT_RESET_HARD == "true" ]]; then
-    git reset --hard HEAD
+  TEST_INDEX="$3"
+  if [[ -z "$TEST_INDEX" ]]; then
+    # Run all tests
+    for config_file in $(ls -1 "$TESTS/$2"/config-*.ini | sort -V); do
+      desc=$(get_desc "$config_file")
+      cp "$config_file" Marlin/config.ini
+      exec_test $1 $2 "$desc"
+      if [[ $GIT_RESET_HARD == "true" ]]; then
+        git reset --hard HEAD
+      else
+        restore_configs
+      fi
+    done
   else
-    restore_configs
+    # Find the config file
+    if [[ "$TEST_INDEX" =~ ^[0-9][0-9]?$ ]]; then
+      config_file="$TESTS/$2/config-$(printf "%02d" $TEST_INDEX).ini"
+      desc=$(get_desc "$config_file")
+    else
+      # Find by name
+      desc="$TEST_INDEX"
+      config_file=""
+      for cf in $(ls -1 "$TESTS/$2"/config-*.ini | sort -V); do
+        if [[ "$(get_desc "$cf")" =~ "$desc" ]]; then
+          config_file="$cf"
+          break
+        fi
+      done
+    fi
+    if [[ -z "$config_file" || ! -f "$config_file" ]]; then
+      printf "\033[0;31mCould not find test '\033[0m$TEST_INDEX\033[0;31m' in \033[0mbuildroot/tests/$2\n"
+      exit 1
+    fi
+    cp "$config_file" Marlin/config.ini
+    exec_test $1 $2 "$desc"
+    if [[ $GIT_RESET_HARD == "true" ]]; then
+      git reset --hard HEAD
+    else
+      restore_configs
+    fi
   fi
 fi
 printf "\033[0;32mAll tests completed successfully\033[0m\n"

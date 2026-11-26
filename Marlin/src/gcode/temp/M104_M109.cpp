@@ -38,6 +38,10 @@
 
 #include "../../MarlinCore.h" // for startOrResumeJob, etc.
 
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
+
 #if ENABLED(PRINTJOB_TIMER_AUTOSTART)
   #include "../../module/printcounter.h"
   #if ENABLED(CANCEL_OBJECTS)
@@ -106,13 +110,15 @@ void GcodeSuite::M104_M109(const bool isM109) {
   if (got_temp) {
     #if ENABLED(SINGLENOZZLE_STANDBY_TEMP)
       thermalManager.singlenozzle_temp[target_extruder] = temp;
-      if (target_extruder != active_extruder) return;
+      if (target_extruder != motion.extruder) return;
     #endif
     thermalManager.setTargetHotend(temp, target_extruder);
 
+    TERN_(CREALITY_RTS, temphot = temp);
+
     #if ENABLED(DUAL_X_CARRIAGE)
-      if (idex_is_duplicating() && target_extruder == 0)
-        thermalManager.setTargetHotend(temp ? temp + duplicate_extruder_temp_offset : 0, 1);
+      if (motion.idex_is_duplicating() && target_extruder == 0)
+        thermalManager.setTargetHotend(temp ? temp + motion.duplicate_extruder_temp_offset : 0, 1);
     #endif
 
     #if ENABLED(PRINTJOB_TIMER_AUTOSTART)

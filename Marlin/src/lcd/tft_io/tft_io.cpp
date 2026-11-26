@@ -56,6 +56,14 @@
 #define DEBUG_OUT ENABLED(DEBUG_GRAPHICAL_TFT)
 #include "../../core/debug_out.h"
 
+#if ENABLED(TFT_BACKLIGHT_INVERT)
+  #define TFT_BL_ON  LOW    // Backlight enable passes through an inverting buffer
+  #define TFT_BL_OFF HIGH
+#else
+  #define TFT_BL_ON  HIGH
+  #define TFT_BL_OFF LOW
+#endif
+
 TFT_IO_DRIVER TFT_IO::io;
 uint32_t TFT_IO::lcd_id = 0xFFFFFFFF;
 
@@ -63,7 +71,7 @@ void TFT_IO::initTFT() {
   if (lcd_id != 0xFFFFFFFF) return;
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    OUT_WRITE(TFT_BACKLIGHT_PIN, LOW);
+    OUT_WRITE(TFT_BACKLIGHT_PIN, TFT_BL_OFF);
   #endif
 
   #if PIN_EXISTS(TFT_RESET)
@@ -75,7 +83,7 @@ void TFT_IO::initTFT() {
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT)
-    WRITE(TFT_BACKLIGHT_PIN, DISABLED(DELAYED_BACKLIGHT_INIT));
+    WRITE(TFT_BACKLIGHT_PIN, TERN(DELAYED_BACKLIGHT_INIT, TFT_BL_OFF, TFT_BL_ON));
     #if HAS_LCD_BRIGHTNESS && DISABLED(DELAYED_BACKLIGHT_INIT)
       ui._set_brightness();
     #endif
@@ -152,7 +160,7 @@ void TFT_IO::initTFT() {
   #endif
 
   #if PIN_EXISTS(TFT_BACKLIGHT) && ENABLED(DELAYED_BACKLIGHT_INIT)
-    TERN(HAS_LCD_BRIGHTNESS, ui._set_brightness(), WRITE(TFT_BACKLIGHT_PIN, HIGH));
+    TERN(HAS_LCD_BRIGHTNESS, ui._set_brightness(), WRITE(TFT_BACKLIGHT_PIN, TFT_BL_ON));
   #endif
 }
 

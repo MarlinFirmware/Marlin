@@ -59,6 +59,9 @@ public:
   static bool load_to_nozzle(const uint8_t index);
   static bool eject_filament(const uint8_t index, const bool recover);
 
+  // @return Firmware build number reported by the connected MMU.
+  static uint16_t getMMUFWVersion() { return mmu_fw_buildnr; }
+
 private:
   static bool rx_str(FSTR_P fstr);
   static void tx_str(FSTR_P fstr);
@@ -95,6 +98,7 @@ private:
   #endif
 
   static bool _enabled, ready;
+  static uint16_t mmu_fw_buildnr;
 
   static uint8_t cmd, cmd_arg, last_cmd, extruder;
   static int8_t state;

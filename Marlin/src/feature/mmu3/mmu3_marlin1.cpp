@@ -21,7 +21,7 @@
  */
 
 /**
- * mmu2_marlin1.cpp
+ * mmu3_marlin1.cpp
  * MK3 / Marlin1 implementation of support routines for the MMU3
  */
 
@@ -34,14 +34,17 @@
 #include "../../module/planner.h"
 #include "../../module/temperature.h"
 
-#include "../pause.h"
+#if ENABLED(ADVANCED_PAUSE_FEATURE)
+  #include "../pause.h"
+#endif
+
 #include "../../libs/nozzle.h"
 #include "mmu3_marlin.h"
 
 namespace MMU3 {
 
   static void planner_line_to_current_position(float feedRate_mm_s) {
-    line_to_current_position(feedRate_mm_s);
+    motion.goto_current_position(feedRate_mm_s);
   }
 
   static void planner_line_to_current_position_sync(float feedRate_mm_s) {
@@ -50,21 +53,18 @@ namespace MMU3 {
   }
 
   void extruder_move(const float delta, const float feedRate_mm_s, const bool sync/*=true*/) {
-    current_position.e += delta / planner.e_factor[active_extruder];
-    planner_line_to_current_position(feedRate_mm_s);
-    if (sync) planner.synchronize();
-  }
-
-  float move_raise_z(const float delta) {
-    //return raise_z(delta);
-    xyze_pos_t current_position_before = current_position;
-    do_z_clearance_by(delta);
-    return (current_position - current_position_before).z;
+    if (sync)
+      motion.unscaled_e_move(delta, feedRate_mm_s, true); // Don't reset the runout sensor
+    else {
+      const float de = delta / planner.e_factor[motion.extruder];
+      motion.position.e += de;
+      planner.buffer_e_move(de, feedRate_mm_s, motion.extruder);
+    }
   }
 
   void planner_abort_queued_moves() {
     //planner_abort_hard();
-    quickstop_stepper();
+    motion.quickstop_stepper();
 
     // Unblock the planner. This should be safe in the
     // toolchange context. Currently we are mainly aborting
@@ -75,50 +75,28 @@ namespace MMU3 {
     // eoyilmaz: we don't need this part, the print is not aborted
   }
 
-  void planner_synchronize() {
-    planner.synchronize();
-  }
-
-  bool planner_any_moves() {
-    return planner.has_blocks_queued();
-  }
-
-  float planner_get_machine_position_E_mm() {
-    return current_position.e;
-  }
-
-  float stepper_get_machine_position_E_mm() {
-    return planner.get_axis_position_mm(E_AXIS);
-  }
-
-  float planner_get_current_position_E() {
-    return current_position.e;
-  }
-
-  void planner_set_current_position_E(float e) {
-    current_position.e = e;
-  }
-
-  xyz_pos_t planner_current_position() {
-    return xyz_pos_t(current_position);
-  }
+  void planner_synchronize() { planner.synchronize(); }
+  bool planner_any_moves() { return planner.has_blocks_queued(); }
+  float planner_get_machine_position_E_mm() { return motion.position.e; }
+  float stepper_get_machine_position_E_mm() { return planner.get_axis_position_mm(E_AXIS); }
+  float planner_get_current_position_E() { return motion.position.e; }
+  void planner_set_current_position_E(float e) { motion.position.e = e; }
+  xyz_pos_t planner_current_position() { return xyz_pos_t(motion.position); }
 
   void motion_blocking_move_xy(float rx, float ry, float feedRate_mm_s) {
-    current_position.set(rx, ry);
+    motion.position.set(rx, ry);
     planner_line_to_current_position_sync(feedRate_mm_s);
   }
 
   void motion_blocking_move_z(float z, float feedRate_mm_s) {
-    current_position.z = z;
+    motion.position.z = z;
     planner_line_to_current_position_sync(feedRate_mm_s);
   }
 
   void nozzle_park() {
-    #if ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
-      #if ALL(ADVANCED_PAUSE_FEATURE)
-        xyz_pos_t park_point = NOZZLE_PARK_POINT;
-        nozzle.park(0, park_point);
-      #endif
+    #if ENABLED(ADVANCED_PAUSE_FEATURE) && ANY(NOZZLE_CLEAN_FEATURE, NOZZLE_PARK_FEATURE)
+      xyz_pos_t park_point = NOZZLE_PARK_POINT;
+      nozzle.park(0, park_point);
     #endif
   }
 
@@ -161,11 +139,11 @@ namespace MMU3 {
     safe_delay(t);
   }
 
-  void Enable_E0() { stepper.enable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
-  void Disable_E0() { stepper.disable_extruder(TERN_(HAS_EXTRUDERS, 0)); }
+  void Enable_E0() { stepper.ENABLE_EXTRUDER(0); }
+  void Disable_E0() { stepper.DISABLE_EXTRUDER(0); }
 
   bool xy_are_trusted() {
-    return axis_is_trusted(X_AXIS) && axis_is_trusted(Y_AXIS);
+    return motion.axis_is_trusted(X_AXIS) && motion.axis_is_trusted(Y_AXIS);
   }
 
 } // MMU3

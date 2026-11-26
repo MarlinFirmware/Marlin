@@ -51,14 +51,12 @@
   #define I2C_EEPROM                              // EEPROM on I2C-0
   //#define FLASH_EEPROM_EMULATION
   //#define SDCARD_EEPROM_EMULATION
-  #if ENABLED(I2C_EEPROM)
-    #define MARLIN_EEPROM_SIZE          0x10000U  // 64K (CAT24C512)
-  #if ENABLED(SDCARD_EEPROM_EMULATION)
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #else
-    #define MARLIN_EEPROM_SIZE            0x800U  // 2K
-  #endif
-  #undef NO_EEPROM_SELECTED
+#endif
+
+#if ENABLED(I2C_EEPROM)
+  #define MARLIN_EEPROM_SIZE            0x10000U  // 64K (CAT24C512)
+#elif ENABLED(EEPROM_SETTINGS)
+  #define MARLIN_EEPROM_SIZE              0x800U  // 2K
 #endif
 
 //
@@ -606,15 +604,15 @@
 #if HAS_TMC_UART
   /**
    * TMC2208/TMC2209 stepper drivers
-   *  It seems to work perfectly fine on Software Serial, if an advanced user wants to test, you could use the SAMD51 Serial1 and Serial 2. Be careful with the Sercom configurations.
-   *  Steppers 1,2,3,4 (X,Y,Z,E0) are on the Serial1, Sercom (RX = 0, TX = 1), extra stepper 5 (E1 or any axis you want) is on Serial2, Sercom (RX = 17, TX = 16)
+   *  Software serial is the default. For hardware serial, steppers 1-4 (X,Y,Z,E0) are on Serial1 (RX = 0, TX = 1),
+   *  and the extra stepper 5 (E1 or any axis) is on Serial3 (RX = 17, TX = 16).
    */
 
   //#define X_HARDWARE_SERIAL  Serial1
   //#define Y_HARDWARE_SERIAL  Serial1
   //#define Z_HARDWARE_SERIAL  Serial1
   //#define E0_HARDWARE_SERIAL Serial1
-  //#define E1_HARDWARE_SERIAL Serial2
+  //#define E1_HARDWARE_SERIAL Serial3
 
   // Default TMC slave addresses
   #ifndef X_SLAVE_ADDRESS
@@ -644,21 +642,15 @@
   #endif
 
   //
-  // Software serial
+  // Software serial, single-wire. Steppers 1-4 share one PDN_UART line, wired to D0
+  // directly and to D1 through 1K. Stepper 5 is wired to D17 directly and to D16
+  // through 1K. An undefined RX pin is set to its TX pin.
   //
   #define X_SERIAL_TX_PIN                      0
-  #define X_SERIAL_RX_PIN                      1
-
   #define Y_SERIAL_TX_PIN        X_SERIAL_TX_PIN
-  #define Y_SERIAL_RX_PIN        X_SERIAL_RX_PIN
-
   #define Z_SERIAL_TX_PIN        X_SERIAL_TX_PIN
-  #define Z_SERIAL_RX_PIN        X_SERIAL_RX_PIN
-
   #define E0_SERIAL_TX_PIN       X_SERIAL_TX_PIN
-  #define E0_SERIAL_RX_PIN       X_SERIAL_RX_PIN
 
   #define E1_SERIAL_TX_PIN                    17
-  #define E1_SERIAL_RX_PIN                    16
 
 #endif

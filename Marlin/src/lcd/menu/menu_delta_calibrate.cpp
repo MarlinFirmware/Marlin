@@ -45,7 +45,7 @@
 void _man_probe_pt(const xy_pos_t &xy) {
   if (!ui.wait_for_move) {
     ui.wait_for_move = true;
-    do_blocking_move_to_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
+    motion.blocking_move_xy_z(xy, Z_CLEARANCE_BETWEEN_PROBES);
     ui.wait_for_move = false;
     ui.synchronize();
     ui.manual_move.menu_scale = _MAX(PROBE_MANUALLY_STEP, MIN_STEPS_PER_SEGMENT / planner.settings.axis_steps_per_mm[0]); // Use first axis as for delta XYZ should always match
@@ -69,7 +69,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
     TERN_(EXTENSIBLE_UI, ExtUI::onUserConfirmRequired(GET_TEXT_F(MSG_DELTA_CALIBRATION_IN_PROGRESS)));
     TERN_(HAS_RESUME_CONTINUE, marlin.wait_for_user_response());
     ui.goto_previous_screen_no_defer();
-    return current_position.z;
+    return motion.position.z;
   }
 
 #endif
@@ -80,7 +80,7 @@ void _man_probe_pt(const xy_pos_t &xy) {
 
   void _lcd_calibrate_homing() {
     _lcd_draw_homing();
-    if (all_axes_homed()) ui.goto_previous_screen();
+    if (motion.all_axes_homed()) ui.goto_previous_screen();
   }
 
   void _lcd_delta_calibrate_home() {
@@ -125,7 +125,7 @@ void lcd_delta_settings() {
 
 void menu_delta_calibrate() {
   #if ENABLED(DELTA_CALIBRATION_MENU)
-    const bool all_homed = all_axes_homed();  // Acquire ahead of loop
+    const bool all_homed = motion.all_axes_homed();  // Acquire ahead of loop
   #endif
 
   START_MENU();

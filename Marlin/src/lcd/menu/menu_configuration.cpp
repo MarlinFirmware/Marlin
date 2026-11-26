@@ -33,6 +33,19 @@
 #include "../../MarlinCore.h"
 #include "../../module/temperature.h"
 
+#if IS_KINEMATIC
+  #include "../../module/motion.h"
+  #if ENABLED(DELTA)
+    #include "../../module/delta.h"
+  #elif IS_SCARA
+    #include "../../module/scara.h"
+  #elif ENABLED(POLARGRAPH)
+    #include "../../module/polargraph.h"
+  #elif ENABLED(POLAR)
+    #include "../../module/polar.h"
+  #endif
+#endif
+
 #if ENABLED(LCD_ENDSTOP_TEST)
   #include "../../module/endstops.h"
 #endif
@@ -56,6 +69,10 @@
   #endif
 #endif
 
+#if ENABLED(DELTA) && HAS_LEVELING
+  #include "../../feature/bedlevel/bedlevel.h"
+#endif
+
 #if ENABLED(SOUND_MENU_ITEM)
   #include "../../libs/buzzer.h"
 #endif
@@ -63,6 +80,56 @@
 #if ENABLED(HOTEND_IDLE_TIMEOUT)
   #include "../../feature/hotend_idle.h"
 #endif
+
+#if IS_KINEMATIC
+
+  void menu_kinematics_settings() {
+    const bool busy = marlin.printer_busy();
+    #if ENABLED(DELTA)
+      auto _recalc_delta = []{
+        TERN_(HAS_LEVELING, reset_bed_level());
+        recalc_delta_settings();
+      };
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_CONFIGURATION);
+
+    if (!busy) {
+      #if ANY(DELTA, IS_SCARA, POLARGRAPH, POLAR)
+        EDIT_ITEM_FAST(float4, MSG_SEGMENTS_PER_SECOND, &segments_per_second, 100, 9999); // M665 S
+      #endif
+      #if ENABLED(DELTA)
+        #if DISABLED(DELTA_CALIBRATION_MENU)
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_HEIGHT, &delta_height, delta_height - 10, delta_height + 10, _recalc_delta);  // M665 H
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_RADIUS, &delta_radius, delta_radius - 5, delta_radius + 5, _recalc_delta);    // M665 R
+          EDIT_ITEM_FAST(float52sign, MSG_DELTA_DIAG_ROD, &delta_diagonal_rod, delta_diagonal_rod - 5, delta_diagonal_rod + 5, _recalc_delta); // M665 L
+          EDIT_ITEM_FAST_N(float43, X_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.a, -5, 5, _recalc_delta); // M665 X
+          EDIT_ITEM_FAST_N(float43, Y_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.b, -5, 5, _recalc_delta); // M665 Y
+          EDIT_ITEM_FAST_N(float43, Z_AXIS, MSG_DELTA_TOWER_ANGLE_TRIM_N, &delta_tower_angle_trim.c, -5, 5, _recalc_delta); // M665 Z
+        #endif
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_A, &delta_diagonal_rod_trim.a, -5, 5, _recalc_delta); // M665 A
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_B, &delta_diagonal_rod_trim.b, -5, 5, _recalc_delta); // M665 B
+        EDIT_ITEM(float43, MSG_DELTA_ROD_TRIM_C, &delta_diagonal_rod_trim.c, -5, 5, _recalc_delta); // M665 C
+      #elif IS_SCARA
+        #if HAS_SCARA_OFFSET
+          EDIT_ITEM_FAST(float43, MSG_SCARA_P_OFFSET, &motion.scara_home_offset.a, -180, 180); // M665 A/P/X
+          EDIT_ITEM_FAST(float43, MSG_SCARA_T_OFFSET, &motion.scara_home_offset.b, -180, 180); // M665 B/T/Y
+          EDIT_ITEM_FAST(float52sign, MSG_SCARA_Z_OFFSET, &motion.scara_home_offset.z, -10, 10); // M665 Z
+        #endif
+      #elif ENABLED(POLARGRAPH)
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_X, &draw_area_min.x, X_MIN_POS, draw_area_max.x - 10); // M665 L
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_X, &draw_area_max.x, draw_area_min.x + 10, X_MAX_POS); // M665 R
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MIN_Y, &draw_area_min.y, Y_MIN_POS, draw_area_max.y - 10); // M665 B
+        EDIT_ITEM_FAST(float51sign, MSG_DRAW_MAX_Y, &draw_area_max.y, draw_area_min.y + 10, Y_MAX_POS); // M665 T
+        EDIT_ITEM_FAST(float51sign, MSG_MAX_BELT_LEN, &polargraph_max_belt_len, 500, 2000); // M665 H
+      #endif
+    }
+
+    END_MENU();
+  }
+
+#endif // IS_KINEMATIC
 
 #if ANY(LCD_PROGRESS_BAR_TEST, LCD_ENDSTOP_TEST)
   #include "../lcdprint.h"
@@ -196,7 +263,7 @@ void menu_advanced_settings();
 
   #if ENABLED(TOOLCHANGE_MIGRATION_FEATURE)
 
-    #include "../../module/motion.h" // for active_extruder
+    #include "../../module/motion.h" // for motion.extruder
     #include "../../gcode/queue.h"
 
     void menu_toolchange_migration() {
@@ -211,11 +278,9 @@ void menu_advanced_settings();
 
       // Migrate to a chosen extruder
       EXTRUDER_LOOP() {
-        if (e != active_extruder) {
+        if (e != motion.extruder) {
           ACTION_ITEM_N_F(e, msg_migrate, []{
-            char cmd[12];
-            sprintf_P(cmd, PSTR("M217 T%i"), int(MenuItemBase::itemIndex));
-            queue.inject(cmd);
+            queue.inject(TS(F("M217 T"), int(MenuItemBase::itemIndex)));
           });
         }
       }
@@ -232,21 +297,21 @@ void menu_advanced_settings();
   void menu_tool_offsets() {
 
     auto _recalc_offsets = []{
-      if (active_extruder && all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
+      if (motion.extruder && motion.all_axes_trusted()) {  // For the 2nd extruder re-home so the next tool-change gets the new offsets.
         queue.inject_P(G28_STR); // In future, we can babystep the 2nd extruder (if active), making homing unnecessary.
-        active_extruder = 0;
+        motion.extruder = 0;
       }
     };
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
     #if ENABLED(DUAL_X_CARRIAGE)
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].x, float(X2_HOME_POS - 25), float(X2_HOME_POS + 25), _recalc_offsets);
     #else
-      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
+      EDIT_ITEM_FAST_N(float42_52, X_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].x, -99.0f, 99.0f, _recalc_offsets);
     #endif
-    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_N, &hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
-    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_N, &hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Y_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].y, -99.0f, 99.0f, _recalc_offsets);
+    EDIT_ITEM_FAST_N(float42_52, Z_AXIS, MSG_HOTEND_OFFSET_N, &motion.hotend_offset[1].z, -10.0f, 10.0f, _recalc_offsets);
     #if ENABLED(EEPROM_SETTINGS)
       ACTION_ITEM(MSG_STORE_EEPROM, ui.store_settings);
     #endif
@@ -277,7 +342,7 @@ void menu_advanced_settings();
 #if ENABLED(DUAL_X_CARRIAGE)
 
   void menu_idex() {
-    const bool need_g28 = axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
+    const bool need_g28 = motion.axes_should_home(_BV(Y_AXIS)|_BV(Z_AXIS));
 
     START_MENU();
     BACK_ITEM(MSG_CONFIGURATION);
@@ -293,7 +358,7 @@ void menu_advanced_settings();
     );
     GCODES_ITEM(MSG_IDEX_MODE_FULL_CTRL, F("M605S0\nG28X"));
 
-    EDIT_ITEM(float42_52, MSG_IDEX_DUPE_GAP, &duplicate_extruder_x_offset, (X2_MIN_POS) - (X1_MIN_POS), (X_BED_SIZE) - 20);
+    EDIT_ITEM(float42_52, MSG_IDEX_DUPE_GAP, &motion.duplicate_extruder_x_offset, (X2_MIN_POS) - (X1_MIN_POS), (X_BED_SIZE) - 20);
 
     END_MENU();
   }
@@ -410,17 +475,17 @@ void menu_advanced_settings();
 
     #if ENABLED(MENUS_ALLOW_INCH_UNITS)
       #define _EDIT_HOMING_FR(A) do{ \
-        const float minfr = MMS_TO_MMM(planner.settings.min_feedrate_mm_s); \
-        const float maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
-        editable.decimal = A##_AXIS_UNIT(homing_feedrate_mm_m.A); \
+        const float minfr = MMS_TO_MMM(planner.settings.min_feedrate_mm_s), \
+                    maxfr = MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]); \
+        editable.decimal = A##_AXIS_UNIT(motion.homing_feedrate_mm_m.A); \
         EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &editable.decimal, \
           A##_AXIS_UNIT(minfr), A##_AXIS_UNIT(maxfr), []{ \
-          homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
+          motion.homing_feedrate_mm_m.A = parser.axis_value_to_mm(_AXIS(A), editable.decimal); \
         }); \
       }while(0);
     #else
       #define _EDIT_HOMING_FR(A) \
-        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &homing_feedrate_mm_m.A, MMS_TO_MMM(planner.settings.min_feedrate_mm_s), MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]));
+        EDIT_ITEM_FAST_N(float5, _AXIS(A), MSG_HOMING_FEEDRATE_N, &motion.homing_feedrate_mm_m.A, MMS_TO_MMM(planner.settings.min_feedrate_mm_s), MMS_TO_MMM(planner.settings.max_feedrate_mm_s[_AXIS(A)]));
     #endif
 
     MAIN_AXIS_MAP(_EDIT_HOMING_FR);
@@ -591,6 +656,10 @@ void menu_configuration() {
   #endif
 
   SUBMENU(MSG_ADVANCED_SETTINGS, menu_advanced_settings);
+
+  #if IS_KINEMATIC
+    SUBMENU(MSG_KINEMATICS_SETTINGS, menu_kinematics_settings);
+  #endif
 
   //
   // Set Fan Controller speed

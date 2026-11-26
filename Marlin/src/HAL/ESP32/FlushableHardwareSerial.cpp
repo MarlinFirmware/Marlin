@@ -24,6 +24,13 @@
 
 #include "FlushableHardwareSerial.h"
 
-Serial1Class<FlushableHardwareSerial> flushableSerial(false, 0);
+typedef Serial1Class<FlushableHardwareSerial> MSerialT;
+
+MSerialT flushableSerial(ENABLED(EMERGENCY_PARSER), 0);
+#if SERIAL_PORT_2 == 2
+  MSerialT flushableSerial2(ENABLED(EMERGENCY_PARSER), 2);
+#else
+  MSerialT flushableSerial2(false, 2); // Not a host port
+#endif
 
 #endif

@@ -138,11 +138,11 @@ matrix_3x3 matrix_3x3::transpose(const matrix_3x3 &original) {
   return new_matrix;
 }
 
-void matrix_3x3::debug(FSTR_P const title) {
+void matrix_3x3::debug(FSTR_P const title, const uint8_t prec/*=SERIAL_FLOAT_PRECISION*/) {
   if (title) SERIAL_ECHOLN(title);
   for (uint8_t i = 0; i < 3; ++i) {
     for (uint8_t j = 0; j < 3; ++j) {
-      serial_offset(vectors[i][j], 2);
+      serial_offset(vectors[i][j], 2, prec);
       SERIAL_CHAR(' ');
     }
     SERIAL_EOL();

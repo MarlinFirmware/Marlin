@@ -35,8 +35,16 @@
   #include "../../feature/caselight.h"
 #endif
 
+#if DGUS_LCD_UI_SERMOON_V1
+  #include "../../lcd/extui/sermoon_v1/sermoon_v1_rts.h"
+#endif
+
 #if !defined(MACHINE_UUID) && ENABLED(HAS_STM32_UID)
   #include "../../libs/hex_print.h"
+#endif
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
 #endif
 
 //#define MINIMAL_CAP_LINES // Don't even mention the disabled capabilities
@@ -46,11 +54,14 @@
     #if ENABLED(MINIMAL_CAP_LINES)
       if (ena) SERIAL_ECHOLNPGM("Cap:", name, ":1");
     #else
-      SERIAL_ECHOPGM("Cap:", name);
-      SERIAL_CHAR(':', '0' + ena);
-      SERIAL_EOL();
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
     #endif
   }
+  #if ENABLED(CREALITY_RTS)
+    inline void cap_line_uchar(FSTR_P const name, const uint8_t ena) {
+      SERIAL_ECHOLN(F("Cap:"), name, C(':'), C('0' + ena));
+    }
+  #endif
 #endif
 
 /**
@@ -134,6 +145,11 @@ void GcodeSuite::M115() {
 
     // BINARY_FILE_TRANSFER (M28 B1)
     cap_line(F("BINARY_FILE_TRANSFER"), ENABLED(BINARY_FILE_TRANSFER)); // TODO: Use SERIAL_IMPL.has_feature(port, SerialFeature::BinaryFileTransfer) once implemented
+
+    #if ENABLED(CREALITY_RTS)
+      // Creality New Cloud Print Information
+      cap_line_uchar(F("IS_PLR"), g_cloudPLRStatusValue); // Send status to continue print after power failure
+    #endif
 
     // EEPROM (M500, M501)
     cap_line(F("EEPROM"), ENABLED(EEPROM_SETTINGS));
@@ -247,6 +263,16 @@ void GcodeSuite::M115() {
     // CONFIG_EXPORT
     cap_line(F("CONFIG_EXPORT"), ENABLED(CONFIGURATION_EMBEDDING));
 
+    // Creality Cloud WiFi board
+    #if DGUS_LCD_UI_SERMOON_V1
+      // switched on the Sermoon V1 screen, power-loss popup shown, enclosure LED
+      cap_line(F("WIFI"), RTS::settings.wifi_led);
+      cap_line(F("IS_PLR"), RTS::recoveryPrompt());
+      cap_line(F("LED_STAT"), TERN0(CASE_LIGHT_ENABLE, caselight.on));
+    #elif ALL(CREALITY_RTS, HAS_MEDIA)
+      cap_line(F("WIFI"), wifi_enable_flag);
+    #endif
+
     // Machine Geometry
     #if ENABLED(M115_GEOMETRY_REPORT)
       constexpr xyz_pos_t bmin{0},
@@ -254,8 +280,8 @@ void GcodeSuite::M115() {
                           dmin = NUM_AXIS_ARRAY(X_MIN_POS,  Y_MIN_POS,  Z_MIN_POS, I_MIN_POS, J_MIN_POS, K_MIN_POS, U_MIN_POS, V_MIN_POS, W_MIN_POS),
                           dmax = NUM_AXIS_ARRAY(X_MAX_POS,  Y_MAX_POS,  Z_MAX_POS, I_MAX_POS, J_MAX_POS, K_MAX_POS, U_MAX_POS, V_MAX_POS, W_MAX_POS);
       xyz_pos_t cmin = bmin, cmax = bmax;
-      apply_motion_limits(cmin);
-      apply_motion_limits(cmax);
+      motion.apply_limits(cmin);
+      motion.apply_limits(cmax);
       const xyz_pos_t lmin = dmin.asLogical(), lmax = dmax.asLogical(),
                       wmin = cmin.asLogical(), wmax = cmax.asLogical();
 

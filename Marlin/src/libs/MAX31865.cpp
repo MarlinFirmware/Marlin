@@ -577,7 +577,8 @@ void MAX31865::writeRegister8(uint8_t addr, uint8_t data) {
 }
 
 void MAX31865::spiBeginTransaction() {
-  digitalWrite(sclkPin, LOW); // ensure CPOL0
+  if (sclkPin != TERN(LARGE_PINMAP, -1UL, 255))
+    digitalWrite(sclkPin, LOW); // ensure CPOL0
   DELAY_NS_VAR(MAX31865_SPI_TIMING_TCWH); // ensure minimum time of CS inactivity after previous operation
   digitalWrite(cselPin, LOW);
   DELAY_NS_VAR(MAX31865_SPI_TIMING_TCC);

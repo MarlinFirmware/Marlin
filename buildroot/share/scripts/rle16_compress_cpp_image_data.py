@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-#
-# Utility to compress Marlin RGB565 TFT data to RLE16 format.
-# Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
-#
-# Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
-#
+"""
+Utility to compress Marlin RGB565 TFT data to RLE16 format.
+Reads the existing Marlin RGB565 cpp file and generates a new file with the additional RLE16 data.
+
+Usage: rle16_compress_cpp_image_data.py INPUT_FILE.cpp OUTPUT_FILE.cpp
+"""
+
 import sys, struct, re
 
 def addCompressedData(input_file, output_file):
@@ -47,15 +48,15 @@ def addCompressedData(input_file, output_file):
 
     input_file.close()
 
-    #
-    # RLE16 (run length 16) encoding
-    # Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
-    # - Each sequence begins with a count byte N.
-    #   - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
-    #   - Otherwise it repeats the following word N + 1 times.
-    # - Each RGB565 word is stored in MSB / LSB order.
-    #
     def rle_encode(data):
+        """
+        RLE16 (run length 16) encoding
+        Convert data from from raw RGB565 to a simple run-length-encoded format for each word of data.
+        - Each sequence begins with a count byte N.
+          - If the high bit is set in N the run contains N & 0x7F + 1 unique words.
+          - Otherwise it repeats the following word N + 1 times.
+        - Each RGB565 word is stored in MSB / LSB order.
+        """
         warn = "This may take a while" if len(data) > 300000 else ""
         print("Compressing image data...", warn)
         rledata = []

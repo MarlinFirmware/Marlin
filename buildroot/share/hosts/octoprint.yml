@@ -1,0 +1,67 @@
+# OctoPrint in Docker, for a Marlin printer or the Marlin simulator.
+#
+#   docker compose -f octoprint.yml up -d
+#   open http://localhost:5050          # first run shows OctoPrint's setup wizard
+#
+# Settings go in a `.env` file next to this one (all optional):
+#   OCTOPRINT_PORT=5050                          web UI port (not 5000: macOS AirPlay uses it)
+#   OCTOPRINT_IMAGE=octoprint/octoprint:canary   another OctoPrint image or tag
+#   SERIAL_DEVICE=/dev/ttyUSB0                   a USB printer (Linux hosts only), see below
+#   SIM_ADDR=host.docker.internal:8199           the Marlin simulator's G-code socket
+#
+# Simulator: build and run it with SERIAL_PORT_2 enabled (see buildroot/skills/marlin-hosts-in-docker),
+# then in OctoPrint's Connection panel choose the serial port "socket://host.docker.internal:8199".
+# OctoPrint defaults to port 8199 so it can use its own simulator next to the one for mainsail.yml
+# (port 8099): start that one with `MarlinSimulator --serial-port 8199`. The socket takes one
+# client at a time, so two hosts can't share a simulator.
+#
+# USB printer: Docker Desktop on macOS/Windows can't pass USB through, so this works only on
+# a Linux host. Uncomment `devices:` and set SERIAL_DEVICE (prefer /dev/serial/by-id/...).
+
+services:
+  octoprint:
+    image: ${OCTOPRINT_IMAGE:-octoprint/octoprint:latest}
+    ports:
+      - "${OCTOPRINT_PORT:-5050}:5000"
+    environment:
+      - SIM_ADDR=${SIM_ADDR:-host.docker.internal:8199}
+    volumes:
+      - octoprint:/octoprint
+    configs:
+      # OctoPrint can't open a TCP socket as a printer port by itself, so this one-file plugin
+      # adds "socket://<SIM_ADDR>" to the port list and opens it with pyserial's URL handler.
+      - source: sim_socket_plugin
+        target: /octoprint/octoprint/plugins/marlin_sim_socket.py
+    extra_hosts:
+      - "host.docker.internal:host-gateway" # lets a Linux host reach the simulator, too
+    # devices:
+    #   - "${SERIAL_DEVICE:-/dev/ttyUSB0}:/dev/ttyACM0"
+    restart: unless-stopped
+
+configs:
+  sim_socket_plugin:
+    content: |
+      # coding=utf-8
+      __plugin_name__ = "Marlin Simulator Socket"
+      __plugin_pythoncompat__ = ">=3.7,<4"
+
+      import os
+      import serial
+
+      URL = "socket://" + os.environ.get("SIM_ADDR", "host.docker.internal:8199")
+
+      def _ports(candidates):
+          return [URL]
+
+      def _factory(comm, port, baudrate, read_timeout, *args, **kwargs):
+          if port != URL:
+              return None
+          return serial.serial_for_url(URL, baudrate=baudrate, timeout=read_timeout, write_timeout=0)
+
+      __plugin_hooks__ = {
+          "octoprint.comm.transport.serial.additional_port_names": _ports,
+          "octoprint.comm.transport.serial.factory": _factory,
+      }
+
+volumes:
+  octoprint:

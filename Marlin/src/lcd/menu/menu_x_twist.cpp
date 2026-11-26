@@ -52,7 +52,7 @@ void xatc_wizard_done() {
   if (!ui.wait_for_move) {
     xatc.print_points();
     set_bed_leveling_enabled(menu_leveling_was_active);
-    SET_SOFT_ENDSTOP_LOOSE(false);
+    motion.set_soft_endstop_loose(false);
     ui.goto_screen(menu_advanced_settings);
   }
   if (ui.should_draw())
@@ -83,7 +83,7 @@ void xatc_wizard_update_z_offset() {
 //
 void xatc_wizard_set_offset_and_go_to_next_point() {
   // Set Z-offset at probed point
-  xatc.z_offset[manual_probe_index++] = probe.offset.z + current_position.z - measured_z;
+  xatc.z_offset[manual_probe_index++] = probe.offset.z + motion.position.z - measured_z;
   // Go to next point
   ui.goto_screen(xatc_wizard_goto_next_point);
 }
@@ -93,12 +93,12 @@ void xatc_wizard_set_offset_and_go_to_next_point() {
 //
 void xatc_wizard_menu() {
   START_MENU();
-  float calculated_z_offset = probe.offset.z + current_position.z - measured_z;
+  float calculated_z_offset = probe.offset.z + motion.position.z - measured_z;
 
   if (LCD_HEIGHT >= 4)
     STATIC_ITEM(MSG_MOVE_NOZZLE_TO_BED, SS_CENTER|SS_INVERT);
 
-  STATIC_ITEM_F(F("Z="), SS_CENTER, ftostr42_52(current_position.z));
+  STATIC_ITEM_F(F("Z="), SS_CENTER, ftostr42_52(motion.position.z));
   STATIC_ITEM_N(Z_AXIS, MSG_ZPROBE_OFFSET_N, SS_LEFT, ftostr42_52(calculated_z_offset));
 
   SUBMENU_S(F("1.0"), MSG_MOVE_N_MM, []{ _goto_manual_move_z( 1.0f); });
@@ -139,14 +139,14 @@ void xatc_wizard_goto_next_point() {
       ui.goto_screen(xatc_wizard_moving);
 
       // Deploy certain probes before starting probing
-      TERN_(BLTOUCH, do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
+      TERN_(BLTOUCH, motion.do_z_clearance(Z_CLEARANCE_DEPLOY_PROBE));
 
       xatc.set_enabled(false);
       measured_z = probe.probe_at_point(x, XATC_Y_POSITION, PROBE_PT_STOW);
       xatc.set_enabled(true);
-      current_position += probe.offset_xy;
-      current_position.z = (XATC_START_Z) - probe.offset.z + measured_z;
-      line_to_current_position(XY_PROBE_FEEDRATE_MM_S);
+      motion.position += probe.offset_xy;
+      motion.position.z = (XATC_START_Z) - probe.offset.z + measured_z;
+      motion.goto_current_position(XY_PROBE_FEEDRATE_MM_S);
       ui.wait_for_move = false;
     }
     else
@@ -183,7 +183,7 @@ void xatc_wizard_homing_done() {
   if (ui.use_click()) {
     xatc.reset();
 
-    SET_SOFT_ENDSTOP_LOOSE(true); // Disable soft endstops for free Z movement
+    motion.set_soft_endstop_loose(true); // Disable soft endstops for free Z movement
 
     ui.goto_screen(xatc_wizard_goto_next_point);
   }
@@ -194,7 +194,7 @@ void xatc_wizard_homing_done() {
 //
 void xatc_wizard_homing() {
   _lcd_draw_homing();
-  if (all_axes_homed())
+  if (motion.all_axes_homed())
     ui.goto_screen(xatc_wizard_homing_done);
 }
 
@@ -210,7 +210,7 @@ void xatc_wizard_continue() {
 
   // Home all axes
   ui.defer_status_screen();
-  set_all_unhomed();
+  motion.set_all_unhomed();
   ui.goto_screen(xatc_wizard_homing);
   queue.inject_P(G28_STR);
 }

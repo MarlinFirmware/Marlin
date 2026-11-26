@@ -207,7 +207,16 @@
       {&DDRJ, &PINJ, &PORTJ, 5},  // J5 76
       {&DDRJ, &PINJ, &PORTJ, 6},  // J6 77
       {&DDRE, &PINE, &PORTE, 2},  // E2 78
-      {&DDRE, &PINE, &PORTE, 6}   // E6 79
+      {&DDRE, &PINE, &PORTE, 6},  // E6 79
+
+      // pins_MIGHTYBOARD_REVG.h
+      // TODO: Only include with a -D define in build
+      {&DDRE, &PINE, &PORTE, 7},  // E7 80
+      {&DDRD, &PIND, &PORTD, 4},  // D4 81
+      {&DDRD, &PIND, &PORTD, 5},  // D5 82
+      {&DDRD, &PIND, &PORTD, 6},  // D6 83
+      {&DDRH, &PINH, &PORTH, 2},  // H2 84
+      {&DDRH, &PINH, &PORTH, 7}   // H7 85
     };
 
   #elif defined(__AVR_ATmega1284P__) || defined(__AVR_ATmega1284__) \

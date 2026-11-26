@@ -22,13 +22,13 @@
 #pragma once
 
 #define JOIN(A,B,C)         CAT(CAT(A, B), C)
-#define MENU_FONT_NAME      JOIN(FONT_FAMILY, _, FONT_SIZE)
-#define SYMBOLS_FONT_NAME   JOIN(FONT_FAMILY, _Symbols_, FONT_SIZE)
+#define TFT_MENU_FONT_NAME      JOIN(FONT_FAMILY, _, FONT_SIZE)
+#define TFT_SYMBOLS_FONT_NAME   JOIN(FONT_FAMILY, _Symbols_, FONT_SIZE)
 
-extern const uint8_t MENU_FONT_NAME[];
-extern const uint8_t SYMBOLS_FONT_NAME[];
+extern const uint8_t TFT_MENU_FONT_NAME[];
+extern const uint8_t TFT_SYMBOLS_FONT_NAME[];
 
 #ifdef FONT_EXTRA
-  #define EXTRA_FONT_NAME   JOIN(FONT_FAMILY, JOIN(_, FONT_EXTRA, _), FONT_SIZE)
-  extern const uint8_t EXTRA_FONT_NAME[];
+  #define TFT_EXTRA_FONT_NAME   JOIN(FONT_FAMILY, JOIN(_, FONT_EXTRA, _), FONT_SIZE)
+  extern const uint8_t TFT_EXTRA_FONT_NAME[];
 #endif

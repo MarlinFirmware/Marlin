@@ -75,4 +75,4 @@
 
 #include "../common/dwin_color.h"
 
-#define Color_Bg_Heading  0x3344  // Static Heading
+#define COLOR_BG_HEADING  0x3344  // Static Heading

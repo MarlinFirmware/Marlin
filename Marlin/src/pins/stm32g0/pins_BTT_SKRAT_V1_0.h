@@ -45,11 +45,8 @@
 //
 // EEPROM
 //
-#if ANY(NO_EEPROM_SELECTED, FLASH_EEPROM_EMULATION)
-  #undef NO_EEPROM_SELECTED
-  #ifndef FLASH_EEPROM_EMULATION
-    #define FLASH_EEPROM_EMULATION
-  #endif
+#if SHALL_USE_EEPROM(FLASH_EEPROM_EMULATION)
+  #define FLASH_EEPROM_EMULATION
   #define EEPROM_PAGE_SIZE                0x800U  // 2K
   #define EEPROM_START_ADDRESS (0x8000000UL + (STM32_FLASH_SIZE) * 1024UL - (EEPROM_PAGE_SIZE) * 2UL)
   #define MARLIN_EEPROM_SIZE    EEPROM_PAGE_SIZE  // 2K
@@ -266,18 +263,16 @@
   //
   // Software serial
   //
-  //#define X_SERIAL_TX_PIN                 PF10
-  //#define Y_SERIAL_TX_PIN                 PD4
-  //#define Z_SERIAL_TX_PIN                 PC8
-  //#define E0_SERIAL_TX_PIN                PD8
-  //#define E1_SERIAL_TX_PIN                PB11
+  #define X_SERIAL_TX_PIN                   PF10
+  #define Y_SERIAL_TX_PIN                   PD4
+  #define Z_SERIAL_TX_PIN                   PC8
+  #define E0_SERIAL_TX_PIN                  PD8
+  #define E1_SERIAL_TX_PIN                  PB11
 
   // Reduce baud rate to improve software serial reliability
-  //#ifndef TMC_BAUD_RATE
-  //  #define TMC_BAUD_RATE                19200
-  //#endif
-
-  #error "UART-based drivers are not supported on this board."
+  #ifndef TMC_BAUD_RATE
+    #define TMC_BAUD_RATE                  19200
+  #endif
 
 #endif
 

@@ -7,7 +7,29 @@ usage: linesformat.py [infile] [outfile]
 With no parameters convert STDIN to STDOUT
 """
 
-import sys, re, argparse
+import os, sys, re, argparse, subprocess, shutil
+
+# Keep in sync with PRETTIER_VERSION in the Makefile (which exports it)
+PRETTIER_VERSION = os.environ.get('PRETTIER_VERSION', '3.9.6')
+
+def apply_editorconfig_rules(path):
+    """
+    Recursively format a directory according to .editorconfig.
+    Uses the same prettier command and options as 'make validate-lines'
+    so that anything formatted here will also pass validation.
+    """
+    npx = shutil.which('npx')
+    if not npx:
+        sys.exit('Error: npx is required to format directories (install Node.js).')
+    cmd = [
+        npx, '--yes', f'prettier@{PRETTIER_VERSION}', '--write', path,
+        '--editorconfig', '--object-wrap', 'preserve', '--prose-wrap', 'never',
+        '--log-level', 'warn'
+    ]
+    logmsg('Running', ' '.join(cmd))
+    result = subprocess.run(cmd)
+    if result.returncode:
+        sys.exit(result.returncode)
 
 do_log = False
 def logmsg(msg, line):

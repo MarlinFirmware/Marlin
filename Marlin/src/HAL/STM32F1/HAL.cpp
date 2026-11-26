@@ -29,6 +29,10 @@
 #include "../../inc/MarlinConfig.h"
 #include "HAL.h"
 
+#if HAL_SD_HOST_DRIVE
+  #include "sd/msc_sd.h"
+#endif
+
 #include "adc.h"
 uint16_t adc_results[ADC_COUNT];
 
@@ -36,7 +40,7 @@ uint16_t adc_results[ADC_COUNT];
 // Serial ports
 // ------------------------
 
-#if defined(SERIAL_USB) && !HAS_SD_HOST_DRIVE
+#if defined(SERIAL_USB) && !HAL_SD_HOST_DRIVE
 
   USBSerial SerialUSB;
   DefaultSerial1 MSerial0(true, SerialUSB);
@@ -66,7 +70,7 @@ uint16_t adc_results[ADC_COUNT];
     }
   #endif
 
-#endif // SERIAL_USB && !HAS_SD_HOST_DRIVE
+#endif // SERIAL_USB && !HAL_SD_HOST_DRIVE
 
 // ------------------------
 // Watchdog Timer
@@ -248,7 +252,7 @@ void MarlinHAL::init() {
   #if PIN_EXISTS(LED)
     OUT_WRITE(LED_PIN, LOW);
   #endif
-  #if HAS_SD_HOST_DRIVE
+  #if HAL_SD_HOST_DRIVE
     MSC_SD_init();
   #elif ALL(SERIAL_USB, EMERGENCY_PARSER)
     usb_cdcacm_set_hooks(USB_CDCACM_HOOK_RX, my_rx_callback);
@@ -272,7 +276,7 @@ void MarlinHAL::idletask() {
      * the drive whenever Marlin has it mounted. LCDs should include an Unmount
      * command so drives can be released as needed.
      */
-    /* Copied from LPC1768 framework. Should be fixed later to process HAS_SD_HOST_DRIVE */
+    /* Copied from LPC1768 framework. Should be fixed later to process HAL_SD_HOST_DRIVE */
     //if (!drive_locked()) // TODO
     MarlinMSC.loop(); // Process USB mass storage device class loop
   #endif

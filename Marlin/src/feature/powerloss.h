@@ -85,7 +85,7 @@ typedef struct {
     xyz_pos_t workspace_offset;
   #endif
   #if HAS_MULTI_EXTRUDER
-    uint8_t active_extruder;
+    uint8_t extruder;
   #endif
 
   #if HAS_VOLUMETRIC_EXTRUSION
@@ -164,6 +164,10 @@ class PrintJobRecovery {
 
     #if HAS_PLR_UI_FLAG
       static bool ui_flag_resume;     //!< Flag the UI to show a dialog to Resume (M1000) or Cancel (M1000C)
+    #endif
+
+    #if ENABLED(CREALITY_RTS)
+      static bool recovery_flag;
     #endif
 
     static void init();

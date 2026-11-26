@@ -16,7 +16,7 @@ Run the following commands to extract and apply the configuration:
 ```
 $ git checkout -f
 $ unzip mc.zip
-$ python buildroot/share/PlatformIO/scripts/mc-apply.py
+$ python3 buildroot/share/PlatformIO/scripts/mc-apply.py
 ```
 
 This will attempt to update the configuration files to match the settings used for the original build. It will also dump the git reference used to build the code (which may be accessible if the firmware was built from the main repository. As a fallback it also includes the `STRING_DISTRIBUTION_DATE` which is unlikely to be modified in a fork).

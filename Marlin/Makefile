@@ -342,6 +342,8 @@ else ifeq ($(HARDWARE_MOTHERBOARD),1166)
 else ifeq ($(HARDWARE_MOTHERBOARD),1167)
 # E3D Rumba BigBox
 else ifeq ($(HARDWARE_MOTHERBOARD),1168)
+# PancakeBot (RAMPS 1.3 based)
+else ifeq ($(HARDWARE_MOTHERBOARD),1169)
 
 #
 # RAMBo and derivatives

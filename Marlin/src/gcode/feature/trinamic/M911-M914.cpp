@@ -273,6 +273,14 @@
     SERIAL_ECHOLNPGM(" stealthChop max speed: ", st.get_pwm_thrs());
   }
 
+  #if ENABLED(HOMING_HYBRID_THRESHOLD)
+    template<typename TMC>
+    static void tmc_print_homing_pwmthrs(TMC &st, const uint16_t thrs) {
+      st.printLabel();
+      SERIAL_ECHOLNPGM(" homing stealthChop max speed: ", thrs);
+    }
+  #endif
+
   /**
    * M913: Set HYBRID_THRESHOLD speed, aka PWM Threshold.
    *
@@ -291,11 +299,22 @@
    *   U<value>  - Set threshold for one or more U axis steppers
    *   V<value>  - Set threshold for one or more V axis steppers
    *   W<value>  - Set threshold for one or more W axis steppers
+   *
+   * With HOMING_HYBRID_THRESHOLD:
+   *   H         - Set or report the threshold used while homing an axis (no E).
+   *               A value of 0 keeps the stepper in stealthChop while homing.
    */
   void GcodeSuite::M913() {
-    #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
-    #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
-    #define TMC_SAY_PWMTHRS_E(E) tmc_print_pwmthrs(stepperE##E)
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      const bool homing = parser.seen_test('H');
+      #define TMC_SAY_PWMTHRS(A,Q) do{ if (homing) tmc_print_homing_pwmthrs(stepper##Q, homing_hybrid_thrs.Q); else tmc_print_pwmthrs(stepper##Q); }while(0)
+      #define TMC_SET_PWMTHRS(A,Q) do{ if (homing) homing_hybrid_thrs.Q = value; else stepper##Q.set_pwm_thrs(value); }while(0)
+    #else
+      constexpr bool homing = false;
+      #define TMC_SAY_PWMTHRS(A,Q) tmc_print_pwmthrs(stepper##Q)
+      #define TMC_SET_PWMTHRS(A,Q) stepper##Q.set_pwm_thrs(value)
+    #endif
+    #define TMC_SAY_PWMTHRS_E(E) do{ if (!homing) tmc_print_pwmthrs(stepperE##E); }while(0)
     #define TMC_SET_PWMTHRS_E(E) stepperE##E.set_pwm_thrs(value)
 
     bool report = true;
@@ -304,7 +323,9 @@
     #elif ANY(X_IS_TRINAMIC, Y_IS_TRINAMIC, Z_IS_TRINAMIC)
       constexpr uint8_t index = 0;
     #endif
-    LOOP_LOGICAL_AXES(i) if (int32_t value = parser.longval(AXIS_CHAR(i))) {
+    LOOP_LOGICAL_AXES(i) if (parser.seen(AXIS_CHAR(i))) {
+      const int32_t value = parser.value_long();
+      if (!value && !homing) continue; // A homing threshold of 0 is allowed
       report = false;
       switch (i) {
         #if X_HAS_STEALTHCHOP || X2_HAS_STEALTHCHOP
@@ -351,6 +372,7 @@
 
         #if E0_HAS_STEALTHCHOP || E1_HAS_STEALTHCHOP || E2_HAS_STEALTHCHOP || E3_HAS_STEALTHCHOP || E4_HAS_STEALTHCHOP || E5_HAS_STEALTHCHOP || E6_HAS_STEALTHCHOP || E7_HAS_STEALTHCHOP
           case E_AXIS: {
+            if (homing) break; // Extruders don't home
             const int8_t eindex = get_target_e_stepper_from_command(-2);
             TERN_(E0_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 0) TMC_SET_PWMTHRS_E(0));
             TERN_(E1_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 1) TMC_SET_PWMTHRS_E(1));
@@ -361,7 +383,7 @@
             TERN_(E6_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 6) TMC_SET_PWMTHRS_E(6));
             TERN_(E7_HAS_STEALTHCHOP, if (eindex < 0 || eindex == 7) TMC_SET_PWMTHRS_E(7));
           } break;
-        #endif // E_STEPPERS
+        #endif // E*_HAS_STEALTHCHOP
       }
     }
 
@@ -433,6 +455,39 @@
       say_M913(forReplay);
       SERIAL_ECHOLNPGM(" I4 Z", stepperZ4.get_pwm_thrs());
     #endif
+
+    #if ENABLED(HOMING_HYBRID_THRESHOLD)
+      #if ANY(X_HAS_STEALTHCHOP, Y_HAS_STEALTHCHOP, Z_HAS_STEALTHCHOP, I_HAS_STEALTHCHOP, J_HAS_STEALTHCHOP, K_HAS_STEALTHCHOP, U_HAS_STEALTHCHOP, V_HAS_STEALTHCHOP, W_HAS_STEALTHCHOP)
+        say_M913(forReplay);
+        SERIAL_ECHOPGM(" H");
+        TERN_(X_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_X_STR, homing_hybrid_thrs.X));
+        TERN_(Y_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_Y_STR, homing_hybrid_thrs.Y));
+        TERN_(Z_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_Z_STR, homing_hybrid_thrs.Z));
+        TERN_(I_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_I_STR, homing_hybrid_thrs.I));
+        TERN_(J_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_J_STR, homing_hybrid_thrs.J));
+        TERN_(K_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_K_STR, homing_hybrid_thrs.K));
+        TERN_(U_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_U_STR, homing_hybrid_thrs.U));
+        TERN_(V_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_V_STR, homing_hybrid_thrs.V));
+        TERN_(W_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_W_STR, homing_hybrid_thrs.W));
+        SERIAL_EOL();
+      #endif
+      #if X2_HAS_STEALTHCHOP || Y2_HAS_STEALTHCHOP || Z2_HAS_STEALTHCHOP
+        say_M913(forReplay);
+        SERIAL_ECHOPGM(" H I2");
+        TERN_(X2_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_X_STR, homing_hybrid_thrs.X2));
+        TERN_(Y2_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_Y_STR, homing_hybrid_thrs.Y2));
+        TERN_(Z2_HAS_STEALTHCHOP, SERIAL_ECHOPGM_P(SP_Z_STR, homing_hybrid_thrs.Z2));
+        SERIAL_EOL();
+      #endif
+      #if Z3_HAS_STEALTHCHOP
+        say_M913(forReplay);
+        SERIAL_ECHOLNPGM(" H I3 Z", homing_hybrid_thrs.Z3);
+      #endif
+      #if Z4_HAS_STEALTHCHOP
+        say_M913(forReplay);
+        SERIAL_ECHOLNPGM(" H I4 Z", homing_hybrid_thrs.Z4);
+      #endif
+    #endif // HOMING_HYBRID_THRESHOLD
 
     #if E0_HAS_STEALTHCHOP
       say_M913(forReplay);

@@ -22,6 +22,13 @@
 #pragma once
 #include <core_util.h>
 
+/**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef PA0
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h and/or 'buildroot/share/PlatformIO/variants/*/variant.h' to define the pins."
+#endif
+
 #if !defined(ARDUINO_CORE_VERSION_INT) || !defined(GET_VERSION_INT)
   // version macros were introduced in arduino core version 1.1.0
   // below that version, we polyfill them
@@ -57,6 +64,10 @@
   #endif
 
   #error "SDCARD_EEPROM_EMULATION requires SDSUPPORT. Enable SDSUPPORT or choose another EEPROM emulation."
+#endif
+
+#if ENABLED(FLASH_EEPROM_EMULATION) && !defined(HC32_FLASH_SIZE)
+  #error "FLASH_EEPROM_EMULATION requires HC32_FLASH_SIZE (in KB). Use an HC32F460C or HC32F460E environment."
 #endif
 
 #if ENABLED(SERIAL_STATS_MAX_RX_QUEUED)

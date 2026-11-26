@@ -46,8 +46,8 @@ struct filepos_t {
   filepos_t() : position(0), cluster(0) {}
 };
 
-// Avoid conflict with RP2040 / newlib fcntl.h
-#ifdef __PLAT_RP2040__
+// Avoid conflict with RP2040 / ESP32 newlib fcntl.h
+#if defined(__PLAT_RP2040__) || defined(ARDUINO_ARCH_ESP32)
   #undef O_RDONLY
   #undef O_WRONLY
   #undef O_RDWR
@@ -394,10 +394,10 @@ class SdBaseFile {
   int8_t lsPrintNext(const uint8_t flags, const uint8_t indent);
   static bool make83Name(const char *str, uint8_t * const name, const char **ptr);
   bool mkdir(SdBaseFile * const parent, const uint8_t dname[11]
-    OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+    OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_BYTES])
   );
   bool open(SdBaseFile *dirFile, const uint8_t dname[11]
-      OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_LENGTH])
+      OPTARG(LONG_FILENAME_WRITE_SUPPORT, const uint8_t dlname[LONG_FILENAME_BYTES])
     , const uint8_t oflag
   );
   bool openCachedEntry(const uint8_t dirIndex, const uint8_t oflags);

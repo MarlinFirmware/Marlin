@@ -247,13 +247,13 @@
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<units> Y<units> Z<units> (Requires MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, or AUTO_BED_LEVELING_UBL)
  * M422 - Set Z Stepper automatic alignment position using probe. X<units> Y<units> A<axis> (Requires Z_STEPPER_AUTO_ALIGN)
  * M425 - Enable/Disable and tune backlash correction. (Requires BACKLASH_COMPENSATION and BACKLASH_GCODE)
- * M428 - Set the home_offset based on the current_position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
+ * M428 - Set the home_offset based on the position. Nearest edge applies. (Disabled by NO_WORKSPACE_OFFSETS or DELTA)
  * M430 - Read the system current, voltage, and power (Requires POWER_MONITOR_CURRENT, POWER_MONITOR_VOLTAGE, or POWER_MONITOR_FIXED_VOLTAGE)
  * M485 - Send RS485 packets (Requires RS485_SERIAL_PORT)
  * M486 - Identify and cancel objects. (Requires CANCEL_OBJECTS)
  * M493 - Set / Report input FT Motion/Shaping parameters. (Requires FT_MOTION)
- * M495 - Set / Start resonance test. (Requires FTM_RESONANCE_TEST)
- * M496 - Abort resonance test. (Requires FTM_RESONANCE_TEST)
+ * M495 - Set / Start resonance test. (Requires RESONANCE_TEST)
+ * M496 - Abort resonance test. (Requires RESONANCE_TEST)
  * M500 - Store parameters in EEPROM. (Requires EEPROM_SETTINGS)
  * M501 - Restore parameters from EEPROM. (Requires EEPROM_SETTINGS)
  * M502 - Revert to the default "factory settings". ** Does not write them to EEPROM! **
@@ -270,18 +270,30 @@
  * M554 - Set / Report IP gateway. (Requires enabled Ethernet port)
  * M569 - Enable stealthChop on an axis. (Requires *_DRIVER_TYPE TMC(2130|2160|2208|2209|2240|5130|5160))
  * M575 - Change the serial baud rate. (Requires BAUD_RATE_GCODE)
+ * M587 - Set / Report MKS WiFi network. 'U' to update the module firmware. (Requires MKS_WIFI_MODULE)
  * M592 - Set / Report Nonlinear Extrusion parameters. (Requires NONLINEAR_EXTRUSION)
  * M593 - Set / Report input shaping parameters. (Requires INPUT_SHAPING_[XY])
  * M600 - Pause for filament change: 'M600 X<pos> Y<pos> Z<raise> E<first_retract> L<later_retract>'. (Requires ADVANCED_PAUSE_FEATURE)
  * M603 - Configure filament change: 'M603 T<tool> U<unload_length> L<load_length>'. (Requires ADVANCED_PAUSE_FEATURE)
  * M605 - Set Dual X-Carriage movement mode: 'M605 S<mode> [X<x_offset>] [R<temp_offset>]'. (Requires DUAL_X_CARRIAGE)
  * M665 - Set Delta configurations: 'M665 H<delta height> L<diagonal rod> R<delta radius> S<segments/s> B<calibration radius> X<Alpha angle trim> Y<Beta angle trim> Z<Gamma angle trim>' (Requires DELTA)
- *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires MORGAN_SCARA or MP_SCARA)
+ *        Set SCARA configurations: 'M665 S<segments-per-second> P<theta-psi-offset> T<theta-offset> Z<z-offset>' (Requires SCARA)
  *        Set Polargraph draw area and belt length: 'M665 S<segments-per-second> L<draw-area-left> R<draw-area-right> T<draw-area-top> B<draw-area-bottom> H<max-belt-length>'
  * M666 - Set / Report offsets for delta (Requires DELTA) or dual endstops. (Requires [XYZ]_DUAL_ENDSTOPS)
  * M672 - Set/Reset Duet Smart Effector's sensitivity. (Requires DUET_SMART_EFFECTOR and SMART_EFFECTOR_MOD_PIN)
  * M701 - Load filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
  * M702 - Unload filament (Requires FILAMENT_LOAD_UNLOAD_GCODES)
+ *
+ *** DGUS_LCD_UI SERMOON_V1 / CREALITY_RTS ***
+ * M72   - Set Cloud Print filename. (Requires DGUS_LCD_UI SERMOON_V1 or CREALITY_RTS)
+ * M79   - Cloud Print. S0:connect; S1:start; S2:pause; S3:resume; S4:stop; S5:complete (Requires DGUS_LCD_UI SERMOON_V1)
+ * M79   - Creality Cloud WiFi board print status. (Requires CREALITY_RTS)
+ * M224  - LED On (Requires CREALITY_RTS)
+ * M225  - LED Off (Requires CREALITY_RTS)
+ * M2900 - Report Bed Leveling Grid and test result (Requires CREALITY_RTS)
+ *
+ * M194 - Wi-Fi Reset (Requires MENU_RESET_WIFI)
+ * M930 - Wi-Fi ON/OFF status (Requires CREALITY_WIFI)
  *
  *** PRUSA_MMU3 ***
  * M704 - Preload to MMU
@@ -326,15 +338,16 @@
  * M920 - Set Homing Current. (Requires distinct *_CURRENT_HOME settings)
  * M936 - OTA update firmware. (Requires OTA_FIRMWARE_UPDATE)
  * M951 - Set Magnetic Parking Extruder parameters. (Requires MAGNETIC_PARKING_EXTRUDER)
+ * M960 - Report CAN bus state. List CAN nodes running Klipper or Katapult. (Requires CAN_BUS)
  * M3426 - Read MCP3426 ADC over I2C. (Requires HAS_MCP3426_ADC)
  * M7219 - Control Max7219 Matrix LEDs. (Requires MAX7219_GCODE)
  *
  *** SCARA ***
- * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
- * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
- * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration)
- * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
- * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+ * M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration) (Requires SCARA_CALIBRATION)
+ * M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree) (Requires SCARA_CALIBRATION)
+ * M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position) (Requires SCARA_CALIBRATION)
  *
  *** Custom codes (can be changed to suit future G-code standards) ***
  * G425 - Calibrate using a conductive object. (Requires CALIBRATION_GCODE)
@@ -344,6 +357,7 @@
  * M995 - Touch screen calibration for TFT display
  * M997 - Perform in-application firmware update
  * M999 - Restart after being stopped by error
+ * M7422 - Dump the Creality v4.2.x bootloader info page. (Requires CREALITY_BOOTLOADER_INFO_DUMP)
  *
  * D... - Custom Development G-code. Add hooks to "gcode_D.cpp" for developers to test features. (Requires MARLIN_DEV_MODE)
  *        D576 - Set buffer monitoring options. (Requires BUFFER_MONITORING)
@@ -730,6 +744,10 @@ private:
     static void M48();
   #endif
 
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+    static void M72();
+  #endif
+
   #if ENABLED(SET_PROGRESS_MANUALLY)
     static void M73();
   #endif
@@ -740,6 +758,10 @@ private:
 
   #if ENABLED(PRINTCOUNTER)
     static void M78();
+  #endif
+
+  #if DGUS_LCD_UI_SERMOON_V1 || ALL(CREALITY_RTS, HAS_MEDIA)
+    static void M79();
   #endif
 
   #if ENABLED(PSU_CONTROL)
@@ -890,6 +912,10 @@ private:
     #endif
   #endif
 
+  #if ENABLED(MENU_RESET_WIFI)
+    static void M194();
+  #endif
+
   #if HAS_VOLUMETRIC_EXTRUSION
     static void M200();
     static void M200_report(const bool forReplay=true);
@@ -948,6 +974,11 @@ private:
 
   #if HAS_EXTRUDERS
     static void M221();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M224();
+    static void M225();
   #endif
 
   #if ENABLED(DIRECT_PIN_CONTROL)
@@ -1050,7 +1081,7 @@ private:
     static void M360();
   #endif
 
-  #if ENABLED(MORGAN_SCARA)
+  #if ENABLED(SCARA_CALIBRATION)
     static bool M360();
     static bool M361();
     static bool M362();
@@ -1124,11 +1155,12 @@ private:
     static void M493_report(const bool forReplay=true);
     static void M494();
     static void M494_report(const bool forReplay=true);
-    #if ENABLED(FTM_RESONANCE_TEST)
+  #endif
+
+  #if ENABLED(RESONANCE_TEST)
       static void M495();
       static void M495_report(const bool forReplay=true);
       static void M496();
-    #endif
   #endif
 
   static void M500();
@@ -1179,6 +1211,11 @@ private:
 
   #if ENABLED(BAUD_RATE_GCODE)
     static void M575();
+  #endif
+
+  #if ENABLED(MKS_WIFI_MODULE)
+    static void M587();
+    static void M587_report(const bool forReplay=true);
   #endif
 
   #if ENABLED(NONLINEAR_EXTRUSION)
@@ -1313,12 +1350,20 @@ private:
     static void M928();
   #endif
 
+  #if ENABLED(CREALITY_WIFI)
+    static void M930();
+  #endif
+
   #if ENABLED(OTA_FIRMWARE_UPDATE)
     static void M936();
   #endif
 
   #if ENABLED(MAGNETIC_PARKING_EXTRUDER)
     static void M951();
+  #endif
+
+  #if ENABLED(CAN_BUS)
+    static void M960();
   #endif
 
   #if ENABLED(TOUCH_SCREEN_CALIBRATION)
@@ -1328,6 +1373,10 @@ private:
   #if SPI_FLASH_BACKUP
     static void M993();
     static void M994();
+  #endif
+
+  #if ENABLED(CREALITY_BOOTLOADER_INFO_DUMP)
+    static void M7422();
   #endif
 
   #if ENABLED(PLATFORM_M997_SUPPORT)
@@ -1361,6 +1410,10 @@ private:
 
   #if ENABLED(UBL_MESH_WIZARD)
     static void M1004();
+  #endif
+
+  #if ENABLED(CREALITY_RTS)
+    static void M2900();
   #endif
 
   #if ENABLED(HAS_MCP3426_ADC)

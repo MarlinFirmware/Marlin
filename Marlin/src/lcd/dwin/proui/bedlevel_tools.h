@@ -42,8 +42,6 @@
  */
 #pragma once
 
-#include "../../../inc/MarlinConfigPre.h"
-
 class BedLevelTools {
 public:
   #if USE_GRID_MESHVIEWER

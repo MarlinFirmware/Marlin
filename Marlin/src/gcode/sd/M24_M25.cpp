@@ -28,6 +28,14 @@
 #include "../../sd/cardreader.h"
 #include "../../module/printcounter.h"
 #include "../../lcd/marlinui.h"
+#if ENABLED(EXTENSIBLE_UI)
+  #include "../../lcd/extui/ui_api.h"
+#endif
+#include "../../module/temperature.h"
+
+#if ENABLED(CREALITY_RTS)
+  #include "../../lcd/rts/lcd_rts.h"
+#endif
 
 #if ENABLED(PARK_HEAD_ON_PAUSE)
   #include "../../feature/pause.h"
@@ -45,6 +53,12 @@
   #include "../../lcd/extui/dgus/DGUSDisplayDef.h"
 #endif
 
+#include "../../MarlinCore.h" // for startOrResumeJob
+
+#if DISABLED(PARK_HEAD_ON_PAUSE) && ENABLED(HEATER_IDLE_HANDLER) && PAUSE_PARK_NOZZLE_TIMEOUT
+  #define MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT 1
+#endif
+
 /**
  * M24: Start or Resume Media Print
  *
@@ -54,6 +68,18 @@
  *     T<time>  Elapsed time since start of print
  */
 void GcodeSuite::M24() {
+  // A UI that parked the nozzle on pause may need to unpark first
+  if (TERN0(EXTENSIBLE_UI, ExtUI::onResumeRequest())) return;
+
+  #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
+    // Re-enable any timed-out heaters
+    HOTEND_LOOP() thermalManager.reset_hotend_idle_timer(e);
+    HOTEND_LOOP() thermalManager.wait_for_hotend(e);
+  #endif
+
+  #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+    Fan::all_resume();
+  #endif
 
   #if DGUS_LCD_UI_MKS
     if ((print_job_timer.isPaused() || print_job_timer.isRunning()) && !parser.seen("ST"))
@@ -66,7 +92,7 @@ void GcodeSuite::M24() {
   #endif
 
   #if ENABLED(PARK_HEAD_ON_PAUSE)
-    if (did_pause_print) {
+    if (paused_for_filament_change) {
       resume_print(); // will call print_job_timer.start()
       return;
     }
@@ -86,6 +112,8 @@ void GcodeSuite::M24() {
   #endif
 
   ui.reset_status();
+
+  TERN_(CREALITY_RTS, RTS_PrintStartedSD());
 }
 
 /**
@@ -121,6 +149,16 @@ void GcodeSuite::M25() {
       #ifdef ACTION_ON_PAUSE
         hostui.pause();
       #endif
+    #endif
+
+    #if ALL(ADVANCED_PAUSE_FANS_PAUSE, HAS_FAN)
+      Fan::all_pause();
+    #endif
+
+    #if MEDIA_PAUSE_PARK_NOZZLE_TIMEOUT
+      // Start the heater idle timers
+      constexpr millis_t nozzle_timeout_ms = SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT);
+      HOTEND_LOOP() thermalManager.heater_idle[e].start(nozzle_timeout_ms);
     #endif
 
   #endif

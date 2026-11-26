@@ -21,12 +21,21 @@
  */
 #pragma once
 
-#if HAS_SPI_TFT || HAS_FSMC_TFT
-  #error "Sorry! TFT displays are not available for HAL/ESP32."
+#if HAS_FSMC_TFT
+  #error "Sorry! FSMC TFT displays are not available for HAL/ESP32."
 #endif
 
-#if ENABLED(EMERGENCY_PARSER)
-  #error "EMERGENCY_PARSER is not yet implemented for ESP32. Disable EMERGENCY_PARSER to continue."
+#if ENABLED(EMERGENCY_PARSER) && RX_BUFFER_SIZE < 2
+  #error "EMERGENCY_PARSER on ESP32 requires an RX_BUFFER_SIZE of 2 or more."
+#endif
+
+// Software SPI can't drive pins that the SD card's hardware SPI has taken over
+#if HAS_MEDIA && NONE(SOFTWARE_SPI, TEMP_SENSOR_FORCE_HW_SPI)
+  #define _MAX_TC_ON_SD_PINS(N) (TEMP_SENSOR_##N##_HAS_SPI_PINS && (TEMP_##N##_SCK_PIN == SD_SCK_PIN || TEMP_##N##_MISO_PIN == SD_MISO_PIN || TEMP_##N##_MOSI_PIN == SD_MOSI_PIN))
+  #if _MAX_TC_ON_SD_PINS(0) || _MAX_TC_ON_SD_PINS(1) || _MAX_TC_ON_SD_PINS(2) || _MAX_TC_ON_SD_PINS(BED)
+    #error "A MAX thermocouple using software SPI can't share pins with the SD card. Define only its CS pin, or enable TEMP_SENSOR_FORCE_HW_SPI."
+  #endif
+  #undef _MAX_TC_ON_SD_PINS
 #endif
 
 #if ENABLED(SPINDLE_LASER_USE_PWM) && SPINDLE_LASER_FREQUENCY > 78125
@@ -38,10 +47,6 @@
 
 #if HAS_TMC_SW_SERIAL
   #error "TMC220x Software Serial is not supported on ESP32."
-#endif
-
-#if ALL(WIFISUPPORT, ESP3D_WIFISUPPORT)
-  #error "Only enable one WiFi option, either WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif
 
 #if ENABLED(POSTMORTEM_DEBUGGING)
@@ -62,4 +67,50 @@
 
 #if ALL(I2S_STEPPER_STREAM, PRINTCOUNTER) && PRINTCOUNTER_SAVE_INTERVAL > 0 && DISABLED(PRINTCOUNTER_SYNC)
   #error "PRINTCOUNTER_SAVE_INTERVAL may cause issues on ESP32 with an I2S expander. Define PRINTCOUNTER_SYNC in Configuration.h for an imperfect solution."
+#endif
+
+#if ENABLED(BLUETOOTH)
+  #error "BLUETOOTH is for AT90USB. On ESP32 set SERIAL_PORT, SERIAL_PORT_2 or SERIAL_PORT_3 to -2 for Bluetooth."
+#elif HAS_BLUETOOTH_SERIAL && !ESP32_CLASSIC
+  #error "Bluetooth (-2) requires the original ESP32. Other ESP32 chips have no Bluetooth Classic."
+#elif HAS_BLUETOOTH_SERIAL && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "ESP32 doesn't have enough RAM for Bluetooth (-2) together with WIFISUPPORT or ESP3D_WIFISUPPORT."
+#endif
+
+#if HAS_BLUETOOTH_SERIAL && __has_include(<core_version.h>)
+  #include <core_version.h>
+  // Before 1.0.6, BluetoothSerial stops sending for good if a host disconnects while the link is congested
+  #if defined(ARDUINO_ESP32_RELEASE_1_0_0) || defined(ARDUINO_ESP32_RELEASE_1_0_1) || defined(ARDUINO_ESP32_RELEASE_1_0_2) \
+   || defined(ARDUINO_ESP32_RELEASE_1_0_3) || defined(ARDUINO_ESP32_RELEASE_1_0_4) || defined(ARDUINO_ESP32_RELEASE_1_0_5)
+    #error "Bluetooth (-2) requires arduino-esp32 1.0.6 or newer. Use an environment with a newer espressif32 platform."
+  #endif
+#endif
+
+#if ENABLED(I2S_STEPPER_SPLIT_STREAM) && !ESP32_CLASSIC
+  #error "I2S_STEPPER_SPLIT_STREAM is only available on the original ESP32."
+#elif ENABLED(I2S_STEPPER_STREAM) && !ESP32_CLASSIC && !(defined(I2S_WS) && defined(I2S_BCK) && defined(I2S_DATA))
+  #error "I2S_STEPPER_STREAM requires I2S_WS, I2S_BCK and I2S_DATA."
+#endif
+
+#if MB(ESPRESSIF_ESP32S3) && !CONFIG_IDF_TARGET_ESP32S3
+  #error "BOARD_ESPRESSIF_ESP32S3 requires an ESP32-S3 environment (env:esp32s3_idf4)."
+#elif MB(ESPRESSIF_ESP32S2) && !CONFIG_IDF_TARGET_ESP32S2
+  #error "BOARD_ESPRESSIF_ESP32S2 requires an ESP32-S2 environment (env:esp32s2_idf4)."
+#endif
+
+#if CONFIG_IDF_TARGET_ESP32S2
+  // The ESP32-S2 has two UARTs
+  #if SERIAL_PORT == 2 || SERIAL_PORT_2 == 2 || SERIAL_PORT_3 == 2 || LCD_SERIAL_PORT == 2 || defined(HARDWARE_SERIAL2_RX)
+    #error "The ESP32-S2 has no UART2. Use serial port 0, -1 (native USB) or -3 (WiFi)."
+  #elif HAS_NATIVE_USB_SERIAL && ARDUINO_USB_CDC_ON_BOOT
+    #error "Serial port -1 requires ARDUINO_USB_CDC_ON_BOOT=0 on the ESP32-S2."
+  #endif
+#endif
+
+#if !(CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3) && SERIAL_PORT_2 == -1 && ANY(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "The WiFi serial port is now -3 (e.g., SERIAL_PORT_2 -3). Serial port -1 is the native USB port (ESP32-S2 and ESP32-S3 only)."
+#elif !(CONFIG_IDF_TARGET_ESP32S2 || CONFIG_IDF_TARGET_ESP32S3) && (SERIAL_PORT == -1 || SERIAL_PORT_2 == -1 || SERIAL_PORT_3 == -1)
+  #error "Serial port -1 (native USB) requires an ESP32-S2 or ESP32-S3."
+#elif (SERIAL_PORT == -3 || SERIAL_PORT_2 == -3 || SERIAL_PORT_3 == -3) && NONE(WIFISUPPORT, ESP3D_WIFISUPPORT)
+  #error "Serial port -3 (WiFi) requires WIFISUPPORT or ESP3D_WIFISUPPORT."
 #endif

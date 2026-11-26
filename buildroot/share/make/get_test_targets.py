@@ -1,7 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Extract the builds used in GitHub CI, so that we can run them locally
 """
+
 import yaml
 
 # Set the yaml file to parse

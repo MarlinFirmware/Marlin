@@ -25,9 +25,10 @@
  * temperature.h - temperature controller
  */
 
-#include "thermistor/thermistors.h"
-
 #include "../inc/MarlinConfig.h"
+
+#include "thermistor/thermistors.h"
+#include "fans.h"
 
 #if ENABLED(AUTO_POWER_CONTROL)
   #include "../feature/power.h"
@@ -404,6 +405,9 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
       void applyFanAdjustment(const float) {}
     #endif
     float fanCoefficient() { return SUM_TERN(MPC_INCLUDE_FAN, ambient_xfer_coeff_fan0, fan255_adjustment); }
+    // Zero, negative, NaN or infinite values give NaN or infinite heater output
+    static bool isFinitePositive(const float v) { return v > 0 && !isinf(v); }
+    bool isValid() const { return isFinitePositive(heater_power) && isFinitePositive(block_heat_capacity) && isFinitePositive(sensor_responsiveness); }
   } MPC_t;
 
   #define MPC_dT ((OVERSAMPLENR * float(ACTUAL_ADC_SAMPLES)) / (TEMP_TIMER_FREQUENCY))
@@ -418,14 +422,22 @@ typedef struct { float p, i, d, c, f; } raw_pidcf_t;
 typedef struct TempInfo {
   private:
     raw_adc_t acc;
-    raw_adc_t raw;
+    volatile raw_adc_t raw;
   public:
     celsius_float_t celsius;
     inline void reset() { acc = 0; }
     inline void sample(const raw_adc_t s) { acc += s; }
     inline void update() { raw = acc; }
     void setraw(const raw_adc_t r) { raw = r; }
-    raw_adc_t getraw() const { return raw; }
+    raw_adc_t getraw() const {
+      #ifndef CPU_32_BIT
+        raw_adc_t r1, r2;
+        do { r1 = raw; r2 = raw; } while (r1 != r2);
+        return r1;
+      #else
+        return raw;
+      #endif
+    }
 } temp_info_t;
 
 #if HAS_TEMP_REDUNDANT
@@ -439,6 +451,33 @@ typedef struct TempInfo {
 typedef struct HeaterInfo : public TempInfo {
   celsius_t target;
   uint8_t soft_pwm_amount;
+
+  /**
+   * Remember when the heater came into range of its target, so that waits and heat soaks
+   * can count the time it has already spent there. Times are whole seconds (wrapping) to save RAM.
+   *   - Timing starts when the temperature comes within 'band' of the target.
+   *   - It stops when the target changes, or the temperature goes farther than 'leave' from it.
+   */
+  uint16_t in_range_sec;        // Second when the heater came into range. 0 if not in range.
+  celsius_t in_range_target;    // The target that it came into range of
+
+  // Called regularly with the current time in seconds
+  void track_range(const uint16_t sec, const celsius_float_t band, const celsius_float_t leave) {
+    const celsius_float_t diff = ABS(celsius - float(target));
+    if (!target || (in_range_sec && (in_range_target != target || diff > leave)))
+      in_range_sec = 0;
+    else if (in_range_sec && uint16_t(sec - in_range_sec) >= 0x8000)
+      in_range_sec = uint16_t(sec - 0x7FFF) ?: 1;   // Keep a very long time from wrapping around
+    if (!in_range_sec && target && diff <= band) {
+      in_range_sec = sec ?: 1;                      // Zero means "not in range"
+      in_range_target = target;
+    }
+  }
+  bool is_in_range() const { return in_range_sec && in_range_target == target; }
+  // Whole seconds that the heater has been in range
+  uint16_t secs_in_range(const uint16_t sec) const { return is_in_range() ? uint16_t(sec - in_range_sec) : 0; }
+  // In range, and for more than 'secs' seconds (so at least that long, given the one-second steps)
+  bool settled(const uint16_t sec, const uint16_t secs) const { return is_in_range() && (!secs || secs_in_range(sec) > secs); }
   bool is_below_target(const celsius_t offs=0) const { return (target - celsius > offs); } // celsius < target - offs
   bool is_above_target(const celsius_t offs=0) const { return (celsius - target > offs); } // celsius > target + offs
   #if ENABLED(PELTIER_BED)
@@ -458,6 +497,7 @@ struct PIDHeaterInfo : public HeaterInfo {
     float modeled_ambient_temp,
           modeled_block_temp,
           modeled_sensor_temp;
+    uint8_t clipped_count;              // Consecutive updates with the output power clipped
     float fanCoefficient() { return mpc.fanCoefficient(); }
     void applyFanAdjustment(const float cf) { mpc.applyFanAdjustment(cf); }
   };
@@ -509,27 +549,25 @@ struct HeaterWatch {
 
   inline bool check(const celsius_t curr) { return curr >= target; }
 
-  inline void restart(const celsius_t curr, const celsius_t tgt) {
-    if (tgt) {
-      const celsius_t newtarget = curr + INCREASE;
-      if (newtarget < tgt - HYSTERESIS - 1) {
-        target = newtarget;
-        next_ms = millis() + SEC_TO_MS(PERIOD);
-        return;
-      }
+  // Keep watching until within HYSTERESIS of the target, where thermal runaway protection takes over
+  inline void restart(const celsius_t curr, const celsius_t tgt, const millis_t now=millis()) {
+    if (tgt && curr < tgt - HYSTERESIS) {
+      target = _MIN(curr + INCREASE, tgt - HYSTERESIS);
+      next_ms = next_millis(now + SEC_TO_MS(PERIOD));
     }
-    next_ms = 0;
+    else
+      next_ms = 0;
   }
 };
 
 #if WATCH_HOTENDS
-  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, TEMP_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
+  typedef struct HeaterWatch<WATCH_TEMP_INCREASE, THERMAL_PROTECTION_HYSTERESIS, WATCH_TEMP_PERIOD> hotend_watch_t;
 #endif
 #if WATCH_BED
-  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, TEMP_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
+  typedef struct HeaterWatch<WATCH_BED_TEMP_INCREASE, THERMAL_PROTECTION_BED_HYSTERESIS, WATCH_BED_TEMP_PERIOD> bed_watch_t;
 #endif
 #if WATCH_CHAMBER
-  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, TEMP_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
+  typedef struct HeaterWatch<WATCH_CHAMBER_TEMP_INCREASE, THERMAL_PROTECTION_CHAMBER_HYSTERESIS, WATCH_CHAMBER_TEMP_PERIOD> chamber_watch_t;
 #endif
 #if WATCH_COOLER
   typedef struct HeaterWatch<WATCH_COOLER_TEMP_INCREASE, TEMP_COOLER_HYSTERESIS, WATCH_COOLER_TEMP_PERIOD> cooler_watch_t;
@@ -638,8 +676,16 @@ typedef struct { raw_adc_t raw_min, raw_max; celsius_t mintemp, maxtemp; } temp_
 
 #endif // AUTOTEMP
 
-class Temperature {
+#if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+  #if HAS_HOTEND && !defined(LEVELING_NOZZLE_TEMP)
+    #define LEVELING_NOZZLE_TEMP 0
+  #endif
+  #if HAS_HEATED_BED && !defined(LEVELING_BED_TEMP)
+    #define LEVELING_BED_TEMP 0
+  #endif
+#endif
 
+class Temperature {
   public:
 
     #if HAS_HOTEND
@@ -678,15 +724,6 @@ class Temperature {
     #endif
     #if ENABLED(AUTO_POWER_COOLER_FAN)
       static uint8_t coolerfan_speed;
-    #endif
-
-    #if ENABLED(FAN_SOFT_PWM)
-      static uint8_t soft_pwm_amount_fan[FAN_COUNT],
-                     soft_pwm_count_fan[FAN_COUNT];
-    #endif
-
-    #if ALL(FAN_SOFT_PWM, USE_CONTROLLER_FAN)
-      static uint8_t soft_pwm_controllerfan_speed;
     #endif
 
     #if ALL(HAS_MARLINUI_MENU, PREVENT_COLD_EXTRUSION) && E_MANUAL > 0
@@ -730,7 +767,7 @@ class Temperature {
         millis_t timeout_ms;
         bool timed_out;
         inline void update(const millis_t &ms) { if (!timed_out && timeout_ms && ELAPSED(ms, timeout_ms)) timed_out = true; }
-        inline void start(const millis_t &ms) { timeout_ms = millis() + ms; timed_out = false; }
+        inline void start(const millis_t &ms) { timeout_ms = next_millis(millis() + ms); timed_out = false; }
         inline void reset() { timeout_ms = 0; timed_out = false; }
         inline void expire() { start(0); }
       } heater_idle_t;
@@ -756,7 +793,7 @@ class Temperature {
 
       static heater_idle_t heater_idle[NR_HEATER_IDLE];
 
-    #endif // HEATER_IDLE_TIMER
+    #endif // HEATER_IDLE_HANDLER
 
     #if HAS_ADC_BUTTONS
       static uint32_t current_ADCKey_raw;
@@ -826,7 +863,7 @@ class Temperature {
       static millis_t fan_update_ms;
 
       static void manage_extruder_fans(millis_t ms) {
-        if (ELAPSED(ms, fan_update_ms)) { // only need to check fan state very infrequently
+        if (ELAPSED(ms, fan_update_ms)) { // Only need to check fan state very infrequently
           const millis_t next_ms = ms + fan_update_interval_ms;
           #if HAS_PWMFANCHECK
             #define FAN_CHECK_DURATION 100
@@ -916,48 +953,13 @@ class Temperature {
     #endif
 
     #if HAS_FAN
-
-      static uint8_t fan_speed[FAN_COUNT];
-      #define FANS_LOOP(I) for (uint8_t I = 0; I < FAN_COUNT; ++I)
-
       static void set_fan_speed(const uint8_t fan, const uint16_t speed);
-
       #if ENABLED(REPORT_FAN_CHANGE)
         static void report_fan_speed(const uint8_t fan);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        static bool fans_paused;
-        static uint8_t saved_fan_speed[FAN_COUNT];
-      #endif
-
-      #if ENABLED(ADAPTIVE_FAN_SLOWING)
-        static uint8_t fan_speed_scaler[FAN_COUNT];
-      #endif
-
-      static uint8_t scaledFanSpeed(const uint8_t fan, const uint8_t fs) {
-        UNUSED(fan); // Potentially unused!
-        return (fs * uint16_t(TERN(ADAPTIVE_FAN_SLOWING, fan_speed_scaler[fan], 128))) >> 7;
-      }
-
-      static uint8_t scaledFanSpeed(const uint8_t fan) {
-        return scaledFanSpeed(fan, fan_speed[fan]);
-      }
-
-      static constexpr inline uint8_t pwmToPercent(const uint8_t speed) { return ui8_to_percent(speed); }
-      static uint8_t fanSpeedPercent(const uint8_t fan)          { return ui8_to_percent(fan_speed[fan]); }
-      static uint8_t scaledFanSpeedPercent(const uint8_t fan)    { return ui8_to_percent(scaledFanSpeed(fan)); }
-
       #if ENABLED(EXTRA_FAN_SPEED)
-        typedef struct { uint8_t saved, speed; } extra_fan_t;
-        static extra_fan_t extra_fan_speed[FAN_COUNT];
         static void set_temp_fan_speed(const uint8_t fan, const uint16_t command_or_speed);
       #endif
-
-      #if ANY(PROBING_FANS_OFF, ADVANCED_PAUSE_FANS_PAUSE)
-        void set_fans_paused(const bool p);
-      #endif
-
     #endif // HAS_FAN
 
     static void zero_fan_speeds() {
@@ -986,7 +988,7 @@ class Temperature {
         return preheat_end_ms_hotend[HOTEND_INDEX] && PENDING(millis(), preheat_end_ms_hotend[HOTEND_INDEX]);
       }
       static void start_hotend_preheat_time(const uint8_t E_NAME) {
-        preheat_end_ms_hotend[HOTEND_INDEX] = millis() + PREHEAT_TIME_HOTEND_MS;
+        preheat_end_ms_hotend[HOTEND_INDEX] = next_millis(millis() + PREHEAT_TIME_HOTEND_MS);
       }
       static void reset_hotend_preheat_time(const uint8_t E_NAME) {
         preheat_end_ms_hotend[HOTEND_INDEX] = 0;
@@ -1002,7 +1004,7 @@ class Temperature {
           return preheat_end_ms_bed && PENDING(millis(), preheat_end_ms_bed);
         }
         static void start_bed_preheat_time() {
-          preheat_end_ms_bed = millis() + PREHEAT_TIME_BED_MS;
+          preheat_end_ms_bed = next_millis(millis() + PREHEAT_TIME_BED_MS);
         }
         static void reset_bed_preheat_time() {
           preheat_end_ms_bed = 0;
@@ -1012,9 +1014,11 @@ class Temperature {
       #endif
     #endif
 
-    //high level conversion routines, for use outside of temperature.cpp
-    //inline so that there is no performance decrease.
-    //deg=degreeCelsius
+    /**
+     * High level conversion routines, for use outside of temperature.cpp
+     * inline so that there is no performance decrease.
+     * deg=degreeCelsius
+     */
 
     static celsius_float_t degHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].celsius);
@@ -1024,14 +1028,12 @@ class Temperature {
       return TERN0(HAS_HOTEND, static_cast<celsius_t>(temp_hotend[HOTEND_INDEX].celsius + 0.5f));
     }
 
-    #if ENABLED(SHOW_TEMP_ADC_VALUES)
-      static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
-        return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
-      }
-    #endif
-
     static celsius_t degTargetHotend(const uint8_t E_NAME) {
       return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].target);
+    }
+
+    static raw_adc_t rawHotendTemp(const uint8_t E_NAME) {
+      return TERN0(HAS_HOTEND, temp_hotend[HOTEND_INDEX].getraw());
     }
 
     #if HAS_HOTEND
@@ -1055,11 +1057,18 @@ class Temperature {
       }
 
       static bool isHeatingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target > temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) < degTargetHotend(HOTEND_INDEX);
       }
-
       static bool isCoolingHotend(const uint8_t E_NAME) {
-        return temp_hotend[HOTEND_INDEX].target < temp_hotend[HOTEND_INDEX].celsius;
+        return degHotend(HOTEND_INDEX) > degTargetHotend(HOTEND_INDEX);
+      }
+      static bool hotendOnTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || WITHIN(t - degHotend(HOTEND_INDEX), -(TEMP_WINDOW), (TEMP_WINDOW));
+      }
+      static bool hotendReachedTarget(const uint8_t E_NAME) {
+        const celsius_t t = degTargetHotend(HOTEND_INDEX);
+        return !t || t <= degHotend(HOTEND_INDEX) + (TEMP_WINDOW);
       }
 
       #if HAS_TEMP_HOTEND
@@ -1077,7 +1086,7 @@ class Temperature {
       }
 
       static bool still_heating(const uint8_t e) {
-        return degTargetHotend(e) > TEMP_HYSTERESIS && !degHotendNear(e, degTargetHotend(e));
+        return degTargetHotend(e) > (TEMP_HYSTERESIS) && !degHotendNear(e, degTargetHotend(e));
       }
 
       // Start watching a Hotend to make sure it's really heating up
@@ -1100,10 +1109,7 @@ class Temperature {
     #endif
 
     #if HAS_HEATED_BED
-
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBedTemp()  { return temp_bed.getraw(); }
-      #endif
+      static raw_adc_t rawBedTemp()    { return temp_bed.getraw(); }
       static celsius_float_t degBed()  { return temp_bed.celsius; }
       static celsius_t wholeDegBed()   { return static_cast<celsius_t>(degBed() + 0.5f); }
       static celsius_t degTargetBed()  { return temp_bed.target; }
@@ -1120,12 +1126,21 @@ class Temperature {
         #if PREHEAT_TIME_BED_MS > 0
           if (celsius == 0)
             reset_bed_preheat_time();
-          else if (temp_bed.target == 0)
+          else if (degTargetBed() == 0)
             start_bed_preheat_time();
         #endif
         TERN_(AUTO_POWER_CONTROL, if (celsius) powerManager.power_on());
         temp_bed.target = _MIN(celsius, BED_MAX_TARGET);
         start_watching_bed();
+      }
+
+      static bool bedOnTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || WITHIN(t - degBed(), -(TEMP_BED_WINDOW), (TEMP_BED_WINDOW));
+      }
+      static bool bedReachedTarget() {
+        const celsius_t t = degTargetBed();
+        return !t || t <= degBed() + (TEMP_BED_WINDOW);
       }
 
       static bool wait_for_bed(const bool no_wait_for_cooling=true
@@ -1138,10 +1153,39 @@ class Temperature {
 
     #endif // HAS_HEATED_BED
 
-    #if HAS_TEMP_PROBE
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawProbeTemp()  { return temp_probe.getraw(); }
+    #if HAS_TEMP_HOTEND || HAS_HEATED_BED
+
+      // The current time in whole seconds (wrapping), as the heaters count their time in range
+      static uint16_t now_sec() { return uint16_t(MS_TO_SEC(millis())); }
+
+      #if HAS_TEMP_HOTEND
+        static bool hotend_settled(const uint8_t E_NAME, const uint16_t secs) { return temp_hotend[HOTEND_INDEX].settled(now_sec(), secs); }
       #endif
+      #if HAS_HEATED_BED
+        static bool bed_settled(const uint16_t secs) { return temp_bed.settled(now_sec(), secs); }
+      #endif
+
+      // Heaters to wait for: hotend 'e' is bit 'e', and the bed is HEATERS_BED
+      static constexpr uint16_t HEATERS_BED = _BV(8);
+
+      /**
+       * Have all of the given heaters (that have a target) been in range of it for long enough?
+       * The caller says what counts: 'residency' for the usual settling time of each heater
+       * (TEMP_RESIDENCY_TIME, TEMP_BED_RESIDENCY_TIME), and/or 'soak_secs' for a heat soak on top of that.
+       * With neither, the heaters only need to be in range.
+       */
+      static bool heaters_settled(const uint16_t heaters, const bool residency, const uint16_t soak_secs=0);
+
+      /**
+       * Wait for the given heaters to settle, counting the time they have already been in range.
+       * Returns at once if they have. Returns false if the wait was canceled.
+       */
+      static bool wait_for_settle(const uint16_t heaters, const bool residency, const uint16_t soak_secs=0);
+
+    #endif
+
+    #if HAS_TEMP_PROBE
+      static raw_adc_t rawProbeTemp()    { return temp_probe.getraw(); }
       static celsius_float_t degProbe()  { return temp_probe.celsius; }
       static celsius_t wholeDegProbe()   { return static_cast<celsius_t>(degProbe() + 0.5f); }
       static bool isProbeBelowTemp(const celsius_t target_temp) { return wholeDegProbe() < target_temp; }
@@ -1150,9 +1194,7 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_CHAMBER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawChamberTemp()    { return temp_chamber.getraw(); }
-      #endif
+      static raw_adc_t rawChamberTemp()      { return temp_chamber.getraw(); }
       static celsius_float_t degChamber()    { return temp_chamber.celsius; }
       static celsius_t wholeDegChamber()     { return static_cast<celsius_t>(degChamber() + 0.5f); }
       #if HAS_HEATED_CHAMBER
@@ -1171,12 +1213,19 @@ class Temperature {
       }
       // Start watching the Chamber to make sure it's really heating up
       static void start_watching_chamber() { OPTCODE(WATCH_CHAMBER, watch_chamber.restart(degChamber(), degTargetChamber())) }
+
+      static bool chamberOnTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || WITHIN(t - degChamber(), -(TEMP_CHAMBER_WINDOW), (TEMP_CHAMBER_WINDOW));
+      }
+      static bool chamberReachedTarget() {
+        const celsius_t t = degTargetChamber();
+        return !t || t <= degChamber() + (TEMP_CHAMBER_WINDOW);
+      }
     #endif
 
     #if HAS_TEMP_COOLER
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawCoolerTemp()   { return temp_cooler.getraw(); }
-      #endif
+      static raw_adc_t rawCoolerTemp()     { return temp_cooler.getraw(); }
       static celsius_float_t degCooler()   { return temp_cooler.celsius; }
       static celsius_t wholeDegCooler()    { return static_cast<celsius_t>(temp_cooler.celsius + 0.5f); }
       #if HAS_COOLER
@@ -1189,25 +1238,19 @@ class Temperature {
     #endif
 
     #if HAS_TEMP_BOARD
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawBoardTemp()  { return temp_board.getraw(); }
-      #endif
+      static raw_adc_t rawBoardTemp()    { return temp_board.getraw(); }
       static celsius_float_t degBoard()  { return temp_board.celsius; }
       static celsius_t wholeDegBoard()   { return static_cast<celsius_t>(temp_board.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_SOC
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawSocTemp()    { return temp_soc.getraw(); }
-      #endif
+      static raw_adc_t rawSocTemp()      { return temp_soc.getraw(); }
       static celsius_float_t degSoc()    { return temp_soc.celsius; }
       static celsius_t wholeDegSoc()     { return static_cast<celsius_t>(temp_soc.celsius + 0.5f); }
     #endif
 
     #if HAS_TEMP_REDUNDANT
-      #if ENABLED(SHOW_TEMP_ADC_VALUES)
-        static raw_adc_t rawRedundantTemp()       { return temp_redundant.getraw(); }
-      #endif
+      static raw_adc_t rawRedundantTemp()         { return temp_redundant.getraw(); }
       static celsius_float_t degRedundant()       { return temp_redundant.celsius; }
       static celsius_float_t degRedundantTarget() { return (*temp_redundant.target).celsius; }
       static celsius_t wholeDegRedundant()        { return static_cast<celsius_t>(temp_redundant.celsius + 0.5f); }
@@ -1351,6 +1394,24 @@ class Temperature {
       static void pause_heaters(const bool p);
     #endif
 
+    #if ANY(PREHEAT_BEFORE_PROBING, PREHEAT_BEFORE_LEVELING)
+      typedef struct {
+        OPTCODE(HAS_HOTEND, celsius_t hotend)
+        OPTCODE(HAS_HEATED_BED, celsius_t bed)
+      } leveling_temp_t;
+      #if HAS_LEVELING_TEMP_EDIT
+        static leveling_temp_t leveling_temp;
+        static void reset_leveling_temp() {
+          TERN_(HAS_HOTEND, leveling_temp.hotend = LEVELING_NOZZLE_TEMP);
+          TERN_(HAS_HEATED_BED, leveling_temp.bed = LEVELING_BED_TEMP);
+        }
+      #else
+        static constexpr leveling_temp_t leveling_temp = { OPTITEM(HAS_HOTEND, LEVELING_NOZZLE_TEMP) OPTITEM(HAS_HEATED_BED, LEVELING_BED_TEMP) };
+      #endif
+      static void preheat_for_probing(const bool early=false, const bool and_leveling=false);
+      static void preheat_for_leveling(const bool early=false) { preheat_for_probing(early, ENABLED(PREHEAT_BEFORE_LEVELING)); }
+    #endif
+
     #if HEATER_IDLE_HANDLER
 
       static void reset_hotend_idle_timer(const uint8_t E_NAME) {
@@ -1411,6 +1472,12 @@ class Temperature {
     #endif
     #if TEMP_SENSOR_IS_MAX_TC(BED)
       static raw_adc_t read_max_tc_bed();
+    #endif
+
+    // ADS Thermocouples
+    #if HAS_ADS1118
+      #define READ_ADS(N) read_ads1118(N)
+      static raw_adc_t read_ads1118(const uint8_t hindex=0);
     #endif
 
     #if HAS_AUTO_FAN

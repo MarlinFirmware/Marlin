@@ -65,7 +65,7 @@ void SpoolJoin::setSlot(const uint8_t slot) { currentMMUSlot = slot; }
 
 uint8_t SpoolJoin::nextSlot() {
   SERIAL_ECHOPGM("SpoolJoin: ", currentMMUSlot);
-  if (++currentMMUSlot >= 4) currentMMUSlot = 0;
+  if (++currentMMUSlot >= EXTRUDERS) currentMMUSlot = 0; // One slot per extruder
   SERIAL_ECHOLNPGM(" -> ", currentMMUSlot);
   return currentMMUSlot;
 }

@@ -23,12 +23,12 @@
 
 #include "../../inc/MarlinConfig.h"
 
-#include <rom/rtc.h>
+#include <esp_system.h>
 #include <driver/adc.h>
 #include <esp_adc_cal.h>
 #include <HardwareSerial.h>
 
-#if ENABLED(USE_ESP32_TASK_WDT)
+#if ANY(USE_ESP32_TASK_WDT, USE_WATCHDOG)
   #include <esp_task_wdt.h>
 #endif
 
@@ -53,6 +53,9 @@
 // ------------------------
 
 portMUX_TYPE MarlinHAL::spinlock = portMUX_INITIALIZER_UNLOCKED;
+#if CONFIG_FREERTOS_UNICORE
+  volatile uint8_t MarlinHAL::isr_off_count = 0;
+#endif
 
 // ------------------------
 // Local defines
@@ -75,6 +78,14 @@ esp_adc_cal_characteristics_t characteristics[ADC_ATTEN_MAX];
 adc_atten_t attenuations[ADC1_CHANNEL_MAX] = {};
 uint32_t thresholds[ADC_ATTEN_MAX];
 
+#if ESP32_CLASSIC
+  #define ADC1_WIDTH   ADC_WIDTH_BIT_12
+  #define ADC1_RAW_MAX 4095
+#else
+  #define ADC1_WIDTH   adc_bits_width_t(ADC_WIDTH_BIT_DEFAULT) // 13-bit on the ESP32-S2, 12-bit on the ESP32-S3
+  #define ADC1_RAW_MAX ((1 << SOC_ADC_MAX_BITWIDTH) - 1)
+#endif
+
 volatile int numPWMUsed = 0;
 volatile struct { pin_t pin; int value; } pwmState[MAX_PWM_PINS];
 
@@ -93,7 +104,12 @@ struct {
 
   bool wifi_custom_command(char * const command_ptr) {
     #if ENABLED(ESP3D_WIFISUPPORT)
-      return esp3dlib.parse(command_ptr);
+      // ESP3D commands such as a WiFi scan or a file system format can take longer
+      // than the watchdog timeout, and can't refresh the watchdog themselves.
+      TERN_(USE_WATCHDOG, esp_task_wdt_delete(nullptr));
+      const bool handled = esp3dlib.parse(command_ptr);
+      TERN_(USE_WATCHDOG, esp_task_wdt_add(nullptr));
+      return handled;
     #else
       UNUSED(command_ptr);
       return false;
@@ -118,10 +134,52 @@ struct {
 
 #endif
 
+#if HAS_NATIVE_USB_SERIAL && CONFIG_IDF_TARGET_ESP32S3
+  // On the ESP32-S3 the ESP-IDF console writes to the native USB port as well as UART0.
+  // Keep ESP-IDF log lines off the native USB port: a host reads them as G-code (see NativeUSBSerial.h).
+  static int log_to_uart0(const char *fmt, va_list args) {
+    char buf[160];
+    const int len = vsnprintf(buf, sizeof(buf), fmt, args);
+    if (len > 0) flushableSerial.write((const uint8_t*)buf, _MIN(len, int(sizeof(buf) - 1)));
+    return len;
+  }
+#endif
+
+#if HAS_TMC_HW_SERIAL
+
+  // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
+  // Without pins, begin() would route the port to its default pins (for Serial1, flash pins
+  // on most modules) and they'd stay routed, so start it once on the board's pins.
+  void tmc_hw_serial_begin(HardwareSerial &serial, const uint32_t baud) {
+    #if defined(HARDWARE_SERIAL1_RX) && defined(HARDWARE_SERIAL1_TX)
+      if (&serial == &Serial1) return serial.begin(baud, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
+    #endif
+    #if defined(HARDWARE_SERIAL2_RX) && defined(HARDWARE_SERIAL2_TX)
+      if (&serial == &Serial2) return serial.begin(baud, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
+    #endif
+    serial.begin(baud);
+  }
+
+#endif
+
 void MarlinHAL::init_board() {
+  #if HAS_NATIVE_USB_SERIAL && CONFIG_IDF_TARGET_ESP32S3
+    esp_log_set_vprintf(log_to_uart0);
+  #endif
   #if ENABLED(USE_ESP32_TASK_WDT)
     esp_task_wdt_init(10, true);
   #endif
+  // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
+  // The following initialization is performed after Serial1 and Serial2 are defined as
+  // their native pins might conflict with the i2s stream even when they are remapped.
+  #if ENABLED(USE_ESP32_EXIO)
+    YSerial2.begin(460800 * 3, SERIAL_8N1, 16, 17);
+  #elif ENABLED(I2S_STEPPER_STREAM)
+    i2s_init();
+  #endif
+
+  // Start WiFi last. wifi_init() waits for the network, and until the expander
+  // is running its outputs (heaters, fans, ...) hold whatever state they powered up in.
   #if ENABLED(ESP3D_WIFISUPPORT)
     esp3dlib.init();
   #elif ENABLED(WIFISUPPORT)
@@ -133,35 +191,6 @@ void MarlinHAL::init_board() {
     #endif
     server.begin();
   #endif
-
-  // ESP32 uses a GPIO matrix that allows pins to be assigned to hardware serial ports.
-  // The following code initializes hardware Serial1 and Serial2 to use user-defined pins
-  // if they have been defined.
-  #if defined(HARDWARE_SERIAL1_RX) && defined(HARDWARE_SERIAL1_TX)
-    HardwareSerial Serial1(1);
-    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
-      Serial1.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
-    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
-      Serial1.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL1_RX, HARDWARE_SERIAL1_TX);
-    #endif
-  #endif
-  #if defined(HARDWARE_SERIAL2_RX) && defined(HARDWARE_SERIAL2_TX)
-    HardwareSerial Serial2(2);
-    #ifdef TMC_BAUD_RATE  // use TMC_BAUD_RATE for Serial1 if defined
-      Serial2.begin(TMC_BAUD_RATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
-    #else  // use default BAUDRATE if TMC_BAUD_RATE not defined
-      Serial2.begin(BAUDRATE, SERIAL_8N1, HARDWARE_SERIAL2_RX, HARDWARE_SERIAL2_TX);
-    #endif
-  #endif
-
-  // Initialize the i2s peripheral only if the I2S stepper stream is enabled.
-  // The following initialization is performed after Serial1 and Serial2 are defined as
-  // their native pins might conflict with the i2s stream even when they are remapped.
-  #if ENABLED(USE_ESP32_EXIO)
-    YSerial2.begin(460800 * 3, SERIAL_8N1, 16, 17);
-  #elif ENABLED(I2S_STEPPER_STREAM)
-    i2s_init();
-  #endif
 }
 
 void MarlinHAL::idletask() {
@@ -171,9 +200,24 @@ void MarlinHAL::idletask() {
   TERN_(ESP3D_WIFISUPPORT, esp3dlib.idletask());
 }
 
-uint8_t MarlinHAL::get_reset_source() { return rtc_get_reset_reason(1); }
+uint8_t MarlinHAL::get_reset_source() {
+  switch (esp_reset_reason()) {
+    case ESP_RST_POWERON:  return RST_POWER_ON;   // Includes the EN pin
+    case ESP_RST_EXT:      return RST_EXTERNAL;
+    case ESP_RST_BROWNOUT: return RST_BROWN_OUT;
+    case ESP_RST_INT_WDT:
+    case ESP_RST_TASK_WDT:
+    case ESP_RST_WDT:      return RST_WATCHDOG;
+    case ESP_RST_SW:
+    case ESP_RST_PANIC:    return RST_SOFTWARE;   // Restarted by software, or after a crash
+    default:               return 0;
+  }
+}
 
 void MarlinHAL::reboot() { ESP.restart(); }
+
+// Restart, as there's no in-application firmware update
+void flashFirmware(const int16_t) { hal.reboot(); }
 
 // return free memory between end of heap (or end bss) and whatever is current
 int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
@@ -184,18 +228,17 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 #if ENABLED(USE_WATCHDOG)
 
-  #define WDT_TIMEOUT_US TERN(WATCHDOG_DURATION_8S, 8000000, 4000000) // 4 or 8 second timeout
-
-  extern "C" {
-    esp_err_t esp_task_wdt_reset();
-  }
+  #define WDT_TIMEOUT_S TERN(WATCHDOG_DURATION_8S, 8, 4) // 4 or 8 second timeout
 
   void watchdogSetup() {
     // do whatever. don't remove this function.
   }
 
+  // The IDF Task Watchdog is already running for the idle task. Set the timeout,
+  // reset on timeout, and watch the Marlin loop task, which calls watchdog_refresh().
   void MarlinHAL::watchdog_init() {
-    // TODO
+    esp_task_wdt_init(WDT_TIMEOUT_S, true);
+    esp_task_wdt_add(nullptr);
   }
 
   // Reset watchdog.
@@ -209,6 +252,14 @@ int MarlinHAL::freeMemory() { return ESP.getFreeHeap(); }
 
 // https://docs.espressif.com/projects/esp-idf/en/release-v4.4/esp32/api-reference/peripherals/adc.html
 adc1_channel_t get_channel(int pin) {
+  #if !ESP32_CLASSIC
+    // Other ESP32 variants map ADC1 to different pins
+    for (uint8_t c = 0; c < ADC1_CHANNEL_MAX; ++c) {
+      gpio_num_t io;
+      if (adc1_pad_get_io_num(adc1_channel_t(c), &io) == ESP_OK && io == pin) return adc1_channel_t(c);
+    }
+    return ADC1_CHANNEL_MAX;
+  #endif
   switch (pin) {
     case 39: return ADC1_CHANNEL_3;
     case 36: return ADC1_CHANNEL_0;
@@ -231,7 +282,7 @@ void adc1_set_attenuation(adc1_channel_t chan, adc_atten_t atten) {
 
 void MarlinHAL::adc_init() {
   // Configure ADC
-  adc1_config_width(ADC_WIDTH_12Bit);
+  adc1_config_width(ADC1_WIDTH);
 
   // Configure channels only if used as (re-)configuring a pin for ADC that is used elsewhere might have adverse effects
   TERN_(HAS_TEMP_ADC_0,        adc1_set_attenuation(get_channel(TEMP_0_PIN), ADC_ATTEN_11db));
@@ -255,10 +306,10 @@ void MarlinHAL::adc_init() {
 
   // Calculate ADC characteristics (i.e., gain and offset factors for each attenuation level)
   for (int i = 0; i < ADC_ATTEN_MAX; i++) {
-    esp_adc_cal_characterize(ADC_UNIT_1, (adc_atten_t)i, ADC_WIDTH_BIT_12, V_REF, &characteristics[i]);
+    esp_adc_cal_characterize(ADC_UNIT_1, (adc_atten_t)i, ADC1_WIDTH, V_REF, &characteristics[i]);
 
     // Change attenuation 100mV below the calibrated threshold
-    thresholds[i] = esp_adc_cal_raw_to_voltage(4095, &characteristics[i]);
+    thresholds[i] = esp_adc_cal_raw_to_voltage(ADC1_RAW_MAX, &characteristics[i]);
   }
 }
 

@@ -25,7 +25,6 @@
 #if ENABLED(EASYTHREED_UI)
 
 #include "easythreed_ui.h"
-#include "pause.h"
 #include "../module/temperature.h"
 #include "../module/printcounter.h"
 #include "../sd/cardreader.h"
@@ -136,7 +135,7 @@ void EasythreedUI::loadButton() {
       if (READ(BTN_RETRACT) && READ(BTN_FEED)) {                    // Switch in center position (stop)
         flag = false;                                               // Restore flag to false
         filament_status = FS_IDLE;                                  // Go back to idle state
-        quickstop_stepper();                                        // Hard-stop all the steppers ... now!
+        motion.quickstop_stepper();                                 // Hard-stop all the steppers ... now!
         thermalManager.disable_all_heaters();                       // And disable all the heaters
         blink_interval_ms = LED_ON;
       }

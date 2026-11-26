@@ -50,6 +50,8 @@ typedef struct {
   laser_t bullet[10], laser, explod;
   int8_t dir, leftmost, rightmost, botmost;
   uint8_t count, quit_count, blink_count;
+  bool quit_confirm;
+  int8_t quit_sel;  // -1=none selected, 0=Y selected, 1=N selected
   uint8_t bugs[INVADER_ROWS], shooters[(INVADER_ROWS) * (INVADER_COLS)];
   int8_t ufox, ufov;
   bool game_blink;

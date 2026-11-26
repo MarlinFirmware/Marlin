@@ -98,6 +98,11 @@ namespace DGUS_Data {
     BUTTON2 = 1
   };
 
+  enum class FilamentSensor : uint8_t {
+    RUNOUT = 0,
+    JAM    = 1
+  };
+
   // TX constants
 
   enum class SDType : uint16_t {
@@ -115,6 +120,12 @@ namespace DGUS_Data {
   enum class StatusIcon : uint16_t {
     PAUSE  = 1U << 0,
     RESUME = 1U << 1
+  };
+
+  enum class FilamentSensorIcon : uint16_t {
+    RUNOUT  = 1U << 0,
+    JAM     = 1U << 1,
+    PRESENT = 1U << 2
   };
 
   enum class Status : uint16_t {
