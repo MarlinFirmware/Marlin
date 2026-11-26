@@ -959,7 +959,7 @@ void RTS::handleData() {
         goto_page_index(1);
       }
       else if (recdat.data[0] == 6) {
-        #if ENABLED(BLTOUCH)
+        #if HAS_BED_PROBE
           waitway = 3;
           sendData(ui.language + 1, BEDLEVELING_WAIT_TITLE_VP);
           goto_page_index(26);
