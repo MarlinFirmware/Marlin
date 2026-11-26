@@ -178,7 +178,7 @@
         if (target > FAN_OFF_PWM) {
           const bool first_kick = kick_end_ms == 0 && TERN1(FAN_KICKSTART_LINEAR, target > prev_fan_speed);
           if (first_kick)
-            kick_end_ms = next_millis(ms + MUL_TERN(FAN_KICKSTART_LINEAR, FAN_KICKSTART_TIME, millis_t(speed - prev_fan_speed) / 255));
+            kick_end_ms = next_millis(ms + TERN(FAN_KICKSTART_LINEAR, millis_t(FAN_KICKSTART_TIME) * (target - prev_fan_speed) / 255, FAN_KICKSTART_TIME));
           if (first_kick || (kick_end_ms && PENDING(ms, kick_end_ms))) {
             kicking = true;
             return FAN_KICKSTART_POWER;
@@ -189,7 +189,7 @@
         kicking = false;
         #if ENABLED(FAN_KICKSTART_LINEAR)
           kick_end_ms = 0;              // Allow another kick when the speed increases
-          prev_fan_speed = speed;
+          prev_fan_speed = target;
         #endif
         return pwm(target);
       }
