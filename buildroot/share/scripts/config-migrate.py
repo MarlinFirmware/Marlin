@@ -571,6 +571,22 @@ def split_rule(name):
     """Old option per element if name is an array option that used to be separate options."""
     return next((olds for new, olds in MERGE_RULES if name == new), None)
 
+# Options an older version needs that newer versions work out for themselves
+def _use_plug(m, opt):
+    """USE_xMIN_PLUG / USE_xMAX_PLUG: the endstop the axis homes to, plus any other end in use."""
+    axis, end = m[1], m[2]
+    home = opt(f'{axis}_HOME_DIR')
+    if home is None or not re.fullmatch(r'-?[01]', home): return None
+    if int(home) == (-1 if end == 'MIN' else 1): return True, f'{axis}_HOME_DIR {home}'
+    for name in [f'{axis}_SAFETY_STOP'] + { 'XMAX': ['DUAL_X_CARRIAGE'], 'ZMIN': ['Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN'] }.get(axis + end, []):
+        if opt(name) is not None: return True, name
+    return False, f'{axis}_HOME_DIR {home}'
+
+# (option, function of (match, user option lookup) giving (enabled, reason) or None)
+DERIVED_RULES = [
+    (r'USE_([XYZIJKUVW])(MIN|MAX)_PLUG', _use_plug),
+]
+
 def pair_defs(a, u):
     '''Match each stock define to the user's copy of it. When the user has extra
     copies (e.g. commented out the stock line and added their own), prefer the
@@ -843,7 +859,15 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                 elif ud and ud.name in a_names:
                     # Extra copy of a stock option
                     keep = False
-                    if ud.name in b_names:
+                    here = [d for d in b_names.get(ud.name, []) if d.file == f and d.ctx == ud.ctx]
+                    last = next((l for l in reversed(u.lines[:j]) if l.strip()), '')
+                    if ud.enabled and len(here) == 1 and (f, here[0].idx) not in owner \
+                          and not re.match(rf'\s*#\s*undef\s+{ud.name}\b', last):
+                        # The target has this option in the same place: set it there, not a second time
+                        bd = here[0]
+                        apply(bd, True, rename_refs(ud.value), ud.comment or bd.comment, ud.name, f'{f}:{ud.name} (extra copy)', ud)
+                        report.add('Applied', f'{ud.name}: second copy in your file (line {u.phys[j]}), set on the {target_label} line')
+                    elif ud.name in b_names:
                         keep = True
                     else:
                         bd, path, conv = target_of(ud.name, f, 0, ud.ctx, 1)
@@ -926,6 +950,20 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                     report.add('Added lines placed', f'{f} {where}: {first}' + (f' (+{len(run) - 1} lines)' if len(run) > 1 else ''))
                 else:
                     orphan(f, run, f'added lines: no matching place in {target_label}')
+
+    # Options only the target has, set from the options that decide them in the user's version
+    def user_opt(name):
+        return next((squash(d.value) for c in U.values() for d in reversed(c.names.get(name, [])) if d.enabled), None)
+    for name, cands in b_names.items():
+        if name in a_names or any(name in c.names for c in U.values()): continue
+        for rx, rule in DERIVED_RULES:
+            m = re.fullmatch(rx, name)
+            r = m and rule(m, user_opt)
+            if not r: continue
+            for bd in cands:
+                if (bd.file, bd.idx) in owner or bd.enabled == r[0]: continue
+                apply(bd, r[0], bd.value, bd.comment, name, f'{bd.file}:{name}')
+                report.add('Applied', f'{name}: {"enabled" if r[0] else "disabled"}, from {r[1]}')
 
     # Stock options the user deleted, unless the target option was set another way
     for bd, comment, why, label in disables:
