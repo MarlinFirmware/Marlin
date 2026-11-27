@@ -344,11 +344,18 @@ void menu_main() {
         if (card.isFlashDriveMounted())
           M22_ITEM(MSG_RELEASE_USB);
 
-        // [Select from SD/USB] (or Password First)
-        if (card.isSDCardMounted())
-          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
-        else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
-          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+        // [Select from Onboard/LCD SD] (or Password First)
+        #if ENABLED(MULTI_VOLUME)
+          if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted())) {
+            SUBMENU(MSG_ATTACH_SD_ONBOARD, menu_file_selector_sd_onboard);
+            SUBMENU(MSG_ATTACH_SD_LCD, menu_file_selector_sd_lcd);
+          }
+        #else
+          if (card.isSDCardMounted())
+            SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
+          else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
+            SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+        #endif
 
         if (card.isFlashDriveMounted())
           SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY);

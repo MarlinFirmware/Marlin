@@ -131,6 +131,24 @@ void menu_file_selector_usb() {
   ui.goto_screen(menu_file_selector);
 }
 
+void menu_file_selector_sd_onboard() {
+  if (!card.isSDCardSelected() || card.isSDCardMounted()) {
+    card.release();
+    card.selectMediaSDCard();
+  }
+  card.mount();
+  ui.goto_screen(menu_file_selector);
+}
+
+void menu_file_selector_sd_lcd() {
+  if (ENABLED(VOLUME_SD_LCD)) {
+    card.release();
+    card.selectMediaSDCardLCD();
+    card.mount();
+    ui.goto_screen(menu_file_selector);
+  }
+}
+
 void menu_file_selector() {
   ui.encoder_direction_menus();
 
