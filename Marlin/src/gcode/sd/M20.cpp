@@ -42,6 +42,7 @@
  *   T<bool> - Include timestamps
  */
 void GcodeSuite::M20() {
+
   if (card.flag.mounted) {
     SERIAL_ECHOLNPGM(STR_BEGIN_FILE_LIST);
     card.ls(TERN0(CUSTOM_FIRMWARE_UPLOAD,     parser.boolval('F') << LS_ONLY_BIN)

@@ -193,6 +193,8 @@ namespace LanguageNarrow_en {
   LSTR MSG_FILAMENTCHANGE_E               = _UxGT("Change * Filament");
   LSTR MSG_ATTACH_MEDIA                   = _UxGT("Attach ") MEDIA_TYPE_EN;
   LSTR MSG_ATTACH_SD                      = _UxGT("Attach SD Card");
+  LSTR MSG_ATTACH_SD_ONBOARD              = _UxGT("Onboard SD Card");
+  LSTR MSG_ATTACH_SD_LCD                  = _UxGT("LCD SD Card");
   LSTR MSG_ATTACH_USB                     = _UxGT("Attach USB Drive");
   LSTR MSG_CHANGE_MEDIA                   = _UxGT("Refresh ") MEDIA_TYPE_EN;
   LSTR MSG_RUN_AUTOFILES                  = _UxGT("Run Autofiles");
@@ -1110,7 +1112,6 @@ namespace LanguageNarrow_en {
   LSTR MSG_PROGRESS_MOVING_SELECTOR       = _UxGT("Moving selector");
   LSTR MSG_PROGRESS_FEED_FSENSOR          = _UxGT("Feeding to FSensor");
 }
-
 namespace LanguageWide_en {
   using namespace LanguageNarrow_en;
   #if LCD_WIDTH > 21 || HAS_DWIN_E3V2

@@ -615,11 +615,14 @@
   #endif
 
   // Tests indicating a single or multi-volume SD Card
-  #if !HAS_USB_FLASH_DRIVE || ALL(HAS_MULTI_VOLUME, VOLUME_SD_ONBOARD)
+  #if !HAS_USB_FLASH_DRIVE || ALL(HAS_MULTI_VOLUME, VOLUME_SD_ONBOARD) || ALL(HAS_MULTI_VOLUME, VOLUME_SD_LCD)
     #define HAS_SDCARD 1
     #if ENABLED(ONBOARD_SDIO)
       #define NEED_SD2CARD_SDIO 1
     #else
+      #define NEED_SD2CARD_SPI 1
+    #endif
+    #if ENABLED(VOLUME_SD_LCD)
       #define NEED_SD2CARD_SPI 1
     #endif
   #endif

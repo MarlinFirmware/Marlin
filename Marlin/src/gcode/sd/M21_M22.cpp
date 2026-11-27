@@ -33,6 +33,7 @@
  * With MULTI_VOLUME:
  *  P0 or S - Change to the SD Card and mount it
  *  P1 or U - Change to the USB Drive and mount it
+ *  P2 or L - Change to the LCD SD Card and mount it
  */
 void GcodeSuite::M21() {
   #if HAS_MULTI_VOLUME
@@ -41,6 +42,8 @@ void GcodeSuite::M21() {
       card.selectMediaSDCard();
     else if (vol == 1 || parser.seen_test('U'))  // "U" for USB
       card.selectMediaFlashDrive();
+    else if (ENABLED(VOLUME_SD_LCD) && (vol == 2 || parser.seen_test('L'))) // "L" for LCD SD Card
+      card.selectMediaSDCardLCD();
   #endif
   card.mount();
 }

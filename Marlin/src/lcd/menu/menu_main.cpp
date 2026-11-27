@@ -344,11 +344,16 @@ void menu_main() {
         if (card.isFlashDriveMounted())
           M22_ITEM(MSG_RELEASE_USB);
 
-        // [Select from SD/USB] (or Password First)
-        if (card.isSDCardMounted())
-          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
-        else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
-          SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+        // [Select from Onboard/LCD SD] (or Password First)
+        #if ENABLED(MULTI_VOLUME)
+          if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
+            SUBMENU(MSG_MEDIA_MENU_SD, menu_select_sd_card);
+        #else
+          if (card.isSDCardMounted())
+            SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY);
+          else if (TERN0(SHOW_UNMOUNTED_DRIVES, card.isSDCardInserted()))
+            SUBMENU(MSG_MEDIA_MENU_SD, MEDIA_MENU_GATEWAY_SD);
+        #endif
 
         if (card.isFlashDriveMounted())
           SUBMENU(MSG_MEDIA_MENU_USB, MEDIA_MENU_GATEWAY);
@@ -373,6 +378,20 @@ void menu_main() {
             #define M21(T) F("M21" TERN_(HAS_MULTI_VOLUME, T))
             if (att_sd)  GCODES_ITEM(MSG_ATTACH_SD,  M21("S")); // M21 S - [Attach SD Card]
             if (att_usb) GCODES_ITEM(MSG_ATTACH_USB, M21("U")); // M21 U - [Attach USB Drive]
+            #if ENABLED(MULTI_VOLUME)
+              SUBMENU(MSG_ATTACH_SD_ONBOARD, []{
+                card.release();
+                card.selectMediaSDCard();
+                card.mount();
+                ui.goto_screen(menu_file_selector);
+              });
+              SUBMENU(MSG_ATTACH_SD_LCD, []{
+                card.release();
+                card.selectMediaSDCardLCD();
+                card.mount();
+                ui.goto_screen(menu_file_selector);
+              });
+            #endif
           #endif
         }
       }
