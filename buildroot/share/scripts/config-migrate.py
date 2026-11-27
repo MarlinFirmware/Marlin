@@ -114,7 +114,8 @@ class ConfigFile:
         if self.final_nl: raw.pop()
         self.lines, self.defs, self.at, self.names = [], [], {}, {}
         self.phys = []                  # logical line index -> 1-based physical line number
-        ctx, block, i = [], False, 0
+        self.opener, self.closer = {}, {}   # conditional line -> its #if line, #if line -> its #endif line
+        ctx, opens, block, i = [], [], False, 0
         while i < len(raw):
             line = raw[i]; i += 1
             if block:
@@ -134,9 +135,13 @@ class ConfigFile:
             m = COND_RE.match(line)
             if m:
                 kw, cond = m[1], squash(split_comment(m[2])[0])
-                if kw.startswith('if'): ctx.append(f'{kw} {cond}')
-                elif kw == 'endif': ctx and ctx.pop()
-                elif ctx: ctx[-1] = f'{kw} {cond}'
+                if kw.startswith('if'):
+                    ctx.append(f'{kw} {cond}'); opens.append(idx)
+                    self.opener[idx] = idx
+                elif ctx:
+                    self.opener[idx] = opens[-1]
+                    if kw == 'endif': ctx.pop(); self.closer[opens.pop()] = idx
+                    else: ctx[-1] = f'{kw} {cond}'
                 continue
             m = DEFINE_RE.match(line)
             if m:
@@ -566,6 +571,22 @@ def split_rule(name):
     """Old option per element if name is an array option that used to be separate options."""
     return next((olds for new, olds in MERGE_RULES if name == new), None)
 
+# Options an older version needs that newer versions work out for themselves
+def _use_plug(m, opt):
+    """USE_xMIN_PLUG / USE_xMAX_PLUG: the endstop the axis homes to, plus any other end in use."""
+    axis, end = m[1], m[2]
+    home = opt(f'{axis}_HOME_DIR')
+    if home is None or not re.fullmatch(r'-?[01]', home): return None
+    if int(home) == (-1 if end == 'MIN' else 1): return True, f'{axis}_HOME_DIR {home}'
+    for name in [f'{axis}_SAFETY_STOP'] + { 'XMAX': ['DUAL_X_CARRIAGE'], 'ZMIN': ['Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN'] }.get(axis + end, []):
+        if opt(name) is not None: return True, name
+    return False, f'{axis}_HOME_DIR {home}'
+
+# (option, function of (match, user option lookup) giving (enabled, reason) or None)
+DERIVED_RULES = [
+    (r'USE_([XYZIJKUVW])(MIN|MAX)_PLUG', _use_plug),
+]
+
 def pair_defs(a, u):
     '''Match each stock define to the user's copy of it. When the user has extra
     copies (e.g. commented out the stock line and added their own), prefer the
@@ -797,9 +818,36 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
             more = f'  (+{len(lines) - n} more lines)' if len(lines) > n else ''
             return '\n'.join(f'        {l[:110]}' for l in lines[:n]) + more
 
-        stale_ifs = 0                   # stock #if lines dropped without their #endif
         unorms = [a.norms[paired[j].idx] if j in paired else ('+' + n if j in u.at else n) for j, n in enumerate(u.norms)]
         opcodes = difflib.SequenceMatcher(None, a.norms, unorms, autojunk=False).get_opcodes()
+
+        # An added #if is carried over only with its #endif, and an added #endif only with its #if.
+        # The other half of a block that is stock text stays as the target has it.
+        def is_stock(line): return bool(stock_lines) and squash(line) in stock_lines.get(f, ())
+        added = set(j for tag, i1, i2, j1, j2 in opcodes if tag != 'equal' for j in range(j1, j2))
+        a2u = { i1 + k: j1 + k for tag, i1, i2, j1, j2 in opcodes if tag == 'equal' for k in range(i2 - i1) }
+        reworded = set()                # added #if lines standing in for a stock #if whose #endif is still there
+        for tag, i1, i2, j1, j2 in opcodes:
+            if tag != 'replace': continue
+            cand = [j for j in range(j1, j2) if u.opener.get(j) == j]
+            for i in range(i1, i2):
+                if cand and a.opener.get(i) == i and a.closer.get(i) in a2u:
+                    own = u.opener[a2u[a.closer[i]]]
+                    j = next((j for j in cand if is_stock(u.lines[j])), own if own in cand else cand[-1])
+                    cand.remove(j); reworded.add(j)
+        mate, spare = {}, []            # added #endif -> the added #if it closes
+        for j in sorted(added & set(u.opener)):
+            o = u.opener[j]
+            if o == j:
+                if j in reworded: continue
+                if u.closer.get(j) in added: mate[u.closer[j]] = j
+                else: spare.append(j)
+            elif u.closer.get(o) == j and (o not in added or o in reworded) and spare:
+                mate[j] = spare.pop()   # the diff matched the other #endif of two
+        mated = set(mate.values())
+        ifs, stale_ifs = set(), set()   # added #if lines carried over / dropped as old stock text
+        OLD = 'text from another stock version, not your addition'
+        PART = f'part of a stock #if block, left as {target_label} has it'
         for tag, i1, i2, j1, j2 in opcodes:
             if tag in ('equal', 'delete'): continue
             runs, run, edited = [], [], []
@@ -811,7 +859,15 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                 elif ud and ud.name in a_names:
                     # Extra copy of a stock option
                     keep = False
-                    if ud.name in b_names:
+                    here = [d for d in b_names.get(ud.name, []) if d.file == f and d.ctx == ud.ctx]
+                    last = next((l for l in reversed(u.lines[:j]) if l.strip()), '')
+                    if ud.enabled and len(here) == 1 and (f, here[0].idx) not in owner \
+                          and not re.match(rf'\s*#\s*undef\s+{ud.name}\b', last):
+                        # The target has this option in the same place: set it there, not a second time
+                        bd = here[0]
+                        apply(bd, True, rename_refs(ud.value), ud.comment or bd.comment, ud.name, f'{f}:{ud.name} (extra copy)', ud)
+                        report.add('Applied', f'{ud.name}: second copy in your file (line {u.phys[j]}), set on the {target_label} line')
+                    elif ud.name in b_names:
                         keep = True
                     else:
                         bd, path, conv = target_of(ud.name, f, 0, ud.ctx, 1)
@@ -824,7 +880,11 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                             report.add('Dropped', f'{f} line {u.phys[j]}: commented-out copy of an option {target_label} no longer has\n' + show([line]))
                 elif ud:
                     bd, path, conv = target_of(ud.name, f, ud.occ, ud.ctx, len(u.names[ud.name]))
-                    if bd and not conv:
+                    if bd and bd.name != ud.name and any(bd.name in c.names for c in U.values()):
+                        # An old name left beside the option's current name: the current one decides
+                        report.add('Dropped', f'{f} line {u.phys[j]}: old name of {bd.name}, which your files also have\n' + show([line]))
+                        keep = False
+                    elif bd and not conv:
                         apply(bd, ud.enabled, rename_refs(ud.value), ud.comment or bd.comment, ud.name, f'{f}:{ud.name} (added)', ud)
                         report.add('Applied', f'{ud.name}: not in base, set in {target_label}')
                         keep = False
@@ -860,15 +920,27 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                 if not any(l.strip() for l in run): continue
                 body = [l for l in run if l.strip()]
                 opens = sum(bool(re.match(r'\s*#\s*if', l)) for l in body)
-                closes = sum(bool(re.match(r'\s*#\s*endif', l)) for l in body)
-                old = stock_lines and all(squash(l) in stock_lines.get(f, ()) for l in body) \
+                old = all(is_stock(l) for l in body) \
                       and not any(re.match(r'\s*#\s*define\b', l) for l in body)   # an active #define is a setting
                 if old and all(is_directive(l) for l in body) and not opens:
-                    old = closes and stale_ifs >= closes    # only #endifs closing dropped stock #ifs
-                if old:
-                    stale_ifs += opens - closes
-                    report.add('Dropped', f'{f} line {u.phys[start]}: text from another stock version, not your addition\n' + show(run, 2))
-                    continue
+                    old = False         # #else and #endif lines go by their #if
+                keep, lost = [], {}
+                for j, line in enumerate(run, start):
+                    o, why = mate.get(j, u.opener.get(j)), None
+                    if o is None:
+                        if old: why = OLD
+                    elif o == j:
+                        if old or j in reworded and is_stock(line): stale_ifs.add(j); why = OLD
+                        elif j in mated: ifs.add(j)
+                        else: why = PART
+                    elif o not in ifs:
+                        why = OLD if o in stale_ifs else PART
+                    if not why: keep.append(line)
+                    elif line.strip(): lost.setdefault(why, []).append(j)
+                for why, js in lost.items():
+                    report.add('Dropped', f'{f} line {u.phys[js[0]]}: {why}\n' + show([u.lines[j] for j in js], 2))
+                run = keep
+                if not any(l.strip() for l in run): continue
                 if tag != 'insert':
                     while not run[0].strip(): run.pop(0)
                     while not run[-1].strip(): run.pop()
@@ -878,6 +950,20 @@ def migrate(A, U, B, resolve, explain, report, orig_label, target_label, upgrade
                     report.add('Added lines placed', f'{f} {where}: {first}' + (f' (+{len(run) - 1} lines)' if len(run) > 1 else ''))
                 else:
                     orphan(f, run, f'added lines: no matching place in {target_label}')
+
+    # Options only the target has, set from the options that decide them in the user's version
+    def user_opt(name):
+        return next((squash(d.value) for c in U.values() for d in reversed(c.names.get(name, [])) if d.enabled), None)
+    for name, cands in b_names.items():
+        if name in a_names or any(name in c.names for c in U.values()): continue
+        for rx, rule in DERIVED_RULES:
+            m = re.fullmatch(rx, name)
+            r = m and rule(m, user_opt)
+            if not r: continue
+            for bd in cands:
+                if (bd.file, bd.idx) in owner or bd.enabled == r[0]: continue
+                apply(bd, r[0], bd.value, bd.comment, name, f'{bd.file}:{name}')
+                report.add('Applied', f'{name}: {"enabled" if r[0] else "disabled"}, from {r[1]}')
 
     # Stock options the user deleted, unless the target option was set another way
     for bd, comment, why, label in disables:

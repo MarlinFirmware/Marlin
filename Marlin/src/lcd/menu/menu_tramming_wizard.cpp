@@ -36,10 +36,6 @@
 #include "../../module/probe.h"
 #include "../../gcode/queue.h"
 
-#if ENABLED(BLTOUCH)
-  #include "../../feature/bltouch.h"
-#endif
-
 //#define DEBUG_OUT 1
 #include "../../core/debug_out.h"
 

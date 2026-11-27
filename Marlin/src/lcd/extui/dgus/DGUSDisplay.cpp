@@ -76,7 +76,7 @@ void DGUSDisplay::initDisplay() {
   requestScreen(TERN(SHOW_BOOTSCREEN, DGUS_SCREEN_BOOT, DGUS_SCREEN_MAIN));
 }
 
-void DGUSDisplay::writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/) {
+void DGUSDisplay::writeVariable_P(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/, const char fillChar/*=' '*/) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   writeHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -85,13 +85,13 @@ void DGUSDisplay::writeVariable_P(uint16_t adr, const void *values, uint8_t valu
     if (!strend) x = pgm_read_byte(myvalues++);
     if ((isstr && !x) || strend) {
       strend = true;
-      x = ' ';
+      x = fillChar;
     }
     LCD_SERIAL.write(x);
   }
 }
 
-void DGUSDisplay::writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/) {
+void DGUSDisplay::writeVariable(uint16_t adr, const void *values, uint8_t valueslen, bool isstr/*=false*/, const char fillChar/*=' '*/) {
   const char* myvalues = static_cast<const char*>(values);
   bool strend = !myvalues;
   writeHeader(adr, DGUS_CMD_WRITEVAR, valueslen);
@@ -100,11 +100,28 @@ void DGUSDisplay::writeVariable(uint16_t adr, const void *values, uint8_t values
     if (!strend) x = *myvalues++;
     if ((isstr && !x) || strend) {
       strend = true;
-      x = ' ';
+      x = fillChar;
     }
     LCD_SERIAL.write(x);
   }
 }
+
+#if DGUS_LCD_UI_CREALITY_TOUCH
+
+  void DGUSDisplay::resetDisplay() {
+    DEBUG_ECHOLNPGM("resetDisplay");
+    const unsigned char resetCommand[] = { 0x55, 0xAA, 0x5A, 0xA5 };
+    writeVariable(0x04, resetCommand, sizeof(resetCommand));
+  }
+
+  void DGUSDisplay::readVariable(uint16_t adr) {
+    writeHeader(adr, DGUS_CMD_READVAR, sizeof(uint8_t));
+
+    // Specify to read one byte
+    LCD_SERIAL.write(static_cast<uint8_t>(1));
+  }
+
+#endif // DGUS_LCD_UI_CREALITY_TOUCH
 
 void DGUSDisplay::writeVariable(uint16_t adr, uint16_t value) {
   value = (value & 0xFFU) << 8U | (value >> 8U);
@@ -133,6 +150,38 @@ void DGUSDisplay::writeVariable(uint16_t adr, long value) {
   tmp[3] = endian.lb[0];
   writeVariable(adr, static_cast<const void*>(&tmp), sizeof(long));
 }
+
+#if DGUS_LCD_UI_CREALITY_TOUCH
+
+  void DGUSDisplay::writeVariable(uint16_t adr, float value) {
+    static_assert(sizeof(float) == 4, "float must be 4 bytes");
+    union { float f; uint8_t b[4]; } endian;
+    endian.f = value;
+    const uint8_t tmp[4] = { endian.b[3], endian.b[2], endian.b[1], endian.b[0] };
+    writeVariable(adr, static_cast<const void*>(tmp), sizeof(tmp));
+  }
+
+  void DGUSDisplay::setVariableDisplayColor(uint16_t sp, uint16_t color) {
+    writeVariable(sp + 0x03, color);
+  }
+
+  void DGUSDisplay::setTouchScreenConfiguration(const bool enable_standby, const bool enable_sound, const uint8_t standby_brightness, const uint8_t active_brightness, const uint16_t standby_seconds) {
+    // System_Config (0x80)
+    uint8_t cfg_bits = _BV(5)                     // Load 22 touch file
+                     | _BV(4)                     // Auto-upload always enabled
+                     | (enable_sound ? _BV(3) : 0)
+                     | (enable_standby ? _BV(2) : 0)
+                     | (DGUS_CREALITY_TOUCH_ORIENTATION & 3);
+    const uint8_t config_set[] = { 0x5A, 0x00, 0x00, cfg_bits };
+    writeVariable(0x80, config_set, sizeof(config_set));
+
+    // LED_Config (0x82). The standby time unit is 10ms.
+    const uint16_t standby_time = 100 * standby_seconds;
+    const uint8_t brightness_set[] = { active_brightness, standby_brightness, uint8_t(standby_time >> 8), uint8_t(standby_time) };
+    writeVariable(0x82, brightness_set, sizeof(brightness_set));
+  }
+
+#endif // DGUS_LCD_UI_CREALITY_TOUCH
 
 void DGUSDisplay::processRx() {
 

@@ -262,7 +262,7 @@ void RTS::init() {
         showcount++;
       }
     }
-    queue.enqueue_now(F("M420 S1"));
+    queue.enqueue_now(F("M420S1"));
   #endif
   last_zoffset = zprobe_zoffset = probe.offset.z;
   sendData(probe.offset.z * 100, AUTO_BED_LEVEL_ZOFFSET_VP);
@@ -592,7 +592,7 @@ void RTS::handleData() {
       }
       else if (recdat.data[0] == 3) { // Enter the tone interface
         waitway = 6;
-        queue.enqueue_now(F("G28\nG1 F200 Z0.0"));
+        queue.enqueue_now(F("G28\nG1F200Z0"));
         updateFan0();
         sendData(1, Wait_VP);
         gotoPage(ID_AutoHome_L, ID_AutoHome_D);
@@ -925,10 +925,10 @@ void RTS::handleData() {
       if (recdat.data[0] == 1) { // Save the button
         settings.save();
         waitway = 6;
-        queue.enqueue_now(F("G28Z\nG1 F200 Z0.0"));
+        queue.enqueue_now(F("G28Z\nG1F200Z0"));
       }
       else if (recdat.data[0] == 4) {
-        queue.enqueue_now(F("G34\nG1 F200 Z0.0"));
+        queue.enqueue_now(F("G34\nG1F200Z0"));
       }
       else if (recdat.data[0] == 5) {
         #if ENABLED(FIX_MOUNTED_PROBE)
@@ -1617,7 +1617,7 @@ void RTS::onIdle() {
 
   if (pause_action_flag && !sdcard_pause_check && marlin.printingIsPaused() && !planner.has_blocks_queued()) {
     pause_action_flag = false;
-    queue.enqueue_now(F("G0 F3000 X0 Y0\nM18 S0"));
+    queue.enqueue_now(F("G0F3000X0Y0\nM84S0"));
   }
 
   TERN_(HAS_Z_AXIS, sendData(motion.position.z * 10.0f, AXIS_Z_COORD_VP));

@@ -741,6 +741,7 @@ void Marlin::manage_inactivity(const bool no_stepper_sleep/*=false*/) {
     if (thermalManager.degHotend(motion.extruder) > (EXTRUDER_RUNOUT_MINTEMP)
       && ELAPSED(ms, gcode.previous_move_ms, SEC_TO_MS(EXTRUDER_RUNOUT_SECONDS))
       && !planner.has_blocks_queued()
+      && !paused_for_filament_change  // Don't extrude while filament is being changed
     ) {
       const int8_t e_stepper = TERN(HAS_SWITCHING_EXTRUDER, motion.extruder / 2, motion.extruder);
       const bool e_off = !stepper.AXIS_IS_ENABLED(E_AXIS, e_stepper);
@@ -885,6 +886,11 @@ void Marlin::idle(const bool no_stepper_sleep/*=false*/) {
 
   // Update the Print Job Timer state
   TERN_(PRINTCOUNTER, print_job_timer.tick());
+
+  // Save settings after a change that requested it
+  #if EEPROM_AUTOSAVE_AFTER > 0
+    settings.autosave_task();
+  #endif
 
   // Update the Beeper queue
   TERN_(HAS_BEEPER, buzzer.tick());
@@ -1408,6 +1414,11 @@ void setup() {
 
   // Some HAL need precise delay adjustment
   calibrate_delay_loop();
+
+  // Start the I2C bus before other I2C features
+  #if ENABLED(EXPERIMENTAL_I2CBUS)
+    SETUP_RUN(i2c.init());
+  #endif
 
   // Init buzzer pin(s)
   #if HAS_BEEPER

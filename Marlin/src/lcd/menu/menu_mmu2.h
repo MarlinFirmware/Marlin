@@ -27,3 +27,4 @@ void menu_mmu2();
 void menu_mmu2_pause();
 void mmu2_M600(const bool automatic=false);
 uint8_t mmu2_choose_filament();
+bool mmu3_load_timeout_select(); // true: Retry (re-send). false: Abort.

@@ -37,7 +37,7 @@ void MarlinHAL::set_pwm_frequency(const pin_t pin, const uint16_t f_desired) {
   if (pwm != nullptr) delete pwm;
   pwm = new mbed::PwmOut(digitalPinToPinName(pin));
   digitalPinToPwm(pin) = pwm;
-  pwm->period_ms(1000 / f_desired);
+  pwm->period_us(1000000UL / f_desired); // period_ms() would round every frequency above 1 kHz down to 0
 }
 
 #endif // __PLAT_RP2040__

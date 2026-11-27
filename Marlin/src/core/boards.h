@@ -550,6 +550,8 @@
 #define BOARD_MM_JOKER                7011  // MagicMaker JOKER based on ESP32 (with I2S stepper stream)
 #define BOARD_MKS_DLC32_V2_1          7012  // MKS DLC32 V2.1 CNC/laser controller based on ESP32 (with I2S stepper stream)
 #define BOARD_BTT_RODENT_V1           7013  // BigTreeTech Rodent V1.0/V1.1 CNC controller based on ESP32 (with I2S stepper stream)
+#define BOARD_ESPRESSIF_ESP32S3       7014  // Generic ESP32-S3
+#define BOARD_ESPRESSIF_ESP32S2       7015  // Generic ESP32-S2
 
 //
 // SAMD51 ARM Cortex-M4

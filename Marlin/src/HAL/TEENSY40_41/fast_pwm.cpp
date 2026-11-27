@@ -34,7 +34,7 @@ void MarlinHAL::set_pwm_duty(const pin_t pin, const uint16_t v, const uint16_t v
   if (invert) value = v_size - value;
 
   // Choose scale as smallest power of 2 which holds v_size.
-  uint32_t scale = 1;
+  uint32_t scale = 2; // Always 1 << bits
   while (scale < v_size) {
     bits++;
     scale *= 2;

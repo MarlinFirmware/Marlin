@@ -35,7 +35,7 @@ Servo::Servo() {}
 
 int8_t Servo::attach(const int inPin) {
   if (inPin > 0) pin = inPin;
-  channel = get_pwm_channel(pin, 50U, 16U);
+  channel = get_pwm_channel(pin, 50U, SERVO_PWM_BITS);
   return channel; // -1 if no PWM avail.
 }
 

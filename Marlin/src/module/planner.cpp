@@ -1316,7 +1316,7 @@ void Planner::check_axes_activity() {
     #if FAN_KICKSTART_TIME
       FANS_LOOP(i) if (fans[i].kicking) fans_need_update = true;
     #endif
-    if (fans_need_update) Fan::sync_speeds();
+    if (fans_need_update) Fan::sync_speeds<true>();
   #endif
 
   // Update hotend temperature based on extruder speed

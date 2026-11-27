@@ -23,7 +23,7 @@ rm -f "$ARCDIR"/*.zip "$ARCDIR"/*.sha256.txt
 pushd "$DIR" >/dev/null
 
 SHASUM=$(sha256sum "$NAME" | cut -d" " -f1)
-echo "$CONFIG\n$SHASUM" > "$ARCDIR/$NAME.sha256.txt"
+printf '%s\n%s\n' "$CONFIG" "$SHASUM" > "$ARCDIR/$NAME.sha256.txt"
 
 zip $ZIPX "$ARCDIR/$SHRT.zip" "$NAME" && rm "$NAME"
 
