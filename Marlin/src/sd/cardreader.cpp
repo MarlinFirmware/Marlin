@@ -134,12 +134,18 @@ int16_t CardReader::nrItems = -1;
   CardReader::sdcard_driver_t CardReader::media_driver_sdcard;
 #endif
 
+#if ENABLED(VOLUME_SD_LCD)
+  DiskIODriver_SPI_SD CardReader::media_driver_sdcard_lcd;
+#endif
+
 #if HAS_USB_FLASH_DRIVE
   DiskIODriver_USBFlash CardReader::media_driver_usbFlash;
 #endif
 
 DiskIODriver* CardReader::driver = (
-  #if HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
+  #if ENABLED(VOLUME_SD_LCD) && DEFAULT_VOLUME_IS(SD_LCD)
+    &CardReader::media_driver_sdcard_lcd
+  #elif HAS_USB_FLASH_DRIVE && !DEFAULT_VOLUME_IS(SD_ONBOARD)
     &CardReader::media_driver_usbFlash
   #else
     &CardReader::media_driver_sdcard
@@ -196,6 +202,10 @@ CardReader::CardReader() {
 
   #if PIN_EXISTS(SDPOWER)
     OUT_WRITE(SDPOWER_PIN, HIGH); // Power the SD reader
+  #endif
+
+  #if ENABLED(VOLUME_SD_LCD)
+    sdCardLCDSelected = DEFAULT_VOLUME_IS(SD_LCD);
   #endif
 }
 
@@ -524,12 +534,17 @@ void CardReader::mount(const bool alert/*=true*/) {
   nrItems = -1;
   if (root.isOpen()) root.close();
 
-  const bool driver_init = (
-    driver->init(SD_SPI_SPEED, SD_SS_PIN)
-    #if PIN_EXISTS(LCD_SDSS) && (LCD_SDSS_PIN != SD_SS_PIN)
-      || driver->init(SD_SPI_SPEED, LCD_SDSS_PIN)
+  #if ENABLED(VOLUME_SD_LCD)
+    #if PIN_EXISTS(LCD_SDSS)
+      const pin_t sd_ss_pin = sdCardLCDSelected ? LCD_SDSS_PIN : SD_SS_PIN;
+    #else
+      const pin_t sd_ss_pin = SD_SS_PIN;
     #endif
-  );
+  #else
+    constexpr pin_t sd_ss_pin = SD_SS_PIN;
+  #endif
+
+  const bool driver_init = driver->init(SD_SPI_SPEED, sd_ss_pin);
 
   mount_finish(driver_init, alert);
 }
@@ -552,7 +567,15 @@ bool CardReader::mount_async(const bool alert) {
       flag.mounted = false;
       nrItems = -1;
       if (root.isOpen()) root.close();
-      driver->initStart(SD_SPI_SPEED, SD_SS_PIN);
+      #if ENABLED(VOLUME_SD_LCD)
+        #if PIN_EXISTS(LCD_SDSS)
+          driver->initStart(SD_SPI_SPEED, sdCardLCDSelected ? LCD_SDSS_PIN : SD_SS_PIN);
+        #else
+          driver->initStart(SD_SPI_SPEED, SD_SS_PIN);
+        #endif
+      #else
+        driver->initStart(SD_SPI_SPEED, SD_SS_PIN);
+      #endif
       mount_state = MOUNT_INIT;
       break;
 
@@ -560,7 +583,7 @@ bool CardReader::mount_async(const bool alert) {
     case MOUNT_INIT_LCD: {
       const int8_t result = driver->initStep();
       if (!result) break;
-      #if PIN_EXISTS(LCD_SDSS) && (LCD_SDSS_PIN != SD_SS_PIN)
+      #if PIN_EXISTS(LCD_SDSS) && (LCD_SDSS_PIN != SD_SS_PIN) && DISABLED(VOLUME_SD_LCD)
         if (result < 0 && mount_state == MOUNT_INIT) {
           driver->initStart(SD_SPI_SPEED, LCD_SDSS_PIN);
           mount_state = MOUNT_INIT_LCD;
@@ -1831,3 +1854,6 @@ void CardReader::fileHasFinished() {
 #endif // POWER_LOSS_RECOVERY
 
 #endif // HAS_MEDIA
+#if ENABLED(VOLUME_SD_LCD)
+  bool CardReader::sdCardLCDSelected = false;
+#endif

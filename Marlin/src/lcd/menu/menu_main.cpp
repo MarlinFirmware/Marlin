@@ -373,6 +373,20 @@ void menu_main() {
             #define M21(T) F("M21" TERN_(HAS_MULTI_VOLUME, T))
             if (att_sd)  GCODES_ITEM(MSG_ATTACH_SD,  M21("S")); // M21 S - [Attach SD Card]
             if (att_usb) GCODES_ITEM(MSG_ATTACH_USB, M21("U")); // M21 U - [Attach USB Drive]
+            #if ENABLED(MULTI_VOLUME)
+              SUBMENU(MSG_ATTACH_SD_ONBOARD, []{
+                card.release();
+                card.selectMediaSDCard();
+                card.mount();
+                ui.goto_screen(menu_file_selector);
+              });
+              SUBMENU(MSG_ATTACH_SD_LCD, []{
+                card.release();
+                card.selectMediaSDCardLCD();
+                card.mount();
+                ui.goto_screen(menu_file_selector);
+              });
+            #endif
           #endif
         }
       }

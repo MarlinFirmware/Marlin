@@ -2095,14 +2095,16 @@
 
   /**
    * Multiple volume support - EXPERIMENTAL.
-   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' to mount SD Card / USB Drive.
+   * Adds 'M21 Pm' / 'M21 S' / 'M21 U' / 'M21 L' to mount SD/USB/LCD media.
+   * Use 'M20' to list the currently selected media volume.
    */
   //#define MULTI_VOLUME
   #if ENABLED(MULTI_VOLUME)
-    #define VOLUME_SD_ONBOARD
-    #define VOLUME_USB_FLASH_DRIVE
-    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
-    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'USB_FLASH_DRIVE' ]
+    #define VOLUME_SD_ONBOARD        // Enable for the control-board SD card
+    //#define VOLUME_SD_LCD            // Enable for the LCD/EXP2 SD card
+    #define VOLUME_USB_FLASH_DRIVE // Enable only with USB host pins or USE_OTG_USB_HOST
+    #define DEFAULT_VOLUME        SD_ONBOARD       // :[ 'SD_ONBOARD', 'SD_LCD', 'USB_FLASH_DRIVE' ]
+    #define DEFAULT_SHARED_VOLUME USB_FLASH_DRIVE  // :[ 'SD_ONBOARD', 'SD_LCD', 'USB_FLASH_DRIVE' ]
   #endif
 
   // Maximum number of consecutive SD card read errors before aborting the print

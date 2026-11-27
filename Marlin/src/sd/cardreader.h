@@ -56,7 +56,8 @@ extern const char M23_STR[], M24_STR[];
 
 #if NEED_SD2CARD_SDIO
   #include "Sd2Card_sdio.h"
-#elif NEED_SD2CARD_SPI
+#endif
+#if NEED_SD2CARD_SPI || ENABLED(VOLUME_SD_LCD)
   #include "Sd2Card.h"
 #endif
 
@@ -112,6 +113,10 @@ public:
     #endif
   #endif
 
+#if ENABLED(VOLUME_SD_LCD)
+  static bool sdCardLCDSelected;
+#endif
+
   CardReader();
 
   // Init at startup before mounting media
@@ -131,6 +136,10 @@ public:
     static sdcard_driver_t media_driver_sdcard;
   #endif
 
+  #if ENABLED(VOLUME_SD_LCD)
+    static DiskIODriver_SPI_SD media_driver_sdcard_lcd;
+  #endif
+
   #if HAS_USB_FLASH_DRIVE
     static DiskIODriver_USBFlash media_driver_usbFlash;
   #endif
@@ -138,6 +147,16 @@ public:
   static void selectMediaSDCard() {
     #if HAS_SDCARD
       changeMedia(&media_driver_sdcard);
+      #if ENABLED(VOLUME_SD_LCD)
+        sdCardLCDSelected = false;
+      #endif
+    #endif
+  }
+
+  static void selectMediaSDCardLCD() {
+    #if ENABLED(VOLUME_SD_LCD)
+      changeMedia(&media_driver_sdcard_lcd);
+      sdCardLCDSelected = true;
     #endif
   }
 
@@ -148,7 +167,13 @@ public:
   }
 
   static bool isSDCardSelected() {
-    return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    #if ENABLED(VOLUME_SD_LCD)
+      return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME,
+        driver == &media_driver_sdcard || driver == &media_driver_sdcard_lcd
+      ));
+    #else
+      return TERN0(HAS_SDCARD, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_sdcard));
+    #endif
   }
   static bool isFlashDriveSelected() {
     return TERN0(HAS_USB_FLASH_DRIVE, TERN1(HAS_MULTI_VOLUME, driver == &media_driver_usbFlash));
