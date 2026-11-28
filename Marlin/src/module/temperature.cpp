@@ -3482,9 +3482,23 @@ void Temperature::init() {
       }
     }
 
+    #if ENABLED(THERMAL_PROTECTION_STUCK_HEATER)
+      // Stop watching for a stuck heater while it is in use
+      if (state != TRInactive) { stuck_low = 0; stuck_timer = 0; }
+    #endif
+
     switch (state) {
       // Inactive state waits for a target temperature to be set
-      case TRInactive: break;
+      case TRInactive:
+        #if ENABLED(THERMAL_PROTECTION_STUCK_HEATER)
+          if (heater_stuck(current, heater_id)) {
+            TERN_(DWIN_CREALITY_LCD, dwinPopupTemperature(0));
+            TERN_(CREALITY_RTS, RTS_Error(heater_id == H_BED ? Error_09 : Error_06));
+            TERN_(EXTENSIBLE_UI, ExtUI::onHeatingError(heater_id));
+            _TEMP_ERROR(heater_id, F(STR_T_HEATER_STUCK), MSG_ERR_HEATER_STUCK, current);
+          }
+        #endif
+        break;
 
       // When first heating, wait until within hysteresis of the target then go to Stable state.
       // The heating watchdog (WATCH_*) covers the heat-up until the same point.
@@ -3569,6 +3583,46 @@ void Temperature::init() {
   }
 
   #pragma GCC diagnostic pop
+
+  #if ENABLED(THERMAL_PROTECTION_STUCK_HEATER)
+
+    /**
+     * @brief Check whether a heater that is turned off keeps heating up
+     * @param current    current measured temperature
+     * @param heater_id  heater index
+     * @return true if the temperature has stayed STUCK_*_RISE above the lowest temperature
+     *         seen while the heater was off for STUCK_HEATER_PERIOD seconds
+     */
+    bool Temperature::tr_state_machine_t::heater_stuck(const celsius_float_t current, const heater_id_t heater_id) {
+      celsius_float_t min_temp, rise;
+      #if ALL(HAS_HEATED_BED, THERMAL_PROTECTION_BED)
+        if (heater_id == H_BED) { min_temp = STUCK_BED_MIN_TEMP; rise = STUCK_BED_RISE; }
+        else
+      #endif
+      {
+        #if ENABLED(THERMAL_PROTECTION_HOTENDS)
+          if (heater_id < 0) return false;  // Only hotends and the bed are watched
+          min_temp = STUCK_HOTEND_MIN_TEMP; rise = STUCK_HOTEND_RISE;
+        #else
+          return false;
+        #endif
+      }
+
+      // Below the minimum temperature: nothing to watch
+      if (current < min_temp) { stuck_low = 0; stuck_timer = 0; return false; }
+
+      // Track the lowest temperature seen while the heater is off
+      if (!stuck_low || current < stuck_low) stuck_low = current;
+
+      // The temperature must stay at least 'rise' above the lowest seen for the whole period
+      if (current - stuck_low < rise) { stuck_timer = 0; return false; }
+
+      const millis_t now = millis();
+      if (!stuck_timer) { stuck_timer = now + SEC_TO_MS(STUCK_HEATER_PERIOD); return false; }
+      return ELAPSED(now, stuck_timer);
+    }
+
+  #endif // THERMAL_PROTECTION_STUCK_HEATER
 
 #endif // HAS_THERMAL_PROTECTION
 

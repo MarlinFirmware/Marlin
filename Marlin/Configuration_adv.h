@@ -411,6 +411,28 @@
     // Keep in mind that some heaters heat up faster than others.
     //#define THERMAL_PROTECTION_VARIANCE_MONITOR_PERIOD 30  // (s) Override all watch periods
   #endif
+
+  /**
+   * Thermal Protection Stuck Heater Monitor - EXPERIMENTAL
+   * Kill the machine if a hotend or bed keeps heating up while it is turned off.
+   *
+   * A heater MOSFET or heater wire that fails "on" is otherwise only caught by MAXTEMP, at the very top
+   * of the temperature range. This feature watches every protected hotend and bed that has no target
+   * temperature (or has timed out) and halts the printer if its temperature rises more than the given
+   * amount above the lowest temperature seen while it was off, and stays there for the given period.
+   *
+   * Monitoring only starts above the given minimum temperature, so a heater warmed up by another nearby
+   * heater (e.g., a nozzle parked over a hot bed) shouldn't cause a false positive. Raise the minimum if
+   * it does. To also cut power on an error use PSU_CONTROL or a SUICIDE_PIN.
+   */
+  //#define THERMAL_PROTECTION_STUCK_HEATER
+  #if ENABLED(THERMAL_PROTECTION_STUCK_HEATER)
+    #define STUCK_HEATER_PERIOD      10   // (s) Time the temperature rise must persist
+    #define STUCK_HOTEND_MIN_TEMP   120   // (°C) Watch hotends above this temperature
+    #define STUCK_HOTEND_RISE        20   // (°C) Hotend rise above the lowest temperature seen while off
+    #define STUCK_BED_MIN_TEMP       50   // (°C) Watch the bed above this temperature
+    #define STUCK_BED_RISE           10   // (°C) Bed rise above the lowest temperature seen while off
+  #endif
 #endif
 
 #if ENABLED(PIDTEMP)
