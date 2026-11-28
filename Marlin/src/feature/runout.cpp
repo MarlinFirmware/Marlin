@@ -59,6 +59,11 @@ bool FilamentMonitorBase::enabled = true,
     Flags<NUM_RUNOUT_SENSORS> RunoutResponseDelayed::ignore_motion; // = 0
     float RunoutResponseDelayed::motion_distance_mm = FILAMENT_MOTION_DISTANCE_MM;
   #endif
+  #if ENABLED(MOTION_STEPS_COUNTER)
+    uint16_t FilamentSensorEncoder::encoder_steps;
+    bool     FilamentSensorEncoder::extruding;
+    bool     FilamentSensorEncoder::calibration;
+  #endif
 #else
   int8_t RunoutResponseDebounced::runout_count[NUM_RUNOUT_SENSORS]; // = 0
 #endif
