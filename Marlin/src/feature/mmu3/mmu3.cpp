@@ -57,7 +57,6 @@
   #include "../bedlevel/bedlevel.h"
 #endif
 #include "../pause.h"
-#include "../../libs/stopwatch.h"
 
 // As of FW 3.12 we only support building the FW with only one extruder, all the multi-extruder infrastructure will be removed.
 // Saves at least 800B of code size
@@ -943,7 +942,9 @@ namespace MMU3 {
 
     MARLIN_KEEPALIVE_STATE_IN_PROCESS;
 
-    Stopwatch nozzle_timer;
+    // Not a Stopwatch! Its state is static, shared with the print job timer.
+    millis_t cooldown_start = 0;
+    bool cooldown_timing = false;
 
     // Track the last reported progress so a responsive MMU that never finishes a
     // command (e.g., a Load that can't reach the FINDA) can be given up on.
@@ -959,19 +960,21 @@ namespace MMU3 {
       safe_delay_keep_alive(0); // calls logicStep() and remembers its return status
 
       if (mmu_print_saved & SavedState::CooldownPending) {
-        if (!nozzle_timer.isRunning()) {
-          nozzle_timer.start();
+        if (!cooldown_timing) {
+          cooldown_timing = true;
+          cooldown_start = millis();
           LogEchoEvent(F("Cooling Timeout started"));
         }
-        else if (nozzle_timer.duration() > (PAUSE_PARK_NOZZLE_TIMEOUT * 1000UL)) { // mins->msec.
+        else if (ELAPSED(millis(), cooldown_start + SEC_TO_MS(PAUSE_PARK_NOZZLE_TIMEOUT))) {
+          cooldown_timing = false;
           mmu_print_saved &= ~(SavedState::CooldownPending);
           mmu_print_saved |= SavedState::Cooldown;
           thermal_setTargetHotend(0);
           LogEchoEvent(F("Heater cooldown"));
         }
       }
-      else if (nozzle_timer.isRunning()) {
-        nozzle_timer.stop();
+      else if (cooldown_timing) {
+        cooldown_timing = false;
         LogEchoEvent(F("Cooling timer stopped"));
       }
 
