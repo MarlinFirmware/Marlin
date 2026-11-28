@@ -15,6 +15,15 @@ def main():
                 if config.enable(file, name, False):
                     changed = True
 
+        # A display name deselects that display if it's the one selected
+        if not changed:
+            lcd = config.display_value(name)
+            if lcd:
+                changed = True
+                for file in files:
+                    if os.path.exists(file) and config.get(file, 'LCD_CONTROLLER') == lcd:
+                        config.set(file, 'LCD_CONTROLLER', 'LCD_NONE')
+
         if not changed:
             print(f"ERROR: Can't find {name}")
             exit(1)
