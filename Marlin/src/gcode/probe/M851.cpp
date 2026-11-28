@@ -42,7 +42,7 @@ void GcodeSuite::M851() {
   bool ok = true;
 
   if (parser.seenval('X')) {
-    const float x = parser.value_float();
+    const float x = parser.value_linear_units();
     #if HAS_PROBE_XY_OFFSET
       if (WITHIN(x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX))
         offs.x = x;
@@ -56,7 +56,7 @@ void GcodeSuite::M851() {
   }
 
   if (parser.seenval('Y')) {
-    const float y = parser.value_float();
+    const float y = parser.value_linear_units();
     #if HAS_PROBE_XY_OFFSET
       if (WITHIN(y, PROBE_OFFSET_YMIN, PROBE_OFFSET_YMAX))
         offs.y = y;
@@ -70,7 +70,7 @@ void GcodeSuite::M851() {
   }
 
   if (parser.seenval('Z')) {
-    const float z = parser.value_float();
+    const float z = parser.value_linear_units();
     if (WITHIN(z, PROBE_OFFSET_ZMIN, PROBE_OFFSET_ZMAX))
       offs.z = z;
     else {
