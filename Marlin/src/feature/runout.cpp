@@ -79,6 +79,7 @@ bool FilamentMonitorBase::enabled = true,
 #endif
 
 void event_filament_runout(const uint8_t extruder) {
+  DIAG_MSG("DIAG ", millis(), " event_filament_runout extruder=", extruder);
   if (TERN0(CREALITY_RTS, hmiFlag.G29_flag || hmiFlag.home_flag)) return;
 
   runout.init_for_restart(false); // Reset and disable

@@ -516,6 +516,7 @@ namespace MMU3 {
             // this one is kind of special
             // we do not transfer to any "running" command (i.e. we stay in Idle),
             // but in case there is an error reported we must make sure it gets propagated
+            DIAG_MSG("DIAG ", millis(), " MMU answered X: code=", (uint8_t)rsp.paramCode, " value=", rsp.paramValue);  // DIAG (temporary)
             switch (rsp.paramCode) {
               case ResponseMsgParamCodes::Button:
                 // The user pushed a button on the MMU. Save it, do what we need to do
@@ -649,10 +650,12 @@ namespace MMU3 {
   }
 
   void ProtocolLogic::ResetMMU(uint8_t mode /* = 0 */) {
+    DIAG_MSG("DIAG ", millis(), " ResetMMU (X", mode, ") requested, progress=", (uint8_t)progressCode, " scope=", (uint8_t)currentScope);  // DIAG (temporary)
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Reset, mode));
   }
 
   void ProtocolLogic::button(uint8_t index) {
+    DIAG_MSG("DIAG ", millis(), " MMU button B", index, " planned, expects_response=", ExpectsResponse());  // DIAG (temporary)
     PlanGenericRequest(RequestMsg(RequestMsgCodes::Button, index));
   }
 

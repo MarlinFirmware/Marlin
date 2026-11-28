@@ -104,7 +104,11 @@ void GcodeSuite::M706() {
 void GcodeSuite::M707() {
   if (mmu3.enabled() && parser.seenval('A')) {
     char *address = parser.value_string();
-    mmu3.readRegister(uint8_t(strtol(address, nullptr, 16)));
+    const uint8_t addr = uint8_t(strtol(address, nullptr, 16));
+    DIAG_MSG("DIAG ", millis(), " M707 start addr=", addr);
+    const millis_t t0 = millis();
+    const bool ok = mmu3.readRegister(addr);
+    DIAG_MSG("DIAG ", millis(), " M707 end addr=", addr, " ok=", ok, " took=", millis() - t0, "ms value=", mmu3.getLastReadRegisterValue());
   }
 }
 
@@ -129,7 +133,10 @@ void GcodeSuite::M708() {
     const uint8_t addr = uint8_t(strtol(address, nullptr, 16));
     if (addr) {
       const uint16_t data = parser.ushortval('X', 0);
-      mmu3.writeRegister(addr, data);
+      DIAG_MSG("DIAG ", millis(), " M708 start addr=", addr, " data=", data);
+      const millis_t t0 = millis();
+      const bool ok = mmu3.writeRegister(addr, data);
+      DIAG_MSG("DIAG ", millis(), " M708 end addr=", addr, " ok=", ok, " took=", millis() - t0, "ms");
     }
   }
 }
