@@ -70,7 +70,7 @@ The firmware communicates with the host via serial at 250,000 baud (configurable
 | AVR | ATmega2560, ATmega1280, AT90USB | 8-bit AVR | Legacy support |
 | ESP32 | ESP32-S3, ESP32-S2 | Xtensa/RISC-V | WiFi/BLE capability |
 | SAMD | SAMD21, SAMD51 | ARM Cortex-M0+/M4 | Adafruit Feather M4 |
-| RP2040 | RP2040, RP2350 | ARM Cortex-M33 | Raspberry Pi Pico |
+| Raspberry Pi Pico | RP2040 | Dual ARM Cortex-M0+ | Beta HAL, ADC on second core |
 | LPC | LPC1768, LPC1769 | ARM Cortex-M3 | RAMBo, Melzi boards |
 | GD32 | GD32F1, GD32F3 | ARM Cortex-M3 | GigaDevice clones |
 | HC32 | HC32F4 | ARM Cortex-M4 | JCEC chips |
