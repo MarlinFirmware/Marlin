@@ -2068,6 +2068,11 @@
    */
   //#define CONFIGURATION_EMBEDDING
 
+  #if HAS_MARLINUI_MENU && DISABLED(DISABLE_M503, SDCARD_READONLY)
+    // Write settings to the SD card root as M503.gc. Replay to restore settings.
+    //#define EXPORT_SETTINGS
+  #endif
+
   // Add an optimized binary file transfer mode, initiated with 'M28 B1'
   //#define BINARY_FILE_TRANSFER
 

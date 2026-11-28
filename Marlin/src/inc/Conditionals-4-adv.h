@@ -1901,6 +1901,11 @@
   #endif
 #endif
 
+// If serial needs to be redirected to SD for any reason
+#if ENABLED(EXPORT_SETTINGS)
+  #define SERIAL_2_FILE   // Dump serial output to file
+#endif
+
 // Flags for Case Light having a color property or a single pin
 #if ENABLED(CASE_LIGHT_ENABLE)
   #if ANY(CASE_LIGHT_USE_NEOPIXEL, CASE_LIGHT_USE_RGB_LED)
