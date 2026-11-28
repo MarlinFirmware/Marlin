@@ -1192,9 +1192,10 @@ namespace ExtUI {
     return isPrintingFromMedia() || marlin.printJobOngoing();
   }
 
-  bool isMediaMounted()    { return card.isMounted(); }
-  bool isMediaMountedSD()  { return card.isSDCardMounted(); }
-  bool isMediaMountedUSB() { return card.isFlashDriveMounted(); }
+  bool isMediaMounted()     { return card.isMounted(); }
+  bool isMediaMountedSD()   { return card.isSDCardMounted(); }
+  bool isMediaMountedSDIO() { return card.isSDIOCardMounted(); }
+  bool isMediaMountedUSB()  { return card.isFlashDriveMounted(); }
 
   // Pause/Resume/Stop are implemented in MarlinUI
   void pausePrint()  { ui.pause_print(); }
