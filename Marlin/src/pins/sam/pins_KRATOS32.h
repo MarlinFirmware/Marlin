@@ -158,6 +158,8 @@
   #define BEEPER_PIN                          41
   #define KILL_PIN                            66
 
+  // NOTE: Kept inline — KRATOS32 uses raw Due pin numbers with no EXP1/EXP2 connector
+  // tokens. BTN_BACK is a board-specific extra button.
   #if IS_RRD_FG_SC
 
     #define LCD_PINS_RS                       42

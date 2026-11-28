@@ -116,6 +116,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Wanhao D9 wires the LCD and encoder to raw pins that don't
+// match the standard EXP slot order the lcd/ file default assumes.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                          27
 

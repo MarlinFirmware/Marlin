@@ -115,6 +115,7 @@
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
+  // NOTE: Kept inline — MKS_ROBIN_LITE3 uses raw STM32 pins for DOGLCD.
 
     #define LCD_BACKLIGHT_PIN               -1
     #define LCD_RESET_PIN                   -1
@@ -126,6 +127,7 @@
   #elif IS_TFTGLCD_PANEL
 
     #if ENABLED(TFTGLCD_PANEL_SPI)
+      // NOTE: MKS_ROBIN_LITE3 uses raw STM32 pin PB11 for TFTGLCD_CS (no EXP2 token mapping)
       #define TFTGLCD_CS                    PB11
     #endif
 

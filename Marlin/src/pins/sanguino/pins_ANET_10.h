@@ -103,11 +103,20 @@
 #define BOARD_INFO_NAME "Anet 1.0"
 
 //
+// Servos
+//
+#define SERVO0_PIN                        LCD_03  // BLTouch control
+
+//
 // Limit Switches
 //
 #define X_STOP_PIN                            18
 #define Y_STOP_PIN                            19
 #define Z_STOP_PIN                            20
+
+#ifndef FIL_RUNOUT_PIN
+  #define FIL_RUNOUT_PIN              SERVO0_PIN  // Without a BLTouch
+#endif
 
 //
 // Steppers
@@ -150,6 +159,26 @@
 #define SD_SS_PIN                             31
 #define LED_PIN                               -1
 
+//
+// Board Connectors
+//
+#define J3_01                                  8
+#define J3_02                                  9
+#define J3_03                                  6  // MISO
+#define J3_05                                  7  // SCK
+#define J3_06                                  5  // MOSI
+#define J3_07                                 -1  // !RESET
+#define J3_09                                  4
+
+#define LCD_03                                27
+#define LCD_04                                10
+#define LCD_05                                28
+#define LCD_06                                11
+#define LCD_07                                29
+#define LCD_08                                16
+#define LCD_09                                30
+#define LCD_10                                17
+
 /**
  * Connector pinouts
  *
@@ -181,6 +210,44 @@
  *  REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
  */
 
+//#define ADAPTER_ODERWAT
+//#define ADAPTER_BENLYE
+
+#ifdef ADAPTER_ODERWAT
+  // OderWat's Adapter - https://www.thingiverse.com/thing:2103748
+  #define EXP1_01_PIN                     LCD_05
+  #define EXP1_02_PIN                     LCD_08
+  #define EXP1_03_PIN                     LCD_07
+  #define EXP1_04_PIN                     LCD_09
+  #define EXP1_05_PIN                     LCD_10
+
+  #define EXP2_01_PIN                      J3_03
+  #define EXP2_02_PIN                      J3_05
+  #define EXP2_03_PIN                     LCD_04
+  #define EXP2_05_PIN                     LCD_06
+  #define EXP2_06_PIN                      J3_06
+  #define EXP2_08_PIN                      J3_07
+#elif defined(ADAPTER_BENLYE)
+  // Benlye's Adapter - https://go.aisler.net/benlye/anet-lcd-adapter/pcb
+  #define J4_JUMPER_ATTACHED
+
+  #define EXP1_01_PIN                     LCD_10
+  #define EXP1_03_PIN                     LCD_08
+  #define EXP1_05_PIN                     LCD_06
+  #define EXP1_06_PIN                     LCD_05
+  #define EXP1_07_PIN                     LCD_04
+  #define EXP1_08_PIN                     LCD_03
+
+  #undef SERVO0_PIN
+  #if ENABLED(J4_JUMPER_ATTACHED)
+    #define SERVO0_PIN                    LCD_09  // BLTouch/3D-Touch
+    #define EXP1_04_PIN                   LCD_07  // J4 Jumper Attached
+  #else
+    #define SERVO0_PIN                    LCD_07  // BLTouch/3D-Touch
+    #define EXP1_04_PIN                   LCD_09  // J4 Jumper Removed
+  #endif
+#endif
+
 #if HAS_WIRED_LCD
 
   #define LCD_SDSS_PIN               EXP1_06_PIN
@@ -198,6 +265,9 @@
 
   #elif IS_RRD_FG_SC
 
+    // NOTE: Kept inline — this board's LCD header (and the benlye adapter for RRD
+    // displays) uses a non-standard EXP1 order with SERVO0 on the header, and needs
+    // board-specific ST7920 timing. lcd/ANET_FULL_GRAPHICS_LCD.h does not apply here.
     // Pin definitions for the Anet A6 Full Graphics display and the RepRapDiscount Full Graphics
     // display using an adapter board. See https://aisler.net/benlye/anet-lcd-adapter/pcb
     // See below for alternative pin definitions for use with https://www.thingiverse.com/thing:2103748
@@ -273,24 +343,6 @@
 #ifndef FIL_RUNOUT_PIN
   #define FIL_RUNOUT_PIN              SERVO0_PIN
 #endif
-
-/**
- * ====================================================================
- * =============== Alternative RepRapDiscount Wiring ==================
- * ====================================================================
- *
- * An alternative wiring scheme for the RepRapDiscount Full Graphics Display is
- * published by oderwat on Thingiverse at https://www.thingiverse.com/thing:2103748.
- *
- * Using that adapter requires changing the pin definition as follows:
- *   #define SERVO0_PIN   27   // free for BLTouch/3D-Touch
- *   #define BEEPER_PIN   28
- *   #define LCD_PINS_RS  30
- *   #define LCD_PINS_EN  29
- *   #define LCD_PINS_D4  17
- *
- * The BLTouch pin becomes LCD:3
- */
 
 /**
  * ====================================================================

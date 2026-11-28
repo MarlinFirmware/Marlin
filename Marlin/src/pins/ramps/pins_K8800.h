@@ -100,14 +100,16 @@
   #define DOGLCD_CS                           29
   #define DOGLCD_A0                           27
 
+  // LCD data lines + buttons. NOTE: Kept inline — K8800 defines DOGLCD_CS/A0 on
+  // the same pins as the data lines (RS=27=A0, EN=29=CS), so pre-defining them
+  // here (before pins_lcd.h) skips the shared adapter dispatch. The wiring is
+  // unique to this board.
   #define LCD_PINS_RS                         27
   #define LCD_PINS_EN                         29
   #define LCD_PINS_D4                         37
   #define LCD_PINS_D5                         35
   #define LCD_PINS_D6                         33
   #define LCD_PINS_D7                         31
-
-  //#define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #if IS_NEWPANEL
     #define BTN_EN1                           17

@@ -154,6 +154,7 @@
 
 #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+  // NOTE: Kept inline — MEGATRONICS_3 uses raw Mega pin numbers (not EXP tokens).
   #define LCD_PINS_RS                         56  // CS chip select / SS chip slave select
   #define LCD_PINS_EN                         51  // SID (MOSI)
   #define LCD_PINS_D4                         52  // SCK (CLK) clock

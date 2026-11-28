@@ -139,6 +139,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — CNControls V1.1 wires the panel and shift-register
+// buttons to raw pins that don't follow the standard EXP slot order.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                           6
 
@@ -149,6 +151,8 @@
   #if HAS_MARLINUI_U8GLIB
     #define DOGLCD_A0                         26
     #define DOGLCD_CS                         24
+    #define DOGLCD_MOSI                       -1  // Prevent auto-define by pins_lcd.h
+    #define DOGLCD_SCK                        -1
   #endif
 #endif
 

@@ -180,54 +180,25 @@
 #define EXP3_07_PIN                         PA5
 #define EXP3_08_PIN                         PA4
 
-#if HAS_WIRED_LCD
+#if ENABLED(MKS_MINI_12864)
 
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
+  // Migrated to pins/lcd
 
-  // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
-  #if ENABLED(MKS_MINI_12864)
+  // For MKS LCD12864A the RPK2 resistor must be removed
 
-    #define LCD_BACKLIGHT_PIN               -1
-    #define LCD_RESET_PIN                   -1
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define DOGLCD_CS                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP2_02_PIN
-    #define DOGLCD_MOSI              EXP2_06_PIN
+#elif ENABLED(FYSETC_MINI_12864_2_1)
 
-  #elif ENABLED(FYSETC_MINI_12864_2_1)
+  // Migrated to pins/lcd
+  #define FORCE_SOFT_SPI
 
-    #define LCD_PINS_DC              EXP1_04_PIN
-    #define DOGLCD_CS                EXP1_03_PIN
-    #define DOGLCD_A0                LCD_PINS_DC
-    #define LCD_BACKLIGHT_PIN               -1
-    #define LCD_RESET_PIN            EXP1_05_PIN
-    #define NEOPIXEL_PIN             EXP1_06_PIN
-    #define DOGLCD_MOSI              EXP2_06_PIN
-    #define DOGLCD_SCK               EXP2_02_PIN
-    #define FORCE_SOFT_SPI
-    #define SOFTWARE_SPI
-    //#define LCD_SCREEN_ROTATE              180  // 0, 90, 180, 270
+#elif HAS_WIRED_LCD
 
-  #else // !FYSETC_MINI_12864_2_1
+  // Migrated to pins/lcd — the standard EXP1_01..08 / EXP2_03/05 slot-order
+  // wiring is supplied by lcd/WIRED.h / RRD_SC.h via the de-facto EXP ports.
 
-    #define LCD_PINS_D4              EXP1_05_PIN
-    #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-
-      #if !defined(BTN_ENC_EN) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-        #define BTN_ENC_EN           LCD_PINS_D7  // Detect the presence of the encoder
-      #endif
-
-    #endif
-
-  #endif // !FYSETC_MINI_12864_2_1
+  #if !defined(BTN_ENC_EN) && ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+    #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+  #endif
 
 #endif // HAS_WIRED_LCD
 

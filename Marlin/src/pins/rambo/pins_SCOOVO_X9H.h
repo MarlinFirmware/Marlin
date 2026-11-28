@@ -125,6 +125,8 @@
 //
 // LCD / Controller
 //
+// NOTE: Kept inline — SCOOVO X9H wires the LCD to raw Ext header pins in a
+// non-standard order, not the lcd/ file EXP layout.
 #define LCD_PINS_RS                           70  // Ext2_5
 #define LCD_PINS_EN                           71  // Ext2_7
 #define LCD_PINS_D4                           72  // Ext2_9 ?

@@ -405,7 +405,16 @@
 // LCD / Controller
 //
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+  // Simulator: the panel's encoder and beeper use the standard CR10 EXP1 positions
+  #define SD_DETECT_PIN              EXP2_08_PIN
+
+  // CUSTOM SIMULATOR INPUTS
+  #define BTN_BACK                            70
+
+#elif ANY(TFT_COLOR_UI, TFT_CLASSIC_UI, TFT_LVGL_UI)
 
   #define TFT_CS_PIN                          49
   #define TFT_DC_PIN                          43
@@ -510,6 +519,7 @@
   //
   #if ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+    // NOTE: Kept inline — this panel's CS is on EXP2_07, sharing the EXP2 SPI bus
     #define LCD_PINS_RS              EXP2_07_PIN  // CS chip select /SS chip slave select
     #define LCD_PINS_EN              EXP2_06_PIN  // SID (MOSI)
     #define LCD_PINS_D4              EXP2_02_PIN  // SCK (CLK) clock
@@ -523,52 +533,34 @@
     #define LCD_PINS_D6                       44
     #define LCD_PINS_D7                       64
 
+  #elif ENABLED(ZONESTAR_LCD)
+
+    // NOTE: Kept inline — RAMPS_NATIVE wires ZONESTAR_LCD via raw AUX-2 pin numbers
+    // (RS=64, EN=44, D4=63, D5=40, D6=42, D7=65), not EXP tokens.
+    #define LCD_PINS_RS                       64
+    #define LCD_PINS_EN                       44
+    #define LCD_PINS_D4                       63
+    #define LCD_PINS_D5                       40
+    #define LCD_PINS_D6                       42
+    #define LCD_PINS_D7                       65
+
   #else
 
-    #if ENABLED(CR10_STOCKDISPLAY)
-
-      #define LCD_PINS_RS            EXP1_07_PIN
-      #define LCD_PINS_EN            EXP1_08_PIN
-      #define LCD_PINS_D4            EXP1_06_PIN
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN           EXP1_01_PIN
-      #endif
-
-    #elif ENABLED(ZONESTAR_LCD)
-
-      #define LCD_PINS_RS                     64
-      #define LCD_PINS_EN                     44
-      #define LCD_PINS_D4                     63
-      #define LCD_PINS_D5                     40
-      #define LCD_PINS_D6                     42
-      #define LCD_PINS_D7                     65
-
-    #else
-
-      #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
-        #define LCD_PINS_DC          EXP1_06_PIN  // Set as output on init
-        #define LCD_PINS_RS          EXP1_07_PIN  // Pull low for 1s to init
-        // DOGM SPI LCD Support
-        #define DOGLCD_CS            EXP1_04_PIN
-        #define DOGLCD_MOSI          EXP1_03_PIN
-        #define DOGLCD_SCK           EXP1_05_PIN
-        #define DOGLCD_A0            LCD_PINS_DC
-      #else
-        #define LCD_PINS_RS          EXP1_04_PIN
-        #define LCD_PINS_EN          EXP1_03_PIN
-        #define LCD_PINS_D4          EXP1_05_PIN
-        #define LCD_PINS_D5          EXP1_06_PIN
-        #define LCD_PINS_D6          EXP1_07_PIN
-      #endif
-
-      #define LCD_PINS_D7            EXP1_08_PIN
-
-      #if !IS_NEWPANEL
-        #define BEEPER_PIN           EXP2_05_PIN
-      #endif
-
+    // MKS_12864OLED / MKS_12864OLED_SSD1306: migrated to pins/lcd/MKS_12864OLED.h
+    #if !ANY(MKS_12864OLED, MKS_12864OLED_SSD1306)
+      #define LCD_PINS_RS            EXP1_04_PIN
+      #define LCD_PINS_EN            EXP1_03_PIN
+      #define LCD_PINS_D4            EXP1_05_PIN
+      #define LCD_PINS_D5            EXP1_06_PIN
+      #define LCD_PINS_D6            EXP1_07_PIN
     #endif
+
+    #define LCD_PINS_D7              EXP1_08_PIN
+
+    #if !IS_NEWPANEL
+      #define BEEPER_PIN             EXP2_05_PIN
+    #endif
+
   #endif
 
   //
@@ -578,17 +570,7 @@
 
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
-      #define BEEPER_PIN             EXP1_01_PIN
-
-      #if ENABLED(CR10_STOCKDISPLAY)
-        #define BTN_EN1              EXP1_03_PIN
-        #define BTN_EN2              EXP1_05_PIN
-      #else
-        #define BTN_EN1              EXP2_03_PIN
-        #define BTN_EN2              EXP2_05_PIN
-      #endif
-
-      #define BTN_ENC                EXP1_02_PIN
+      // BEEPER/BTN/LCD pins defined in Marlin/src/pins/lcd/RRD_SC.h
       #define SD_DETECT_PIN          EXP2_07_PIN
       #define KILL_PIN               EXP2_08_PIN
 
@@ -598,6 +580,7 @@
 
     #elif ENABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
+      // NOTE: Kept inline — RAMPS_NATIVE uses raw pin numbers (not EXP tokens) for this display.
       #define BTN_EN1                         64
       #define BTN_EN2                         59
       #define BTN_ENC                         63
@@ -641,37 +624,17 @@
 
     #elif ENABLED(ELB_FULL_GRAPHIC_CONTROLLER)
 
-      #define DOGLCD_CS              EXP1_08_PIN
-      #define DOGLCD_A0              EXP1_07_PIN
-
-      #define BEEPER_PIN             EXP1_05_PIN
-      #define LCD_BACKLIGHT_PIN      EXP2_05_PIN
-
-      #define BTN_EN1                EXP1_02_PIN
-      #define BTN_EN2                EXP1_01_PIN
-      #define BTN_ENC                EXP2_03_PIN
-
-      #define LCD_SDSS_PIN             SD_SS_PIN
-      #define SD_DETECT_PIN          EXP2_07_PIN
-      #define KILL_PIN               EXP2_08_PIN
-
+      // Pins defined in Marlin/src/pins/lcd/ELB_FULL_GRAPHIC_CONTROLLER.h
     #elif ENABLED(MKS_MINI_12864)
 
-      #define DOGLCD_A0              EXP1_07_PIN
-      #define DOGLCD_CS              EXP1_06_PIN
-
-      #define BEEPER_PIN             EXP1_01_PIN
-      // not connected to a pin
       #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
 
-      #define BTN_EN1                EXP2_03_PIN
-      #define BTN_EN2                EXP2_05_PIN
-      #define BTN_ENC                EXP1_02_PIN
-
-      #define SD_DETECT_PIN          EXP2_07_PIN
-      #define KILL_PIN                        64
-
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+      #ifndef SD_DETECT_PIN
+        #define SD_DETECT_PIN        EXP2_07_PIN
+      #endif
+      #ifndef KILL_PIN
+        #define KILL_PIN                      64
+      #endif
 
     #elif ENABLED(FYSETC_MINI_12864)
 
@@ -706,25 +669,11 @@
       #endif
 
     #elif ENABLED(MINIPANEL)
-
-      #define BEEPER_PIN                      42
-      // not connected to a pin
-      #define LCD_BACKLIGHT_PIN               65  // backlight LED on A11/D65
-
-      #define DOGLCD_A0                       44
-      #define DOGLCD_CS                       66
-
-      #define BTN_EN1                         40
-      #define BTN_EN2                         63
-      #define BTN_ENC                         59
-
-      #define SD_DETECT_PIN                   49
-      #define KILL_PIN                        64
-
-      //#define LCD_SCREEN_ROTATE            180  // 0, 90, 180, 270
+      #define ADAPTER_RAMPS_MKS         // MINIPANEL wired to AUX-2; see lcd/adapters.h
 
     #elif ENABLED(ZONESTAR_LCD)
 
+      // NOTE: Kept inline — ADC_KEYPAD_PIN is board-specific (repurposed servo pin).
       #define ADC_KEYPAD_PIN                  12
 
     #elif ENABLED(AZSMZ_12864)

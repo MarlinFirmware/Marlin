@@ -315,7 +315,7 @@ void MarlinUI::init_lcd() {
 
   #if ANY(MKS_12864OLED, MKS_12864OLED_SSD1306, FYSETC_242_OLED_12864, ZONESTAR_12864OLED, K3D_242_OLED_CONTROLLER)
 
-    #if defined(LCD_PINS_DC) && LCD_PINS_DC >= 0
+    #if _EXISTS(LCD_PINS_DC)
       #if IS_I2C_LCD
         I2C_TypeDef *i2cInstance1 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SDA_PIN), PinMap_I2C_SDA);
         I2C_TypeDef *i2cInstance2 = (I2C_TypeDef *)pinmap_peripheral(digitalPinToPinName(DOGLCD_SCL_PIN), PinMap_I2C_SCL);

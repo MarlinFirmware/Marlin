@@ -50,6 +50,8 @@
 #endif
 
 #if ENABLED(ZONESTAR_LCD)
+  // NOTE: Kept inline — ZRIB_V20 uses raw Arduino pin numbers (non-standard layout).
+  // LCD_PINS_DEFINED sentinel prevents parent file overwrite.
   #define LCD_PINS_RS                         16
   #define LCD_PINS_EN                         17
   #define LCD_PINS_D4                         23

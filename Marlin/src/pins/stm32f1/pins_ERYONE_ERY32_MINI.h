@@ -173,6 +173,8 @@
 //
 // LCD Pins
 //
+// NOTE: Kept inline — ERYONE ERY32 Mini wires the LCD and encoder to raw STM32
+// pins in a non-standard order, not the lcd/ file EXP layout.
 #if HAS_WIRED_LCD
   #define BEEPER_PIN                        PE12
   #define BTN_ENC                           PE11

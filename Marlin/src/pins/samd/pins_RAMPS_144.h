@@ -397,6 +397,7 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — AUX-2/AUX-4 panel wiring with many variants; pins/lcd/ defaults only fill gaps.
 #ifdef LCD_PINS_DEFINED
 
   // LCD pins already defined by including header
@@ -500,7 +501,7 @@
   //
   #if IS_NEWPANEL
 
-    #if IS_RRD_SC
+    #if IS_RRD_SC && DISABLED(REPRAPWORLD_GRAPHICAL_LCD)
 
       #define BEEPER_PIN             EXP1_01_PIN
 

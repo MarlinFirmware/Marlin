@@ -118,6 +118,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — this board's panel wiring varies widely; pins/lcd/ defaults only fill gaps.
+
 /**
  * Bricolemon Expansion connectors
  *

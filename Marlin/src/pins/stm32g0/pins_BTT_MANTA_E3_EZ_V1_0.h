@@ -210,20 +210,32 @@
  * (LCD_RS)  PA2 | 7  8 | PA1  (LCD_EN)
  *           GND | 9 10 | 5V
  *                ------
- *                 EXP1
+ *                 EXP3
  */
-#define EXP1_01_PIN                         PC1
-#define EXP1_02_PIN                         PC2
-#define EXP1_03_PIN                         PC3
-#define EXP1_04_PIN                         -1
-#define EXP1_05_PIN                         PC0
-#define EXP1_06_PIN                         PA0
-#define EXP1_07_PIN                         PA2
-#define EXP1_08_PIN                         PA1
-#define EXP1_09_PIN                         -1
-#define EXP1_10_PIN                         -1
+#define EXP3_01_PIN                         PC1
+#define EXP3_02_PIN                         PC2
+#define EXP3_03_PIN                         PC3
+#define EXP3_04_PIN                         -1
+#define EXP3_05_PIN                         PC0
+#define EXP3_06_PIN                         PA0
+#define EXP3_07_PIN                         PA2
+#define EXP3_08_PIN                         PA1
+#define LCD_ON_EXP3                               // Displays plug into this single EXP3 header
+#define EXP3_09_PIN                         -1
+#define EXP3_10_PIN                         -1
 
-#if HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif ANY(ENDER2_STOCKDISPLAY, MKS_MINI_12864)
+
+  // Migrated to pins/lcd
+  #define ADAPTER_BTT_DUAL                        // Single EXP3: see lcd/adapters.h
+  #define FORCE_SOFT_SPI
+
+#elif HAS_DWIN_E3V2 || IS_DWIN_MARLINUI
+
   /**
    *              ------                   ------            ---
    *  (PC1) BEEP | 1  2 |                 | 1  2 |          | 1 |    (5V)
@@ -232,69 +244,39 @@
    *  (PA2)    B | 7  8 | A  (PA1)      B | 7  8 | A        | 4 | TX (PD9)
    *         GND | 9 10 | 5V          GND | 9 10 | VCC      | 5 |    (RST)
    *              ------                   ------            ---
-   *               EXP1                     DWIN             TFT
+   *               EXP3                     DWIN             TFT
    *
    * DWIN pins are labeled as printed on DWIN PCB. GND, VCC, A, B, ENT & BEEP can be connected in the same orientation as the
-   * existing plug/DWIN to EXP1. DWIN TX/RX need to be connected to the Manta E3 EZ's TFT port, with DWIN TX->PD9, DWIN RX->PD8.
+   * existing plug/DWIN to EXP3. DWIN TX/RX need to be connected to the Manta E3 EZ's TFT port, with DWIN TX->PD9, DWIN RX->PD8.
    *
    * Needs custom cable:
    *
    *     Board        Adapter       Display
    * ------------------------------------------
-   *  (EXP1-1) PC1 <-----------> BEEP (DWIN-6)
-   *  (EXP1-5) PC0 <-----------> ENT  (DWIN-5)
+   *  (EXP3-1) PC1 <-----------> BEEP (DWIN-6)
+   *  (EXP3-5) PC0 <-----------> ENT  (DWIN-5)
    *   (TFT-4) PD9 <-----------> RX   (DWIN-3)
    *   (TFT-3) PD8 <-----------> TX   (DWIN-4)
-   *  (EXP1-7) PA2 <-----------> B    (DWIN-7)
-   *  (EXP1-9) GND <-----------> GND  (DWIN-9)
-   *  (EXP1-8) PA1 <-----------> A    (DWIN-8)
-   * (EXP1-10)  5V <-----------> VCC  (DWIN-10)
+   *  (EXP3-7) PA2 <-----------> B    (DWIN-7)
+   *  (EXP3-9) GND <-----------> GND  (DWIN-9)
+   *  (EXP3-8) PA1 <-----------> A    (DWIN-8)
+   * (EXP3-10)  5V <-----------> VCC  (DWIN-10)
    */
   CONTROLLER_WARNING("BTT_MANTA_E3_EZ_V1_0", "Ender-3 V2 display", " Requires a custom cable with TX = PA0, RX = PC2.")
 
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_EN1                    EXP1_08_PIN
-  #define BTN_EN2                    EXP1_07_PIN
-  #define BTN_ENC                    EXP1_05_PIN
+  #define BEEPER_PIN                 EXP3_01_PIN
+  #define BTN_EN1                    EXP3_08_PIN
+  #define BTN_EN2                    EXP3_07_PIN
+  #define BTN_ENC                    EXP3_05_PIN
 
 #elif HAS_WIRED_LCD
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-
-    #define BEEPER_PIN               EXP1_01_PIN
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define LCD_PINS_RS              EXP1_07_PIN
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif ENABLED(ZONESTAR_LCD)                     // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
+  #if ENABLED(ZONESTAR_LCD)                       // ANET A8 LCD Controller - Must convert to 3.3V - CONNECTING TO 5V WILL DAMAGE THE BOARD!
 
     CONTROLLER_WARNING("BTT_MANTA_E3_EZ_V1_0", "ZONESTAR_LCD")
 
-    #define LCD_PINS_RS              EXP1_06_PIN
-    #define LCD_PINS_EN              EXP1_02_PIN
-    #define LCD_PINS_D4              EXP1_07_PIN
-    #define LCD_PINS_D5              EXP1_05_PIN
-    #define LCD_PINS_D6              EXP1_03_PIN
-    #define LCD_PINS_D7              EXP1_01_PIN
     #define ADC_KEYPAD_PIN                  PA7   // Repurpose default SERVO0_PIN for ADC - CONNECTING TO 5V WILL DAMAGE THE BOARD!
-
-  #elif ANY(MKS_MINI_12864, ENDER2_STOCKDISPLAY)
-
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-    #define BTN_ENC                  EXP1_02_PIN
-
-    #define DOGLCD_CS                EXP1_07_PIN
-    #define DOGLCD_A0                EXP1_06_PIN
-    #define DOGLCD_SCK               EXP1_01_PIN
-    #define DOGLCD_MOSI              EXP1_08_PIN
-    #define FORCE_SOFT_SPI
-    #define LCD_BACKLIGHT_PIN               -1
+    // LCD pins defined in Marlin/src/pins/lcd/ZONESTAR_LCD.h
 
   #else
 
@@ -314,7 +296,7 @@
 #define SD_DETECT_PIN                       -1
 
 #if SD_CONNECTION_IS(LCD) && (ALL(TOUCH_UI_FTDI_EVE, LCD_FYSETC_TFT81050) || IS_TFTGLCD_PANEL)
-  #define SD_SS_PIN                  EXP1_05_PIN
+  #define SD_SS_PIN                  EXP3_05_PIN
 #elif SD_CONNECTION_IS(CUSTOM_CABLE)
   #error "SD CUSTOM_CABLE is not compatible with Manta E3 EZ."
 #endif

@@ -339,34 +339,16 @@
 
 #elif HAS_WIRED_LCD
 
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
-  #define LCD_PINS_EN                EXP1_03_PIN
-  #define LCD_PINS_RS                EXP1_04_PIN
-  #define BTN_EN1                    EXP2_03_PIN
-  #define BTN_EN2                    EXP2_05_PIN
+  // Migrated to pins/lcd — the standard EXP1_01..08 / EXP2_03/05 slot-order
+  // wiring is supplied by lcd/WIRED.h / RRD_SC.h via the de-facto EXP ports.
+
   #define LCD_BACKLIGHT_PIN                 -1
 
   // MKS MINI12864 and MKS LCD12864B; If using MKS LCD12864A (Need to remove RPK2 resistor)
   #if ENABLED(MKS_MINI_12864)
-    //#define LCD_BACKLIGHT_PIN             -1
-    //#define LCD_RESET_PIN                 -1
-    #define DOGLCD_A0                EXP1_07_PIN
-    #define DOGLCD_CS                EXP1_06_PIN
-    //#define DOGLCD_SCK             EXP2_02_PIN
-    //#define DOGLCD_MOSI            EXP2_06_PIN
 
-    // Required for MKS_MINI_12864 with this board
-    //#define MKS_LCD12864B
-
+    // Migrated to pins/lcd
   #else // !MKS_MINI_12864
-
-    #define LCD_PINS_D4              EXP1_05_PIN
-    #if IS_ULTIPANEL
-      #define LCD_PINS_D5            EXP1_06_PIN
-      #define LCD_PINS_D6            EXP1_07_PIN
-      #define LCD_PINS_D7            EXP1_08_PIN
-    #endif
 
     #define BOARD_ST7920_DELAY_1              96
     #define BOARD_ST7920_DELAY_2              48

@@ -86,6 +86,8 @@
 #endif
 #define FAN1_PIN                           P0_26
 
+// NOTE: Kept inline — AZSMZ_MINI wires the AZSMZ 12864 to raw LPC pins (no EXP
+// connector), so the lcd/ file EXP1/EXP2 defaults would misplace it.
 #define LCD_SDSS_PIN                       P0_16  // LCD SD chip select
 
 #if ENABLED(AZSMZ_12864)

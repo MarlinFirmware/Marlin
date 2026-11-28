@@ -136,7 +136,15 @@
 // LCD / Controller
 //
 
-#if ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
+#if ENABLED(CR10_STOCKDISPLAY)
+
+  // Migrated to pins/lcd
+
+#elif ENABLED(FYSETC_MINI_12864)
+
+  // Migrated to pins/lcd
+
+#elif ANY(TFT_COLOR_UI, TFT_CLASSIC_UI)
   #define BEEPER_PIN                 EXP1_01_PIN
   #define BTN_ENC                    EXP1_02_PIN
   #define BTN_EN1                    EXP2_03_PIN
@@ -168,82 +176,16 @@
   #define TFT_BUFFER_WORDS                  9600
 
 #elif HAS_WIRED_LCD
-  #define BEEPER_PIN                 EXP1_01_PIN
-  #define BTN_ENC                    EXP1_02_PIN
 
-  #if ENABLED(CR10_STOCKDISPLAY)
-    #define LCD_PINS_RS              EXP1_07_PIN
+  // Migrated to pins/lcd — the standard EXP1_01..08 / EXP2_03/05 slot-order
+  // wiring is supplied by lcd/WIRED.h / RRD_SC.h via the de-facto EXP ports.
 
-    #define BTN_EN1                  EXP1_03_PIN
-    #define BTN_EN2                  EXP1_05_PIN
-
-    #define LCD_PINS_EN              EXP1_08_PIN
-    #define LCD_PINS_D4              EXP1_06_PIN
-
-  #elif IS_TFTGLCD_PANEL
-
-    #undef BEEPER_PIN
-    #undef BTN_ENC
-
-    #if ENABLED(TFTGLCD_PANEL_SPI)
-      #define TFTGLCD_CS             EXP2_03_PIN
-    #endif
-
+  #if IS_TFTGLCD_PANEL
     #define SD_DETECT_PIN            EXP2_07_PIN
-
   #else
-
-    #define LCD_PINS_RS              EXP1_04_PIN
-
-    #define BTN_EN1                  EXP2_03_PIN
-    #define BTN_EN2                  EXP2_05_PIN
-
-    #define LCD_PINS_EN              EXP1_03_PIN
-
-    #if ENABLED(FYSETC_MINI_12864)
-
-      #define LCD_BACKLIGHT_PIN             -1
-      #define LCD_RESET_PIN          EXP1_05_PIN
-      #define DOGLCD_A0              EXP1_04_PIN
-      #define DOGLCD_CS              EXP1_03_PIN
-      #define DOGLCD_SCK             EXP2_02_PIN
-      #define DOGLCD_MOSI            EXP2_06_PIN
-
-      #define FORCE_SOFT_SPI                      // SPI MODE3
-
-      #define LED_PIN                EXP1_06_PIN  // red pwm
-      //#define LED_PIN              EXP1_07_PIN  // green
-      //#define LED_PIN              EXP1_08_PIN  // blue
-
-      //#if ANY(FYSETC_MINI_12864_1_2, FYSETC_MINI_12864_2_0)
-      //  #ifndef RGB_LED_R_PIN
-      //    #define RGB_LED_R_PIN    EXP1_06_PIN
-      //  #endif
-      //  #ifndef RGB_LED_G_PIN
-      //    #define RGB_LED_G_PIN    EXP1_07_PIN
-      //  #endif
-      //  #ifndef RGB_LED_B_PIN
-      //    #define RGB_LED_B_PIN    EXP1_08_PIN
-      //  #endif
-      //#elif ENABLED(FYSETC_MINI_12864_2_1)
-      //  #define NEOPIXEL_PIN       EXP1_06_PIN
-      //#endif
-
-    #else // !FYSETC_MINI_12864
-
-      #define LCD_PINS_D4            EXP1_05_PIN
-      #if IS_ULTIPANEL
-        #define LCD_PINS_D5          EXP1_06_PIN
-        #define LCD_PINS_D6          EXP1_07_PIN
-        #define LCD_PINS_D7          EXP1_08_PIN
-
-        #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
-          #define BTN_ENC_EN         LCD_PINS_D7  // Detect the presence of the encoder
-        #endif
-
-      #endif
-
-    #endif // !FYSETC_MINI_12864
+    #if ENABLED(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+      #define BTN_ENC_EN             LCD_PINS_D7  // Detect the presence of the encoder
+    #endif
 
     // Alter timing for graphical display
     #if IS_U8GLIB_ST7920
@@ -251,7 +193,6 @@
       #define BOARD_ST7920_DELAY_2           125
       #define BOARD_ST7920_DELAY_3           125
     #endif
-
   #endif
 
 #endif // HAS_WIRED_LCD

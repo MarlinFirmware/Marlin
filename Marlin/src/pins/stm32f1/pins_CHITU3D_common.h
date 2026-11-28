@@ -102,6 +102,8 @@
 //
 // Misc
 //
+// NOTE: Kept inline — Chitu3D uses an FSMC TFT/serial display; this lone beeper
+// is a general board pin (PB0), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PB0
 //#define LED_PIN                           PD3
 //#define POWER_LOSS_PIN                    PG2   // PG4 PW_DET

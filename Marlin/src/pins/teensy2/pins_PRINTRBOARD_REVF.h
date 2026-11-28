@@ -206,6 +206,8 @@
 //
 //#define USE_INTERNAL_SD
 
+// NOTE: Kept inline — Printrboard RevF wires its LCD to raw Teensy2 pins (and an
+// integrated MINIPANEL with custom EXP slots), not a standard EXP connector.
 #if HAS_WIRED_LCD
   #define LCD_PINS_RS                          9  // E1       JP11-11
   #define LCD_PINS_EN                          8  // E0       JP11-10
@@ -232,30 +234,27 @@
     #define LCD_SCREEN_ROTATE                180  // 0, 90, 180, 270
 
   #elif ENABLED(MINIPANEL)
+    // Define EXP1/EXP2 to match the MINIPANEL wiring on this board (Printrboard/Teensy2 pins).
+    // The default passthrough in lcd/adapters.h maps LCD1/LCD2 -> EXP1/EXP2.
+    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
+    #define EXP1_01_PIN                        7  // 32   D7   EXP2-08   EXP1-10   BEEPER
+    #define EXP1_02_PIN                        6  // 31   D6   EXP2-07   EXP1-09   BTN_ENC
+    #define EXP1_06_PIN                        5  // 30   D5   EXP2-06   EXP1-05   DOGLCD_CS
+    #define EXP1_07_PIN                        4  // 29   D4   EXP2-05   EXP1-04   DOGLCD_A0
+
+    #define EXP2_03_PIN                       10  // 35   C0   EXP2-12   EXP2-06   BTN_EN1
+    #define EXP2_05_PIN                       12  // 37   C2   EXP2-14   EXP2-08   BTN_EN2
+    #define EXP2_08_PIN                        8  // 33   E0   EXP2-10   EXP2-03   KILL
 
     #if DISABLED(USE_INTERNAL_SD)
-      //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-      #define SD_SS_PIN                       11  //      36               C1                EXP2-13             EXP2-07
-      #define SD_DETECT_PIN                    9  //      34               E1                EXP2-11             EXP2-04
+      #define EXP2_04_PIN                     11  // 36   C1   EXP2-13   EXP2-07   SD_SS
+      #define EXP2_07_PIN                      9  // 34   E1   EXP2-11   EXP2-04   SD_DETECT
     #endif
 
-    //      PIN       FASTIO PIN#  ATUSB90 PIN# Teensy2.0++ PIN#  Printrboard RevF Conn.   MKSLCD12864 PIN#
-    #define DOGLCD_A0                          4  //       29               D4                EXP2-05             EXP1-04
-    #define DOGLCD_CS                          5  //       30               D5                EXP2-06             EXP1-05
-    #define BTN_ENC                            6  //       31               D6                EXP2-07             EXP1-09
-    #define BEEPER_PIN                         7  //       32               D7                EXP2-08             EXP1-10
-    #define KILL_PIN                           8  //       33               E0                EXP2-10             EXP2-03
-    #define BTN_EN1                           10  //       35               C0                EXP2-12             EXP2-06
-    #define BTN_EN2                           12  //       37               C2                EXP2-14             EXP2-08
-    //#define LCD_BACKLIGHT_PIN               43  //    56               F5                EXP1-12     Not Implemented
-    //#define SCK                             21  //         11               B1                ICSP-04             EXP2-09
-    //#define MOSI                            22  //         12               B2                ICSP-03             EXP2-05
-    //#define MISO                            23  //         13               B3                ICSP-06             EXP2-05
-
     // Alter timing for graphical display
-    #define BOARD_ST7920_DELAY_1           313
-    #define BOARD_ST7920_DELAY_2           313
-    #define BOARD_ST7920_DELAY_3           313
+    #define BOARD_ST7920_DELAY_1             313
+    #define BOARD_ST7920_DELAY_2             313
+    #define BOARD_ST7920_DELAY_3             313
 
   #else
 

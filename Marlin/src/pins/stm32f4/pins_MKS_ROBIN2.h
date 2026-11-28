@@ -103,6 +103,8 @@
 // Misc. Functions
 //
 #define SD_DETECT_PIN                       PF9
+// NOTE: Kept inline — MKS Robin2 uses an FSMC TFT/serial display; this lone beeper
+// is a general board pin (PG2), not part of any wired-LCD wiring.
 #define BEEPER_PIN                          PG2
 
 //

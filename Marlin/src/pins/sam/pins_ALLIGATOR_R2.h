@@ -149,6 +149,8 @@
 // LCD / Controller
 //
 
+// NOTE: Kept inline — Alligator R2 uses custom connector pin layout with raw Due pin
+// numbers; no EXP1/EXP2 tokens are defined. UI_VOLTAGE_LEVEL is board-specific.
 #if IS_RRD_FG_SC
   #define LCD_PINS_RS                         18
   #define LCD_PINS_EN                         15
