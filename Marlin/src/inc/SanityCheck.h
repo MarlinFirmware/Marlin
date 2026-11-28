@@ -879,6 +879,50 @@ static_assert(COUNT(arm) == LOGICAL_AXES, "AXIS_RELATIVE_MODES must contain " _L
 #endif // LIN_ADVANCE
 
 /**
+ * bd_pressure
+ */
+#if ENABLED(BD_PRESSURE)
+  #if NONE(BD_PRESSURE_PROBE, BD_PRESSURE_PA)
+    #error "BD_PRESSURE requires BD_PRESSURE_PROBE and/or BD_PRESSURE_PA. (The endstop output needs no firmware support.)"
+  #elif !PINS_EXIST(BD_PRESSURE_I2C_SDA, BD_PRESSURE_I2C_SCL)
+    #error "BD_PRESSURE requires BD_PRESSURE_I2C_SDA_PIN and BD_PRESSURE_I2C_SCL_PIN."
+  #elif BD_PRESSURE_I2C_SDA_PIN == BD_PRESSURE_I2C_SCL_PIN
+    #error "BD_PRESSURE_I2C_SDA_PIN and BD_PRESSURE_I2C_SCL_PIN must be different."
+  #elif BD_PRESSURE_I2C_DELAY < 1
+    #error "BD_PRESSURE_I2C_DELAY must be at least 1."
+  #endif
+  #if ENABLED(BD_PRESSURE_PROBE)
+    #if !WITHIN(BD_PRESSURE_THRESHOLD, 1, 255)
+      #error "BD_PRESSURE_THRESHOLD must be from 1 to 255."
+    #elif HOMING_Z_WITH_PROBE && IS_CARTESIAN && DISABLED(Z_SAFE_HOMING)
+      // Not just recommended, as it is for an offset probe: the nozzle is the
+      // sensor, so Z homing at an arbitrary XY drives the nozzle into whatever
+      // is there. NO_Z_SAFE_HOMING_WARNING deliberately does not suppress this.
+      #error "BD_PRESSURE_PROBE with Z homing requires Z_SAFE_HOMING. (The nozzle is the probe, so Z must home over a known-safe spot.)"
+    #endif
+  #endif
+  #if ENABLED(BD_PRESSURE_PA)
+    #if DISABLED(LIN_ADVANCE)
+      #error "BD_PRESSURE_PA requires LIN_ADVANCE."
+    #elif !HAS_EXTRUDERS
+      #error "BD_PRESSURE_PA requires at least one extruder."
+    #elif !WITHIN(BD_PRESSURE_PA_PASSES, 10, 100)
+      #error "BD_PRESSURE_PA_PASSES must be from 10 to 100."
+    #endif
+    static_assert(BD_PRESSURE_PA_STEP > 0, "BD_PRESSURE_PA_STEP must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_NOZZLE > 0, "BD_PRESSURE_PA_NOZZLE must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_FLOW > 0, "BD_PRESSURE_PA_FLOW must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_VOLUMETRIC > 0, "BD_PRESSURE_PA_VOLUMETRIC must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_Y_STEP > 0, "BD_PRESSURE_PA_Y_STEP must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_TRAVEL_SPEED > 0, "BD_PRESSURE_PA_TRAVEL_SPEED must be greater than 0.");
+    static_assert(BD_PRESSURE_PA_STEP * (BD_PRESSURE_PA_PASSES) <= 10,
+                  "BD_PRESSURE_PA_STEP x BD_PRESSURE_PA_PASSES would exceed the ADVANCE_K limit of 10.");
+  #endif
+#elif ANY(BD_PRESSURE_PROBE, BD_PRESSURE_PA)
+  #error "BD_PRESSURE_PROBE and BD_PRESSURE_PA require BD_PRESSURE."
+#endif
+
+/**
  * S_CURVE_ACCELERATION
  */
 #if ENABLED(S_CURVE_ACCELERATION) && defined(S_CURVE_FACTOR)
@@ -1359,7 +1403,7 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   static_assert(DISABLED(PROBE_MANUALLY), "(PROBE_MANUALLY is enabled.)");
   static_assert(DISABLED(BD_SENSOR), "(BD_SENSOR is enabled.)");
   static_assert(DISABLED(FIX_MOUNTED_PROBE), "(FIX_MOUNTED_PROBE is enabled.)");
-  static_assert(DISABLED(NOZZLE_AS_PROBE), "(NOZZLE_AS_PROBE is enabled.)");
+  static_assert(DISABLED(NOZZLE_AS_PROBE), TERN(BD_PRESSURE_PROBE, "(BD_PRESSURE_PROBE is enabled.)", "(NOZZLE_AS_PROBE is enabled.)"));
   static_assert(DISABLED(TOUCH_MI_PROBE), "(TOUCH_MI_PROBE is enabled.)");
   static_assert(DISABLED(SOLENOID_PROBE), "(SOLENOID_PROBE is enabled.)");
   static_assert(DISABLED(Z_PROBE_ALLEN_KEY), "(Z_PROBE_ALLEN_KEY is enabled.)");
@@ -1651,7 +1695,8 @@ static_assert(NUM_SERVOS <= NUM_SERVO_PLUGS, "NUM_SERVOS (or some servo index) i
   constexpr xyz_pos_t sanity_nozzle_to_probe_offset = NOZZLE_TO_PROBE_OFFSET;
   #if ENABLED(NOZZLE_AS_PROBE)
     static_assert(sanity_nozzle_to_probe_offset.x == 0 && sanity_nozzle_to_probe_offset.y == 0,
-                  "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0.");
+      TERN(BD_PRESSURE_PROBE, "BD_PRESSURE_PROBE makes the nozzle the probe, so the XY offsets in NOZZLE_TO_PROBE_OFFSET must both be 0.",
+                              "NOZZLE_AS_PROBE requires the XY offsets in NOZZLE_TO_PROBE_OFFSET to both be 0."));
   #endif
   #if HAS_PROBE_XY_OFFSET
     PROBE_OFFSET_ASSERT("NOZZLE_TO_PROBE_OFFSET.x", sanity_nozzle_to_probe_offset.x, PROBE_OFFSET_XMIN, PROBE_OFFSET_XMAX);
