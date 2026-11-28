@@ -743,6 +743,13 @@
   #error "Z_SAFE_HOMING is recommended when homing with a probe. (Enable Z_SAFE_HOMING or define NO_Z_SAFE_HOMING_WARNING to suppress this warning.)"
 #endif
 
+#if ENABLED(RUNTIME_HOMING_DIRECTION) && HOMING_Z_WITH_PROBE
+  #warning "RUNTIME_HOMING_DIRECTION can't change the Z homing direction when Z homes with a probe."
+#endif
+#if ALL(RUNTIME_HOMING_DIRECTION, DUAL_X_CARRIAGE)
+  #warning "RUNTIME_HOMING_DIRECTION can't change the X homing direction with DUAL_X_CARRIAGE."
+#endif
+
 #if HAS_TRINAMIC_CONFIG && NONE(EDGE_STEPPING, NO_EDGE_STEPPING_WARNING)
   #error "EDGE_STEPPING is strongly recommended with Trinamic stepper drivers. (Enable EDGE_STEPPING or define NO_EDGE_STEPPING_WARNING to suppress this warning.)"
 #endif

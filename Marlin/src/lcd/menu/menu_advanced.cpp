@@ -683,8 +683,67 @@ void menu_backlash();
 
 #endif // EDITABLE_STEPS_PER_UNIT
 
+// Edit copies of the settings and apply them with G-code, which waits for moves to finish
+
+#if ENABLED(RUNTIME_AXIS_DIRECTION)
+
+  // M583 Motor direction
+  void menu_advanced_motor_direction() {
+    static bool axis_inv[NUM_AXES];
+    LOOP_NUM_AXES(a) axis_inv[a] = motion.axis_inverted[a];
+    #if HAS_EXTRUDERS
+      static bool e_inv[E_STEPPERS];
+      for (uint8_t e = 0; e < E_STEPPERS; ++e) e_inv[e] = motion.extruder_inverted[e];
+    #endif
+
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    LOOP_NUM_AXES(a)
+      EDIT_ITEM_N(bool, a, MSG_INVERT_N, &axis_inv[a], []{
+        const uint8_t a = MenuItemBase::itemIndex;
+        queue.inject(TS(F("M583 "), IAXIS_CHAR(a), int(axis_inv[a])));
+      });
+
+    #if HAS_EXTRUDERS
+      for (uint8_t e = 0; e < E_STEPPERS; ++e)
+        EDIT_ITEM_N(bool, e, MSG_INVERT_EN, &e_inv[e], []{
+          const uint8_t e = MenuItemBase::itemIndex;
+          queue.inject(TS(F("M583 T"), e, F(" E"), int(e_inv[e])));
+        });
+    #endif
+
+    END_MENU();
+  }
+
+#endif // RUNTIME_AXIS_DIRECTION
+
+#if ENABLED(RUNTIME_HOMING_DIRECTION)
+
+  // M574 Homing direction
+  void menu_advanced_homing_direction() {
+    static bool to_max[NUM_AXES];
+    LOOP_NUM_AXES(a) to_max[a] = motion.home_dir(AxisEnum(a)) > 0;
+
+    START_MENU();
+    BACK_ITEM(MSG_ADVANCED_SETTINGS);
+
+    LOOP_NUM_AXES(a) {
+      const AxisEnum axis = AxisEnum(a);
+      if (motion.home_dir_fixed(axis) || !motion.can_home_to(axis, -1) || !motion.can_home_to(axis, 1)) continue;
+      EDIT_ITEM_N(bool, a, MSG_HOME_TO_MAX_N, &to_max[a], []{
+        const uint8_t a = MenuItemBase::itemIndex;
+        queue.inject(TS(F("M574 "), IAXIS_CHAR(a), to_max[a] ? 2 : 1));
+      });
+    }
+
+    END_MENU();
+  }
+
+#endif // RUNTIME_HOMING_DIRECTION
+
 void menu_advanced_settings() {
-  #if ANY(SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT)
+  #if ANY(SHAPING_MENU, HAS_BED_PROBE, EDITABLE_STEPS_PER_UNIT, RUNTIME_AXIS_DIRECTION, RUNTIME_HOMING_DIRECTION)
     const bool is_busy = marlin.printer_busy();
   #endif
 
@@ -727,6 +786,16 @@ void menu_advanced_settings() {
   // M92 - Steps Per mm
   #if ENABLED(EDITABLE_STEPS_PER_UNIT)
     if (!is_busy) SUBMENU(MSG_STEPS_PER_MM, menu_advanced_steps_per_mm);
+  #endif
+
+  // M583 - Motor Direction
+  #if ENABLED(RUNTIME_AXIS_DIRECTION)
+    if (!is_busy) SUBMENU(MSG_MOTOR_DIRECTION, menu_advanced_motor_direction);
+  #endif
+
+  // M574 - Homing Direction
+  #if ENABLED(RUNTIME_HOMING_DIRECTION)
+    if (!is_busy) SUBMENU(MSG_HOMING_DIRECTION, menu_advanced_homing_direction);
   #endif
 
   #if ENABLED(BACKLASH_GCODE)
