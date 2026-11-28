@@ -29,13 +29,16 @@
 #include <Wire.h> // Include Wire library for I2C communication
 
 /**
- * M265: I2C Scanner - Scan for I2C devices on DOGLCD I2C pins
+ * M265: I2C Scanner - Scan for I2C devices on I2C_SDA_PIN / I2C_SCL_PIN (or the default Wire pins)
  *
  * Usage: M265
  *
  * Scans I2C addresses 0x08 to 0x77 and reports any responding devices.
  */
 void GcodeSuite::M265() {
+  #if PINS_EXIST(I2C_SCL, I2C_SDA) && DISABLED(SOFT_I2C_EEPROM)
+    I2C_SET_PINS(Wire, pin_t(I2C_SDA_PIN), pin_t(I2C_SCL_PIN));
+  #endif
   Wire.begin();
   int device_count = 0;
 

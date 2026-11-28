@@ -36,6 +36,12 @@ extern MarlinHAL hal;
   #define I2C_ADDRESS(A) uint8_t(A)
 #endif
 
+// Select the I2C pins before Wire.begin(). A no-op where the pins are fixed.
+#ifndef I2C_SET_PINS
+  #define I2C_SET_PINS(W, SDA, SCL) NOOP
+  #define I2C_PINS_FIXED 1 // See Warnings.cpp
+#endif
+
 // Needed for AVR sprintf_P PROGMEM extension
 #ifndef S_FMT
   #define S_FMT "%s"
