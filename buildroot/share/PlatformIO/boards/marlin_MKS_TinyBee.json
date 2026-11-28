@@ -31,7 +31,7 @@
     "maximum_size": 8388608,
     "require_upload_port": true,
     "speed": 460800,
-    "offset_address": 65536
+    "offset_address": "0x10000"
   },
   "url": "https://github.com/makerbase-mks/MKS-TinyBee",
   "vendor": "MKS Makerbase"
