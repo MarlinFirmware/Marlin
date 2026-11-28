@@ -485,6 +485,9 @@ public:
 
   #if HAS_SOFTWARE_ENDSTOPS
     static void apply_limits(xyz_pos_t &target);
+    #if ENABLED(SOFT_ENDSTOPS_REPORT_CLAMP)
+      static void report_clamp(const xyz_pos_t &requested, const xyz_pos_t &limited);
+    #endif
     static void update_software_endstops(const AxisEnum axis
       OPTARG(HAS_HOTEND_OFFSET, const uint8_t old_tool_index=0, const uint8_t new_tool_index=0)
     );
