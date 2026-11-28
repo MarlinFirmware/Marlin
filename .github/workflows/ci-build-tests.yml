@@ -143,6 +143,7 @@ jobs:
         - STM32F401RC_creality
         - STM32F401RE_creality
         - STM32F407VE_black
+        - STM32F407VG_ankermake
         - I3DBEEZ9_V1
         - PRUSA_BUDDY
 

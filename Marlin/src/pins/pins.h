@@ -840,6 +840,8 @@
   #include "stm32f4/pins_LDO_LEVIATHAN.h"           // STM32F4                              env:LDO_LEVIATHAN env:LDO_LEVIATHAN_no_bootloader env:LDO_LEVIATHAN_katapult
 #elif MB(CREALITY_V24S1_200)
   #include "stm32f4/pins_CREALITY_V24S1_200.h"      // STM32F4                              env:STM32F401RC_creality
+#elif MB(ANKERMAKE_V8111)
+  #include "stm32f4/pins_ANKERMAKE_V8111.h"         // STM32F4                              env:STM32F407VG_ankermake
 
 //
 // Other ARM Cortex-M4
