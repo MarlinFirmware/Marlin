@@ -2001,6 +2001,12 @@
 //#define V_SAFETY_STOP
 //#define W_SAFETY_STOP
 
+/**
+ * Abort printing when any limit switch is triggered.
+ * Hardware endstops must be activated for this option to work.
+ */
+#define ABORT_ON_ENDSTOP_HIT
+
 // @section geometry
 
 // The size of the printable area

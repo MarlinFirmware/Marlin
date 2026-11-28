@@ -341,6 +341,7 @@ void GcodeSuite::G28() {
 
     motion.remember_feedrate_scaling_off();
 
+    TERN_(ABORT_ON_ENDSTOP_HIT, planner.abort_on_endstop = false);
     endstops.enable(true); // Enable endstops for next homing move
 
     #if HAS_Z_AXIS
@@ -547,6 +548,7 @@ void GcodeSuite::G28() {
 
     // Clear endstop state for polled stallGuard endstops
     TERN_(SPI_ENDSTOPS, endstops.clear_endstop_state());
+    TERN_(ABORT_ON_ENDSTOP_HIT, planner.abort_on_endstop = true);
 
     /**
      * P: Precise Z homing. Re-probe at the current XY with the bed-leveling probe
