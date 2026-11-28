@@ -44,6 +44,10 @@
   #define _CNT_P FAN_COUNT
 #endif
 
+#ifndef min
+  #define min std::min
+#endif
+
 /**
  * M106: Set Fan Speed
  *
@@ -85,6 +89,8 @@ void GcodeSuite::M106() {
 
   if (!got_preset && parser.seenval('S'))
     speed = parser.value_ushort();
+
+  speed = min(speed, (uint16_t) thermalManager.max_fan_speed);
 
   TERN_(FOAMCUTTER_XYUV, speed *= 2.55f); // Get command in % of max heat
 
